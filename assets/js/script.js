@@ -1,7 +1,8 @@
-import {htmlToElement, dataIncludeReplace} from "./includeHTML.js";
 import {httpGet} from "./httpGet.js";
+import {htmlToElement, dataIncludeReplace} from "./includeHTML.js";
 
 let page, body = $("body");
+let scripts = document.getElementsByTagName("script");
 
 /*
  * Funktion: dataIncludeReplace()
@@ -24,7 +25,8 @@ function loadPage() {
 
     let scripts = data.getElementsByTagName("script");
     for (let i = 0; i < scripts.length; i++) {
-        eval(httpGet(scripts[i].src));
+        let script = "data:application/javascript;charset=utf-8," + encodeURIComponent(httpGet(scripts[i].src));
+        import(script);
     }
 }
 window.addEventListener('popstate', loadPage);
