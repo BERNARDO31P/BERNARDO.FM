@@ -9,6 +9,12 @@
 export function httpGet(url) {
     let xmlHttp = new XMLHttpRequest();
     xmlHttp.open("GET", url, false);
-    xmlHttp.send(null);
-    return xmlHttp.responseText;
+
+    try {
+        xmlHttp.send(null);
+        return xmlHttp.responseText;
+    } catch (e) {
+        return "<body>There was an error performing this request. Please try again later or reloading the page.</body>";
+    }
+
 }

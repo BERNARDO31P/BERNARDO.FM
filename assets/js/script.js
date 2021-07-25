@@ -18,7 +18,9 @@ function loadPage() {
     dataIncludeReplace(data);
 
     content.innerHTML = data.body.innerHTML;
-    title.innerText = title.innerText.split(" - ")[0] + " - " + data.querySelector("title").innerText;
+
+    let subpage = (data.querySelector("title")) ? data.querySelector("title").innerText : "error";
+    title.innerText = title.innerText.split(" - ")[0] + " - " + subpage;
 
     let scripts = data.getElementsByTagName("script");
     for (let i = 0; i < scripts.length; i++) {
