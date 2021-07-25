@@ -1,0 +1,24 @@
+{
+  "greeting": {
+    "title": "GREETINGS",
+    "message": "Hello and welcome to my music-website! I hope you enjoy your stay!",
+    "author": "Bernardo de Oliveira",
+    "date": "19. Mar. 2017"
+  },
+  "changelog": [
+    {
+      "title": "Version pre-6.0",
+      "message": "There will be completely new music on my website.<br>I already uploaded a few songs so you can get the taste.<br>A completely new website is coming soon. Stay tuned. Stay safe.",
+      "details": "I'll be uploading completely new songs to my website.<br>It's going to be only Psy-Trance.<br>There will be a complete renewal of my website. Soon.",
+      "author": "Bernardo de Oliveira",
+      "date": "25. Dec. 2020"
+    },
+    {
+      "title": "Version 5.0",
+      "message": "Implemented a layer7 DDoS-Protection against malicious attacks.",
+      "details": "This webpage is now protected against DDoS-Attacks.",
+      "author": "Bernardo de Oliveira",
+      "date": "06. May. 2019"
+    }
+  ]
+}
