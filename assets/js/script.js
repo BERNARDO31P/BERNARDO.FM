@@ -32,7 +32,11 @@ function loadPage() {
     }
 
     setTimeout(function () {
-        window[page]();
+        try {
+            window[page]();
+        } catch (e) {
+            console.log("Function not implemented.");
+        }
     }, 100);
 }
 window.addEventListener('popstate', loadPage);
