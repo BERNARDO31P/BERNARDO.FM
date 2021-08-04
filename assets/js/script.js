@@ -25,7 +25,9 @@ function loadPage() {
 
     let scripts = data.getElementsByTagName("script");
     for (let i = 0; i < scripts.length; i++) {
-        let script = "data:application/javascript;charset=utf-8," + encodeURIComponent(httpGetM.httpGet(scripts[i].src));
+        let script = URL.createObjectURL(new Blob([httpGetM.httpGet(scripts[i].src)], {
+            type: 'application/javascript'
+        }));
         import(script);
     }
 
