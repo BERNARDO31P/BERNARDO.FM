@@ -1,5 +1,5 @@
-import {httpGet} from "./httpGet.js";
-import {htmlToElement, dataIncludeReplace} from "./includeHTML.js";
+import {httpGet} from "http://localhost:8080/assets/js/httpGet.js";
+import {htmlToElement, dataIncludeReplace} from "http://localhost:8080/assets/js/includeHTML.js";
 
 let page, body = $("body");
 let scripts = document.getElementsByTagName("script");
@@ -28,6 +28,10 @@ function loadPage() {
         let script = "data:application/javascript;charset=utf-8," + encodeURIComponent(httpGet(scripts[i].src));
         import(script);
     }
+
+    setTimeout(function () {
+        window[page]();
+    }, 100);
 }
 window.addEventListener('popstate', loadPage);
 

@@ -1,4 +1,4 @@
-import {httpGet} from "./httpGet.js";
+import {httpGet} from "http://localhost:8080/assets/js/httpGet.js";
 
 /*
  * Funktion: htmlToElement()
