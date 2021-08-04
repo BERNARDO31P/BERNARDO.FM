@@ -1,4 +1,4 @@
-import {httpGet} from "http://localhost:8080/assets/js/httpGet.js";
+let httpGetM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/httpGet.js");
 
 /*
  * Funktion: htmlToElement()
@@ -31,7 +31,7 @@ export function dataIncludeReplace(object) {
 
     for (let i = 0, len = elementsInclude.length; i < len; i++) {
         let url = elementsInclude[i].getAttribute("data-include");
-        let data = htmlToElement(httpGet(url));
+        let data = htmlToElement(httpGetM.httpGet(url));
 
         let dataElementsInclude = data.querySelectorAll('[data-include]');
         let dataElementsReplace = data.querySelectorAll('[data-replace]');
@@ -45,7 +45,7 @@ export function dataIncludeReplace(object) {
 
     for (let i = 0, len = elementsReplace.length; i < len; i++) {
         let url = elementsReplace[i].getAttribute("data-replace");
-        let data = htmlToElement(httpGet(url));
+        let data = htmlToElement(httpGetM.httpGet(url));
 
         let dataElementsInclude = data.querySelectorAll('[data-include]');
         let dataElementsReplace = data.querySelectorAll('[data-replace]');

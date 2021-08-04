@@ -1,11 +1,11 @@
-import {tryParseJSON} from "http://localhost:8080/assets/js/tryParseJSON.js";
-import {httpGet} from "http://localhost:8080/assets/js/httpGet.js";
+let httpGetM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/httpGet.js");
+let tryParseJSONM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/tryParseJSON.js");
 
 window["home"] = function loadHome() {
     let objects = document.querySelectorAll("[data-url]");
     for (let i = 0; i < objects.length; i++) {
         let object = objects[i];
-        let data = tryParseJSON(httpGet(object.getAttribute("data-url")));
+        let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(object.getAttribute("data-url")));
 
         if (data) {
             data = Array.prototype.concat(data["greeting"], data["changelog"]);

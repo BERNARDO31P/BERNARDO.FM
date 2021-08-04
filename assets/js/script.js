@@ -1,5 +1,5 @@
-import {httpGet} from "http://localhost:8080/assets/js/httpGet.js";
-import {htmlToElement, dataIncludeReplace} from "http://localhost:8080/assets/js/includeHTML.js";
+let httpGetM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/httpGet.js");
+let includeHTMLM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/includeHTML.js");
 
 let page, body = $("body");
 let scripts = document.getElementsByTagName("script");
@@ -14,9 +14,9 @@ let scripts = document.getElementsByTagName("script");
  */
 function loadPage() {
     let content = document.querySelector("#content"), title = document.querySelector("title");
-    let data = htmlToElement(httpGet("./pages/" + page + ".html"));
+    let data = includeHTMLM.htmlToElement(httpGetM.httpGet("./pages/" + page + ".html"));
 
-    dataIncludeReplace(data);
+    includeHTMLM.dataIncludeReplace(data);
 
     content.innerHTML = data.body.innerHTML;
 
@@ -25,7 +25,7 @@ function loadPage() {
 
     let scripts = data.getElementsByTagName("script");
     for (let i = 0; i < scripts.length; i++) {
-        let script = "data:application/javascript;charset=utf-8," + encodeURIComponent(httpGet(scripts[i].src));
+        let script = "data:application/javascript;charset=utf-8," + encodeURIComponent(httpGetM.httpGet(scripts[i].src));
         import(script);
     }
 
@@ -73,11 +73,6 @@ body.on("click", "[data-page]", (e) => {
     window.location.href = "#!page=" + page;
 });
 
-body.on("DOMSubtreeModified", "#navbarPre", function () {
-    page = getPage();
-    window.location.href = "#!page=" + page;
-});
-
 body.on("click", "#navigation a", function () {
     let navigation = document.querySelector("#navigation");
 
@@ -93,3 +88,6 @@ body.on("click", "#navbar-toggler", function () {
     else
         navigation.classList.add("show");
 });
+
+page = getPage();
+window.location.href = "#!page=" + page;
