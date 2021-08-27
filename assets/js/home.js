@@ -10,13 +10,21 @@ window["home"] = function loadHome() {
         if (data) {
             data = Array.prototype.concat(data["greeting"], data["changelog"]);
             for (let j = 0; j < data.length; j++) {
+                let html = "";
+
+                if (j !== 0)
+                    html += "<div class='divider'></div>";
+
                 let quote = data[j];
 
-                let html = "<div class='blockquote'>";
+                html += "<div class='blockquote'>";
                 html += "<h2>" + quote["title"] + "</h2>";
                 html += "<span class='message'>" + quote["message"] + "</span>";
+                html += "<div class='authorDate'>";
                 html += "<span class='author'>" + quote["author"] + "</span>";
+                html += "<span> - </span>"
                 html += "<span class='date'>" + quote["date"] + "</span>";
+                html += "</div>";
                 html += "<span class='details'>" + quote["details"] + "</span>";
                 html += "</div>";
 

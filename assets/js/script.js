@@ -2,7 +2,6 @@ let httpGetM = await import(window.location.protocol + "//" + window.location.ho
 let includeHTMLM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/includeHTML.js");
 
 let page, body = $("body");
-let scripts = document.getElementsByTagName("script");
 
 /*
  * Funktion: dataIncludeReplace()
