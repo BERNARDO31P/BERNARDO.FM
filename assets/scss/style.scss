@@ -120,6 +120,10 @@ body {
 
 .blockquote {
   position: relative;
+  padding: 0 0 0 10px;
+
+  border-left: 4px solid rgba(137, 161, 255, 0.16);
+  border-radius: 7px;
 
   h2 {
     margin: 0.83em 0 10px 0;
@@ -130,11 +134,11 @@ body {
     right: 0;
     bottom: 0;
 
-    color: #939393;
+    color: #b7b6b6;
   }
 
   .message {
-    color: #363636;
+    color: #5b5b5b;
     max-width: calc(100% - 275px);
     display: block;
 
