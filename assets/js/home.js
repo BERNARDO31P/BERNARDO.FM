@@ -20,17 +20,17 @@ window["home"] = function loadHome() {
                 html += "<div class='blockquote'>";
                 html += "<h2>" + quote["title"] + "</h2>";
                 html += "<span class='message'>" + quote["message"] + "</span>";
-                html += "<div class='authorDate'>";
-                html += "<span class='author'>" + quote["author"] + "</span>";
-                html += "<span> - </span>"
-                html += "<span class='date'>" + quote["date"] + "</span>";
-                html += "</div>";
 
                 if (typeof quote["details"] !== "undefined") {
                     html += "<div class='details'><span>" + quote["details"] + "</span></div>";
                     html += "<button class='detailsButton' type='button'>Show more</button>";
                 }
 
+                html += "<div class='authorDate'>";
+                html += "<span class='author'>" + quote["author"] + "</span>";
+                html += "<span> - </span>"
+                html += "<span class='date'>" + quote["date"] + "</span>";
+                html += "</div>";
                 html += "</div>";
 
                 object.innerHTML = object.innerHTML + html;
@@ -40,21 +40,21 @@ window["home"] = function loadHome() {
             object.innerHTML = "There was an error loading this page. Please try again later or reloading the page.";
         }
     }
+
+    bindEvent("click", ".detailsButton", function () {
+        let details = prev(this);
+
+        if (details.classList.contains("show")) {
+            this.innerText = "Show more";
+            details.classList.remove("show");
+        } else {
+            let elements = document.querySelectorAll(".details");
+            for (let i = 0; i < elements.length; i++) {
+                elements[i].classList.remove("show");
+            }
+
+            this.innerText = "Show less";
+            details.classList.add("show");
+        }
+    });
 }
-
-bindEvent("click", ".detailsButton", function () {
-   let details = prev(this);
-
-   if (details.classList.contains("show")) {
-       this.innerText = "Show more";
-       details.classList.remove("show");
-   } else {
-       let elements = document.querySelectorAll(".details");
-       for (let i = 0; i < elements.length; i++) {
-           elements[i].classList.remove("show");
-       }
-
-       this.innerText = "Show less";
-       details.classList.add("show");
-   }
-});

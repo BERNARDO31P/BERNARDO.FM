@@ -1,6 +1,6 @@
 /*
  * Funktion: bindEvent()
- * Autor: Brandon Ros (https://gist.github.com/brandonros/f276b75099d363d8c74e00ec55892e91)
+ * Autor: Bernardo de Oliveira
  * Argumente:
  *  eventNames: (String) Eventname z.B. click
  *  selector: (String) Den Elementselector z.B. die ID oder Klasse usw.
@@ -12,15 +12,34 @@ const bindEvent = (eventNames, selector, handler) => {
     eventNames.split(' ').forEach((eventName) => {
         document.addEventListener(eventName, function (event) {
             if (event.target.matches(selector + ', ' + selector + ' *')) {
-                handler.apply(event.target.closest(selector), arguments)
+                switch (eventName) {
+                    case "click":
+                        if (!event.target.closest(selector).onclick) {
+                            event.target.closest(selector).onclick = handler;
+                            handler.apply(event.target.closest(selector), arguments);
+                        }
+                        break;
+                    default:
+                        handler.apply(event.target.closest(selector), arguments);
+                        break;
+                }
             }
-        }, false)
-    })
-}
+        }, false);
+    });
+};
 
+/*
+ * Funktion: prev()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  element: (Objekt) Das Element welches geprüft werden soll
+ *  className: (String) Wenn eine Klasse mitgegeben wird, wird ein Filter angewendet
+ *
+ * Ist das Äquivalent zu .prev(selector) in jQuery
+ */
 const prev = (element, className = "") => {
-        let prev = element.previousElementSibling;
+    let prev = element.previousElementSibling;
 
-        if (!className || prev.classList.contains(className))
-            return prev;
+    if (!className || prev.classList.contains(className))
+        return prev;
 }

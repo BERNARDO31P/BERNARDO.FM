@@ -38,7 +38,7 @@ body {
     text-align: center;
     vertical-align: middle; }
   #navbar li {
-    margin: 0 20px; }
+    margin: 0 5px; }
   #navbar a {
     cursor: pointer;
     padding: 10px 15px; }
@@ -137,7 +137,7 @@ body {
   .blockquote .authorDate {
     margin: 10px 0 0 0;
     position: initial; } }
-@media screen and (max-width: 1050px) {
+@media screen and (max-width: 1150px) {
   #navbar li {
     display: block;
     text-align: left; }
