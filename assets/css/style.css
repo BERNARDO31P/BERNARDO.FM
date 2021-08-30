@@ -82,14 +82,20 @@ body {
 
 .blockquote {
   position: relative; }
+  .blockquote h2 {
+    margin: 0.83em 0 10px 0; }
   .blockquote .authorDate {
     position: absolute;
     right: 0;
     bottom: 0;
     color: #939393; }
   .blockquote .message {
+    color: #363636;
     max-width: calc(100% - 275px);
     display: block; }
+    .blockquote .message .mail {
+      text-decoration: none;
+      color: #1d93ff; }
   .blockquote .details {
     transition: 0.3s ease-in-out, padding 0.7s ease-in-out;
     color: #6b6b6b;
@@ -105,6 +111,7 @@ body {
     margin: 20px 0 0 0;
     max-height: 1000px; }
   .blockquote .detailsButton {
+    transition: 0.3s;
     margin: 10px 0 0 0;
     padding: 7px;
     background-color: transparent;
@@ -112,6 +119,8 @@ body {
     color: #8eb6ff;
     font-size: 15px;
     cursor: pointer; }
+  .blockquote .detailsButton:hover {
+    color: #4f8eff; }
 
 .divider {
   border-top: 1px solid #eaeaea;

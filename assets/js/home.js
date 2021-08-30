@@ -45,15 +45,15 @@ window["home"] = function loadHome() {
 bindEvent("click", ".detailsButton", function () {
    let details = prev(this);
 
-   let elements = document.querySelectorAll(".details");
-   for (let i = 0; i < elements.length; i++) {
-       elements[i].classList.remove("show");
-   }
-
    if (details.classList.contains("show")) {
        this.innerText = "Show more";
        details.classList.remove("show");
    } else {
+       let elements = document.querySelectorAll(".details");
+       for (let i = 0; i < elements.length; i++) {
+           elements[i].classList.remove("show");
+       }
+
        this.innerText = "Show less";
        details.classList.add("show");
    }

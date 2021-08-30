@@ -1,24 +1,186 @@
 {
   "greeting": {
     "title": "GREETINGS",
-    "message": "Hello and welcome to my music-website! I hope you enjoy your stay!",
+    "message": "Hello and welcome to my music-website! I hope you enjoy your stay! For the best user experience, please use a desktop pc and full screen.<br/>If there are some issues with the copyright then contact me <a class='mail' href=\"mailto:contact@bernardo.fm?subject=Copyright, BERNARDO.FM\">through this email</a>.<br/>If you can find any bugs, tell me them <a class='mail' href=\"mailto:contact@bernardo.fm?subject=Bugs, BERNARDO.FM\">through this email</a>.<br/>Please do <b>not</b> rename or use a different subject in the email.",
     "author": "Bernardo de Oliveira",
     "date": "19. Mar. 2017"
   },
   "changelog": [
     {
-      "title": "Version pre-6.0",
+      "title": "Version 1.0",
+      "message": "As I promised, here is the new website. Everything's got a full rewrite. Nothing is the same as it was. :)",
+      "details": "+Full rewrite of the webpage<br/> +Projects tab added<br/> +Monitoring is now accessible again",
+      "author": "Bernardo de Oliveira",
+      "date": "30. Aug. 2021"
+    },
+    {
+      "title": "Version pre-1.0",
       "message": "There will be completely new music on my website.<br>I already uploaded a few songs so you can get the taste.<br>A completely new website is coming soon. Stay tuned. Stay safe.",
       "details": "I'll be uploading completely new songs to my website.<br>It's going to be only Psy-Trance.<br>There will be a complete renewal of my website. Soon.",
       "author": "Bernardo de Oliveira",
       "date": "25. Dec. 2020"
     },
     {
-      "title": "Version 5.0",
+      "title": "Version 0.9.1",
       "message": "Implemented a layer7 DDoS-Protection against malicious attacks.",
       "details": "This webpage is now protected against DDoS-Attacks.",
       "author": "Bernardo de Oliveira",
       "date": "06. May. 2019"
+    },
+    {
+      "title": "Version 0.9",
+      "message": "IPv6 DDoS-Protection now implemented.",
+      "details": "+IPv6 DDoS-Protection now in use.<br/> +Teamspeak now accessible by IPv6 using bernardo.fm as domain.",
+      "author": "Bernardo de Oliveira",
+      "date": "03. Jan. 2018"
+    },
+    {
+      "title": "Version 0.8.6",
+      "message": "Fixed the loading animation.",
+      "details": "The loading animation was not positioned right.",
+      "author": "Bernardo de Oliveira",
+      "date": "06. Nov. 2017"
+    },
+    {
+      "title": "Version 0.8.5",
+      "message": "Fixed the design of the searched songs.",
+      "details": "+The songs now don't line over the border, you can now scroll to the right side.",
+      "author": "Bernardo de Oliveira",
+      "date": "01. Sep. 2017"
+    },
+    {
+      "title": "Version 0.8.4",
+      "message": "The design is responsive again.",
+      "details": "+The design of this page is responsive again. I'll still recommend to use it in combination with a wide screen.<br/> +Fixed the design, so it's now usable on phones (Responsive design).",
+      "author": "Bernardo de Oliveira",
+      "date": "01. Sep. 2017"
+    },
+    {
+      "title": "Version 0.8.3",
+      "message": "Fixed another design bug.",
+      "details": "+You can now only click on the \"Details\" text and no longer beside it.",
+      "author": "Bernardo de Oliveira",
+      "date": "26. Aug. 2017"
+    },
+    {
+      "title": "Version 0.8.2",
+      "message": "Changed the sorting of the songs tab.<br/> Fixed another design bug.<br/> More songs are going to be added soon.",
+      "details": "The sorting is now completely randomized. The five newest songs are listed on the top.<br/> +Fixed word cutting problem, when searching a song.",
+      "author": "Bernardo de Oliveira",
+      "date": "20. Aug. 2017"
+    },
+    {
+      "title": "Version 0.8.1",
+      "message": "The details are also now being loaded dynamically.<br/> Clicking on details does now work on mobile devices.<br/> Fixed a long known \"design bug\".",
+      "details": "You can now see the details of the updates.<br/> Older updates might not be completely cause of not knowing what I've changed there.<br/> +Added a new dynamic loading system for the songs tab.<br/> +You can now scroll on mobile devices (song tab).",
+      "author": "Bernardo de Oliveira",
+      "date": "18. Aug. 2017"
+    },
+    {
+      "title": "Version 0.8",
+      "message": "Added details to the home tab.<br/> Some bug fixes.",
+      "details": "You can now see the details of the updates.<br/> Older updates might not be completely cause of not knowing what I've changed there.<br/> +Added a new dynamic loading system for the songs tab.<br/> +You can now scroll on mobile devices (song tab).",
+      "author": "Bernardo de Oliveira",
+      "date": "Updated: 18. Aug. 2017"
+    },
+    {
+      "title": "Version 0.7.1",
+      "message": "Changed \"home\" from a static to a dynamic page.<br/> The whole website is now dynamic! :)<br/> Minor bug fixes.",
+      "details": "+Fixed loading from the monitoring.<br/> +Webserver has now fully access to every file.<br/> +Protection improved.<br/> +The home tab is not being generated by PHP.",
+      "author": "Bernardo de Oliveira",
+      "date": "10. Aug. 2017"
+    },
+    {
+      "title": "Version 0.7.?",
+      "message": "Hello. Sadly I had to upload a backup because of a little mistake. You can see, that everything new is away. I'm going to build it up again and release 3.0.<br/> Added some new things and fixed the player, again.<br/> Reversed the songlist, so you can listen to the newest songs quicker.",
+      "details": "-Removed the responsive support for mobile devices, for better experience.",
+      "author": "Bernardo de Oliveira",
+      "date": "09. Aug. 2017"
+    },
+    {
+      "title": "Version 0.7",
+      "message": "Changed the design of the website and optimized it for mobile devices and smaller monitors.<br/> Fixed all known bugs.",
+      "details": "-Removed the responsive support for mobile devices, for better experience.",
+      "author": "Bernardo de Oliveira",
+      "date": "20. Mar. 2017"
+    },
+    {
+      "title": "Version 0.6.2",
+      "message": "Fixed the problem to be not able to use the spacebar in the search field.<br/> Fixed the loading problems in the firewall tab.<br/> Fixed some problems with the player.<br/> Fixed the firewall tab for mobile devices.<br/> Improved the search function, you can now search songs with multiple words.<br/> Improved the volumeslider.<br/><br/> Known bugs:<br/><a style=\"color: grey; text-decoration: line-through\">The songlist isn't showing completely on mobile devices.<br/> You can't play music with some mobile devices while holding it perpendicular, you have to turn it sideways.</a>",
+      "author": "Bernardo de Oliveira",
+      "date": "19. Mar. 2017"
+    },
+    {
+      "title": "Version 0.6.1",
+      "message": "Added new music to the website.<br/> Added a shortcut \"spacebar\" to play or pause the selected music.",
+      "author": "Bernardo de Oliveira",
+      "date": "19. Mar. 2017"
+    },
+    {
+      "title": "Version 0.6",
+      "message": "I finally added a volumeslider!<br/> Fixed problems with the player.<br/> I hope you enjoy your stay on my website even better!",
+      "author": "Bernardo de Oliveira",
+      "date": "18. Mar. 2017"
+    },
+    {
+      "title": "Version 0.5",
+      "message": "Improved the DDoS protection, this is the reason why my website sometimes loads very long.<br/> I hope you now enjoy the lag free experience :)",
+      "author": "Bernardo de Oliveira",
+      "date": "13. Feb. 2017"
+    },
+    {
+      "title": "Version 0.4",
+      "message": "Fixed the color at the searchbar.<br/> Added two new songs.",
+      "author": "Bernardo de Oliveira",
+      "date": "29. Jan. 2017"
+    },
+    {
+      "title": "Version 0.3.3",
+      "message": "Added 12 new awesome songs!",
+      "author": "Bernardo de Oliveira",
+      "date": "27. Jan. 2017"
+    },
+    {
+      "title": "Version 0.3.2",
+      "message": "Changed the music volume to 0.5, it shouldn't be that loud now.<br/> Enjoy listening! Also, happy new year to all! :)",
+      "author": "Bernardo de Oliveira",
+      "date": "01. Jan. 2017"
+    },
+    {
+      "title": "Version 0.3.1",
+      "message": "Added 63 new songs! <br/> I'm still alive :)",
+      "author": "Bernardo de Oliveira",
+      "date": "10. Dec. 2016"
+    },
+    {
+      "title": "Version 0.3",
+      "message": "A lot of bugs have been removed.<br/> +Search function works fine now!<br/> +The monitoring is now loading without ignoring the old data!<br/> +A lot more hidden features ;)",
+      "author": "Bernardo de Oliveira",
+      "date": "09. Aug. 2016"
+    },
+    {
+      "title": "Version 0.2.1",
+      "message": "Cause of bugs with the firewall does the search function not work. This will be under construction.",
+      "author": "Bernardo de Oliveira",
+      "date": "29. Jul. 2016"
+    },
+    {
+      "title": "Version 0.2",
+      "message": "Today I changed the design of the \"drop-firewall\" + I've added new monitoring graphs! I really hope you enjoy the stay on my website.",
+      "author": "Bernardo de Oliveira",
+      "date": "28. Jul. 2016"
+    },
+    {
+      "title": "Version 0.1.1",
+      "message": "I've added a dstat and a \"drop-firewall\" button, I hope you like it!",
+      "author": "Bernardo de Oliveira",
+      "date": "26. Jul. 2016"
+    },
+    {
+      "title": "Version 0.1",
+      "message": "Initial publication!<br/> If you want to play any music you have to doubleclick them!",
+      "author": "Bernardo de Oliveira",
+      "date": "17. Apr. 2016"
     }
   ]
 }

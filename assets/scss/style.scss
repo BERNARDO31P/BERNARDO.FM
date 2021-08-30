@@ -121,6 +121,10 @@ body {
 .blockquote {
   position: relative;
 
+  h2 {
+    margin: 0.83em 0 10px 0;
+  }
+
   .authorDate {
     position: absolute;
     right: 0;
@@ -130,8 +134,14 @@ body {
   }
 
   .message {
+    color: #363636;
     max-width: calc(100% - 275px);
     display: block;
+
+    .mail {
+      text-decoration: none;
+      color: #1d93ff;
+    }
   }
 
   .details {
@@ -157,6 +167,8 @@ body {
   }
 
   .detailsButton {
+    transition: 0.3s;
+
     margin: 10px 0 0 0;
     padding: 7px;
 
@@ -165,6 +177,10 @@ body {
     color: #8eb6ff;
     font-size: 15px;
     cursor: pointer;
+  }
+
+  .detailsButton:hover {
+    color: #4f8eff;
   }
 }
 
