@@ -17,3 +17,10 @@ const bindEvent = (eventNames, selector, handler) => {
         }, false)
     })
 }
+
+const prev = (element, className = "") => {
+        let prev = element.previousElementSibling;
+
+        if (!className || prev.classList.contains(className))
+            return prev;
+}

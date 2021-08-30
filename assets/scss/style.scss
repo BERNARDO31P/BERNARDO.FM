@@ -135,7 +135,36 @@ body {
   }
 
   .details {
-    display: none;
+    transition: 0.3s ease-in-out, padding 0.7s ease-in-out;
+
+    color: #6b6b6b;
+
+    display: block;
+    overflow: hidden;
+    max-height: 0;
+
+    box-shadow: inset 2px 2px 5px #babecc, inset -5px -5px 7px #fff;
+    border-radius: 5px;
+
+    margin: 0;
+    padding: 0 20px;
+  }
+
+  .details.show {
+    padding: 20px;
+    margin: 20px 0 0 0;
+    max-height: 1000px;
+  }
+
+  .detailsButton {
+    margin: 10px 0 0 0;
+    padding: 7px;
+
+    background-color: transparent;
+    border: none;
+    color: #8eb6ff;
+    font-size: 15px;
+    cursor: pointer;
   }
 }
 
@@ -145,17 +174,6 @@ body {
   display: block;
   width: 100%;
   margin: 10px 0;
-}
-
-.detailsButton {
-  margin: 10px 0 0 0;
-  padding: 7px;
-
-  background-color: transparent;
-  border: none;
-  color: #8eb6ff;
-  font-size: 15px;
-  cursor: pointer;
 }
 
 @media screen and (max-width: 850px) {
@@ -200,7 +218,7 @@ body {
     }
 
     #navigation {
-      transition: max-height 0.3s ease-out;
+      transition: 0.5s ease-in-out;
       display: block;
       overflow: hidden;
       position: absolute;
@@ -210,7 +228,6 @@ body {
     }
 
     #navigation.show {
-      transition: max-height 0.5s ease-in;
       max-height: 1000px;
       padding-bottom: 10px;
     }

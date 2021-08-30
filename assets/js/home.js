@@ -25,8 +25,12 @@ window["home"] = function loadHome() {
                 html += "<span> - </span>"
                 html += "<span class='date'>" + quote["date"] + "</span>";
                 html += "</div>";
-                html += "<span class='details'>" + quote["details"] + "</span>";
-                html += "<button class='detailsButton' type='button'>Show more</button>";
+
+                if (typeof quote["details"] !== "undefined") {
+                    html += "<div class='details'><span>" + quote["details"] + "</span></div>";
+                    html += "<button class='detailsButton' type='button'>Show more</button>";
+                }
+
                 html += "</div>";
 
                 object.innerHTML = object.innerHTML + html;
@@ -39,5 +43,18 @@ window["home"] = function loadHome() {
 }
 
 bindEvent("click", ".detailsButton", function () {
+   let details = prev(this);
 
+   let elements = document.querySelectorAll(".details");
+   for (let i = 0; i < elements.length; i++) {
+       elements[i].classList.remove("show");
+   }
+
+   if (details.classList.contains("show")) {
+       this.innerText = "Show more";
+       details.classList.remove("show");
+   } else {
+       this.innerText = "Show less";
+       details.classList.add("show");
+   }
 });
