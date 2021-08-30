@@ -47,7 +47,7 @@ body {
     margin: 0 20px;
     cursor: default; }
   #navbar #navbar-toggler, #navbar #theme-toggler {
-    box-shadow: -5px -5px 10px #efefef, 5px 5px 10px #dedede;
+    box-shadow: -2px -2px 4px #efefef, 2px 2px 4px #dedede;
     border-radius: 25px;
     transition: 0.2s; }
     #navbar #navbar-toggler:hover, #navbar #theme-toggler:hover {
@@ -99,6 +99,15 @@ body {
   width: 100%;
   margin: 10px 0; }
 
+.detailsButton {
+  margin: 10px 0 0 0;
+  padding: 7px;
+  background-color: transparent;
+  border: none;
+  color: #8eb6ff;
+  font-size: 15px;
+  cursor: pointer; }
+
 @media screen and (max-width: 850px) {
   .blockquote .message {
     max-width: 100%; }
@@ -137,7 +146,7 @@ body {
     max-height: 1000px;
     padding-bottom: 10px; }
   #navbar #logo {
-    margin-left: calc(50% - 160px); }
+    margin-left: calc(50% - 165px); }
   #navbar .permanent {
     position: fixed;
     display: initial;

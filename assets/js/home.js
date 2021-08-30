@@ -26,6 +26,7 @@ window["home"] = function loadHome() {
                 html += "<span class='date'>" + quote["date"] + "</span>";
                 html += "</div>";
                 html += "<span class='details'>" + quote["details"] + "</span>";
+                html += "<button class='detailsButton' type='button'>Show more</button>";
                 html += "</div>";
 
                 object.innerHTML = object.innerHTML + html;
@@ -36,3 +37,7 @@ window["home"] = function loadHome() {
         }
     }
 }
+
+bindEvent("click", ".detailsButton", function () {
+
+});

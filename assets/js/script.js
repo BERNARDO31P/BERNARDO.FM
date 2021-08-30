@@ -1,7 +1,7 @@
 let httpGetM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/httpGet.js");
 let includeHTMLM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/includeHTML.js");
 
-let page, body = $("body");
+let page;
 
 /*
  * Funktion: dataIncludeReplace()
@@ -41,22 +41,6 @@ function loadPage() {
 window.addEventListener('popstate', loadPage);
 
 /*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Wenn der Benutzer sich nicht ganz oben befindet, wird ein Schatten zur Navigation hinzugefügt
- */
-window.addEventListener("scroll", () => {
-    let navbar = document.querySelector("#navbar");
-
-    if (window.scrollY === 0) {
-        navbar.classList.remove("shadow");
-    } else {
-        navbar.classList.add("shadow");
-    }
-});
-
-/*
  * Funktion: getPage()
  * Autor: Bernardo de Oliveira
  *
@@ -73,19 +57,35 @@ function getPage() {
     return "home";
 }
 
-body.on("click", "[data-page]", (e) => {
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Wenn der Benutzer sich nicht ganz oben befindet, wird ein Schatten zur Navigation hinzugefügt
+ */
+window.addEventListener("scroll", () => {
+    let navbar = document.querySelector("#navbar");
+
+    if (window.scrollY === 0) {
+        navbar.classList.remove("shadow");
+    } else {
+        navbar.classList.add("shadow");
+    }
+});
+
+bindEvent("click", "[data-page]", function (e) {
     page = e.target.dataset.page;
     window.location.href = "#!page=" + page;
 });
 
-body.on("click", "#navigation a", function () {
+bindEvent("click", "#navigation a", function () {
     let navigation = document.querySelector("#navigation");
 
     if (navigation.classList.contains("show"))
         navigation.classList.remove("show");
 });
 
-body.on("click", "#navbar-toggler", function () {
+bindEvent("click", "#navbar-toggler", function () {
     let navigation = document.querySelector("#navigation");
 
     if (navigation.classList.contains("show"))

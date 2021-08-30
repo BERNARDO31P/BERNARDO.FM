@@ -67,7 +67,7 @@ body {
   }
 
   #navbar-toggler, #theme-toggler {
-    box-shadow: -5px -5px 10px #efefef, 5px 5px 10px #dedede;
+    box-shadow: -2px -2px 4px #efefef, 2px 2px 4px #dedede;
     border-radius: 25px;
     transition: 0.2s;
 
@@ -147,6 +147,17 @@ body {
   margin: 10px 0;
 }
 
+.detailsButton {
+  margin: 10px 0 0 0;
+  padding: 7px;
+
+  background-color: transparent;
+  border: none;
+  color: #8eb6ff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
 @media screen and (max-width: 850px) {
   .blockquote {
     .message {
@@ -205,7 +216,7 @@ body {
     }
 
     #logo {
-      margin-left: calc(50% - 160px);
+      margin-left: calc(50% - 165px);
     }
 
     .permanent {
