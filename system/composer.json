@@ -1,0 +1,17 @@
+{
+  "name": "bernardo31p/bernardo.fm",
+  "description": "The new version of BERNARDO.FM",
+  "homepage": "https://bernardo.fm",
+  "license": "Proprietary",
+  "authors": [
+    {
+      "name": "Bernardo de Oliveira",
+      "email": "bernardo@bernardo.fm",
+      "role": "lead"
+    }
+  ],
+  "require": {
+    "falahati/php-mp3": "dev-master",
+    "ext-json": "*"
+  }
+}

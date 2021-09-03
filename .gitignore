@@ -1,1 +1,5 @@
 assets/scss/.sass-cache
+system/vendor
+system/composer.lock
+system/music
+system/temp

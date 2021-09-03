@@ -3,7 +3,7 @@
   src: url("../fonts/Roboto/Roboto-Regular.ttf") format("truetype");
 }
 
-input {
+input:not([type="range"]) {
   transition: 0.2s;
   box-shadow: inset 2px 2px 5px #babecc, inset -5px -5px 7px #fff;
   border: none;
@@ -23,6 +23,65 @@ input {
 
 body {
   background-color: #f5f5f5;
+}
+
+table {
+  width: 100%;
+  box-shadow: -1px -1px 4px #efefef, 1px 1px 4px #dedede;
+
+  border-radius: 10px;
+  border-spacing: 0;
+
+  thead {
+    text-align: left;
+    box-shadow: -1px -1px 4px #efefef, 1px 1px 4px #dedede;
+
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+
+    th {
+      font-weight: initial;
+
+      height: 50px;
+      padding: 0 10px;
+    }
+  }
+
+  tbody {
+    td {
+      color: #4b4b4b;
+      padding: 0 10px;
+      height: 40px;
+    }
+
+    td:last-of-type {
+      svg {
+        padding: 10px;
+        margin: 0 20px;
+      }
+
+      svg:first-of-type {
+        margin: 0 20px 0 0
+      }
+
+      .listAdd {
+        svg {
+          padding: 10px 0;
+        }
+      }
+    }
+
+    tr:last-of-type {
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+
+    tr:hover {
+      cursor: pointer;
+      transition: 0.1s;
+      box-shadow: -2px -2px 4px #efefef, 2px 2px 4px #dedede;
+    }
+  }
 }
 
 #navbar {
@@ -88,6 +147,7 @@ body {
   }
 
   #theme-toggler {
+    margin: 0 30px 0 0;
     padding: 10px 15px;
     cursor: pointer;
     display: initial;
@@ -110,12 +170,186 @@ body {
 
   padding: 20px 40px 40px 40px;
   top: 80px;
-  margin: 80px auto 20px auto;
+  margin: 0 auto 20px auto;
 
   width: 85%;
 
   font-family: "Roboto Regular", sans-serif;
   background-color: #f5f5f5;
+
+  position: relative;
+
+  .listView {
+    margin: 40px 0 0 0;
+  }
+
+  .controls {
+    position: fixed;
+    display: none;
+
+    height: 38px;
+    width: 98px;
+
+    line-height: 40px;
+
+    background-color: #f5f5f5;
+
+    * {
+      padding: 0 8px;
+      cursor: pointer;
+      margin: 0 2px;
+    }
+
+    .listAdd {
+      position: relative;
+      display: initial;
+
+      .fa-plus {
+        background-color: #f5f5f5;
+
+
+        padding: 0 !important;
+
+        position: absolute;
+        font-size: 10px;
+        margin: 16px 0 0 -15px;
+        z-index: 1;
+      }
+    }
+  }
+}
+
+#view {
+  position: absolute;
+  right: 50px;
+
+  border: 1px solid #d9d9d9;
+  border-radius: 5px;
+
+  * {
+    cursor: pointer;
+    padding: 5px 15px;
+  }
+
+  *.active {
+    background-color: #e2e2e2;
+  }
+}
+
+#player {
+  display: none;
+
+  box-shadow: 3px 3px 5px #dedede, -3px -3px 5px #efefef;
+  position: fixed;
+
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100px;
+
+  line-height: 100px;
+  text-align: center;
+
+  background-color: #f5f5f5;
+  font-family: "Roboto Regular", sans-serif;
+
+  #timeline {
+    transition: 0.25s;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    margin: -1px 0 0 0;
+    width: 100%;
+    border: none;
+    appearance: none;
+    -webkit-appearance: none;
+    height: 5px;
+    overflow: hidden;
+  }
+
+  #timeline:hover {
+    height: 15px;
+  }
+
+  ::-webkit-slider-runnable-track {
+    background: #ddd;
+  }
+
+  ::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 40px;
+    background: #fff;
+    box-shadow: -100vw 0 0 100vw #1d93ff;
+  }
+
+  ::-moz-range-track {
+    height: 40px;
+    background: #ddd;
+  }
+
+  ::-moz-range-thumb {
+    background: #fff;
+    height: 40px;
+    width: 20px;
+    border: 3px solid #999;
+    border-radius: 0 !important;
+    box-shadow: -100vw 0 0 100vw #1d93ff;
+    box-sizing: border-box;
+  }
+
+  ::-ms-fill-lower {
+    background: #1d93ff;
+  }
+
+  ::-ms-thumb {
+    background: #fff;
+    height: 40px;
+    width: 20px;
+    box-sizing: border-box;
+  }
+
+  ::-ms-ticks-after {
+    display: none;
+  }
+
+  ::-ms-ticks-before {
+    display: none;
+  }
+
+  ::-ms-track {
+    background: #ddd;
+    color: transparent;
+    height: 40px;
+    border: none;
+  }
+
+  ::-ms-tooltip {
+    display: none;
+  }
+
+  #data {
+    height: 75px;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    line-height: 20px;
+  }
+
+  svg {
+    padding: 15px 20px;
+    cursor: pointer;
+    margin: 0 15px;
+  }
+}
+
+#player.show {
+  display: initial;
 }
 
 .blockquote {
@@ -196,6 +430,14 @@ body {
   margin: 10px 0;
 }
 
+@media screen and (max-width: 650px) {
+  #player {
+    svg {
+      padding: 15px 5px;
+    }
+  }
+}
+
 @media screen and (max-width: 850px) {
   .blockquote {
     .message {
@@ -253,7 +495,7 @@ body {
     }
 
     #logo {
-      margin-left: calc(50% - 165px);
+      margin-left: calc(50% - 170px);
     }
 
     .permanent {

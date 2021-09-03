@@ -8,6 +8,7 @@
  */
 export function httpGet(url) {
     let xmlHttp = new XMLHttpRequest();
+
     xmlHttp.open("GET", url, false);
 
     try {

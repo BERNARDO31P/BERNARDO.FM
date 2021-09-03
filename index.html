@@ -9,12 +9,28 @@
     <link href="./assets/css/style.css" rel="stylesheet" type="text/css"/>
 
     <script src="https://cdn.bernardo.fm/js/fontawesome.js" rel="script" type="text/javascript"></script>
+    <script src="./assets/js/lib/gapless5.js" rel="script" type="text/javascript"></script>
     <script src="./assets/js/tools.js" rel="script" type="text/javascript"></script>
 </head>
 <body>
     <div id="navbarPre" data-include="./assets/includes/nav.html"></div>
     <div id="content"></div>
-
+    <div id="player">
+        <label><input id="timeline" type="range" step="1" min="0" value="0"/></label>
+        <div id="tooltip"></div>
+        <div id="data">
+            <div id="controls">
+                <i class="fas fa-random"></i>
+                <i class="fas fa-undo"></i>
+                <i class="fas fa-backward"></i>
+                <i class="fas fa-play"></i>
+                <i class="fas fa-forward"></i>
+                <i class="fas fa-volume-up"></i>
+                <i class="fas fa-list"></i>
+            </div>
+            <span id="name"></span> - <span id="artist"></span>
+        </div>
+    </div>
     <script src="./assets/js/script.js" rel="script" type="module"></script>
 </body>
 </html>

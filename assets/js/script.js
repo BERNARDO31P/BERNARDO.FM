@@ -1,5 +1,6 @@
 let httpGetM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/httpGet.js");
 let includeHTMLM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/includeHTML.js");
+let tryParseJSONM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/tryParseJSON.js");
 
 let page;
 
@@ -74,15 +75,12 @@ window.addEventListener("scroll", () => {
 });
 
 bindEvent("click", "[data-page]", function (e) {
-    page = e.target.dataset.page;
-    window.location.href = "#!page=" + page;
-});
-
-bindEvent("click", "#navigation a", function () {
     let navigation = document.querySelector("#navigation");
-
     if (navigation.classList.contains("show"))
         navigation.classList.remove("show");
+
+    page = e.target.dataset.page;
+    window.location.href = "#!page=" + page;
 });
 
 bindEvent("click", "#navbar-toggler", function () {
@@ -92,6 +90,42 @@ bindEvent("click", "#navbar-toggler", function () {
         navigation.classList.remove("show");
     else
         navigation.classList.add("show");
+});
+
+bindEvent("click", "#player .fa-pause", function () {
+    this.classList.remove("fa-pause");
+    this.classList.add("fa-play");
+
+    playlist[playIndex]["player"].pause();
+});
+
+bindEvent("click", "#player .fa-play", function () {
+    this.classList.remove("fa-play");
+    this.classList.add("fa-pause");
+
+    playlist[playIndex]["player"].play();
+});
+
+bindEvent("click", "#player .fa-forward", function () {
+    playIndex += 1;
+
+    for (let i = 0; i < Object.keys(playlist).length; i++) {
+        playlist[i]["player"].stop();
+    }
+
+    playPauseButton();
+    play();
+});
+
+bindEvent("click", "#player .fa-backward", function () {
+    playIndex -= 1;
+
+    for (let i = 0; i < Object.keys(playlist).length; i++) {
+        playlist[i]["player"].stop();
+    }
+
+    playPauseButton();
+    play();
 });
 
 page = getPage();
