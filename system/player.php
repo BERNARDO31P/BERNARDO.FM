@@ -16,9 +16,9 @@ function search_songs($search) {
     $songs = array();
 
     foreach($db as $arrID => $data) {
-        if ((strpos($data["name"], $search) !== false)) {
+        if ((stripos($data["name"], $search) !== false)) {
             array_push($songs, $data);
-        } else if ((strpos($data["artist"], $search) !== false)) {
+        } else if ((stripos($data["artist"], $search) !== false)) {
             array_push($songs, $data);
         }
     }

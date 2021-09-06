@@ -11,17 +11,17 @@ window["music"] = () => {
         let object = objects[i];
         let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(object.getAttribute("data-url") + "?search=" + search.value));
 
-        if (view === null) {
+        if (view === "") {
             if (getWidth() < 1150) view = "list";
             else view = "grid";
         }
 
         if (view === "list") {
+            document.getElementsByClassName("fa-list")[0].classList.add("active");
+
             let table = document.createElement("table");
             let columns = Object.keys(data[0]);
             columns.shift();
-
-            document.getElementsByClassName("fa-list")[0].classList.add("active");
 
             table.classList.add("listView");
 
