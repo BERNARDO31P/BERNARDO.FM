@@ -110,15 +110,23 @@ function addEvents(player) {
     }
 
     player.onnext = function () {
-        let partTime = getPartTime(2);
+        let partTime = getCurrentPartLength(2);
         let timeline = document.getElementById("timeline");
 
-        if (Number(timeline.max) - currentTime > 0) {
+        if (Number(timeline.max) - currentTime > 0)
             currentTime += partTime;
-        }
+
+        let currentPart = playlist[playIndex]["player"].trk.trackNumber;
+        let partCount = playlist[playIndex]["player"].totalTracks();
+
+        if (currentPart === partCount)
+            downloadNextPart();
     }
 
     player.onfinishedall = function () {
+        playIndex = 0;
+        currentTime = 0;
+
         clearInterval(secondsInterval);
 
         playPauseButton(false);
@@ -152,7 +160,7 @@ function downloadNextPart() {
     let stop = false;
 
     setTimeout(function () {
-        let nextTime = currentTime + getPartTime(1);
+        let nextTime = currentTime + getCurrentPartLength(1);
 
         if (!(Number(timeline.max) - nextTime > 0)) {
             const nextIndex = nextSongIndex();

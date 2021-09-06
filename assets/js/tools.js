@@ -142,7 +142,7 @@ function play() {
     secondsInterval = setInterval(function () {
         let timeline = document.getElementById("timeline");
 
-        timeline.value = getCurrentPartTime(2) + currentTime;
+        timeline.value = getCurrentPartTime(1) + currentTime;
     }, 1000);
 }
 
@@ -177,21 +177,16 @@ function playPauseButton(play = false) {
     }
 }
 
-function getCurrentPartTime() {
-    let partIndex = playlist[playIndex]["player"].trk.trackNumber - 1;
-    let position = 0;
-
-    try {
-        position = playlist[playIndex]["player"].sources[partIndex].getPosition();
-    } catch (ignored) {}
-
-    return position / 1000;
-}
-
-function getPartTime(minus) {
-    let partIndex = playlist[playIndex]["player"].totalTracks() - minus;
+function getCurrentPartLength(minus) {
+    let partIndex = playlist[playIndex]["player"].trk.trackNumber - minus;
 
     return playlist[playIndex]["player"].sources[partIndex].getLength() / 1000;
+}
+
+function getCurrentPartTime(minus) {
+    let partIndex = playlist[playIndex]["player"].trk.trackNumber - minus;
+
+    return playlist[playIndex]["player"].sources[partIndex].getPosition() / 1000;
 }
 
 function clearSong(index) {

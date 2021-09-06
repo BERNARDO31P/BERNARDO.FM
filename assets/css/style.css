@@ -226,6 +226,8 @@ table {
     padding: 15px 20px;
     cursor: pointer;
     margin: 0 15px; }
+  #player #controls {
+    user-select: none; }
 
 #player.show {
   display: initial; }
