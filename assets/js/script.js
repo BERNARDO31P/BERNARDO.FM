@@ -2,7 +2,12 @@ let httpGetM = await import(window.location.protocol + "//" + window.location.ho
 let includeHTMLM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/includeHTML.js");
 let tryParseJSONM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/tryParseJSON.js");
 
-let page;
+let page, mouseX = 0, mouseY = 0;
+
+document.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
 
 /*
  * Funktion: dataIncludeReplace()
@@ -97,13 +102,14 @@ bindEvent("click", "#player .fa-pause", function () {
     this.classList.add("fa-play");
 
     playlist[playIndex]["player"].pause();
+    clearInterval(secondsInterval);
 });
 
 bindEvent("click", "#player .fa-play", function () {
     this.classList.remove("fa-play");
     this.classList.add("fa-pause");
 
-    playlist[playIndex]["player"].play();
+    play();
 });
 
 bindEvent("click", "#player .fa-forward", function () {
@@ -129,6 +135,40 @@ bindEvent("click", "#player .fa-backward", function () {
 
     clearInterval(secondsInterval);
     playPauseButton(false);
+    play();
+});
+
+bindEvent("mousedown", "#timeline", function () {
+    let tooltip = document.getElementById("tooltip");
+    tooltip.style.display = "initial";
+
+    clearInterval(secondsInterval);
+    playPauseButton(false);
+    playlist[playIndex]["player"].pause();
+});
+
+bindEvent("input", "#timeline", function () {
+    let tooltip = document.getElementById("tooltip");
+    let measurementTooltip = tooltip.getBoundingClientRect();
+    let measurementRange = this.getBoundingClientRect();
+    let leftPos = mouseX - (measurementTooltip["width"] / 2);
+
+    if (leftPos < 0)
+        leftPos = 0;
+     else if ((leftPos + measurementTooltip["width"]) > getWidth())
+        leftPos = getWidth() - measurementTooltip["width"];
+
+    tooltip.style.top = (measurementRange["top"] - measurementTooltip["height"] - 10) + "px";
+    tooltip.style.left = leftPos + "px";
+
+    let currentTimestamp = tooltip.querySelector("#current");
+    currentTimestamp.innerText = getMinutesAndSeconds(this.value);
+});
+
+bindEvent("mouseup", "#timeline", function () {
+    let tooltip = document.getElementById("tooltip");
+    tooltip.style.display = "none";
+
     play();
 });
 

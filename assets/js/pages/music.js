@@ -110,7 +110,7 @@ function addEvents(player) {
     }
 
     player.onnext = function () {
-        let partTime = getCurrentPartLength(2);
+        let partTime = getPartLength(2);
         let timeline = document.getElementById("timeline");
 
         if (Number(timeline.max) - currentTime > 0)
@@ -160,7 +160,7 @@ function downloadNextPart() {
     let stop = false;
 
     setTimeout(function () {
-        let nextTime = currentTime + getCurrentPartLength(1);
+        let nextTime = currentTime + getPartLength(1);
 
         if (!(Number(timeline.max) - nextTime > 0)) {
             const nextIndex = nextSongIndex();

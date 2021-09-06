@@ -104,7 +104,7 @@ function getCookie(name) {
 }
 
 /*
- * Funktion: getCookie()
+ * Funktion: setCookie()
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  name: (String) Cookie Name
@@ -123,13 +123,26 @@ function ucFirst(string) {
 }
 
 // TODO: Comment
+function getMinutesAndSeconds(time) {
+    let minutes = Math.floor(time / 60);
+    let seconds = time - minutes * 60;
+
+    minutes = ("0" + minutes).slice(-2);
+    seconds = ("0" + seconds).slice(-2);
+
+    return minutes + ":" + seconds;
+}
+
+// TODO: Comment
 function play() {
     let player = document.getElementById("player");
 
     let song = playlist[playIndex];
     let gapless = song["player"];
     let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
+    let songLength = document.getElementById("tooltip").querySelector("#length");
 
+    songLength.innerText = song["length"];
     player.querySelector("#name").innerText = song["name"];
     player.querySelector("#artist").innerText = song["artist"];
     player.querySelector("#timeline").max = length;
@@ -142,7 +155,7 @@ function play() {
     secondsInterval = setInterval(function () {
         let timeline = document.getElementById("timeline");
 
-        timeline.value = getCurrentPartTime(1) + currentTime;
+        timeline.value = getPartTime(1) + currentTime;
     }, 1000);
 }
 
@@ -163,6 +176,7 @@ function nextSongIndex() {
     }
 }
 
+// TODO: Comment
 function playPauseButton(play = false) {
     let player = document.getElementById("player");
     let playButton = player.querySelector(".fa-play");
@@ -177,18 +191,21 @@ function playPauseButton(play = false) {
     }
 }
 
-function getCurrentPartLength(minus) {
+// TODO: Comment
+function getPartLength(minus) {
     let partIndex = playlist[playIndex]["player"].trk.trackNumber - minus;
 
     return playlist[playIndex]["player"].sources[partIndex].getLength() / 1000;
 }
 
-function getCurrentPartTime(minus) {
+// TODO: Comment
+function getPartTime(minus) {
     let partIndex = playlist[playIndex]["player"].trk.trackNumber - minus;
 
     return playlist[playIndex]["player"].sources[partIndex].getPosition() / 1000;
 }
 
+// TODO: Comment
 function clearSong(index) {
     playlist[index]["player"].stop();
     playlist[index]["player"].removeAllTracks();
