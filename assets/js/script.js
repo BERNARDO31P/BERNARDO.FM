@@ -13,7 +13,7 @@ document.addEventListener("mousemove", (e) => {
  * Funktion: dataIncludeReplace()
  * Autor: Bernardo de Oliveira
  *
- * Lädt eine den Inhalt einer externen Seite und fügt diesen in den internen Inhalt ein
+ * Lädt eine den Inhalt einer externen SeiLeider konnten wir keine Songs findente und fügt diesen in den internen Inhalt ein
  * Ändert den Titel der Webseite
  * Wird durch ein Event aufgerufen
  */

@@ -115,8 +115,12 @@ table {
   background-color: #f5f5f5;
   position: relative;
   overflow-y: auto; }
+  #content .info {
+    margin: 30px 0 0 0; }
+  #content .searchterm {
+    margin: 35px 0 -20px 0; }
   #content .listView {
-    margin: 40px 0 0 0; }
+    margin: 35px 0 0 0; }
   #content .controls {
     position: fixed;
     display: none;

@@ -16,46 +16,71 @@ window["music"] = () => {
             else view = "grid";
         }
 
-        if (view === "list") {
-            document.getElementsByClassName("fa-list")[0].classList.add("active");
+        if (search.value !== "") {
+            let div = document.createElement("div");
+            div.classList.add("searchterm");
 
-            let table = document.createElement("table");
-            let columns = Object.keys(data[0]);
-            columns.shift();
+            let h3 = document.createElement("h3");
+            h3.innerText = "Search results for '" + search.value + "'";
 
-            table.classList.add("listView");
+            div.appendChild(h3);
 
-            let thead = document.createElement("thead");
-            for (let j = 0; j < columns.length; j++) {
-                let th = document.createElement("th");
-                th.innerText = ucFirst(columns[j]);
-                thead.appendChild(th);
-            }
-
-            table.appendChild(thead);
-
-            let tbody = document.createElement("tbody");
-            for (let j = 0; j < Object.keys(data).length; j++) {
-                let song = data[j];
-
-                let row = document.createElement("tr");
-                row.setAttribute("data-id", song["id"]);
-                row.innerHTML = "<td>" + song["name"] + "</td>" +
-                    "<td>" + song["artist"] + "</td>" +
-                    "<td>" + song["length"] + "</td>";
-
-                tbody.appendChild(row);
-            }
-
-            table.appendChild(tbody);
-
-            object.parentNode.insertBefore(table, object);
-            object.remove();
-
-        } else {
-            document.getElementsByClassName("fa-grip-horizontal")[0].classList.add("active");
-            // TODO: Icon view
+            object.parentNode.insertBefore(div, object);
         }
+
+        if (data.length > 0) {
+            if (view === "list") {
+                document.getElementsByClassName("fa-list")[0].classList.add("active");
+
+                let table = document.createElement("table");
+                let columns = Object.keys(data[0]);
+                columns.shift();
+
+                table.classList.add("listView");
+
+                let thead = document.createElement("thead");
+                for (let j = 0; j < columns.length; j++) {
+                    let th = document.createElement("th");
+                    th.innerText = ucFirst(columns[j]);
+                    thead.appendChild(th);
+                }
+
+                table.appendChild(thead);
+
+                let tbody = document.createElement("tbody");
+                for (let j = 0; j < Object.keys(data).length; j++) {
+                    let song = data[j];
+
+                    let row = document.createElement("tr");
+                    row.setAttribute("data-id", song["id"]);
+                    row.innerHTML = "<td><img src='" + song["cover"] + "' alt='Cover'></td>" +
+                        "<td>" + song["name"] + "</td>" +
+                        "<td>" + song["artist"] + "</td>" +
+                        "<td>" + song["length"] + "</td>";
+
+                    tbody.appendChild(row);
+                }
+
+                table.appendChild(tbody);
+
+                object.parentNode.insertBefore(table, object);
+            } else {
+                document.getElementsByClassName("fa-grip-horizontal")[0].classList.add("active");
+                // TODO: Icon view
+            }
+        } else {
+            let div = document.createElement("div");
+            div.classList.add("info");
+
+            let span = document.createElement("span");
+            span.innerText = "We couldn't find any song with that search term";
+
+            div.appendChild(span);
+
+            object.parentNode.insertBefore(div, object);
+        }
+
+        object.remove();
     }
 
     bindEvent("mouseover", "tr", function () {

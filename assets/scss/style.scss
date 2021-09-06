@@ -180,8 +180,16 @@ table {
   position: relative;
   overflow-y: auto;
 
+  .info {
+    margin: 30px 0 0 0;
+  }
+
+  .searchterm {
+    margin: 35px 0 -20px 0;
+  }
+
   .listView {
-    margin: 40px 0 0 0;
+    margin: 35px 0 0 0;
   }
 
   .controls {
