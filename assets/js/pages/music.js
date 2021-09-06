@@ -4,16 +4,19 @@ let tryParseJSONM = await import(window.location.protocol + "//" + window.locati
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
 window["music"] = () => {
-    let objects = document.querySelectorAll("[data-url]");
+    let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search");
     let view = getCookie("view");
-
-    let lastScrollPos = 0;
 
     for (let i = 0; i < objects.length; i++) {
         let object = objects[i];
-        let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(object.getAttribute("data-url")));
+        let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(object.getAttribute("data-url") + "?search=" + search.value));
 
-        if (getWidth() < 1150 || view === "list") {
+        if (view === null) {
+            if (getWidth() < 1150) view = "list";
+            else view = "grid";
+        }
+
+        if (view === "list") {
             let table = document.createElement("table");
             let columns = Object.keys(data[0]);
             columns.shift();

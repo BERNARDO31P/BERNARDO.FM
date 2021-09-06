@@ -172,5 +172,20 @@ bindEvent("mouseup", "#timeline", function () {
     play();
 });
 
+bindEvent("input", "#search", function () {
+    page = "music";
+    window.location.href = "#!page=" + page;
+});
+
+bindEvent("click", "#view .fa-list", function () {
+    setCookie("view", "list");
+    window.location.href = "#!page=" + page;
+});
+
+bindEvent("click", "#view .fa-grip-horizontal", function () {
+    setCookie("view", "grip");
+    window.location.href = "#!page=" + page;
+});
+
 page = getPage();
 window.location.href = "#!page=" + page;
