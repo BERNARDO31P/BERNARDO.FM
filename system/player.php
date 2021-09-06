@@ -21,6 +21,7 @@ function search_song($id) {
     return array();
 }
 
+ob_start();
 header('Content-Type: application/json');
 if (isset($_GET["id"])) {
     include_once __DIR__ . "/vendor/autoload.php";
@@ -52,4 +53,23 @@ if (isset($_GET["id"])) {
     recursive_unset($db, "fileName");
     echo json_encode($db);
 }
+$size = ob_get_length();
 
+header("Content-Encoding: none");
+header("Content-Length: " . $size);
+header("Connection: close");
+
+ob_end_flush();
+@ob_flush();
+flush();
+
+if(session_id()) session_write_close();
+
+$files = glob(__DIR__ . "/temp/*");
+
+foreach ($files as $file) {
+    if (is_file($file)) {
+        if (time() - filemtime($file) >= 60 * 60 * 24)
+            unlink($file);
+    }
+}
