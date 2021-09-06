@@ -107,24 +107,28 @@ bindEvent("click", "#player .fa-play", function () {
 });
 
 bindEvent("click", "#player .fa-forward", function () {
-    playIndex += 1;
+    playlist[playIndex]["player"].stop();
 
-    for (let i = 0; i < Object.keys(playlist).length; i++) {
-        playlist[i]["player"].stop();
-    }
+    if (typeof playlist[playIndex + 1] !== "undefined")
+        playIndex += 1;
 
-    playPauseButton();
+    currentTime = 0;
+
+    clearInterval(secondsInterval);
+    playPauseButton(false);
     play();
 });
 
 bindEvent("click", "#player .fa-backward", function () {
-    playIndex -= 1;
+    playlist[playIndex]["player"].stop();
 
-    for (let i = 0; i < Object.keys(playlist).length; i++) {
-        playlist[i]["player"].stop();
-    }
+    if (typeof playlist[playIndex - 1] !== "undefined")
+        playIndex -= 1;
 
-    playPauseButton();
+    currentTime = 0;
+
+    clearInterval(secondsInterval);
+    playPauseButton(false);
     play();
 });
 

@@ -78,19 +78,17 @@ window["music"] = () => {
     });
 
     bindEvent("click", "#content .fa-play", function () {
-        playIndex = 0;
-
         for (let i = 0; i < Object.keys(playlist).length; i++) {
-            playlist[i]["player"].stop();
-            playlist[i]["player"].removeAllTracks();
+            clearSong(i);
         }
 
+        playIndex = 0;
         currentTime = 0;
         playlist = {};
 
+        clearInterval(secondsInterval);
         addSongToPlaylist(this);
         play();
-        downloadNextPart();
     });
 
     window.addEventListener("scroll", function () {
@@ -103,6 +101,14 @@ window["music"] = () => {
 
 // TODO: Comment
 function addEvents(player) {
+    player.onplay = function () {
+        let currentPart = playlist[playIndex]["player"].trk.trackNumber;
+        let partCount = playlist[playIndex]["player"].totalTracks();
+
+        if (currentPart === partCount)
+            downloadNextPart();
+    }
+
     player.onnext = function () {
         let partTime = getPartTime(2);
         let timeline = document.getElementById("timeline");
@@ -110,14 +116,12 @@ function addEvents(player) {
         if (Number(timeline.max) - currentTime > 0) {
             currentTime += partTime;
         }
-
-        downloadNextPart();
     }
 
     player.onfinishedall = function () {
         clearInterval(secondsInterval);
 
-        playPauseButton();
+        playPauseButton(false);
         play();
     }
 }
@@ -145,6 +149,7 @@ function addSongToPlaylist(element) {
 // TODO: Comment
 function downloadNextPart() {
     let timeline = document.getElementById("timeline");
+    let stop = false;
 
     setTimeout(function () {
         let nextTime = currentTime + getPartTime(1);
@@ -154,12 +159,16 @@ function downloadNextPart() {
 
             if (typeof nextIndex !== 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
                 playIndex = nextIndex;
+            } else {
+                stop = true;
             }
         }
 
-        let songID = playlist[playIndex]["id"];
+        if (!stop) {
+            let songID = playlist[playIndex]["id"];
 
-        let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(window.location.protocol + "//" + window.location.host + "/system/player.php?id=" + songID + "&time=" + nextTime));
-        playlist[playIndex]["player"].addTrack(data["location"]);
+            let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(window.location.protocol + "//" + window.location.host + "/system/player.php?id=" + songID + "&time=" + nextTime));
+            playlist[playIndex]["player"].addTrack(data["location"]);
+        }
     }, 2000);
 }

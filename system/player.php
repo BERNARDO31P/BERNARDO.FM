@@ -23,7 +23,7 @@ function search_song($id) {
 
 header('Content-Type: application/json');
 if (isset($_GET["id"])) {
-    include_once __DIR__ . "/assets/lib/mp3.class.php";
+    include_once __DIR__ . "/vendor/autoload.php";
 
     $song = search_song($_GET["id"]);
     $newName =  "/temp/" . bin2hex(random_bytes(22)) . ".mp3";
@@ -35,7 +35,7 @@ if (isset($_GET["id"])) {
         $timeSet = true;
     }
 
-    (new mp3)->cut_mp3(__DIR__ . "/music/" . $song["fileName"], __DIR__ . $newName, $time, $time + 20, 'second');
+    \falahati\PHPMP3\MpegAudio::fromFile(__DIR__ . "/music/" . $song["fileName"])->trim($time, $time + 20)->saveFile(__DIR__ . $newName);
 
     recursive_unset($song, "fileName");
     $song["location"] = "/system" . $newName;

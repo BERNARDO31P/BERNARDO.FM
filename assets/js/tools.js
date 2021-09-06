@@ -126,27 +126,24 @@ function ucFirst(string) {
 function play() {
     let player = document.getElementById("player");
 
-    if (typeof playlist[playIndex] !== 'undefined') {
-        let song = playlist[playIndex];
-        let gapless = song["player"];
-        let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
+    let song = playlist[playIndex];
+    let gapless = song["player"];
+    let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
 
-        player.querySelector("#name").innerText = song["name"];
-        player.querySelector("#artist").innerText = song["artist"];
-        player.querySelector("#timeline").max = length;
+    player.querySelector("#name").innerText = song["name"];
+    player.querySelector("#artist").innerText = song["artist"];
+    player.querySelector("#timeline").max = length;
 
-        playPauseButton();
+    playPauseButton(true);
+    gapless.play();
 
-        gapless.play();
+    player.style.display = "initial";
 
-        player.style.display = "initial";
+    secondsInterval = setInterval(function () {
+        let timeline = document.getElementById("timeline");
 
-        secondsInterval = setInterval(function () {
-            let timeline = document.getElementById("timeline");
-
-            timeline.value = getCurrentPartTime(2) + currentTime;
-        }, 1000);
-    }
+        timeline.value = getCurrentPartTime(2) + currentTime;
+    }, 1000);
 }
 
 // TODO: Comment
@@ -166,33 +163,38 @@ function nextSongIndex() {
     }
 }
 
-function playPauseButton() {
+function playPauseButton(play = false) {
     let player = document.getElementById("player");
     let playButton = player.querySelector(".fa-play");
     let pauseButton = player.querySelector(".fa-pause");
 
-    if (playButton !== null) {
+    if (playButton !== null && play) {
         playButton.classList.remove("fa-play");
         playButton.classList.add("fa-pause");
-    } else {
+    } else if (pauseButton !== null && !play) {
         pauseButton.classList.remove("fa-pause");
         pauseButton.classList.add("fa-play");
     }
 }
 
-function getCurrentPartTime(minus) {
-    let partCount = playlist[playIndex]["player"].sources.length - minus;
+function getCurrentPartTime() {
+    let partIndex = playlist[playIndex]["player"].trk.trackNumber - 1;
     let position = 0;
 
     try {
-        position = playlist[playIndex]["player"].sources[partCount].getPosition();
-    } catch(ignored) {}
+        position = playlist[playIndex]["player"].sources[partIndex].getPosition();
+    } catch (ignored) {}
 
     return position / 1000;
 }
 
 function getPartTime(minus) {
-    let partCount = playlist[playIndex]["player"].sources.length - minus;
+    let partIndex = playlist[playIndex]["player"].totalTracks() - minus;
 
-    return playlist[playIndex]["player"].sources[partCount].getLength() / 1000;
+    return playlist[playIndex]["player"].sources[partIndex].getLength() / 1000;
+}
+
+function clearSong(index) {
+    playlist[index]["player"].stop();
+    playlist[index]["player"].removeAllTracks();
 }
