@@ -121,6 +121,10 @@ table {
     margin: 35px 0 -20px 0; }
   #content .listView {
     margin: 35px 0 0 0; }
+    #content .listView img {
+      width: 35px;
+      height: 35px;
+      margin: 6px 0 0 0; }
   #content .controls {
     position: fixed;
     display: none;

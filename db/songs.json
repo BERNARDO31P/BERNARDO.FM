@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "cover": "",
+    "cover": "system/img/Altered State _ Xenoben - Perception.jpg",
     "name": "Perception",
     "artist": "Altered State & Xenoben",
     "length": "6:51",
@@ -9,7 +9,7 @@
   },
   {
     "id": 2,
-    "cover": "",
+    "cover": "system/img/Infected Mushroom - Groove Attack.jpg",
     "name": "Groove Attack",
     "artist": "Infected Mushroom",
     "length": "6:49",
@@ -17,7 +17,7 @@
   },
   {
     "id": 3,
-    "cover": "",
+    "cover": "system/img/Atacama _ Jakaan - KMOS.jpg",
     "name": "KMOS",
     "artist": "Atacama & Jakaan",
     "length": "8:39",
@@ -25,7 +25,7 @@
   },
   {
     "id": 4,
-    "cover": "",
+    "cover": "system/img/Reborn - Deep Future.jpg",
     "name": "Deep Future",
     "artist": "Reborn",
     "length": "7:42",
