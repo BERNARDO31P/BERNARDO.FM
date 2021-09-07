@@ -468,31 +468,6 @@ table {
   margin: 10px 0;
 }
 
-@media screen and (max-width: 650px) {
-  #content {
-    padding: 20px 10px 40px 10px;
-  }
-
-  #player {
-    svg {
-      padding: 15px 5px;
-    }
-  }
-}
-
-@media screen and (max-width: 850px) {
-  .blockquote {
-    .message {
-      max-width: 100%;
-    }
-
-    .authorDate {
-      margin: 10px 0 0 0;
-      position: initial;
-    }
-  }
-}
-
 @media screen and (max-width: 1150px) {
   #navbar {
     li {
@@ -554,5 +529,40 @@ table {
 
   #content {
     width: initial;
+  }
+}
+
+@media screen and (max-width: 850px) {
+  .blockquote {
+    .message {
+      max-width: 100%;
+    }
+
+    .authorDate {
+      margin: 10px 0 0 0;
+      position: initial;
+    }
+  }
+}
+
+@media screen and (max-width: 650px) {
+  #content {
+    padding: 20px 10px 40px 10px;
+  }
+
+  #player {
+    svg {
+      padding: 15px 15px;
+      margin: 0 5px;
+    }
+  }
+}
+
+@media screen and (max-width: 420px) {
+  #player {
+    svg {
+      padding: 15px 10px;
+      margin: 0 5px;
+    }
   }
 }
