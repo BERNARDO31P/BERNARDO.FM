@@ -147,9 +147,9 @@ function play() {
     player.querySelector("#artist").innerText = song["artist"];
     player.querySelector("#timeline").max = length;
 
-    playPauseButton(true);
     gapless.play();
 
+    playPauseButton(true);
     player.style.display = "initial";
 
     secondsInterval = setInterval(function () {
@@ -209,4 +209,41 @@ function getPartTime(minus) {
 function clearSong(index) {
     playlist[index]["player"].stop();
     playlist[index]["player"].removeAllTracks();
+}
+
+function nextSong() {
+    playlist[playIndex]["player"].stop();
+
+    if (typeof playlist[playIndex + 1] !== "undefined")
+        playIndex += 1;
+
+    currentTime = 0;
+
+    clearInterval(secondsInterval);
+    playPauseButton(false);
+    play();
+}
+
+function previousSong() {
+    playlist[playIndex]["player"].stop();
+
+    if (typeof playlist[playIndex - 1] !== "undefined")
+        playIndex -= 1;
+
+    currentTime = 0;
+
+    clearInterval(secondsInterval);
+    playPauseButton(false);
+    play();
+}
+
+function pauseSong() {
+    playPauseButton(false);
+
+    playlist[playIndex]["player"].pause();
+    clearInterval(secondsInterval);
+}
+
+function playSong() {
+    play();
 }

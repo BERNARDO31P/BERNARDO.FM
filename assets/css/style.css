@@ -304,6 +304,9 @@ table {
   margin: 10px 0; }
 
 @media screen and (max-width: 650px) {
+  #content {
+    padding: 20px 10px 40px 10px; }
+
   #player svg {
     padding: 15px 5px; } }
 @media screen and (max-width: 850px) {

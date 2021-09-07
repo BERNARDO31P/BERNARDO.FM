@@ -87,7 +87,9 @@ window["music"] = () => {
         let controls = document.getElementsByClassName("controls")[0];
         let pos = this.getBoundingClientRect();
 
-        controls.style.left = pos.width - 50 + "px";
+        if (getWidth() < 1250) controls.style.left = pos.width - 80 + "px";
+        else controls.style.left = pos.width + "px";
+
         controls.style.top = pos.top + 2 + "px";
         controls.style.display = "initial";
         controls.setAttribute("data-id", this.getAttribute("data-id"));
@@ -152,13 +154,14 @@ function addEvents(player) {
     }
 
     player.onfinishedall = function () {
-        playIndex = 0;
-        currentTime = 0;
+        let nextIndex = nextSongIndex();
 
-        clearInterval(secondsInterval);
+        if (typeof playlist[nextIndex] !== 'undefined') {
+            clearInterval(secondsInterval);
 
-        playPauseButton(false);
-        play();
+            playPauseButton(false);
+            play();
+        }
     }
 }
 
@@ -179,6 +182,7 @@ function addSongToPlaylist(element) {
     playlist[index]["name"] = data["name"];
     playlist[index]["artist"] = data["artist"];
     playlist[index]["length"] = data["length"];
+    playlist[index]["cover"] = data["cover"];
     playlist[index]["player"] = gapless;
 }
 

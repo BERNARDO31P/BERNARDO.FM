@@ -97,46 +97,13 @@ bindEvent("click", "#navbar-toggler", function () {
         navigation.classList.add("show");
 });
 
-bindEvent("click", "#player .fa-pause", function () {
-    this.classList.remove("fa-pause");
-    this.classList.add("fa-play");
+bindEvent("click", "#player .fa-pause",  () => pauseSong());
 
-    playlist[playIndex]["player"].pause();
-    clearInterval(secondsInterval);
-});
+bindEvent("click", "#player .fa-play", () => playSong());
 
-bindEvent("click", "#player .fa-play", function () {
-    this.classList.remove("fa-play");
-    this.classList.add("fa-pause");
+bindEvent("click", "#player .fa-forward", () => nextSong());
 
-    play();
-});
-
-bindEvent("click", "#player .fa-forward", function () {
-    playlist[playIndex]["player"].stop();
-
-    if (typeof playlist[playIndex + 1] !== "undefined")
-        playIndex += 1;
-
-    currentTime = 0;
-
-    clearInterval(secondsInterval);
-    playPauseButton(false);
-    play();
-});
-
-bindEvent("click", "#player .fa-backward", function () {
-    playlist[playIndex]["player"].stop();
-
-    if (typeof playlist[playIndex - 1] !== "undefined")
-        playIndex -= 1;
-
-    currentTime = 0;
-
-    clearInterval(secondsInterval);
-    playPauseButton(false);
-    play();
-});
+bindEvent("click", "#player .fa-backward", () => previousSong());
 
 bindEvent("mousedown", "#timeline", function () {
     let tooltip = document.getElementById("tooltip");
