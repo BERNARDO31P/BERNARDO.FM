@@ -4,6 +4,8 @@ let currentHover = null,
     playIndex = 0,
     playlist = {};
 
+let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
+
 /*
  * Funktion: bindEvent()
  * Autor: Bernardo de Oliveira
@@ -245,5 +247,39 @@ function pauseSong() {
 }
 
 function playSong() {
+    play();
+}
+
+function onTimelinePress() {
+    let tooltip = document.getElementById("tooltip");
+    tooltip.style.display = "initial";
+
+    clearInterval(secondsInterval);
+    playPauseButton(false);
+    playlist[playIndex]["player"].pause();
+}
+
+function onTimelineMove() {
+    let tooltip = document.getElementById("tooltip");
+    let measurementTooltip = tooltip.getBoundingClientRect();
+    let measurementRange = this.getBoundingClientRect();
+    let leftPos = mouseX - (measurementTooltip["width"] / 2);
+
+    if (leftPos < 0)
+        leftPos = 0;
+    else if ((leftPos + measurementTooltip["width"]) > getWidth())
+        leftPos = getWidth() - measurementTooltip["width"];
+
+    tooltip.style.top = (measurementRange["top"] - measurementTooltip["height"] - 10) + "px";
+    tooltip.style.left = leftPos + "px";
+
+    let currentTimestamp = tooltip.querySelector("#current");
+    currentTimestamp.innerText = getMinutesAndSeconds(this.value);
+}
+
+function onTimelineRelease() {
+    let tooltip = document.getElementById("tooltip");
+    tooltip.style.display = "none";
+
     play();
 }

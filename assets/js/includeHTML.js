@@ -1,4 +1,4 @@
-let httpGetM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/httpGet.js");
+let httpGetM = await import(pageURL + "assets/js/httpGet.js");
 
 /*
  * Funktion: htmlToElement()

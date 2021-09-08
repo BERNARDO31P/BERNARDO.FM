@@ -1,5 +1,5 @@
-let httpGetM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/httpGet.js");
-let tryParseJSONM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/tryParseJSON.js");
+let httpGetM = await import(pageURL + "assets/js/httpGet.js");
+let tryParseJSONM = await import(pageURL + "assets/js/tryParseJSON.js");
 
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
@@ -169,7 +169,7 @@ function addEvents(player) {
 function addSongToPlaylist(element) {
     let controls = element.closest(".controls");
     let songID = controls.getAttribute("data-id");
-    let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(window.location.protocol + "//" + window.location.host + "/system/player.php?id=" + songID));
+    let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID));
 
     let gapless = new Gapless5();
     gapless.addTrack(data["location"]);
@@ -207,7 +207,7 @@ function downloadNextPart() {
         if (!stop) {
             let songID = playlist[playIndex]["id"];
 
-            let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(window.location.protocol + "//" + window.location.host + "/system/player.php?id=" + songID + "&time=" + nextTime));
+            let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID + "&time=" + nextTime));
             playlist[playIndex]["player"].addTrack(data["location"]);
         }
     }, 2000);

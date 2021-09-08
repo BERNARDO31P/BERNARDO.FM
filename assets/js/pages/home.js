@@ -1,5 +1,5 @@
-let httpGetM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/httpGet.js");
-let tryParseJSONM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/tryParseJSON.js");
+let httpGetM = await import(pageURL + "assets/js/httpGet.js");
+let tryParseJSONM = await import(pageURL + "assets/js/tryParseJSON.js");
 
 if (typeof window["home"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 

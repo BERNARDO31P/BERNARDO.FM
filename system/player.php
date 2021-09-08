@@ -54,7 +54,8 @@ if (isset($_GET["id"])) {
     \falahati\PHPMP3\MpegAudio::fromFile(__DIR__ . "/music/" . $song["fileName"])->trim($time, $time + 20)->saveFile(__DIR__ . $newName);
 
     recursive_unset($song, "fileName");
-    $song["location"] = "/system" . $newName;
+	$document_path = str_replace($_SERVER["DOCUMENT_ROOT"], "", str_replace("\\", "/", __DIR__));
+    $song["location"] = $document_path . $newName;
 
     if ($timeSet) {
         recursive_unset($song, "id");
