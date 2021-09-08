@@ -1,13 +1,6 @@
 let httpGetM = await import(pageURL + "assets/js/httpGet.js");
 let includeHTMLM = await import(pageURL + "assets/js/includeHTML.js");
 
-let page, mouseX = 0, mouseY = 0;
-
-document.addEventListener("mousemove", (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-});
-
 /*
  * Funktion: dataIncludeReplace()
  * Autor: Bernardo de Oliveira
@@ -103,11 +96,10 @@ bindEvent("click", "#player .fa-forward", () => nextSong());
 bindEvent("click", "#player .fa-backward", () => previousSong());
 
 bindEvent("mousedown", "#timeline", () => onTimelinePress());
-bindEvent("input", "#timeline", () => onTimelineMove());
+bindEvent("input", "#timeline", (e) => onTimelineMove(e));
 bindEvent("mouseup", "#timeline", () => onTimelineRelease());
 
 bindEvent("touchstart", "#timeline", () => onTimelinePress());
-bindEvent("touchmove", "#timeline", () => onTimelineMove());
 bindEvent("touchend", "#timeline", () => onTimelineRelease());
 
 bindEvent("input", "#search", function () {

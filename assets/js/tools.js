@@ -5,6 +5,12 @@ let currentHover = null,
     playlist = {};
 
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
+let page, mouseX = 0, mouseY = 0;
+
+document.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
 
 /*
  * Funktion: bindEvent()
@@ -259,10 +265,10 @@ function onTimelinePress() {
     playlist[playIndex]["player"].pause();
 }
 
-function onTimelineMove() {
+function onTimelineMove(rangeEvent) {
     let tooltip = document.getElementById("tooltip");
     let measurementTooltip = tooltip.getBoundingClientRect();
-    let measurementRange = this.getBoundingClientRect();
+    let measurementRange = rangeEvent.target.getBoundingClientRect();
     let leftPos = mouseX - (measurementTooltip["width"] / 2);
 
     if (leftPos < 0)
@@ -274,7 +280,7 @@ function onTimelineMove() {
     tooltip.style.left = leftPos + "px";
 
     let currentTimestamp = tooltip.querySelector("#current");
-    currentTimestamp.innerText = getMinutesAndSeconds(this.value);
+    currentTimestamp.innerText = getMinutesAndSeconds(rangeEvent.target.value);
 }
 
 function onTimelineRelease() {
