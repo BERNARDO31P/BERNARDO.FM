@@ -400,8 +400,10 @@ body {
   #player #timeline:hover {
     height: 15px; } }
 @media screen and (max-width: 850px) {
-  .songGrid h2, .songGrid h2:first-of-type {
+  .songGrid h2 {
     margin: 5px 0 5px 5px; }
+  .songGrid h2:first-of-type {
+    margin: 30px 0 5px 5px; }
   .songGrid .songCategory {
     justify-content: space-between; }
     .songGrid .songCategory div {
