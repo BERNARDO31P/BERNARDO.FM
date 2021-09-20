@@ -179,6 +179,13 @@ window["music"] = () => {
             clearSong(i);
         }
 
+        let player = document.getElementById("player"), content = document.getElementById("content");
+        if (player.style.display === "none") {
+            let playerPos = player.getBoundingClientRect(), contentPos = content.getBoundingClientRect();
+
+            content.style.margin
+        }
+
         playIndex = 0;
         currentTime = 0;
         playlist = {};
