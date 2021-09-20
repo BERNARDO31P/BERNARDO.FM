@@ -400,6 +400,8 @@ body {
 @media screen and (max-width: 850px) {
   .songGrid .songCategory {
     justify-content: space-between; }
+    .songGrid .songCategory div {
+      margin: 0 5px 55px 5px; }
 
   #player #timeline {
     height: 15px; }
