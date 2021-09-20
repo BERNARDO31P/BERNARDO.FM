@@ -25,65 +25,6 @@ body {
   background-color: #f5f5f5;
 }
 
-table {
-  width: 100%;
-  box-shadow: -1px -1px 4px #efefef, 1px 1px 4px #dedede;
-
-  border-radius: 10px;
-  border-spacing: 0;
-
-  thead {
-    text-align: left;
-    box-shadow: -1px -1px 4px #efefef, 1px 1px 4px #dedede;
-
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-
-    th {
-      font-weight: initial;
-
-      height: 50px;
-      padding: 0 10px;
-    }
-  }
-
-  tbody {
-    td {
-      color: #4b4b4b;
-      padding: 0 10px;
-      height: 40px;
-    }
-
-    td:last-of-type {
-      svg {
-        padding: 10px;
-        margin: 0 20px;
-      }
-
-      svg:first-of-type {
-        margin: 0 20px 0 0
-      }
-
-      .listAdd {
-        svg {
-          padding: 10px 0;
-        }
-      }
-    }
-
-    tr:last-of-type {
-      border-bottom-left-radius: 10px;
-      border-bottom-right-radius: 10px;
-    }
-
-    tr:hover {
-      cursor: pointer;
-      transition: 0.1s;
-      box-shadow: -2px -2px 4px #efefef, 2px 2px 4px #dedede;
-    }
-  }
-}
-
 #navbar {
   border-bottom: 1px solid #e6e6e6;
 
@@ -208,6 +149,9 @@ table {
 
     line-height: 40px;
 
+    text-align: center;
+
+    border-top-right-radius: 5px;
     background-color: #f5f5f5;
 
     * {
@@ -219,6 +163,8 @@ table {
     .listAdd {
       position: relative;
       display: initial;
+
+      padding: 0;
 
       .fa-plus {
         background-color: #f5f5f5;
@@ -384,6 +330,135 @@ table {
 
 #player.show {
   display: initial;
+}
+
+.songGrid {
+
+  h2 {
+    margin: 5px 0 5px 0;
+  }
+
+  .songCategory {
+    div {
+      position: relative;
+      display: inline-block;
+
+      margin: 0 20px 55px 0;
+
+      span {
+        max-width: 156px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .name {
+        position: absolute;
+        top: 163px;
+        left: 2px;
+
+        font-size: 15px;
+      }
+
+      .artist {
+        position: absolute;
+        top: 183px;
+        left: 2px;
+
+        font-size: 13px;
+
+        color: #444444;
+      }
+
+      .length {
+        transition: 0.2s;
+        position: absolute;
+        opacity: 0;
+        top: 135px;
+        right: 10px;
+
+        color: #cccccc;
+      }
+
+      img {
+        transition: 0.2s;
+        max-width: 160px;
+
+        border-radius: 5px;
+      }
+
+      img:hover {
+        filter: brightness(50%);
+      }
+
+      img:hover ~ .length {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.songList {
+  width: 100%;
+  box-shadow: -1px -1px 4px #efefef, 1px 1px 4px #dedede;
+
+  border-radius: 10px;
+  border-spacing: 0;
+
+  thead {
+    text-align: left;
+    box-shadow: -1px -1px 4px #efefef, 1px 1px 4px #dedede;
+
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+
+    th {
+      font-weight: initial;
+
+      height: 50px;
+      padding: 0 10px;
+    }
+  }
+
+  tbody {
+    td {
+      color: #4b4b4b;
+      padding: 0 10px;
+      height: 40px;
+    }
+
+    td:last-of-type {
+      svg {
+        padding: 10px;
+        margin: 0 20px;
+      }
+
+      svg:first-of-type {
+        margin: 0 20px 0 0
+      }
+
+      .listAdd {
+        svg {
+          padding: 10px 0;
+        }
+      }
+    }
+
+    tr:not([data-id]) {
+      font-weight: bold;
+    }
+
+    tr:last-of-type {
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+
+    tr[data-id]:hover {
+      cursor: pointer;
+      transition: 0.1s;
+      box-shadow: -2px -2px 4px #efefef, 2px 2px 4px #dedede;
+    }
+  }
 }
 
 .blockquote {

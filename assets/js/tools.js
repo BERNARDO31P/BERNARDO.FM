@@ -2,7 +2,9 @@ let currentHover = null,
     currentTime = 0,
     secondsInterval = null,
     playIndex = 0,
-    playlist = {};
+    playlist = {},
+    prevPage,
+    page;
 
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, mouseX = 0, mouseY = 0;

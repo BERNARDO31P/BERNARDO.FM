@@ -2,6 +2,9 @@
 ini_set('memory_limit', -1);
 
 $db = json_decode(file_get_contents(__DIR__ . "/../db/songs.json"), true);
+usort($db, function($a, $b) {
+    return $a['category'] <=> $b['category'];
+});
 
 function recursive_unset(&$array, $unwanted_key) {
     unset($array[$unwanted_key]);

@@ -1,5 +1,13 @@
-let httpGetM = await import(pageURL + "assets/js/httpGet.js");
-let includeHTMLM = await import(pageURL + "assets/js/includeHTML.js");
+let httpGetM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/httpGet.js");
+let includeHTMLM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/includeHTML.js");
+let tryParseJSONM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/tryParseJSON.js");
+
+let mouseX = 0, mouseY = 0;
+
+document.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
 
 /*
  * Funktion: dataIncludeReplace()
@@ -89,21 +97,54 @@ bindEvent("click", "#navbar-toggler", function () {
         navigation.classList.add("show");
 });
 
-bindEvent("click", "#player .fa-play", () => playSong());
 bindEvent("click", "#player .fa-pause",  () => pauseSong());
 
+bindEvent("click", "#player .fa-play", () => playSong());
+
 bindEvent("click", "#player .fa-forward", () => nextSong());
+
 bindEvent("click", "#player .fa-backward", () => previousSong());
 
-bindEvent("mousedown", "#timeline", () => onTimelinePress());
-bindEvent("input", "#timeline", (e) => onTimelineMove(e));
-bindEvent("mouseup", "#timeline", () => onTimelineRelease());
+bindEvent("mousedown", "#timeline", function () {
+    let tooltip = document.getElementById("tooltip");
+    tooltip.style.display = "initial";
 
-bindEvent("touchstart", "#timeline", () => onTimelinePress());
-bindEvent("touchend", "#timeline", () => onTimelineRelease());
+    clearInterval(secondsInterval);
+    playPauseButton(false);
+    playlist[playIndex]["player"].pause();
+});
+
+bindEvent("input", "#timeline", function () {
+    let tooltip = document.getElementById("tooltip");
+    let measurementTooltip = tooltip.getBoundingClientRect();
+    let measurementRange = this.getBoundingClientRect();
+    let leftPos = mouseX - (measurementTooltip["width"] / 2);
+
+    if (leftPos < 0)
+        leftPos = 0;
+     else if ((leftPos + measurementTooltip["width"]) > getWidth())
+        leftPos = getWidth() - measurementTooltip["width"];
+
+    tooltip.style.top = (measurementRange["top"] - measurementTooltip["height"] - 10) + "px";
+    tooltip.style.left = leftPos + "px";
+
+    let currentTimestamp = tooltip.querySelector("#current");
+    currentTimestamp.innerText = getMinutesAndSeconds(this.value);
+});
+
+bindEvent("mouseup", "#timeline", function () {
+    let tooltip = document.getElementById("tooltip");
+    tooltip.style.display = "none";
+
+    play();
+});
 
 bindEvent("input", "#search", function () {
-    page = "music";
+    if (page !== "music") prevPage = getPage();
+
+    if (this.value) page = "music";
+    else page = prevPage;
+
     window.location.href = "#!page=" + page;
 });
 

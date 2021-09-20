@@ -5,7 +5,8 @@
     "name": "Perception",
     "artist": "Altered State & Xenoben",
     "length": "6:51",
-    "fileName": "Altered State _ Xenoben - Perception.mp3"
+    "fileName": "Altered State _ Xenoben - Perception.mp3",
+    "category": "Psy-Trance"
   },
   {
     "id": 2,
@@ -13,22 +14,34 @@
     "name": "Groove Attack",
     "artist": "Infected Mushroom",
     "length": "6:49",
-    "fileName": "Infected Mushroom - Groove Attack.mp3"
+    "fileName": "Infected Mushroom - Groove Attack.mp3",
+    "category": "Psy-Trance"
   },
   {
     "id": 3,
+    "cover": "system/img/Mobb Deep - Hell on Earth.jpg",
+    "name": "Hell on Earth",
+    "artist": "Mobb Deep",
+    "length": "4:37",
+    "fileName": "Mobb Deep - Hell on Earth.mp3",
+    "category": "Hip-Hop"
+  },
+  {
+    "id": 4,
     "cover": "system/img/Atacama _ Jakaan - KMOS.jpg",
     "name": "KMOS",
     "artist": "Atacama & Jakaan",
     "length": "8:39",
-    "fileName": "Atacama _ Jakaan - KMOS.mp3"
+    "fileName": "Atacama _ Jakaan - KMOS.mp3",
+    "category": "Psy-Trance"
   },
   {
-    "id": 4,
+    "id": 5,
     "cover": "system/img/Reborn - Deep Future.jpg",
     "name": "Deep Future",
     "artist": "Reborn",
     "length": "7:42",
-    "fileName": "Reborn - Deep Future.mp3"
+    "fileName": "Reborn - Deep Future.mp3",
+    "category": "Psy-Trance"
   }
 ]
