@@ -28,14 +28,19 @@ function loadPage() {
         import(script);
     }
 
-    setTimeout(function () {
-        try {
+    let i = 0;
+    let pageLoad = setInterval(function () {
+        if (typeof window[page] !== 'undefined') {
+            clearInterval(pageLoad);
             window[page]();
-        } catch (e) {
+        } else if (i > 3) {
+            clearInterval(pageLoad);
             console.log("Function not implemented.");
         }
+        i++;
     }, 100);
 }
+
 window.addEventListener('popstate', loadPage);
 
 /*
@@ -90,7 +95,7 @@ bindEvent("click", "#navbar-toggler", function () {
         navigation.classList.add("show");
 });
 
-bindEvent("click", "#player .fa-pause",  () => pauseSong());
+bindEvent("click", "#player .fa-pause", () => pauseSong());
 
 bindEvent("click", "#player .fa-play", () => playSong());
 
@@ -115,7 +120,7 @@ bindEvent("input", "#timeline", function () {
 
     if (leftPos < 0)
         leftPos = 0;
-     else if ((leftPos + measurementTooltip["width"]) > getWidth())
+    else if ((leftPos + measurementTooltip["width"]) > getWidth())
         leftPos = getWidth() - measurementTooltip["width"];
 
     tooltip.style.top = (measurementRange["top"] - measurementTooltip["height"] - 10) + "px";
