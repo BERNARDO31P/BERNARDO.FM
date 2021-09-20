@@ -1,13 +1,5 @@
 let httpGetM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/httpGet.js");
 let includeHTMLM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/includeHTML.js");
-let tryParseJSONM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/tryParseJSON.js");
-
-let mouseX = 0, mouseY = 0;
-
-document.addEventListener("mousemove", (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-});
 
 /*
  * Funktion: dataIncludeReplace()
@@ -85,6 +77,7 @@ bindEvent("click", "[data-page]", function (e) {
         navigation.classList.remove("show");
 
     page = e.target.dataset.page;
+    prevPage = undefined;
     window.location.href = "#!page=" + page;
 });
 
@@ -142,7 +135,7 @@ bindEvent("mouseup", "#timeline", function () {
 bindEvent("input", "#search", function () {
     if (page !== "music") prevPage = getPage();
 
-    if (this.value) page = "music";
+    if (this.value || typeof prevPage === 'undefined') page = "music";
     else page = prevPage;
 
     window.location.href = "#!page=" + page;

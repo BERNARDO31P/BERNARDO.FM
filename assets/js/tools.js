@@ -2,12 +2,10 @@ let currentHover = null,
     currentTime = 0,
     secondsInterval = null,
     playIndex = 0,
-    playlist = {},
-    prevPage,
-    page;
+    playlist = {};
 
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
-let page, mouseX = 0, mouseY = 0;
+let page, prevPage, mouseX = 0, mouseY = 0;
 
 document.addEventListener("mousemove", (e) => {
     mouseX = e.clientX;
