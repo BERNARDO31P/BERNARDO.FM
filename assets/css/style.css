@@ -154,8 +154,6 @@ body {
     -webkit-appearance: none;
     height: 5px;
     overflow: hidden; }
-  #player #timeline:hover {
-    height: 15px; }
   #player #tooltip {
     display: none;
     position: fixed;
@@ -227,6 +225,8 @@ body {
 
 .songGrid h2 {
   margin: 5px 0 5px 0; }
+.songGrid h2:first-of-type {
+  margin: 30px 0 5px 0; }
 .songGrid .songCategory div {
   position: relative;
   display: inline-block;
@@ -251,7 +251,7 @@ body {
     transition: 0.2s;
     position: absolute;
     opacity: 0;
-    top: 135px;
+    top: 133px;
     right: 10px;
     color: #cccccc; }
   .songGrid .songCategory div img {
@@ -393,7 +393,13 @@ body {
 
   #content {
     width: initial; } }
+@media screen and (min-width: 850px) {
+  #player #timeline:hover {
+    height: 15px; } }
 @media screen and (max-width: 850px) {
+  #player #timeline {
+    height: 15px; }
+
   .blockquote .message {
     max-width: 100%; }
   .blockquote .authorDate {

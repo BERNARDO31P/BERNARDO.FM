@@ -103,7 +103,7 @@ window["music"] = () => {
                         let title = document.createElement("h2");
 
                         title.innerText = category;
-                        categoryView.appendChild(title);
+                        gridView.appendChild(title);
                     }
 
                     let songCard = document.createElement("div");
