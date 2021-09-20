@@ -86,12 +86,14 @@ body {
     position: absolute;
     right: 50px;
     border: 1px solid #d9d9d9;
-    border-radius: 5px; }
+    border-radius: 5px;
+    padding: 2px 2px 0 2px; }
     #content #view * {
       cursor: pointer;
       padding: 5px 15px; }
     #content #view *.active {
-      background-color: #e2e2e2; }
+      background-color: #e2e2e2;
+      border-radius: 2px; }
   #content .info {
     margin: 30px 0 0 0; }
   #content .searchterm {
@@ -398,6 +400,8 @@ body {
   #player #timeline:hover {
     height: 15px; } }
 @media screen and (max-width: 850px) {
+  .songGrid h2, .songGrid h2:first-of-type {
+    margin: 5px 0 5px 5px; }
   .songGrid .songCategory {
     justify-content: space-between; }
     .songGrid .songCategory div {

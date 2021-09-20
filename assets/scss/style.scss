@@ -128,6 +128,8 @@ body {
     border: 1px solid #d9d9d9;
     border-radius: 5px;
 
+    padding: 2px 2px 0 2px;
+
     * {
       cursor: pointer;
       padding: 5px 15px;
@@ -135,6 +137,7 @@ body {
 
     *.active {
       background-color: #e2e2e2;
+      border-radius: 2px;
     }
   }
 
@@ -618,6 +621,10 @@ body {
 
 @media screen and (max-width: 850px) {
   .songGrid {
+    h2, h2:first-of-type {
+      margin: 5px 0 5px 5px;
+    }
+
     .songCategory {
       justify-content: space-between;
 
