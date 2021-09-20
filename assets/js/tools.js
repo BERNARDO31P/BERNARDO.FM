@@ -125,12 +125,26 @@ function setCookie(name, value, expiresAt = "") {
     document.cookie = name + "=" + value + "; Expires=" + expiresAt + "; Path=/; SameSite=Lax";
 }
 
-// TODO: Comment
+/*
+ * Funktion: ucFirst()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  string: (String) Zeichenkette
+ *
+ * Modifiziert eine Zeichenkette, sodass diese mit einem Grossbuchstaben beginnt
+ */
 function ucFirst(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-// TODO: Comment
+/*
+ * Funktion: getMinutesAndSeconds()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  time: (Integer) Die Sekunden
+ *
+ * Wandelt Sekunden in Minuten und Sekunden um
+ */
 function getMinutesAndSeconds(time) {
     let minutes = Math.floor(time / 60);
     let seconds = time - minutes * 60;
@@ -141,7 +155,14 @@ function getMinutesAndSeconds(time) {
     return minutes + ":" + seconds;
 }
 
-// TODO: Comment
+/*
+ * Funktion: play()
+ * Autor: Bernardo de Oliveira
+ *
+ * Fügt die neuen Liedinformationen in den Player ein
+ * Beginnt die Wiedergabe
+ * Erstellt eine Schleife, welche jede Sekunde sich wiederholt und den Fortschritt ins Tooltip einfügt
+ */
 function play() {
     let player = document.getElementById("player");
 
@@ -167,7 +188,12 @@ function play() {
     }, 1000);
 }
 
-// TODO: Comment
+/*
+ * Funktion: nextSongIndex()
+ * Autor: Bernardo de Oliveira
+ *
+ * Holt sich die Array ID des nächsten Liedes
+ */
 function nextSongIndex() {
     let found = false;
 
@@ -184,7 +210,14 @@ function nextSongIndex() {
     }
 }
 
-// TODO: Comment
+/*
+ * Funktion: playPauseButton()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  play: (Boolean) Definiert ob gerade abgespielt wird
+ *
+ * Ändert das Icon von "abspielen/pausieren"
+ */
 function playPauseButton(play = false) {
     let player = document.getElementById("player");
     let playButton = player.querySelector(".fa-play");
@@ -199,26 +232,56 @@ function playPauseButton(play = false) {
     }
 }
 
-// TODO: Comment
+/*
+ * Funktion: getPartLength()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  minus: (Integer) Definiert wie viele Songteile zurück
+ *
+ * Gibt die Länge eines Songteiles zurück
+ */
 function getPartLength(minus) {
     let partIndex = playlist[playIndex]["player"].trk.trackNumber - minus;
 
     return playlist[playIndex]["player"].sources[partIndex].getLength() / 1000;
 }
 
-// TODO: Comment
+/*
+ * Funktion: getPartTime()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  minus: (Integer) Definiert wie viele Songteile zurück
+ *
+ * Gibt die Position eines Songteiles zurück
+ */
 function getPartTime(minus) {
     let partIndex = playlist[playIndex]["player"].trk.trackNumber - minus;
 
     return playlist[playIndex]["player"].sources[partIndex].getPosition() / 1000;
 }
 
-// TODO: Comment
+/*
+ * Funktion: clearSong()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  index: (Integer) Definiert welches Lied
+ *
+ * Löscht alle Teile eines Liedes
+ */
 function clearSong(index) {
     playlist[index]["player"].stop();
     playlist[index]["player"].removeAllTracks();
 }
 
+/*
+ * Funktion: nextSong()
+ * Autor: Bernardo de Oliveira
+ *
+ * Überprüft ob weitere Lieder in der Wiedergabenliste verfügbar sind
+ * Falls dies der Fall sein sollte, wird der Playindex um eine ID inkrementiert
+ *
+ * Die Wiedergabe wird gestartet
+ */
 function nextSong() {
     playlist[playIndex]["player"].stop();
 
@@ -232,6 +295,15 @@ function nextSong() {
     play();
 }
 
+/*
+ * Funktion: previousSong()
+ * Autor: Bernardo de Oliveira
+ *
+ * Überprüft ob weitere Lieder in der Wiedergabenliste verfügbar sind
+ * Falls dies der Fall sein sollte, wird der Playindex um eine ID dekrementiert
+ *
+ * Die Wiedergabe wird gestartet
+ */
 function previousSong() {
     playlist[playIndex]["player"].stop();
 
@@ -245,6 +317,12 @@ function previousSong() {
     play();
 }
 
+/*
+ * Funktion: pauseSong()
+ * Autor: Bernardo de Oliveira
+ *
+ * Pausiert die Wiedergabe
+ */
 function pauseSong() {
     playPauseButton(false);
 
@@ -252,10 +330,23 @@ function pauseSong() {
     clearInterval(secondsInterval);
 }
 
+/*
+ * Funktion: playSong()
+ * Autor: Bernardo de Oliveira
+ *
+ * Beginnt die Wiedergabe
+ */
 function playSong() {
     play();
 }
 
+/*
+ * Funktion: onTimelinePress()
+ * Autor: Bernardo de Oliveira
+ *
+ * Sobald die Timeline angedrückt wird, wird das tooltip mit dem jetzigen Fortschritt des Liedes angezeigt
+ * Die Wiedergabe wird pausiert
+ */
 function onTimelinePress() {
     let tooltip = document.getElementById("tooltip");
     tooltip.style.display = "initial";
@@ -265,6 +356,15 @@ function onTimelinePress() {
     playlist[playIndex]["player"].pause();
 }
 
+/*
+ * Funktion: onTimelineMove()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  rangeEvent: (Event) Das ausgelöste Ereignis
+ *
+ * Das Tooltip wird an die letzte bekannte Position der Maus verschoben
+ * Im Tooltip wird der Fortschritt des Liedes aktualisiert
+ */
 function onTimelineMove(rangeEvent) {
     let tooltip = document.getElementById("tooltip");
     let measurementTooltip = tooltip.getBoundingClientRect();
@@ -283,6 +383,13 @@ function onTimelineMove(rangeEvent) {
     currentTimestamp.innerText = getMinutesAndSeconds(rangeEvent.target.value);
 }
 
+/*
+ * Funktion: onTimelineRelease()
+ * Autor: Bernardo de Oliveira
+ *
+ * Sobald die Timeline wieder losgelassen wird, wird das tooltip mit dem jetzigen Fortschritt des Liedes versteckt
+ * Die Wiedergabe beginnt
+ */
 function onTimelineRelease() {
     let tooltip = document.getElementById("tooltip");
     tooltip.style.display = "none";

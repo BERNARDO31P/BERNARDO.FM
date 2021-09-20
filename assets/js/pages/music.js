@@ -136,6 +136,12 @@ window["music"] = () => {
         object.remove();
     }
 
+    /*
+     * Funktion: Anonym
+     * Autor: Bernardo de Oliveira
+     *
+     * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
+     */
     bindEvent("mouseover", "tr[data-id]", function () {
         let controls = document.getElementsByClassName("controls")[0];
         let pos = this.getBoundingClientRect();
@@ -148,6 +154,12 @@ window["music"] = () => {
         controls.setAttribute("data-id", this.getAttribute("data-id"));
     });
 
+    /*
+     * Funktion: Anonym
+     * Autor: Bernardo de Oliveira
+     *
+     * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
+     */
     bindEvent("mouseover", ".songCard", function () {
         let controls = document.getElementsByClassName("controls")[0];
         let pos = this.getBoundingClientRect();
@@ -158,6 +170,12 @@ window["music"] = () => {
         controls.setAttribute("data-id", this.getAttribute("data-id"));
     });
 
+    /*
+     * Funktion: Anonym
+     * Autor: Bernardo de Oliveira
+     *
+     * Versteckt die Liedoptionen
+     */
     bindEvent("mouseout", "#content", function (e) {
         if (!e.target.classList.contains(".controls")
             && e.target.closest(".controls") === null
@@ -170,10 +188,22 @@ window["music"] = () => {
         }
     });
 
+    /*
+     * Funktion: Anonym
+     * Autor: Bernardo de Oliveira
+     *
+     * Fügt ein Lied zur Wiedergabenliste hinzu
+     */
     bindEvent("click", "#content .listAdd", function () {
         addSongToPlaylist(this);
     });
 
+    /*
+     * Funktion: Anonym
+     * Autor: Bernardo de Oliveira
+     *
+     * Setzt die Wiedergabenliste zurück und spielt das Lied ab
+     */
     bindEvent("click", "#content .fa-play", function () {
         for (let i = 0; i < Object.keys(playlist).length; i++) {
             clearSong(i);
@@ -195,6 +225,12 @@ window["music"] = () => {
         play();
     });
 
+    /*
+     * Funktion: Anonym
+     * Autor: Bernardo de Oliveira
+     *
+     * Versteckt beim Scrollen die Liedoptionen
+     */
     window.addEventListener("scroll", function () {
         let controls = document.getElementsByClassName("controls")[0];
 
@@ -203,7 +239,18 @@ window["music"] = () => {
     });
 }
 
-// TODO: Comment
+/*
+ * Funktion: addEvents()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  player: (Objekt) Der Player, welchem die Events zugewiesen werden
+ *
+ * Fügt Events zum Player hinzu
+ *
+ * onplay: Sobald die Wiedergabe beginnt, soll der nächste Teil im Hintergrund heruntergeladen werden
+ * onnext: Sobald der nächste Teil des Liedes beginnt, soll der nächste Teil im Hintergrund heruntergeladen werden
+ * onfinishedall: Sobald das Lied abgeschlossen ist, wird das nächste Lied wiedergeben
+ */
 function addEvents(player) {
     player.onplay = function () {
         let currentPart = playlist[playIndex]["player"].trk.trackNumber;
@@ -239,7 +286,15 @@ function addEvents(player) {
     }
 }
 
-// TODO: Comment
+/*
+ * Funktion: addSongToPlaylist()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  element: (Objekt) Das Element, welches überprüft werden soll
+ *
+ * Liesst die Lied ID aus den Objekt-Eigenschaften aus
+ * Lädt die Liedinformationen herunter und fügt diese zur Wiedergabenliste hinzu
+ */
 function addSongToPlaylist(element) {
     let controls = element.closest(".controls");
     let songID = controls.getAttribute("data-id");
@@ -260,7 +315,15 @@ function addSongToPlaylist(element) {
     playlist[index]["player"] = gapless;
 }
 
-// TODO: Comment
+/*
+ * Funktion: downloadNextPart()
+ * Autor: Bernardo de Oliveira
+ *
+ * Überprüft ob das Lied fertig ist
+ * Überprüft ob ein nächstes Lied in der Wiedergabenliste verfügbar ist
+ *
+ * Lädt den nächsten Teil herunter oder pausiert die weitere Wiedergabe
+ */
 function downloadNextPart() {
     let timeline = document.getElementById("timeline");
     let stop = false;

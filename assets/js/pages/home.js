@@ -44,6 +44,12 @@ window["home"] = () => {
         }
     }
 
+    /*
+     * Funktion: Anonym
+     * Autor: Bernardo de Oliveira
+     *
+     * Zeigt die Details von einem Beitrag an oder versteckt sie wieder
+     */
     bindEvent("click", ".detailsButton", function () {
         let details = prev(this);
 

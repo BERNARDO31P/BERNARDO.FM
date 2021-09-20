@@ -40,7 +40,6 @@ function loadPage() {
         i++;
     }, 100);
 }
-
 window.addEventListener('popstate', loadPage);
 
 /*
@@ -76,6 +75,12 @@ window.addEventListener("scroll", () => {
     }
 });
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Sobald eine neue Unterseite angedrückt wird, wird diese in die URL eingefügt
+ */
 bindEvent("click", "[data-page]", function (e) {
     let navigation = document.querySelector("#navigation");
     if (navigation.classList.contains("show"))
@@ -86,6 +91,12 @@ bindEvent("click", "[data-page]", function (e) {
     window.location.href = "#!page=" + page;
 });
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Öffnet die Navigation oder schliesst sie
+ */
 bindEvent("click", "#navbar-toggler", function () {
     let navigation = document.querySelector("#navigation");
 
@@ -113,6 +124,12 @@ bindEvent("input", "#timeline", (e) => onTimelineMove(e));
 
 bindEvent("mouseup", "#timeline", () => onTimelineRelease());
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Ändert die Unterseite zu "music" und speichert sich die vorherige Seite
+ */
 bindEvent("input", "#search", function () {
     if (page !== "music") prevPage = getPage();
 
@@ -122,11 +139,23 @@ bindEvent("input", "#search", function () {
     window.location.href = "#!page=" + page;
 });
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Ändert die Ansicht auf Listenansicht
+ */
 bindEvent("click", "#view .fa-list", function () {
     setCookie("view", "list");
     window.location.href = "#!page=" + page;
 });
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Ändert die Ansicht auf Gitteransicht
+ */
 bindEvent("click", "#view .fa-grip-horizontal", function () {
     setCookie("view", "grip");
     window.location.href = "#!page=" + page;
