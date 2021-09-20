@@ -103,39 +103,15 @@ bindEvent("click", "#player .fa-forward", () => nextSong());
 
 bindEvent("click", "#player .fa-backward", () => previousSong());
 
-bindEvent("mousedown", "#timeline", function () {
-    let tooltip = document.getElementById("tooltip");
-    tooltip.style.display = "initial";
+bindEvent("touchstart", "#timeline", () => onTimelinePress());
 
-    clearInterval(secondsInterval);
-    playPauseButton(false);
-    playlist[playIndex]["player"].pause();
-});
+bindEvent("touchend", "#timeline", () => onTimelineRelease());
 
-bindEvent("input", "#timeline", function () {
-    let tooltip = document.getElementById("tooltip");
-    let measurementTooltip = tooltip.getBoundingClientRect();
-    let measurementRange = this.getBoundingClientRect();
-    let leftPos = mouseX - (measurementTooltip["width"] / 2);
+bindEvent("mousedown", "#timeline", () => onTimelinePress());
 
-    if (leftPos < 0)
-        leftPos = 0;
-    else if ((leftPos + measurementTooltip["width"]) > getWidth())
-        leftPos = getWidth() - measurementTooltip["width"];
+bindEvent("input", "#timeline", (e) => onTimelineMove(e));
 
-    tooltip.style.top = (measurementRange["top"] - measurementTooltip["height"] - 10) + "px";
-    tooltip.style.left = leftPos + "px";
-
-    let currentTimestamp = tooltip.querySelector("#current");
-    currentTimestamp.innerText = getMinutesAndSeconds(this.value);
-});
-
-bindEvent("mouseup", "#timeline", function () {
-    let tooltip = document.getElementById("tooltip");
-    tooltip.style.display = "none";
-
-    play();
-});
+bindEvent("mouseup", "#timeline", () => onTimelineRelease());
 
 bindEvent("input", "#search", function () {
     if (page !== "music") prevPage = getPage();
