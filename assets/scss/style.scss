@@ -343,10 +343,11 @@ body {
   }
 
   .songCategory {
+    display: flex;
+    flex-wrap: wrap;
+
     div {
       position: relative;
-      display: inline-block;
-
       margin: 0 20px 55px 0;
 
       span {
@@ -616,6 +617,12 @@ body {
 }
 
 @media screen and (max-width: 850px) {
+  .songGrid {
+    .songCategory {
+      justify-content: space-between;
+    }
+  }
+
   #player {
     #timeline {
       height: 15px;

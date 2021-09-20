@@ -226,41 +226,43 @@ body {
   margin: 5px 0 5px 0; }
 .songGrid h2:first-of-type {
   margin: 30px 0 5px 0; }
-.songGrid .songCategory div {
-  position: relative;
-  display: inline-block;
-  margin: 0 20px 55px 0; }
-  .songGrid .songCategory div span {
-    max-width: 156px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; }
-  .songGrid .songCategory div .name {
-    position: absolute;
-    top: 163px;
-    left: 2px;
-    font-size: 15px; }
-  .songGrid .songCategory div .artist {
-    position: absolute;
-    top: 183px;
-    left: 2px;
-    font-size: 13px;
-    color: #444444; }
-  .songGrid .songCategory div .length {
-    transition: 0.2s;
-    position: absolute;
-    opacity: 0;
-    top: 133px;
-    right: 10px;
-    color: #cccccc; }
-  .songGrid .songCategory div img {
-    transition: 0.2s;
-    max-width: 160px;
-    border-radius: 5px; }
-  .songGrid .songCategory div img:hover {
-    filter: brightness(50%); }
-  .songGrid .songCategory div img:hover ~ .length {
-    opacity: 1; }
+.songGrid .songCategory {
+  display: flex;
+  flex-wrap: wrap; }
+  .songGrid .songCategory div {
+    position: relative;
+    margin: 0 20px 55px 0; }
+    .songGrid .songCategory div span {
+      max-width: 156px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; }
+    .songGrid .songCategory div .name {
+      position: absolute;
+      top: 163px;
+      left: 2px;
+      font-size: 15px; }
+    .songGrid .songCategory div .artist {
+      position: absolute;
+      top: 183px;
+      left: 2px;
+      font-size: 13px;
+      color: #444444; }
+    .songGrid .songCategory div .length {
+      transition: 0.2s;
+      position: absolute;
+      opacity: 0;
+      top: 133px;
+      right: 10px;
+      color: #cccccc; }
+    .songGrid .songCategory div img {
+      transition: 0.2s;
+      max-width: 160px;
+      border-radius: 5px; }
+    .songGrid .songCategory div img:hover {
+      filter: brightness(50%); }
+    .songGrid .songCategory div img:hover ~ .length {
+      opacity: 1; }
 
 .songList {
   width: 100%;
@@ -396,6 +398,9 @@ body {
   #player #timeline:hover {
     height: 15px; } }
 @media screen and (max-width: 850px) {
+  .songGrid .songCategory {
+    justify-content: space-between; }
+
   #player #timeline {
     height: 15px; }
 
