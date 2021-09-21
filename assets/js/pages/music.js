@@ -113,7 +113,7 @@ window["music"] = () => {
      * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
      */
     bindEvent("mouseover", ".songCard", function () {
-        let controls = document.getElementsByClassName("controls")[0];
+        let controls = document.getElementById("controlsContent");
         let pos = this.getBoundingClientRect();
 
         controls.style.top = pos.top + pos.height - 38 + "px";
