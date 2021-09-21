@@ -1,12 +1,34 @@
 let currentHover = null,
-    currentTime = 0,
     secondsInterval = null,
+    currentTime = 0,
     playIndex = 0,
-    playlist = {};
+    playlist = {},
+    shuffle = false;
 
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
+const mobileWidth = 1150;
 
+let theme = getCookie("theme");
+if (!theme)
+    theme = "light";
+
+document.getElementsByTagName("html")[0].setAttribute("data-theme", theme);
+
+HTMLElement.prototype.animateCallback = function (keyframes, options, callback) {
+    let animation = this.animate(keyframes, options);
+
+    animation.onfinish = function () {
+        callback();
+    }
+}
+
+/*
+ * Funktion: anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Speichert beim Bewegen des Mauszeigers die Koordinaten
+ */
 document.addEventListener("mousemove", (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
@@ -27,27 +49,29 @@ const bindEvent = (eventNames, selectors, handler) => {
         document.addEventListener(eventName, function (event) {
             selectors.split(', ').forEach((selector) => {
                 if (event.target.matches(selector + ', ' + selector + ' *')) {
+                    let element = event.target.closest(selector);
+
                     switch (eventName) {
                         case "click":
-                            if (!event.target.closest(selector).onclick) {
-                                event.target.closest(selector).onclick = handler;
-                                handler.apply(event.target.closest(selector), arguments);
+                            if (!element.onclick) {
+                                element.onclick = handler;
+                                handler.apply(element, arguments);
                             }
                             break;
                         case "play":
-                            if (!event.target.closest(selector).onplay) {
-                                event.target.closest(selector).onplay = handler;
-                                handler.apply(event.target.closest(selector), arguments);
+                            if (!element.onplay) {
+                                element.onplay = handler;
+                                handler.apply(element, arguments);
                             }
                             break;
                         case "timeupdate":
-                            if (!event.target.closest(selector).ontimeupdate) {
-                                event.target.closest(selector).ontimeupdate = handler;
-                                handler.apply(event.target.closest(selector), arguments);
+                            if (!element.ontimeupdate) {
+                                element.ontimeupdate = handler;
+                                handler.apply(element, arguments);
                             }
                             break;
                         default:
-                            handler.apply(event.target.closest(selector), arguments);
+                            handler.apply(element, arguments);
                             break;
                     }
                 }
@@ -74,6 +98,26 @@ const prev = (element, className = "") => {
 
     if (!className || prev.classList.contains(className))
         return prev;
+}
+
+/*
+ * Funktion: shuffleObject()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  object: (Objekt) Das Element welches durchgemischt werden soll
+ *
+ * Mischt ein Objekt durch (shuffle)
+ */
+function shuffleObject(object) {
+    let length = Object.keys(object).length;
+    for (let i = 0; i < length - 1; i++) {
+        let j = i + Math.floor(Math.random() * (length - i));
+
+        let temp = object[j];
+        object[j] = object[i];
+        object[i] = temp;
+    }
+    return object;
 }
 
 /*
@@ -155,6 +199,51 @@ function getMinutesAndSeconds(time) {
     return minutes + ":" + seconds;
 }
 
+function generateTable(data, categories = true) {
+    let listView = document.createElement("table");
+
+    let columns = Object.keys(data[0]);
+    columns.shift();
+    columns.pop();
+
+    listView.classList.add("listView");
+
+    let thead = document.createElement("thead");
+    for (let j = 0; j < columns.length; j++) {
+        let th = document.createElement("th");
+        th.innerText = ucFirst(columns[j]);
+        thead.appendChild(th);
+    }
+
+    listView.appendChild(thead);
+
+    let tbody = document.createElement("tbody"), category;
+    for (let j = 0; j < Object.keys(data).length; j++) {
+        let song = data[j];
+
+        if (category !== song["category"] && categories) {
+            category = song["category"];
+
+            let row = document.createElement("tr");
+
+            row.innerHTML = "<td colspan='4'>" + category + "</td>";
+            tbody.appendChild(row);
+        }
+
+        let row = document.createElement("tr");
+        row.setAttribute("data-id", song["id"]);
+        row.innerHTML = "<td><img src='" + song["cover"] + "' alt='Cover'/></td>" +
+            "<td>" + song["name"] + "</td>" +
+            "<td>" + song["artist"] + "</td>" +
+            "<td>" + song["length"] + "</td>";
+
+        tbody.appendChild(row);
+    }
+
+    listView.appendChild(tbody);
+    return listView;
+}
+
 /*
  * Funktion: play()
  * Autor: Bernardo de Oliveira
@@ -164,7 +253,7 @@ function getMinutesAndSeconds(time) {
  * Erstellt eine Schleife, welche jede Sekunde sich wiederholt und den Fortschritt ins Tooltip einfügt
  */
 function play() {
-    let player = document.getElementById("player");
+    let player = document.getElementById("player"), playlistView = document.getElementById("playlistView");
 
     let song = playlist[playIndex];
     let gapless = song["player"];
@@ -175,6 +264,7 @@ function play() {
     player.querySelector("#name").innerText = song["name"];
     player.querySelector("#artist").innerText = song["artist"];
     player.querySelector("#timeline").max = length;
+    playlistView.querySelector("#playingCover").src = song["cover"];
 
     gapless.play();
 
@@ -199,15 +289,37 @@ function nextSongIndex() {
 
     for (let key in playlist) {
         key = Number(key);
-        let value = playlist[key];
 
         if (found)
             return key;
 
-        if (key == playIndex) {
+        if (key === playIndex)
             found = true;
-        }
     }
+}
+
+/*
+ * Funktion: previousSongIndex()
+ * Autor: Bernardo de Oliveira
+ *
+ * Holt sich die Array ID des vorherigen Liedes
+ */
+function previousSongIndex() {
+    let found = false, previous;
+
+    for (let key in playlist) {
+        key = Number(key);
+
+        if (found)
+            return previous;
+
+        if (key === playIndex)
+            found = true;
+        else
+            previous = key;
+    }
+
+    return previous;
 }
 
 /*
@@ -285,8 +397,10 @@ function clearSong(index) {
 function nextSong() {
     playlist[playIndex]["player"].stop();
 
-    if (typeof playlist[playIndex + 1] !== "undefined")
-        playIndex += 1;
+    let nextIndex = nextSongIndex();
+
+    if (typeof playlist[nextIndex] !== "undefined")
+        playIndex = nextIndex;
 
     currentTime = 0;
 
@@ -307,8 +421,10 @@ function nextSong() {
 function previousSong() {
     playlist[playIndex]["player"].stop();
 
-    if (typeof playlist[playIndex - 1] !== "undefined")
-        playIndex -= 1;
+    let previousIndex = previousSongIndex();
+
+    if (typeof playlist[previousIndex] !== "undefined")
+        playIndex = previousIndex;
 
     currentTime = 0;
 

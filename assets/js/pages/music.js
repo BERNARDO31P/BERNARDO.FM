@@ -3,8 +3,6 @@ let tryParseJSONM = await import(pageURL + "assets/js/tryParseJSON.js");
 
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
-const mobileWidth = 1150;
-
 window["music"] = () => {
     let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search");
     let view = getCookie("view");
@@ -33,51 +31,7 @@ window["music"] = () => {
         if (data.length > 0) {
             if (view === "list") {
                 document.getElementsByClassName("fa-list")[0].classList.add("active");
-
-                let listView = document.createElement("table");
-                listView.classList.add("songList");
-
-                let columns = Object.keys(data[0]);
-                columns.shift();
-                columns.pop();
-
-                listView.classList.add("listView");
-
-                let thead = document.createElement("thead");
-                for (let j = 0; j < columns.length; j++) {
-                    let th = document.createElement("th");
-                    th.innerText = ucFirst(columns[j]);
-                    thead.appendChild(th);
-                }
-
-                listView.appendChild(thead);
-
-                let tbody = document.createElement("tbody"), category;
-                for (let j = 0; j < Object.keys(data).length; j++) {
-                    let song = data[j];
-
-                    if (category !== song["category"]) {
-                        category = song["category"];
-
-                        let row = document.createElement("tr");
-
-                        row.innerHTML = "<td colspan='4'>" + category + "</td>";
-                        tbody.appendChild(row);
-                    }
-
-                    let row = document.createElement("tr");
-                    row.setAttribute("data-id", song["id"]);
-                    row.innerHTML = "<td><img src='" + song["cover"] + "' alt='Cover'/></td>" +
-                        "<td>" + song["name"] + "</td>" +
-                        "<td>" + song["artist"] + "</td>" +
-                        "<td>" + song["length"] + "</td>";
-
-                    tbody.appendChild(row);
-                }
-
-                listView.appendChild(tbody);
-
-                object.parentNode.insertBefore(listView, object);
+                object.parentNode.insertBefore(generateTable(data), object);
             } else {
                 document.getElementsByClassName("fa-grip-horizontal")[0].classList.add("active");
 
@@ -142,13 +96,11 @@ window["music"] = () => {
      *
      * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
      */
-    bindEvent("mouseover", "tr[data-id]", function () {
+    bindEvent("mouseover", "#content tr[data-id]", function () {
         let controls = document.getElementsByClassName("controls")[0];
         let pos = this.getBoundingClientRect();
 
-        if (getWidth() < mobileWidth) controls.style.left = pos.width - 80 + "px";
-        else controls.style.left = pos.width + "px";
-
+        controls.style.left = pos.right - 100 + "px";
         controls.style.top = pos.top + 2 + "px";
         controls.style.display = "initial";
         controls.setAttribute("data-id", this.getAttribute("data-id"));
@@ -278,6 +230,7 @@ function addEvents(player) {
         let nextIndex = nextSongIndex();
 
         if (typeof playlist[nextIndex] !== 'undefined') {
+            playIndex = nextIndex;
             clearInterval(secondsInterval);
 
             playPauseButton(false);
@@ -308,10 +261,10 @@ function addSongToPlaylist(element) {
 
     playlist[index] = {};
     playlist[index]["id"] = data["id"];
+    playlist[index]["cover"] = data["cover"];
     playlist[index]["name"] = data["name"];
     playlist[index]["artist"] = data["artist"];
     playlist[index]["length"] = data["length"];
-    playlist[index]["cover"] = data["cover"];
     playlist[index]["player"] = gapless;
 }
 

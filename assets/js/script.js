@@ -40,6 +40,7 @@ function loadPage() {
         i++;
     }, 100);
 }
+
 window.addEventListener('popstate', loadPage);
 
 /*
@@ -128,6 +129,100 @@ bindEvent("mouseup", "#timeline", () => onTimelineRelease());
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
+ * TODO: Comment
+ */
+bindEvent("click", ".fa-random", function () {
+    if (shuffle) {
+        shuffle = false;
+
+        this.style.color = "initial";
+    } else {
+        shuffle = true;
+
+        let currentSong = playlist[playIndex];
+        playlist = shuffleObject(playlist);
+
+        for (let key in playlist) {
+            key = Number(key);
+            let value = playlist[key];
+
+            if (value["id"] === currentSong["id"]) {
+                playIndex = key;
+            }
+        }
+
+        let playlistView = document.getElementById("playlistView");
+        let playlistList = playlistView.querySelector("#playlist");
+        playlistList.innerHTML = "";
+        playlistList.appendChild(generateTable(playlist, false));
+
+        this.style.color = "#4f8eff";
+    }
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * TODO: Comment
+ */
+bindEvent("click", ".fa-angle-up", function () {
+    let playlistView = document.getElementById("playlistView");
+
+    if (this.getAttribute("data-angle") === "up") {
+        this.animate([
+            {transform: 'rotate(-180deg)'},
+            {transform: 'rotate(0deg)'}
+        ], {
+            duration: 200,
+            fill: "forwards"
+        });
+
+        // TODO: Maybe removal of table
+
+        playlistView.animateCallback([
+            {height: 'calc(100% - 200px)'},
+            {height: '0%'}
+        ], {
+            duration: 300,
+            fill: "forwards",
+        }, function () {
+            playlistView.style.display = "none";
+        });
+
+        this.setAttribute("data-angle", "down");
+    } else {
+        this.animate([
+            {transform: 'rotate(0deg)'},
+            {transform: 'rotate(-180deg)'}
+        ], {
+            duration: 200,
+            fill: "forwards"
+        });
+
+        let playlistList = playlistView.querySelector("#playlist");
+        playlistList.innerHTML = "";
+        playlistList.appendChild(generateTable(playlist, false));
+
+        playlistView.style.display = "initial";
+        playlistView.animate([
+            {height: '0%'},
+            {height: 'calc(100% - 200px)'}
+        ], {
+            duration: 300,
+            fill: "forwards"
+        });
+
+        this.setAttribute("data-angle", "up");
+    }
+
+    document.getElementsByClassName("controls")[0].style.display = "none";
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
  * Ändert die Unterseite zu "music" und speichert sich die vorherige Seite
  */
 bindEvent("input", "#search", function () {
@@ -159,6 +254,24 @@ bindEvent("click", "#view .fa-list", function () {
 bindEvent("click", "#view .fa-grip-horizontal", function () {
     setCookie("view", "grip");
     window.location.href = "#!page=" + page;
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Ändert das Design-Attribut und ändert somit auch das Design
+ */
+bindEvent("click", "#theme-toggler", function () {
+    let html = document.getElementsByTagName("html")[0];
+
+    if (html.getAttribute("data-theme") === "dark") {
+        html.setAttribute("data-theme", "light");
+        setCookie("theme", "light");
+    } else {
+        html.setAttribute("data-theme", "dark");
+        setCookie("theme", "dark");
+    }
 });
 
 page = getPage();
