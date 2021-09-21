@@ -97,7 +97,7 @@ window["music"] = () => {
      * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
      */
     bindEvent("mouseover", "#content tr[data-id]", function () {
-        let controls = document.getElementsByClassName("controls")[0];
+        let controls = document.getElementById("controlsContent");
         let pos = this.getBoundingClientRect();
 
         controls.style.left = pos.right - 100 + "px";
@@ -129,14 +129,13 @@ window["music"] = () => {
      * Versteckt die Liedoptionen
      */
     bindEvent("mouseout", "#content", function (e) {
-        if (!e.target.classList.contains(".controls")
-            && e.target.closest(".controls") === null
-            && e.target.closest("tr[data-id]") === null
+        if (!e.target.classList.contains("#controlsContent")
+            && e.target.closest("#controlsContent") === null
+            && e.target.closest("#content tr[data-id]") === null
             && e.target.closest(".songCard") === null) {
 
-            let controls = document.getElementsByClassName("controls")[0];
-
-            if (typeof controls !== 'undefined') controls.style.display = "none";
+            let controls = document.getElementById("controlsContent");
+            controls.style.display = "none";
         }
     });
 
@@ -159,13 +158,6 @@ window["music"] = () => {
     bindEvent("click", "#content .fa-play", function () {
         for (let i = 0; i < Object.keys(playlist).length; i++) {
             clearSong(i);
-        }
-
-        let player = document.getElementById("player"), content = document.getElementById("content");
-        if (player.style.display === "none") {
-            let playerPos = player.getBoundingClientRect(), contentPos = content.getBoundingClientRect();
-
-            content.style.margin
         }
 
         playIndex = 0;
@@ -249,7 +241,7 @@ function addEvents(player) {
  * Lädt die Liedinformationen herunter und fügt diese zur Wiedergabenliste hinzu
  */
 function addSongToPlaylist(element) {
-    let controls = element.closest(".controls");
+    let controls = element.closest("#controlsContent");
     let songID = controls.getAttribute("data-id");
     let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID));
 

@@ -129,7 +129,8 @@ bindEvent("mouseup", "#timeline", () => onTimelineRelease());
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * TODO: Comment
+ * Ändert die Farbe des Icons, damit der Benutzer erkennt, dass es aktiviert wurde
+ * Mischt die Playlist durch und aktualisiert die Playlist-Ansicht
  */
 bindEvent("click", ".fa-random", function () {
     if (shuffle) {
@@ -161,10 +162,29 @@ bindEvent("click", ".fa-random", function () {
 });
 
 /*
+     * Funktion: Anonym
+     * Autor: Bernardo de Oliveira
+     *
+     * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
+     */
+bindEvent("mouseover", "#playlistView tr[data-id]", function () {
+    let controls = document.getElementById("controlsPlaylist");
+    let pos = this.getBoundingClientRect();
+
+    controls.style.left = pos.right - 100 + "px";
+    controls.style.top = pos.top + 2 + "px";
+    controls.style.display = "initial";
+    controls.setAttribute("data-id", this.getAttribute("data-id"));
+});
+
+/*
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * TODO: Comment
+ * Öffnet die Playlist-Ansicht
+ * Generiert die Playlist-Tabelle
+ *
+ * Rotiert das Icon, damit der Benutzer erkennt, dass man das Menü wieder schliessen kann
  */
 bindEvent("click", ".fa-angle-up", function () {
     let playlistView = document.getElementById("playlistView");
@@ -216,7 +236,8 @@ bindEvent("click", ".fa-angle-up", function () {
         this.setAttribute("data-angle", "up");
     }
 
-    document.getElementsByClassName("controls")[0].style.display = "none";
+    document.getElementById("controlsContent").style.display = "none";
+    document.getElementById("controlsPlaylist").style.display = "none";
 });
 
 /*
@@ -254,6 +275,31 @@ bindEvent("click", "#view .fa-list", function () {
 bindEvent("click", "#view .fa-grip-horizontal", function () {
     setCookie("view", "grip");
     window.location.href = "#!page=" + page;
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Findet heraus welches Lied abgespielt werden soll
+ * Spielt das Lied ab
+ */
+bindEvent("click", "#playlistView .fa-play", function () {
+    playlist[playIndex]["player"].stop();
+
+    let id = Number(this.closest("#controlsPlaylist").getAttribute("data-id"));
+
+    for (let key = 0; key < Object.keys(playlist).length; key++) {
+        let value = playlist[key];
+
+        if (value["id"] === id)
+            playIndex = key;
+    }
+
+    currentTime = 0;
+
+    clearInterval(secondsInterval);
+    play();
 });
 
 /*
