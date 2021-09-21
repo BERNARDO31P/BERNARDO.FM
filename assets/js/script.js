@@ -172,7 +172,7 @@ bindEvent("mouseover", "#playlistView tr[data-id]", function () {
     let pos = this.getBoundingClientRect();
 
     controls.style.left = pos.right - 100 + "px";
-    controls.style.top = pos.top + 2 + "px";
+    controls.style.top = pos.top + (pos.height - 38) / 2 + "px";
     controls.style.display = "initial";
     controls.setAttribute("data-id", this.getAttribute("data-id"));
 });
