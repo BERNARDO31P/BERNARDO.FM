@@ -255,13 +255,14 @@ function addSongToPlaylist(element) {
 
     let index = playlist.length;
 
-    playlist[index] = {};
-    playlist[index]["id"] = data["id"];
-    playlist[index]["cover"] = data["cover"];
-    playlist[index]["name"] = data["name"];
-    playlist[index]["artist"] = data["artist"];
-    playlist[index]["length"] = data["length"];
-    playlist[index]["player"] = gapless;
+    playlist[index] = {
+        "id": data["id"],
+        "cover": data["cover"],
+        "name": data["name"],
+        "artist": data["artist"],
+        "length": data["length"],
+        "player": gapless
+    };
 }
 
 /*
