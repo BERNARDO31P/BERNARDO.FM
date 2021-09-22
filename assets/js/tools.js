@@ -2,7 +2,7 @@ let currentHover = null,
     secondsInterval = null,
     currentTime = 0,
     playIndex = 0,
-    playlist = {};
+    playlist = [];
 
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
@@ -97,39 +97,6 @@ const prev = (element, className = "") => {
 
     if (!className || prev.classList.contains(className))
         return prev;
-}
-
-/*
- * Funktion: shuffleObject()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  object: (Objekt) Das Element welches durchgemischt werden soll
- *
- * Mischt ein Objekt durch (shuffle)
- */
-function shuffleObject(object) {
-    let length = Object.keys(object).length;
-
-    for (let i = 0; i < length - 1; i++) {
-        let j = i + Math.floor(Math.random() * (length - i));
-
-        let temp = object[j];
-        object[j] = object[i];
-        object[i] = temp;
-    }
-
-    return object;
-}
-
-// TODO: Comment
-function currentSongToBeginning(currentSong) {
-    let playlistNew = {0: currentSong};
-
-    for (let i = 0; i < Object.keys(playlist).length; i++) {
-        playlistNew[i + 1] = playlist[i];
-    }
-
-    return playlistNew;
 }
 
 /*

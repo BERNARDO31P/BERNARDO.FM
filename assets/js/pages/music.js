@@ -164,13 +164,13 @@ window["music"] = () => {
      * Setzt die Wiedergabenliste zurück und spielt das Lied ab
      */
     bindEvent("click", "#content .fa-play", function () {
-        for (let i = 0; i < Object.keys(playlist).length; i++) {
+        for (let i = 0; i < playlist.length; i++) {
             clearSong(i);
         }
 
         playIndex = 0;
         currentTime = 0;
-        playlist = {};
+        playlist = [];
 
         clearInterval(secondsInterval);
         addSongToPlaylist(this);
@@ -253,7 +253,7 @@ function addSongToPlaylist(element) {
     gapless.addTrack(data["location"]);
     addEvents(gapless);
 
-    let index = Object.keys(playlist).length;
+    let index = playlist.length;
 
     playlist[index] = {};
     playlist[index]["id"] = data["id"];

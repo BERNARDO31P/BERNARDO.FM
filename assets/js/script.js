@@ -146,31 +146,21 @@ bindEvent("mouseup", "#timeline", () => onTimelineRelease());
 bindEvent("click", ".fa-random", function () {
     let currentSong = playlist[playIndex];
 
-    console.log(playlist);
+    playlist[playIndex]["player"].stop();
 
-    playlist = shuffleObject(playlist);
-
-    console.log(playlist);
-
-    /*for (let key in playlist) {
-        key = Number(key);
-        let value = playlist[key];
-
-        if (value["id"] === currentSong["id"]) {
-            delete playlist[key];
-            break;
-        }
-    }*/
+    delete playlist[playIndex];
+    playlist.splice(0,1);
+    playlist = playlist.sort((a, b) => 0.5 - Math.random());
+    playlist.unshift(currentSong);
 
     playIndex = 0;
-    playlist = currentSongToBeginning(currentSong);
-
-    console.log(playlist);
 
     let playlistView = document.getElementById("playlistView");
     let playlistList = playlistView.querySelector("#playlist");
     playlistList.innerHTML = "";
     playlistList.appendChild(generateTable(playlist, false));
+
+    play();
 });
 
 /*
