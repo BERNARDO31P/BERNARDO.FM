@@ -2,8 +2,7 @@ let currentHover = null,
     secondsInterval = null,
     currentTime = 0,
     playIndex = 0,
-    playlist = {},
-    shuffle = false;
+    playlist = {};
 
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
@@ -110,6 +109,7 @@ const prev = (element, className = "") => {
  */
 function shuffleObject(object) {
     let length = Object.keys(object).length;
+
     for (let i = 0; i < length - 1; i++) {
         let j = i + Math.floor(Math.random() * (length - i));
 
@@ -117,7 +117,19 @@ function shuffleObject(object) {
         object[j] = object[i];
         object[i] = temp;
     }
+
     return object;
+}
+
+// TODO: Comment
+function currentSongToBeginning(currentSong) {
+    let playlistNew = {0: currentSong};
+
+    for (let i = 0; i < Object.keys(playlist).length; i++) {
+        playlistNew[i + 1] = playlist[i];
+    }
+
+    return playlistNew;
 }
 
 /*
@@ -225,7 +237,7 @@ function getMinutesAndSeconds(time) {
  *
  * Versteckt beim Scrollen die Liedoptionen
  */
-function removeControls (elementID) {
+function removeControls(elementID) {
     let controls = document.getElementById(elementID);
 
     if (typeof controls !== 'undefined' && controls.style.display !== "none")
@@ -265,7 +277,9 @@ function generateTable(data, categories = true, scroll = false) {
 
     let tbody = document.createElement("tbody"), category;
 
-    if (scroll) tbody.onscroll = () => {removeControls("controlsPlaylist")};
+    if (scroll) tbody.onscroll = () => {
+        removeControls("controlsPlaylist")
+    };
 
     for (let j = 0; j < Object.keys(data).length; j++) {
         let song = data[j];

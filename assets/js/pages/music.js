@@ -221,7 +221,7 @@ function addEvents(player) {
             downloadNextPart();
     }
 
-    player.onfinishedall = function () {
+    player.onfinishedall = player.onerror = function () {
         let nextIndex = nextSongIndex();
 
         if (typeof playlist[nextIndex] !== 'undefined') {

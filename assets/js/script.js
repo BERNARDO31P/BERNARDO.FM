@@ -144,32 +144,33 @@ bindEvent("mouseup", "#timeline", () => onTimelineRelease());
  * Mischt die Playlist durch und aktualisiert die Playlist-Ansicht
  */
 bindEvent("click", ".fa-random", function () {
-    if (shuffle) {
-        shuffle = false;
+    let currentSong = playlist[playIndex];
 
-        this.style.color = "initial";
-    } else {
-        shuffle = true;
+    console.log(playlist);
 
-        let currentSong = playlist[playIndex];
-        playlist = shuffleObject(playlist);
+    playlist = shuffleObject(playlist);
 
-        for (let key in playlist) {
-            key = Number(key);
-            let value = playlist[key];
+    console.log(playlist);
 
-            if (value["id"] === currentSong["id"]) {
-                playIndex = key;
-            }
+    /*for (let key in playlist) {
+        key = Number(key);
+        let value = playlist[key];
+
+        if (value["id"] === currentSong["id"]) {
+            delete playlist[key];
+            break;
         }
+    }*/
 
-        let playlistView = document.getElementById("playlistView");
-        let playlistList = playlistView.querySelector("#playlist");
-        playlistList.innerHTML = "";
-        playlistList.appendChild(generateTable(playlist, false));
+    playIndex = 0;
+    playlist = currentSongToBeginning(currentSong);
 
-        this.style.color = "#4f8eff";
-    }
+    console.log(playlist);
+
+    let playlistView = document.getElementById("playlistView");
+    let playlistList = playlistView.querySelector("#playlist");
+    playlistList.innerHTML = "";
+    playlistList.appendChild(generateTable(playlist, false));
 });
 
 /*
