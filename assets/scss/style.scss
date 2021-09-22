@@ -814,10 +814,11 @@ body {
 
       table {
         max-height: calc(100% - 200px);
+        overflow: hidden;
       }
 
       tbody {
-        max-height: calc(100vh - 350px);
+        max-height: calc(100vh - 250px);
       }
     }
   }
