@@ -76,6 +76,7 @@ window.addEventListener("scroll", () => {
     }
 });
 
+// TODO: Comment
 window.addEventListener("resize", function() {
     removeControls("controlsContent");
     removeControls("controlsPlaylist");
