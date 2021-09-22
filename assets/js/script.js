@@ -76,6 +76,11 @@ window.addEventListener("scroll", () => {
     }
 });
 
+window.addEventListener("resize", function() {
+    removeControls("controlsContent");
+    removeControls("controlsPlaylist");
+}, true);
+
 /*
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
@@ -162,20 +167,28 @@ bindEvent("click", ".fa-random", function () {
 });
 
 /*
-     * Funktion: Anonym
-     * Autor: Bernardo de Oliveira
-     *
-     * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
-     */
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
+ */
 bindEvent("mouseover", "#playlistView tr[data-id]", function () {
     let controls = document.getElementById("controlsPlaylist");
-    let height = Number(getComputedStyle(controls).height.replace("px", ""));
-    let pos = this.getBoundingClientRect();
+    controls.style.display = "none";
 
-    controls.style.left = pos.right - 100 + "px";
-    controls.style.top = pos.top + (pos.height - height) / 2 + "px";
-    controls.style.display = "initial";
-    controls.setAttribute("data-id", this.getAttribute("data-id"));
+    let tbody = this.closest("tbody");
+    if (isElementVisible(this, tbody)) {
+        let height = Number(getComputedStyle(controls).height.replace("px", ""));
+        let pos = this.getBoundingClientRect();
+
+        controls.style.left = pos.right - 100 + "px";
+        controls.style.top = pos.top + (pos.height - height) / 2 + "px";
+        controls.setAttribute("data-id", this.getAttribute("data-id"));
+
+        setTimeout(() => {
+            controls.style.display = "initial"
+        }, 50);
+    }
 });
 
 /*
@@ -189,8 +202,11 @@ bindEvent("mouseover", "#playlistView tr[data-id]", function () {
  */
 bindEvent("click", ".fa-angle-up", function () {
     let playlistView = document.getElementById("playlistView");
+    let body = document.getElementsByTagName("body")[0];
 
     if (this.getAttribute("data-angle") === "up") {
+        body.style.overflowY = "initial";
+
         this.animate([
             {transform: 'rotate(-180deg)'},
             {transform: 'rotate(0deg)'}
@@ -213,6 +229,8 @@ bindEvent("click", ".fa-angle-up", function () {
 
         this.setAttribute("data-angle", "down");
     } else {
+        body.style.overflowY = "hidden";
+
         this.animate([
             {transform: 'rotate(0deg)'},
             {transform: 'rotate(-180deg)'}
@@ -223,7 +241,7 @@ bindEvent("click", ".fa-angle-up", function () {
 
         let playlistList = playlistView.querySelector("#playlist");
         playlistList.innerHTML = "";
-        playlistList.appendChild(generateTable(playlist, false));
+        playlistList.appendChild(generateTable(playlist, false, true));
 
         playlistView.style.display = "initial";
         playlistView.animate([

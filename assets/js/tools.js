@@ -121,6 +121,26 @@ function shuffleObject(object) {
 }
 
 /*
+ * Funktion: isElementVisible()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  el: (Objekt) Das zu überprüfende Objekt
+ *  holder: (Objekt) Das Element in welchem sich das zu überprüfende Element befinden
+ *
+ * Überprüft ob ein Element sichtbar ist
+ */
+function isElementVisible(el, holder = undefined) {
+    holder = holder || document.body;
+    const elRect = el.getBoundingClientRect();
+    const holderRect = holder.getBoundingClientRect();
+
+    let visibleBottom = holderRect.bottom - elRect.top >= elRect.height;
+    let visibleTop = elRect.top - holderRect.top >= 0;
+
+    return !(!visibleTop || !visibleBottom);
+}
+
+/*
  * Funktion: getWidth()
  * Autor: Bernardo de Oliveira
  *
@@ -199,7 +219,21 @@ function getMinutesAndSeconds(time) {
     return minutes + ":" + seconds;
 }
 
-function generateTable(data, categories = true) {
+/*
+ * Funktion: removeControls()
+ * Autor: Bernardo de Oliveira
+ *
+ * Versteckt beim Scrollen die Liedoptionen
+ */
+function removeControls (elementID) {
+    let controls = document.getElementById(elementID);
+
+    if (typeof controls !== 'undefined' && controls.style.display !== "none")
+        controls.style.display = "none";
+}
+
+// TODO: Comment
+function generateTable(data, categories = true, scroll = false) {
     let listView = document.createElement("table");
 
     let columns = Object.keys(data[0]);
@@ -208,16 +242,22 @@ function generateTable(data, categories = true) {
 
     listView.classList.add("listView");
 
-    let thead = document.createElement("thead");
+    let row = document.createElement("tr");
     for (let j = 0; j < columns.length; j++) {
         let th = document.createElement("th");
         th.innerText = ucFirst(columns[j]);
-        thead.appendChild(th);
+        row.appendChild(th);
     }
+
+    let thead = document.createElement("thead");
+    thead.appendChild(row);
 
     listView.appendChild(thead);
 
     let tbody = document.createElement("tbody"), category;
+
+    if (scroll) tbody.onscroll = () => {removeControls("controlsPlaylist")};
+
     for (let j = 0; j < Object.keys(data).length; j++) {
         let song = data[j];
 
@@ -253,18 +293,19 @@ function generateTable(data, categories = true) {
  * Erstellt eine Schleife, welche jede Sekunde sich wiederholt und den Fortschritt ins Tooltip einfügt
  */
 function play() {
-    let player = document.getElementById("player"), playlistView = document.getElementById("playlistView");
+    let player = document.getElementById("player"),
+        cover = document.getElementById("playlistView").querySelector("#playingCover").querySelector("img");
 
     let song = playlist[playIndex];
     let gapless = song["player"];
     let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
     let songLength = document.getElementById("tooltip").querySelector("#length");
 
+    cover.src = song["cover"];
     songLength.innerText = song["length"];
     player.querySelector("#name").innerText = song["name"];
     player.querySelector("#artist").innerText = song["artist"];
     player.querySelector("#timeline").max = length;
-    playlistView.querySelector("#playingCover").src = song["cover"];
 
     gapless.play();
 

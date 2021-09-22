@@ -98,13 +98,17 @@ window["music"] = () => {
      */
     bindEvent("mouseover", "#content tr[data-id]", function () {
         let controls = document.getElementById("controlsContent");
+        controls.style.display = "none";
+
+
         let height = Number(getComputedStyle(controls).height.replace("px", ""));
         let pos = this.getBoundingClientRect();
 
         controls.style.left = pos.right - 100 + "px";
         controls.style.top = pos.top + (pos.height - height) / 2 + "px";
-        controls.style.display = "initial";
         controls.setAttribute("data-id", this.getAttribute("data-id"));
+
+        setTimeout(() => {controls.style.display = "initial"}, 50);
     });
 
     /*
@@ -115,12 +119,15 @@ window["music"] = () => {
      */
     bindEvent("mouseover", ".songCard", function () {
         let controls = document.getElementById("controlsContent");
+        controls.style.display = "none";
+
         let pos = this.getBoundingClientRect();
 
         controls.style.top = pos.top + pos.height - 38 + "px";
         controls.style.left = pos.left + "px";
-        controls.style.display = "initial";
         controls.setAttribute("data-id", this.getAttribute("data-id"));
+
+        setTimeout(() => {controls.style.display = "initial"}, 50);
     });
 
     /*
@@ -176,12 +183,7 @@ window["music"] = () => {
      *
      * Versteckt beim Scrollen die Liedoptionen
      */
-    window.addEventListener("scroll", function () {
-        let controls = document.getElementsByClassName("controls")[0];
-
-        if (typeof controls !== 'undefined' && controls.style.display !== "none")
-            controls.style.display = "none";
-    });
+    window.addEventListener("scroll",  () => {removeControls("controlsContent")});
 }
 
 /*
