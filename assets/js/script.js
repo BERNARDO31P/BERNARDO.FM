@@ -76,7 +76,12 @@ window.addEventListener("scroll", () => {
     }
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Wenn der Benutzer die Fenstergrösse verändert, werden die Controls versteckt
+ */
 window.addEventListener("resize", function() {
     removeControls("controlsContent");
     removeControls("controlsPlaylist");
@@ -215,8 +220,6 @@ bindEvent("click", ".fa-angle-up", function () {
             duration: 200,
             fill: "forwards"
         });
-
-        // TODO: Maybe removal of table
 
         playlistView.animateCallback([
             {height: 'calc(100% - 200px)'},

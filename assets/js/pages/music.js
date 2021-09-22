@@ -227,9 +227,10 @@ function addEvents(player) {
         if (typeof playlist[nextIndex] !== 'undefined') {
             playIndex = nextIndex;
             clearInterval(secondsInterval);
-
             playPauseButton(false);
             play();
+        } else {
+            playPauseButton(false);
         }
     }
 }

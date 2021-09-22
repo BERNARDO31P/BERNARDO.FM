@@ -232,7 +232,16 @@ function removeControls (elementID) {
         controls.style.display = "none";
 }
 
-// TODO: Comment
+/*
+ * Funktion: generateTable()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  data: (Object) Die Daten, welche verarbeitet werden sollen
+ *  categories: (Boolean) Definiert ob die Categorien angezeigt werden sollen
+ *  scroll: (Boolean) Definiert ob die Scroll-Events angewendet werden sollen
+ *
+ * Generiert eine Tabelle aus den Daten (Table body) und Schlüssel (Table head)
+ */
 function generateTable(data, categories = true, scroll = false) {
     let listView = document.createElement("table");
 
