@@ -57,7 +57,7 @@ window["home"] = () => {
             this.innerText = "Show more";
             details.classList.remove("show");
         } else {
-            let elements = document.querySelectorAll(".details");
+            let elements = document.querySelectorAll(".details.show");
             for (let i = 0; i < elements.length; i++) {
                 elements[i].classList.remove("show");
             }

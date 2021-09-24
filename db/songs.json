@@ -43,5 +43,14 @@
     "length": "7:42",
     "fileName": "Reborn - Deep Future.mp3",
     "category": "Psy-Trance"
+  },
+  {
+    "id": 6,
+    "cover": "system/img/J Dilla - Dont Cry.jpg",
+    "name": "Don't Cry",
+    "artist": "J Dilla",
+    "length": "2:00",
+    "fileName": "J Dilla - Don't Cry.mp3",
+    "category": "Trip-Hop"
   }
 ]

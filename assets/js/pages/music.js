@@ -108,7 +108,9 @@ window["music"] = () => {
         controls.style.top = pos.top + (pos.height - height) / 2 + "px";
         controls.setAttribute("data-id", this.getAttribute("data-id"));
 
-        setTimeout(() => {controls.style.display = "initial"}, 50);
+        setTimeout(() => {
+            controls.style.display = "initial"
+        }, 50);
     });
 
     /*
@@ -117,7 +119,7 @@ window["music"] = () => {
      *
      * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
      */
-    bindEvent("mouseover", ".songCard", function () {
+    bindEvent("mouseover", ".songCard img", function () {
         let controls = document.getElementById("controlsContent");
         controls.style.display = "none";
 
@@ -125,9 +127,11 @@ window["music"] = () => {
 
         controls.style.top = pos.top + pos.height - 38 + "px";
         controls.style.left = pos.left + "px";
-        controls.setAttribute("data-id", this.getAttribute("data-id"));
+        controls.setAttribute("data-id", this.closest(".songCard").getAttribute("data-id"));
 
-        setTimeout(() => {controls.style.display = "initial"}, 50);
+        setTimeout(() => {
+            controls.style.display = "initial"
+        }, 50);
     });
 
     /*
@@ -143,7 +147,7 @@ window["music"] = () => {
             && e.target.closest(".songCard") === null) {
 
             let controls = document.getElementById("controlsContent");
-            controls.style.display = "none";
+            if (controls) controls.style.display = "none";
         }
     });
 
@@ -183,7 +187,9 @@ window["music"] = () => {
      *
      * Versteckt beim Scrollen die Liedoptionen
      */
-    window.addEventListener("scroll",  () => {removeControls("controlsContent")});
+    window.addEventListener("scroll", () => {
+        removeControls("controlsContent")
+    });
 }
 
 /*
@@ -221,16 +227,16 @@ function addEvents(player) {
             downloadNextPart();
     }
 
-    player.onfinishedall = player.onerror = function () {
+    player.onfinishedall = function () {
         let nextIndex = nextSongIndex();
 
+        clearInterval(secondsInterval);
+        playPauseButton(false);
+
         if (typeof playlist[nextIndex] !== 'undefined') {
+            currentTime = 0;
             playIndex = nextIndex;
-            clearInterval(secondsInterval);
-            playPauseButton(false);
             play();
-        } else {
-            playPauseButton(false);
         }
     }
 }
@@ -253,9 +259,7 @@ function addSongToPlaylist(element) {
     gapless.addTrack(data["location"]);
     addEvents(gapless);
 
-    let index = playlist.length;
-
-    playlist[index] = {
+    playlist[playlist.length] = {
         "id": data["id"],
         "cover": data["cover"],
         "name": data["name"],
@@ -275,26 +279,17 @@ function addSongToPlaylist(element) {
  * Lädt den nächsten Teil herunter oder pausiert die weitere Wiedergabe
  */
 function downloadNextPart() {
-    let timeline = document.getElementById("timeline");
-    let stop = false;
-
     setTimeout(function () {
-        let nextTime = currentTime + getPartLength(1);
+        let timeline = document.getElementById("timeline");
+        let nextTime = currentTime + getPartLength(1), stop = false;
+        ;
 
-        if (!(Number(timeline.max) - nextTime > 0)) {
-            const nextIndex = nextSongIndex();
-
-            if (typeof nextIndex !== 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
-                playIndex = nextIndex;
-            } else {
-                stop = true;
-            }
-        }
+        if (!(Number(timeline.max) - nextTime > 1)) stop = true;
 
         if (!stop) {
             let songID = playlist[playIndex]["id"];
-
             let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID + "&time=" + nextTime));
+
             playlist[playIndex]["player"].addTrack(data["location"]);
         }
     }, 2000);

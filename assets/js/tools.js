@@ -69,6 +69,12 @@ const bindEvent = (eventNames, selectors, handler) => {
                                 handler.apply(element, arguments);
                             }
                             break;
+                        case "mouseout":
+                            if (!element.onmouseout) {
+                                element.onmouseout = handler;
+                                handler.apply(element, arguments);
+                            }
+                            break;
                         default:
                             handler.apply(element, arguments);
                             break;
