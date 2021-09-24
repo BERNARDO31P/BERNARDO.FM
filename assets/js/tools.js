@@ -543,9 +543,31 @@ function onTimelineMove(rangeEvent) {
  * Sobald die Timeline wieder losgelassen wird, wird das tooltip mit dem jetzigen Fortschritt des Liedes versteckt
  * Die Wiedergabe beginnt
  */
-function onTimelineRelease() {
+function onTimelineRelease(rangeEvent) {
     let tooltip = document.getElementById("tooltip");
     tooltip.style.display = "none";
+
+
+    /*
+     * TODO:
+     *  - Falsche Berechnung der Position beheben
+     *  - Wenn ein Teil nicht existiert, wirds heruntergeladen
+     *  - Wenn dazwischen Teile fehlen, werden diese mit Platzhalter aufgefüllt
+     *  - Wenn ein Platzhalter abgespielt wird, wirds ersetzt mit dem eigentlichen Teil (Wieder Download)
+     */
+
+    let partIndex = Math.floor(rangeEvent.target.value / 20);
+    let startFrom = (rangeEvent.target.value % 20) * 1000;
+
+
+    if (typeof playlist[playIndex]["player"].sources[partIndex] !== 'undefined') {
+        let timeNew = currentTime - rangeEvent.target.value;
+
+        playlist[playIndex]["player"].gotoTrack(partIndex);
+        playlist[playIndex]["player"].sources[partIndex].setPosition(startFrom);
+
+        currentTime = currentTime - timeNew;
+    }
 
     play();
 }
