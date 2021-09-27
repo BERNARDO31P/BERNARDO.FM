@@ -458,6 +458,7 @@ function clearSong(index) {
  */
 function nextSong() {
     playlist[playIndex]["player"].stop();
+    playlist[playIndex]["player"].gotoTrack(0);
 
     let nextIndex = nextSongIndex();
 
@@ -482,6 +483,7 @@ function nextSong() {
  */
 function previousSong() {
     playlist[playIndex]["player"].stop();
+    playlist[playIndex]["player"].gotoTrack(0);
 
     let previousIndex = previousSongIndex();
 
