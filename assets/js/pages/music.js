@@ -64,7 +64,7 @@ window["music"] = () => {
                     songCard.classList.add("songCard");
                     songCard.setAttribute("data-id", song["id"]);
 
-                    songCard.innerHTML = "<img src='" + song["cover"] + "' alt='Cover'/>" +
+                    songCard.innerHTML = "<img src='/system/img/" + song["cover"] + "' alt='Cover'/>" +
                         "<span class='name'>" + song["name"] + "</span>" +
                         "<span class='artist'>" + song["artist"] + "</span>" +
                         "<span class='length'>" + song["length"] + "</span>";

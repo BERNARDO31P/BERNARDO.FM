@@ -4,7 +4,8 @@ let currentHover = null,
     playIndex = 0,
     partIndex = 0,
     playlist = [],
-    partlist = {};
+    partlist = {},
+    volume = 0.5;
 
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
@@ -289,7 +290,7 @@ function generateTable(data, categories = true, scroll = false) {
     let tbody = document.createElement("tbody"), category;
 
     if (scroll) tbody.onscroll = () => {
-        removeControls("controlsPlaylist")
+        removeControls("controlsPlaylist");
     };
 
     for (let j = 0; j < Object.keys(data).length; j++) {
@@ -335,12 +336,13 @@ function play() {
     let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
     let songLength = document.getElementById("tooltip").querySelector("#length");
 
-    cover.src = song["cover"];
+    cover.src = "/system/img/" + song["cover"];
     songLength.innerText = song["length"];
     player.querySelector("#name").innerText = song["name"];
     player.querySelector("#artist").innerText = song["artist"];
     player.querySelector("#timeline").max = length;
 
+    gapless.setGain(volume * 65535);
     gapless.play();
 
     playPauseButton(true);
