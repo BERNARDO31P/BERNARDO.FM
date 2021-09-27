@@ -209,6 +209,8 @@ function getMinutesAndSeconds(time) {
 /*
  * Funktion: removeControls()
  * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  elementID: (String) Defineirt das Objekt
  *
  * Versteckt beim Scrollen die Liedoptionen
  */
@@ -219,7 +221,16 @@ function removeControls(elementID) {
         controls.style.display = "none";
 }
 
-// TODO: Comment
+/*
+ * Funktion: hidePlaylist()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  body: (Objekt) Definiert das Body-Objekt
+ *  playlistView: (Objekt) Definiert die Playlist
+ *  angleIcon: (Objekt) Definiert das Icon von der Playlist
+ *
+ * Versteckt die Playlist-Ansicht
+ */
 function hidePlaylist(body, playlistView, angleIcon) {
     body.style.overflowY = "initial";
 
@@ -409,37 +420,21 @@ function playPauseButton(play = false) {
 }
 
 /*
- * Funktion: getPartLength()
+ * Funktion: getCurrentPartLength()
  * Autor: Bernardo de Oliveira
- * Argumente:
- *  minus: (Integer) Definiert wie viele Songteile zurück
  *
- * Gibt die Länge eines Songteiles zurück
+ * Gibt die Länge des jetzigen Songteiles zurück
  */
-function getPartLength(minus) {
-    let partIndex = playlist[playIndex]["player"].trk.trackNumber - minus;
-
-    return playlist[playIndex]["player"].sources[partIndex].getLength() / 1000;
-}
-
-// TODO: Comment
 function getCurrentPartLength() {
     return playlist[playIndex]["player"].sources[partlist[partIndex]].getLength() / 1000;
 }
 
 /*
- * Funktion: getPartTime()
+ * Funktion: getCurrentPartTime()
  * Autor: Bernardo de Oliveira
- * Argumente:
- *  minus: (Integer) Definiert wie viele Songteile zurück
  *
- * Gibt die Position eines Songteiles zurück
+ * Gibt die Position des jetzigen Songteiles zurück
  */
-function getPartTime(index) {
-    return playlist[playIndex]["player"].sources[index].getPosition() / 1000;
-}
-
-// TODO: Comment
 function getCurrentPartTime() {
     return playlist[playIndex]["player"].sources[partlist[partIndex]].getPosition() / 1000;
 }

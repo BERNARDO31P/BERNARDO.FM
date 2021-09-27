@@ -210,13 +210,6 @@ window["music"] = () => {
  */
 function addEvents(player) {
     player.onplay = function () {
-        let timeline = document.getElementById("timeline");
-
-        if (Number(timeline.max) - currentTime > 0 && partIndex !== 0) {
-            currentTime += getCurrentPartLength();
-            partIndex = Math.floor(timeline.value / 20);
-        }
-
         let currentPart = playlist[playIndex]["player"].trk.trackNumber;
         let partCount = playlist[playIndex]["player"].totalTracks();
 
@@ -232,9 +225,10 @@ function addEvents(player) {
         clearInterval(secondsInterval);
 
         if (typeof partlist[index] !== "undefined") {
+            if (Number(timeline.max) - currentTime > 0) currentTime += getCurrentPartLength();
+
             gapless.gotoTrack(partlist[index]);
             gapless.sources[partlist[index]].setPosition(0);
-
             partIndex = index;
 
             play();
@@ -315,7 +309,14 @@ function downloadNextPart() {
     }, 2000);
 }
 
-// TODO: Comment
+/*
+ * Funktion: downloadPart()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  time: (Integer) Definiert die Zeit, ab wann der nächste Teil beginnt
+ *
+ * Lädt ein Teilstück von einem Lied herunter, ab einer bestimmten Zeit
+ */
 function downloadPart(time) {
     let songID = playlist[playIndex]["id"];
     let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID + "&time=" + time));
