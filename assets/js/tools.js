@@ -217,6 +217,31 @@ function removeControls(elementID) {
         controls.style.display = "none";
 }
 
+// TODO: Comment
+function hidePlaylist(body, playlistView, angleIcon) {
+    body.style.overflowY = "initial";
+
+    angleIcon.animate([
+        {transform: 'rotate(-180deg)'},
+        {transform: 'rotate(0deg)'}
+    ], {
+        duration: 200,
+        fill: "forwards"
+    });
+
+    playlistView.animateCallback([
+        {height: 'calc(100% - 200px)'},
+        {height: '0%'}
+    ], {
+        duration: 300,
+        fill: "forwards",
+    }, function () {
+        playlistView.classList.remove("show");
+    });
+
+    angleIcon.setAttribute("data-angle", "down");
+}
+
 /*
  * Funktion: generateTable()
  * Autor: Bernardo de Oliveira

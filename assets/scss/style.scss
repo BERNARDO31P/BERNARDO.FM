@@ -30,7 +30,7 @@ body {
 
   padding: 0 30px;
   position: fixed;
-  z-index: 1;
+  z-index: 2;
   top: 0;
   left: 0;
   right: 0;
@@ -358,6 +358,10 @@ body {
       width: 35px;
     }
   }
+
+  &.show {
+    display: initial;
+  }
 }
 
 #player {
@@ -492,10 +496,10 @@ body {
   .fa-angle-up {
     font-size: 20px
   }
-}
 
-#player.show {
-  display: initial;
+  &.show {
+    display: initial;
+  }
 }
 
 #bottomSpacing {
@@ -597,7 +601,7 @@ body {
   }
 
   .details {
-    transition: 0.3s ease-in-out, padding 0.7s ease-in-out;
+    transition: 0.3s ease-in-out, padding 0.6s;
 
     color: #6b6b6b;
 
@@ -608,7 +612,7 @@ body {
     box-shadow: inset 2px 2px 5px #babecc, inset -5px -5px 7px #fff;
     border-radius: 5px;
 
-    margin: 0;
+    margin: 5px 0 0 0;
     padding: 0 20px;
   }
 

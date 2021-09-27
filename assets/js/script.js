@@ -98,6 +98,14 @@ bindEvent("click", "[data-page]", function (e) {
     if (navigation.classList.contains("show"))
         navigation.classList.remove("show");
 
+    let playlistView = document.querySelector("#playlistView");
+    if (playlistView.classList.contains("show")) {
+        let body = document.getElementsByTagName("body")[0];
+        let angleIcon = document.getElementsByClassName("fa-angle-up")[0];
+
+        hidePlaylist(body, playlistView, angleIcon);
+    }
+
     page = e.target.dataset.page;
     prevPage = undefined;
     window.location.href = "#!page=" + page;
@@ -202,27 +210,7 @@ bindEvent("click", ".fa-angle-up", function () {
     let body = document.getElementsByTagName("body")[0];
 
     if (this.getAttribute("data-angle") === "up") {
-        body.style.overflowY = "initial";
-
-        this.animate([
-            {transform: 'rotate(-180deg)'},
-            {transform: 'rotate(0deg)'}
-        ], {
-            duration: 200,
-            fill: "forwards"
-        });
-
-        playlistView.animateCallback([
-            {height: 'calc(100% - 200px)'},
-            {height: '0%'}
-        ], {
-            duration: 300,
-            fill: "forwards",
-        }, function () {
-            playlistView.style.display = "none";
-        });
-
-        this.setAttribute("data-angle", "down");
+        hidePlaylist(body, playlistView, this);
     } else {
         body.style.overflowY = "hidden";
 
@@ -238,7 +226,7 @@ bindEvent("click", ".fa-angle-up", function () {
         playlistList.innerHTML = "";
         playlistList.appendChild(generateTable(playlist, false, true));
 
-        playlistView.style.display = "initial";
+        playlistView.classList.add("show");
         playlistView.animate([
             {height: '0%'},
             {height: 'calc(100% - 200px)'}
