@@ -2,7 +2,9 @@ let currentHover = null,
     secondsInterval = null,
     currentTime = 0,
     playIndex = 0,
-    playlist = [];
+    partIndex = 0,
+    playlist = [],
+    partlist = {};
 
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
@@ -336,7 +338,7 @@ function play() {
     secondsInterval = setInterval(function () {
         let timeline = document.getElementById("timeline");
 
-        timeline.value = getPartTime(1) + currentTime;
+        timeline.value = getCurrentPartTime() + currentTime;
     }, 1000);
 }
 
@@ -420,6 +422,11 @@ function getPartLength(minus) {
     return playlist[playIndex]["player"].sources[partIndex].getLength() / 1000;
 }
 
+// TODO: Comment
+function getCurrentPartLength() {
+    return playlist[playIndex]["player"].sources[partlist[partIndex]].getLength() / 1000;
+}
+
 /*
  * Funktion: getPartTime()
  * Autor: Bernardo de Oliveira
@@ -428,10 +435,13 @@ function getPartLength(minus) {
  *
  * Gibt die Position eines Songteiles zurück
  */
-function getPartTime(minus) {
-    let partIndex = playlist[playIndex]["player"].trk.trackNumber - minus;
+function getPartTime(index) {
+    return playlist[playIndex]["player"].sources[index].getPosition() / 1000;
+}
 
-    return playlist[playIndex]["player"].sources[partIndex].getPosition() / 1000;
+// TODO: Comment
+function getCurrentPartTime() {
+    return playlist[playIndex]["player"].sources[partlist[partIndex]].getPosition() / 1000;
 }
 
 /*
@@ -466,6 +476,7 @@ function nextSong() {
         playIndex = nextIndex;
 
     currentTime = 0;
+    partIndex = 0;
 
     clearInterval(secondsInterval);
     playPauseButton(false);
@@ -491,6 +502,7 @@ function previousSong() {
         playIndex = previousIndex;
 
     currentTime = 0;
+    partIndex = 0;
 
     clearInterval(secondsInterval);
     playPauseButton(false);
@@ -561,40 +573,4 @@ function onTimelineMove(rangeEvent) {
 
     let currentTimestamp = tooltip.querySelector("#current");
     currentTimestamp.innerText = getMinutesAndSeconds(rangeEvent.target.value);
-}
-
-/*
- * Funktion: onTimelineRelease()
- * Autor: Bernardo de Oliveira
- *
- * Sobald die Timeline wieder losgelassen wird, wird das tooltip mit dem jetzigen Fortschritt des Liedes versteckt
- * Die Wiedergabe beginnt
- */
-function onTimelineRelease(rangeEvent) {
-    let tooltip = document.getElementById("tooltip");
-    tooltip.style.display = "none";
-
-
-    /*
-     * TODO:
-     *  - Falsche Berechnung der Position beheben
-     *  - Wenn ein Teil nicht existiert, wirds heruntergeladen
-     *  - Wenn dazwischen Teile fehlen, werden diese mit Platzhalter aufgefüllt
-     *  - Wenn ein Platzhalter abgespielt wird, wirds ersetzt mit dem eigentlichen Teil (Wieder Download)
-     */
-
-    let partIndex = Math.floor(rangeEvent.target.value / 20);
-    let startFrom = (rangeEvent.target.value % 20) * 1000;
-
-
-    if (typeof playlist[playIndex]["player"].sources[partIndex] !== 'undefined') {
-        let timeNew = currentTime - rangeEvent.target.value;
-
-        playlist[playIndex]["player"].gotoTrack(partIndex);
-        playlist[playIndex]["player"].sources[partIndex].setPosition(startFrom);
-
-        currentTime = currentTime - timeNew;
-    }
-
-    play();
 }

@@ -136,13 +136,9 @@ bindEvent("click", "#player .fa-backward", () => previousSong());
 
 bindEvent("touchstart", "#timeline", () => onTimelinePress());
 
-bindEvent("touchend", "#timeline", (e) => onTimelineRelease(e));
-
 bindEvent("mousedown", "#timeline", () => onTimelinePress());
 
 bindEvent("input", "#timeline", (e) => onTimelineMove(e));
-
-bindEvent("mouseup", "#timeline", (e) => onTimelineRelease(e));
 
 /*
  * Funktion: Anonym

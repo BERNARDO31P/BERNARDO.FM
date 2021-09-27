@@ -175,11 +175,15 @@ window["music"] = () => {
         playIndex = 0;
         currentTime = 0;
         playlist = [];
+        partlist = {0: 0}
 
         clearInterval(secondsInterval);
         addSongToPlaylist(this);
         play();
     });
+
+    bindEvent("touchend", "#timeline", (e) => onTimelineRelease(e));
+    bindEvent("mouseup", "#timeline", (e) => onTimelineRelease(e));
 
     /*
      * Funktion: Anonym
@@ -206,6 +210,13 @@ window["music"] = () => {
  */
 function addEvents(player) {
     player.onplay = function () {
+        let timeline = document.getElementById("timeline");
+
+        if (Number(timeline.max) - currentTime > 0 && partIndex !== 0) {
+            currentTime += getCurrentPartLength();
+            partIndex = Math.floor(timeline.value / 20);
+        }
+
         let currentPart = playlist[playIndex]["player"].trk.trackNumber;
         let partCount = playlist[playIndex]["player"].totalTracks();
 
@@ -213,18 +224,23 @@ function addEvents(player) {
             downloadNextPart();
     }
 
-    player.onnext = function () {
-        let partTime = getPartLength(2);
+    player.onfinishedtrack = function () {
         let timeline = document.getElementById("timeline");
+        let gapless = playlist[playIndex]["player"];
+        let index = Math.ceil(timeline.value / 20);
 
-        if (Number(timeline.max) - currentTime > 0)
-            currentTime += partTime;
+        clearInterval(secondsInterval);
 
-        let currentPart = playlist[playIndex]["player"].trk.trackNumber;
-        let partCount = playlist[playIndex]["player"].totalTracks();
+        if (typeof partlist[index] !== "undefined") {
+            gapless.gotoTrack(partlist[index]);
+            gapless.sources[partlist[index]].setPosition(0);
 
-        if (currentPart === partCount)
-            downloadNextPart();
+            partIndex = index;
+
+            play();
+        } else {
+            playPauseButton(false);
+        }
     }
 
     player.onfinishedall = function () {
@@ -235,6 +251,7 @@ function addEvents(player) {
 
         if (typeof playlist[nextIndex] !== 'undefined') {
             currentTime = 0;
+            partIndex = 0;
             playIndex = nextIndex;
             play();
         }
@@ -274,15 +291,14 @@ function addSongToPlaylist(element) {
  * Autor: Bernardo de Oliveira
  *
  * Überprüft ob das Lied fertig ist
- * Überprüft ob ein nächstes Lied in der Wiedergabenliste verfügbar ist
+ * Überprüft ob ein nächstes Lied in der Witoolsedergabenliste verfügbar ist
  *
- * Lädt den nächsten Teil herunter oder pausiert die weitere Wiedergabe
+ * Lädt den nächsten Teil herunter oder pausiert die weitere Wiedergabes
  */
 function downloadNextPart() {
     setTimeout(function () {
         let timeline = document.getElementById("timeline");
-        let nextTime = currentTime + getPartLength(1), stop = false;
-        ;
+        let nextTime = currentTime + getCurrentPartLength(), stop = false;
 
         if (!(Number(timeline.max) - nextTime > 1)) stop = true;
 
@@ -290,7 +306,50 @@ function downloadNextPart() {
             let songID = playlist[playIndex]["id"];
             let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID + "&time=" + nextTime));
 
+            let indexPart = Math.ceil(timeline.value / 20);
+            let index = playlist[playIndex]["player"].sources.length;
+
             playlist[playIndex]["player"].addTrack(data["location"]);
+            partlist[indexPart] = index;
         }
     }, 2000);
+}
+
+// TODO: Comment
+function downloadPart(time) {
+    let songID = playlist[playIndex]["id"];
+    let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID + "&time=" + time));
+
+    playlist[playIndex]["player"].addTrack(data["location"]);
+}
+
+/*
+ * Funktion: onTimelineRelease()
+ * Autor: Bernardo de Oliveira
+ *
+ * Sobald die Timeline wieder losgelassen wird, wird das tooltip mit dem jetzigen Fortschritt des Liedes versteckt
+ * Die Wiedergabe beginnt
+ */
+function onTimelineRelease(rangeEvent) {
+    let tooltip = document.getElementById("tooltip");
+    let gapless = playlist[playIndex]["player"];
+    tooltip.style.display = "none";
+
+    clearInterval(secondsInterval);
+
+    let index = Math.floor(rangeEvent.target.value / 20);
+    currentTime = index * 20;
+
+    if (typeof gapless.sources[partlist[index]] === "undefined") {
+        downloadPart(currentTime);
+        partlist[index] = gapless.sources.length - 1;
+    }
+
+    let startFrom = (rangeEvent.target.value % 20) * 1000;
+    gapless.gotoTrack(partlist[index]);
+    gapless.sources[partlist[index]].setPosition(startFrom);
+
+    partIndex = index;
+
+    play();
 }
