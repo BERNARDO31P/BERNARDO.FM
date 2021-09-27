@@ -318,5 +318,24 @@ bindEvent("click", "#theme-toggler", function () {
     }
 });
 
+// TODO: Comment
+bindEvent("click", ".repeat", function () {
+    switch (repeatMode) {
+        case 0:
+            repeatMode = 1;
+            this.style.color = "#1d93ff";
+            break;
+        case 1:
+            repeatMode = 2;
+            this.querySelector(".repeatOne").classList.add("show");
+            break;
+        case 2:
+            repeatMode = 0;
+            this.style.color = "black";
+            this.querySelector(".repeatOne").classList.remove("show");
+            break;
+    }
+});
+
 page = getPage();
 window.location.href = "#!page=" + page;

@@ -5,7 +5,8 @@ let currentHover = null,
     partIndex = 0,
     playlist = [],
     partlist = {},
-    volume = 0.5;
+    volume = 0.5,
+    repeatMode = 0;
 
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;

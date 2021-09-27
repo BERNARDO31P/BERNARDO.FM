@@ -18,7 +18,7 @@
     <div id="playlistView">
         <h3>Playlist</h3>
         <!--<img id="playingCover" src="" alt="Cover"/>-->
-         <div id="playingCover">
+        <div id="playingCover">
             <img src="" alt="Cover"/>
         </div>
         <div id="playlist"></div>
@@ -30,11 +30,16 @@
         <div id="data">
             <div id="controls">
                 <i class="fas fa-random"></i>
-                <i class="fas fa-undo"></i>
+                <div class="repeat">
+                    <i class="fas fa-undo"></i>
+                    <span class="repeatOne">1</span>
+                </div>
                 <i class="fas fa-backward"></i>
                 <i class="fas fa-play"></i>
                 <i class="fas fa-forward"></i>
-                <i class="fas fa-volume-up"></i>
+                <div>
+                    <i class="fas fa-volume-up"></i>
+                </div>
                 <i class="fas fa-angle-up"></i>
             </div>
             <span id="name"></span> - <span id="artist"></span>

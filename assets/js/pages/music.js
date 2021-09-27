@@ -233,21 +233,25 @@ function addEvents(player) {
 
             play();
         } else {
+            let nextIndex = nextSongIndex();
+
+            playlist[playIndex]["player"].stop();
+            clearInterval(secondsInterval);
             playPauseButton(false);
-        }
-    }
 
-    player.onfinishedall = function () {
-        let nextIndex = nextSongIndex();
+            if ((repeatMode === 0 || repeatMode === 1) && typeof playlist[nextIndex] !== 'undefined') {
+                playIndex = nextIndex;
+            } else if (repeatMode === 1 && typeof playlist[nextIndex] === 'undefined') {
+                playIndex = nextIndex = 0;
+            }
 
-        clearInterval(secondsInterval);
-        playPauseButton(false);
-
-        if (typeof playlist[nextIndex] !== 'undefined') {
             currentTime = 0;
             partIndex = 0;
-            playIndex = nextIndex;
-            play();
+
+            playlist[playIndex]["player"].gotoTrack(partIndex);
+            playlist[playIndex]["player"].sources[partIndex].setPosition(0);
+
+            if (typeof playlist[nextIndex] !== 'undefined') play();
         }
     }
 }
@@ -349,8 +353,9 @@ function onTimelineRelease(rangeEvent) {
     let startFrom = (rangeEvent.target.value % 20) * 1000;
     gapless.gotoTrack(partlist[index]);
     gapless.sources[partlist[index]].setPosition(startFrom);
-
     partIndex = index;
 
-    play();
+    setTimeout(function () {
+        play();
+    }, 500);
 }
