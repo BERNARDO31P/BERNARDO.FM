@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "cover": "system/img/Altered State _ Xenoben - Perception.jpg",
+    "cover": "Altered State _ Xenoben - Perception.jpg",
     "name": "Perception",
     "artist": "Altered State & Xenoben",
     "length": "6:51",
@@ -10,7 +10,7 @@
   },
   {
     "id": 2,
-    "cover": "system/img/Infected Mushroom - Groove Attack.jpg",
+    "cover": "Infected Mushroom - Groove Attack.jpg",
     "name": "Groove Attack",
     "artist": "Infected Mushroom",
     "length": "6:49",
@@ -19,7 +19,7 @@
   },
   {
     "id": 3,
-    "cover": "system/img/Mobb Deep - Hell on Earth.jpg",
+    "cover": "Mobb Deep - Hell on Earth.jpg",
     "name": "Hell on Earth",
     "artist": "Mobb Deep",
     "length": "4:37",
@@ -28,7 +28,7 @@
   },
   {
     "id": 4,
-    "cover": "system/img/Atacama _ Jakaan - KMOS.jpg",
+    "cover": "Atacama _ Jakaan - KMOS.jpg",
     "name": "KMOS",
     "artist": "Atacama & Jakaan",
     "length": "8:39",
@@ -37,7 +37,7 @@
   },
   {
     "id": 5,
-    "cover": "system/img/Reborn - Deep Future.jpg",
+    "cover": "Reborn - Deep Future.jpg",
     "name": "Deep Future",
     "artist": "Reborn",
     "length": "7:42",
@@ -46,7 +46,7 @@
   },
   {
     "id": 6,
-    "cover": "system/img/J Dilla - Dont Cry.jpg",
+    "cover": "J Dilla - Dont Cry.jpg",
     "name": "Don't Cry",
     "artist": "J Dilla",
     "length": "2:00",

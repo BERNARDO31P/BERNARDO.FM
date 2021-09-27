@@ -65,6 +65,7 @@ if (isset($_GET["id"])) {
         recursive_unset($song, "name");
         recursive_unset($song, "artist");
         recursive_unset($song, "length");
+        recursive_unset($song, "cover");
     }
 
     echo json_encode($song);

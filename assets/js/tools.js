@@ -306,7 +306,7 @@ function generateTable(data, categories = true, scroll = false) {
 
         let row = document.createElement("tr");
         row.setAttribute("data-id", song["id"]);
-        row.innerHTML = "<td><img src='" + song["cover"] + "' alt='Cover'/></td>" +
+        row.innerHTML = "<td><img src='/system/img/" + song["cover"] + "' alt='Cover'/></td>" +
             "<td>" + song["name"] + "</td>" +
             "<td>" + song["artist"] + "</td>" +
             "<td>" + song["length"] + "</td>";
