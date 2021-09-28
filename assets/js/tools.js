@@ -428,7 +428,7 @@ function playPauseButton(play = false) {
  */
 function getCurrentPartLength() {
     try {
-        return playlist[playIndex]["player"].sources[partlist[partIndex]].getLength() / 1000;
+        return playlist[playIndex]["player"].sources[partlist[playIndex][partIndex]].getLength() / 1000;
     } catch (e) {
         return 20;
     }
@@ -442,7 +442,7 @@ function getCurrentPartLength() {
  */
 function getCurrentPartTime() {
     try {
-        return playlist[playIndex]["player"].sources[partlist[partIndex]].getPosition() / 1000;
+        return playlist[playIndex]["player"].sources[partlist[playIndex][partIndex]].getPosition() / 1000;
     } catch (e) {
         return 0;
     }
@@ -462,6 +462,25 @@ function clearSong(index) {
 }
 
 /*
+ * Funktion: resetSong()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  index: (Integer) Definiert welches Lied
+ *
+ * Setzt ein Lied vollständig zurück
+ * Alle Teile werden zurücksetzt
+ */
+function resetSong(index) {
+    playlist[index]["player"].stop();
+    playlist[index]["player"].gotoTrack(0);
+
+    for (let key in partlist[index]) {
+        let value = partlist[index][key];
+        playlist[index]["player"].sources[value].setPosition(0);
+    }
+}
+
+/*
  * Funktion: nextSong()
  * Autor: Bernardo de Oliveira
  *
@@ -471,8 +490,7 @@ function clearSong(index) {
  * Die Wiedergabe wird gestartet
  */
 function nextSong() {
-    playlist[playIndex]["player"].stop();
-    playlist[playIndex]["player"].gotoTrack(0);
+    resetSong(playIndex);
 
     currentTime = 0;
     partIndex = 0;
@@ -497,8 +515,7 @@ function nextSong() {
  * Die Wiedergabe wird gestartet
  */
 function previousSong() {
-    playlist[playIndex]["player"].stop();
-    playlist[playIndex]["player"].gotoTrack(0);
+    resetSong(playIndex);
 
     currentTime = 0;
     partIndex = 0;

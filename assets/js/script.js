@@ -150,7 +150,8 @@ bindEvent("input", "#timeline", (e) => onTimelineMove(e));
 bindEvent("click", ".fa-random", function () {
     let currentSong = playlist[playIndex];
 
-    playlist[playIndex]["player"].stop();
+    currentSong["player"].sources[partlist[playIndex][partIndex]].setPosition(0);
+    currentSong["player"].stop();
 
     delete playlist[playIndex];
     playlist.splice(0,1);
@@ -158,7 +159,10 @@ bindEvent("click", ".fa-random", function () {
     playlist.unshift(currentSong);
 
     playIndex = 0;
+    partIndex = 0;
+    currentTime = 0;
 
+    playlist[playIndex]["player"].sources[partlist[playIndex][partIndex]].setPosition(0);
     let queueView = document.getElementById("queueView");
     let queue = queueView.querySelector("#queue");
     queue.innerHTML = "";

@@ -176,7 +176,7 @@ window["music"] = () => {
         partIndex = 0;
         currentTime = 0;
         playlist = [];
-        partlist = {0: 0};
+        partlist[playIndex] = {0: 0};
 
         clearInterval(secondsInterval);
         addSongToPlaylist(this);
@@ -225,14 +225,14 @@ function addEvents(player) {
 
         clearInterval(secondsInterval);
 
-        if (typeof partlist[index] !== "undefined") {
+        if (typeof partlist[playIndex][index] !== "undefined") {
             let partLength = getCurrentPartLength();
             if (!partLength) partLength = 20;
 
             if (Number(timeline.max) - currentTime > 0) currentTime += partLength;
 
-            gapless.gotoTrack(partlist[index]);
-            gapless.sources[partlist[index]].setPosition(0);
+            gapless.gotoTrack(partlist[playIndex][index]);
+            gapless.sources[partlist[playIndex][index]].setPosition(0);
             partIndex = index;
 
             play();
@@ -277,7 +277,8 @@ function addSongToPlaylist(element) {
     gapless.addTrack(data["location"]);
     addEvents(gapless);
 
-    playlist[playlist.length] = {
+    let id = playlist.length;
+    playlist[id] = {
         "id": data["id"],
         "cover": data["cover"],
         "name": data["name"],
@@ -285,6 +286,8 @@ function addSongToPlaylist(element) {
         "length": data["length"],
         "player": gapless
     };
+
+    partlist[id] = {0: 0};
 }
 
 /*
@@ -314,7 +317,9 @@ function downloadNextPart() {
             let index = playlist[playIndex]["player"].sources.length;
 
             playlist[playIndex]["player"].addTrack(data["location"]);
-            partlist[indexPart] = index;
+
+            if (typeof partlist[playIndex] === 'undefined') partlist[playIndex] = {};
+            partlist[playIndex][indexPart] = index;
         }
     }, 2000);
 }
@@ -351,17 +356,17 @@ function onTimelineRelease(rangeEvent) {
     let index = Math.floor(rangeEvent.target.value / 20);
     currentTime = index * 20;
 
-    if (typeof gapless.sources[partlist[index]] === "undefined") {
+    if (typeof gapless.sources[partlist[playIndex][index]] === "undefined") {
         downloadPart(currentTime);
-        partlist[index] = gapless.sources.length - 1;
+        partlist[playIndex][index] = gapless.sources.length - 1;
     }
 
     let startFrom = (rangeEvent.target.value % 20) * 1000;
-    gapless.gotoTrack(partlist[index]);
+    gapless.gotoTrack(partlist[playIndex][index]);
     partIndex = index;
 
     setTimeout(() => {
-        gapless.sources[partlist[partIndex]].setPosition(startFrom, false);
+        gapless.sources[partlist[playIndex][partIndex]].setPosition(startFrom, false);
         play();
     }, 1000);
 }
