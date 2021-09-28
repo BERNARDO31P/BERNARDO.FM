@@ -173,13 +173,14 @@ window["music"] = () => {
         }
 
         playIndex = 0;
+        partIndex = 0;
         currentTime = 0;
         playlist = [];
-        partlist = {0: 0}
+        partlist = {0: 0};
 
         clearInterval(secondsInterval);
         addSongToPlaylist(this);
-        play();
+        play(true);
     });
 
     bindEvent("touchend", "#timeline", (e) => onTimelineRelease(e));
@@ -225,7 +226,10 @@ function addEvents(player) {
         clearInterval(secondsInterval);
 
         if (typeof partlist[index] !== "undefined") {
-            if (Number(timeline.max) - currentTime > 0) currentTime += getCurrentPartLength();
+            let partLength = getCurrentPartLength();
+            if (!partLength) partLength = 20;
+
+            if (Number(timeline.max) - currentTime > 0) currentTime += partLength;
 
             gapless.gotoTrack(partlist[index]);
             gapless.sources[partlist[index]].setPosition(0);
@@ -251,7 +255,7 @@ function addEvents(player) {
             playlist[playIndex]["player"].gotoTrack(partIndex);
             playlist[playIndex]["player"].sources[partIndex].setPosition(0);
 
-            if (typeof playlist[nextIndex] !== 'undefined') play();
+            if (typeof playlist[nextIndex] !== 'undefined') play(true);
         }
     }
 }
@@ -296,7 +300,10 @@ function addSongToPlaylist(element) {
 function downloadNextPart() {
     setTimeout(function () {
         let timeline = document.getElementById("timeline");
-        let nextTime = currentTime + getCurrentPartLength(), stop = false;
+        let partLength = getCurrentPartLength();
+        if (!partLength) partLength = 20;
+
+        let nextTime = currentTime + partLength, stop = false;
 
         if (!(Number(timeline.max) - nextTime > 1)) stop = true;
 
@@ -304,7 +311,7 @@ function downloadNextPart() {
             let songID = playlist[playIndex]["id"];
             let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID + "&time=" + nextTime));
 
-            let indexPart = Math.ceil(timeline.value / 20);
+            let indexPart = partIndex + 1;
             let index = playlist[playIndex]["player"].sources.length;
 
             playlist[playIndex]["player"].addTrack(data["location"]);
@@ -352,10 +359,10 @@ function onTimelineRelease(rangeEvent) {
 
     let startFrom = (rangeEvent.target.value % 20) * 1000;
     gapless.gotoTrack(partlist[index]);
-    gapless.sources[partlist[index]].setPosition(startFrom);
     partIndex = index;
 
     setTimeout(function () {
+        gapless.sources[partlist[partIndex]].setPosition(startFrom, false);
         play();
-    }, 500);
+    }, 1000);
 }

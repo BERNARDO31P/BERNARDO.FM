@@ -328,20 +328,23 @@ function generateTable(data, categories = true, scroll = false) {
  * Beginnt die Wiedergabe
  * Erstellt eine Schleife, welche jede Sekunde sich wiederholt und den Fortschritt ins Tooltip einfügt
  */
-function play() {
+function play(diffSong = false) {
     let player = document.getElementById("player"),
         cover = document.getElementById("playlistView").querySelector("#playingCover").querySelector("img");
 
     let song = playlist[playIndex];
     let gapless = song["player"];
-    let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
-    let songLength = document.getElementById("tooltip").querySelector("#length");
 
-    cover.src = "/system/img/" + song["cover"];
-    songLength.innerText = song["length"];
-    player.querySelector("#name").innerText = song["name"];
-    player.querySelector("#artist").innerText = song["artist"];
-    player.querySelector("#timeline").max = length;
+    if (diffSong) {
+        let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
+        let songLength = document.getElementById("tooltip").querySelector("#length");
+
+        cover.src = "/system/img/" + song["cover"];
+        songLength.innerText = song["length"];
+        player.querySelector("#name").innerText = song["name"];
+        player.querySelector("#artist").innerText = song["artist"];
+        player.querySelector("#timeline").max = length;
+    }
 
     gapless.setGain(volume * 65535);
     gapless.play();
@@ -429,7 +432,11 @@ function playPauseButton(play = false) {
  * Gibt die Länge des jetzigen Songteiles zurück
  */
 function getCurrentPartLength() {
-    return playlist[playIndex]["player"].sources[partlist[partIndex]].getLength() / 1000;
+    try {
+        return playlist[playIndex]["player"].sources[partlist[partIndex]].getLength() / 1000;
+    } catch (e) {
+        return 20;
+    }
 }
 
 /*
@@ -439,7 +446,11 @@ function getCurrentPartLength() {
  * Gibt die Position des jetzigen Songteiles zurück
  */
 function getCurrentPartTime() {
-    return playlist[playIndex]["player"].sources[partlist[partIndex]].getPosition() / 1000;
+    try {
+        return playlist[playIndex]["player"].sources[partlist[partIndex]].getPosition() / 1000;
+    } catch (e) {
+        return 0;
+    }
 }
 
 /*
