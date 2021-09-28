@@ -193,7 +193,7 @@ window["music"] = () => {
      * Versteckt beim Scrollen die Liedoptionen
      */
     window.addEventListener("scroll", () => {
-        removeControls("controlsContent")
+        removeControls("controlsContent");
     });
 }
 
@@ -243,19 +243,18 @@ function addEvents(player) {
             clearInterval(secondsInterval);
             playPauseButton(false);
 
-            if ((repeatMode === 0 || repeatMode === 1) && typeof playlist[nextIndex] !== 'undefined') {
-                playIndex = nextIndex;
-            } else if (repeatMode === 1 && typeof playlist[nextIndex] === 'undefined') {
-                playIndex = nextIndex = 0;
-            }
-
             currentTime = 0;
             partIndex = 0;
 
-            playlist[playIndex]["player"].gotoTrack(partIndex);
-            playlist[playIndex]["player"].sources[partIndex].setPosition(0);
+            if (typeof playlist[nextIndex] !== 'undefined') {
+                playIndex = nextIndex;
+                playlist[playIndex]["player"].gotoTrack(partIndex);
 
-            if (typeof playlist[nextIndex] !== 'undefined') play(true);
+                setTimeout(() => {
+                    playlist[playIndex]["player"].sources[partIndex].setPosition(0);
+                    play(true);
+                }, 1000);
+            }
         }
     }
 }
@@ -361,7 +360,7 @@ function onTimelineRelease(rangeEvent) {
     gapless.gotoTrack(partlist[index]);
     partIndex = index;
 
-    setTimeout(function () {
+    setTimeout(() => {
         gapless.sources[partlist[partIndex]].setPosition(startFrom, false);
         play();
     }, 1000);

@@ -3,6 +3,10 @@
   src: url("../fonts/Roboto/Roboto-Regular.ttf") format("truetype");
 }
 
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 input:not([type="range"]) {
   transition: 0.2s;
   box-shadow: inset 2px 2px 5px #babecc, inset -5px -5px 7px #fff;
@@ -232,7 +236,7 @@ body {
   }
 }
 
-#controlsContent, #controlsPlaylist {
+#controlsContent, #controlsQueue {
   position: fixed;
   display: none;
 
@@ -273,7 +277,7 @@ body {
   }
 }
 
-#playlistView {
+#queueView {
   font-family: "Roboto Regular", sans-serif;
 
   position: fixed;
@@ -292,7 +296,7 @@ body {
   padding: 20px;
 
   h3 {
-    margin: 5px 0;
+    margin: 5px 0 0 15px;
   }
 
   #playingCover {
@@ -325,8 +329,8 @@ body {
     }
   }
 
-  #playlist {
-    margin: 30px 0 0 0;
+  #queue {
+    margin: 15px 0 0 0;
     max-height: 600px;
 
     table, thead, tbody, tr {
@@ -797,7 +801,7 @@ body {
     }
   }
 
-  #playlistView {
+  #queueView {
     #playingCover {
       display: none;
     }
@@ -810,8 +814,8 @@ body {
       left: 20px;
     }
 
-    #playlist {
-      margin: 30px 0 0 0 !important;
+    #queue {
+      margin: 15px 0 0 0 !important;
     }
   }
 }
@@ -826,7 +830,7 @@ body {
 }
 
 @media screen and (max-height: 500px) {
-  #playlistView {
+  #queueView {
     #playingCover {
       margin: 75px auto;
 
@@ -836,7 +840,7 @@ body {
       }
     }
 
-    #playlist {
+    #queue {
       margin: -30px 0 0 0;
 
       table {

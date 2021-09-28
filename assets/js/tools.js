@@ -233,7 +233,7 @@ function removeControls(elementID) {
  *
  * Versteckt die Playlist-Ansicht
  */
-function hidePlaylist(body, playlistView, angleIcon) {
+function hidePlaylist(body, queueView, angleIcon) {
     body.style.overflowY = "initial";
 
     angleIcon.animate([
@@ -244,14 +244,14 @@ function hidePlaylist(body, playlistView, angleIcon) {
         fill: "forwards"
     });
 
-    playlistView.animateCallback([
+    queueView.animateCallback([
         {height: 'calc(100% - 200px)'},
         {height: '0%'}
     ], {
         duration: 300,
         fill: "forwards",
     }, function () {
-        playlistView.classList.remove("show");
+        queueView.classList.remove("show");
     });
 
     angleIcon.setAttribute("data-angle", "down");
@@ -291,7 +291,7 @@ function generateTable(data, categories = true, scroll = false) {
     let tbody = document.createElement("tbody"), category;
 
     if (scroll) tbody.onscroll = () => {
-        removeControls("controlsPlaylist");
+        removeControls("controlsQueue");
     };
 
     for (let j = 0; j < Object.keys(data).length; j++) {
@@ -330,7 +330,7 @@ function generateTable(data, categories = true, scroll = false) {
  */
 function play(diffSong = false) {
     let player = document.getElementById("player"),
-        cover = document.getElementById("playlistView").querySelector("#playingCover").querySelector("img");
+        cover = document.getElementById("queueView").querySelector("#playingCover").querySelector("img");
 
     let song = playlist[playIndex];
     let gapless = song["player"];
@@ -366,17 +366,16 @@ function play(diffSong = false) {
  * Holt sich die Array ID des nächsten Liedes
  */
 function nextSongIndex() {
-    let found = false;
-
-    for (let key in playlist) {
-        key = Number(key);
-
-        if (found)
-            return key;
-
-        if (key === playIndex)
-            found = true;
+    let nextIndex = playIndex + 1;
+    switch (repeatMode) {
+        case 1:
+            if (typeof playlist[nextIndex] === 'undefined')
+                return 0;
+            break;
+        case 2:
+            return playIndex;
     }
+    return nextIndex;
 }
 
 /*
@@ -386,21 +385,17 @@ function nextSongIndex() {
  * Holt sich die Array ID des vorherigen Liedes
  */
 function previousSongIndex() {
-    let found = false, previous;
-
-    for (let key in playlist) {
-        key = Number(key);
-
-        if (found)
-            return previous;
-
-        if (key === playIndex)
-            found = true;
-        else
-            previous = key;
+    let previousIndex = playIndex - 1;
+    switch (repeatMode) {
+        case 0:
+        case 1:
+            if (typeof playlist[previousIndex] === 'undefined')
+                return 0;
+            break;
+        case 2:
+            return playIndex;
     }
-
-    return previous;
+    return previousIndex;
 }
 
 /*
@@ -479,17 +474,17 @@ function nextSong() {
     playlist[playIndex]["player"].stop();
     playlist[playIndex]["player"].gotoTrack(0);
 
-    let nextIndex = nextSongIndex();
-
-    if (typeof playlist[nextIndex] !== "undefined")
-        playIndex = nextIndex;
-
     currentTime = 0;
     partIndex = 0;
 
     clearInterval(secondsInterval);
     playPauseButton(false);
-    play();
+
+    let nextIndex = nextSongIndex();
+    if (typeof playlist[nextIndex] !== 'undefined') {
+        playIndex = nextIndex;
+        play(true);
+    }
 }
 
 /*
@@ -505,17 +500,17 @@ function previousSong() {
     playlist[playIndex]["player"].stop();
     playlist[playIndex]["player"].gotoTrack(0);
 
-    let previousIndex = previousSongIndex();
-
-    if (typeof playlist[previousIndex] !== "undefined")
-        playIndex = previousIndex;
-
     currentTime = 0;
     partIndex = 0;
 
     clearInterval(secondsInterval);
     playPauseButton(false);
-    play();
+
+    let previousIndex = previousSongIndex();
+    if (typeof playlist[previousIndex] !== 'undefined') {
+        playIndex = previousIndex;
+        play(true);
+    }
 }
 
 /*

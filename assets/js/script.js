@@ -84,7 +84,7 @@ window.addEventListener("scroll", () => {
  */
 window.addEventListener("resize", function() {
     removeControls("controlsContent");
-    removeControls("controlsPlaylist");
+    removeControls("controlsQueue");
 }, true);
 
 /*
@@ -98,12 +98,12 @@ bindEvent("click", "[data-page]", function (e) {
     if (navigation.classList.contains("show"))
         navigation.classList.remove("show");
 
-    let playlistView = document.querySelector("#playlistView");
-    if (playlistView.classList.contains("show")) {
+    let queueView = document.querySelector("#queueView");
+    if (queueView.classList.contains("show")) {
         let body = document.getElementsByTagName("body")[0];
         let angleIcon = document.getElementsByClassName("fa-angle-up")[0];
 
-        hidePlaylist(body, playlistView, angleIcon);
+        hidePlaylist(body, queueView, angleIcon);
     }
 
     page = e.target.dataset.page;
@@ -159,10 +159,10 @@ bindEvent("click", ".fa-random", function () {
 
     playIndex = 0;
 
-    let playlistView = document.getElementById("playlistView");
-    let playlistList = playlistView.querySelector("#playlist");
-    playlistList.innerHTML = "";
-    playlistList.appendChild(generateTable(playlist, false));
+    let queueView = document.getElementById("queueView");
+    let queue = queueView.querySelector("#queue");
+    queue.innerHTML = "";
+    queue.appendChild(generateTable(playlist, false));
 
     play();
 });
@@ -173,8 +173,8 @@ bindEvent("click", ".fa-random", function () {
  *
  * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
  */
-bindEvent("mouseover", "#playlistView tr[data-id]", function () {
-    let controls = document.getElementById("controlsPlaylist");
+bindEvent("mouseover", "#queueView tr[data-id]", function () {
+    let controls = document.getElementById("controlsQueue");
     controls.style.display = "none";
 
     let tbody = this.closest("tbody");
@@ -202,11 +202,11 @@ bindEvent("mouseover", "#playlistView tr[data-id]", function () {
  * Rotiert das Icon, damit der Benutzer erkennt, dass man das Menü wieder schliessen kann
  */
 bindEvent("click", ".fa-angle-up", function () {
-    let playlistView = document.getElementById("playlistView");
+    let queueView = document.getElementById("queueView");
     let body = document.getElementsByTagName("body")[0];
 
     if (this.getAttribute("data-angle") === "up") {
-        hidePlaylist(body, playlistView, this);
+        hidePlaylist(body, queueView, this);
     } else {
         body.style.overflowY = "hidden";
 
@@ -218,12 +218,12 @@ bindEvent("click", ".fa-angle-up", function () {
             fill: "forwards"
         });
 
-        let playlistList = playlistView.querySelector("#playlist");
-        playlistList.innerHTML = "";
-        playlistList.appendChild(generateTable(playlist, false, true));
+        let queue = queueView.querySelector("#queue");
+        queue.innerHTML = "";
+        queue.appendChild(generateTable(playlist, false, true));
 
-        playlistView.classList.add("show");
-        playlistView.animate([
+        queueView.classList.add("show");
+        queueView.animate([
             {height: '0%'},
             {height: 'calc(100% - 200px)'}
         ], {
@@ -235,7 +235,7 @@ bindEvent("click", ".fa-angle-up", function () {
     }
 
     document.getElementById("controlsContent").style.display = "none";
-    document.getElementById("controlsPlaylist").style.display = "none";
+    document.getElementById("controlsQueue").style.display = "none";
 });
 
 /*
@@ -282,10 +282,10 @@ bindEvent("click", "#view .fa-grip-horizontal", function () {
  * Findet heraus welches Lied abgespielt werden soll
  * Spielt das Lied ab
  */
-bindEvent("click", "#playlistView .fa-play", function () {
+bindEvent("click", "#queueView .fa-play", function () {
     playlist[playIndex]["player"].stop();
 
-    let id = Number(this.closest("#controlsPlaylist").getAttribute("data-id"));
+    let id = Number(this.closest("#controlsQueue").getAttribute("data-id"));
 
     for (let key = 0; key < Object.keys(playlist).length; key++) {
         let value = playlist[key];
@@ -295,6 +295,7 @@ bindEvent("click", "#playlistView .fa-play", function () {
     }
 
     currentTime = 0;
+    partIndex = 0;
 
     clearInterval(secondsInterval);
     play();
