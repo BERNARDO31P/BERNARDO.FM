@@ -352,6 +352,7 @@ function onTimelineRelease(rangeEvent) {
     tooltip.style.display = "none";
 
     clearInterval(secondsInterval);
+    resetSong(playIndex);
 
     let index = Math.floor(rangeEvent.target.value / 20);
     currentTime = index * 20;

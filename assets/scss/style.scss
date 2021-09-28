@@ -331,7 +331,6 @@ body {
 
   #queue {
     margin: 15px 0 0 0;
-    max-height: 600px;
 
     table, thead, tbody, tr {
       display: block;
@@ -344,12 +343,11 @@ body {
     }
 
     tbody {
-      max-height: calc(100vh - 380px);
+      max-height: calc(100vh - 320px);
       overflow: auto;
     }
 
     table {
-      max-height: calc(100% - 320px);
       min-width: 45%;
       max-width: 45%;
       position: fixed;
