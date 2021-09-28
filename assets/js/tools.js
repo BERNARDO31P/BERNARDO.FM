@@ -123,7 +123,7 @@ function isElementVisible(el, holder = undefined) {
     const elRect = el.getBoundingClientRect();
     const holderRect = holder.getBoundingClientRect();
 
-    let visibleBottom = holderRect.bottom - elRect.top >= elRect.height;
+    let visibleBottom = holderRect.bottom - elRect.top >= elRect.height - 2;
     let visibleTop = elRect.top - holderRect.top >= 0;
 
     return !(!visibleTop || !visibleBottom);
