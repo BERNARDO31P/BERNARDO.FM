@@ -27,6 +27,7 @@ input:not([type="range"]) {
 
 body {
   background-color: #f5f5f5;
+  overscroll-behavior: contain;
 }
 
 #navbar {
@@ -383,8 +384,6 @@ body {
   font-family: "Roboto Regular", sans-serif;
 
   z-index: 2;
-
-  overscroll-behavior: contain;
 
   div {
     position: relative;
