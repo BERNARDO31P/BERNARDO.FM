@@ -82,7 +82,7 @@ window.addEventListener("scroll", () => {
  *
  * Wenn der Benutzer die Fenstergrösse verändert, werden die Controls versteckt
  */
-window.addEventListener("resize", function() {
+window.addEventListener("resize", function () {
     removeControls("controlsContent");
     removeControls("controlsQueue");
 }, true);
@@ -154,7 +154,7 @@ bindEvent("click", ".fa-random", function () {
     currentSong["player"].stop();
 
     delete playlist[playIndex];
-    playlist.splice(0,1);
+    playlist.splice(0, 1);
     playlist = playlist.sort((a, b) => 0.5 - Math.random());
     playlist.unshift(currentSong);
 
@@ -340,6 +340,22 @@ bindEvent("click", ".repeat", function () {
             this.querySelector(".repeatOne").classList.remove("show");
             break;
     }
+});
+
+// TODO: Comment
+bindEvent("mouseover", ".volume", function () {
+    document.getElementsByClassName("volumeSlider")[0].classList.add("show");
+});
+
+// TODO: Comment
+bindEvent("mouseout", ".volume", function () {
+    document.getElementsByClassName("volumeSlider")[0].classList.remove("show");
+});
+
+// TODO: Comment
+bindEvent("input", ".volumeSlider", function () {
+    volume = this.value / 100;
+    playlist[playIndex]["player"].setGain(volume * 65535);
 });
 
 page = getPage();
