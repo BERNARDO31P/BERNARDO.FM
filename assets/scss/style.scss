@@ -503,6 +503,8 @@ body {
     }
 
     .volume {
+      overscroll-behavior: none;
+
       svg {
         width: 18px;
       }

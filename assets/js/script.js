@@ -356,6 +356,7 @@ bindEvent("click", ".repeat", function () {
  * Zeigt den Lautstärkeregler an
  */
 bindEvent("mouseover", ".volume", function () {
+    clearTimeout(sliderTimeout);
     document.getElementsByClassName("volumeSlider")[0].classList.add("show");
 });
 
@@ -376,11 +377,17 @@ bindEvent("mouseout", ".volume", function () {
  * Ändert die Lautstärke
  */
 bindEvent("input", ".volumeSlider", function () {
-    volume = this.value / 100;
+    let volumeSlider = this;
+    volume = volumeSlider.value / 100;
     playlist[playIndex]["player"].setGain(volume * 65535);
 
-    let volumeIcon = prev(this.closest("label"));
-    setVolumeIcon(volumeIcon, this);
+    let volumeIcon = prev(volumeSlider.closest("label"));
+    setVolumeIcon(volumeIcon, volumeSlider);
+
+    clearTimeout(sliderTimeout);
+    sliderTimeout = setTimeout(function() {
+        volumeSlider.classList.remove("show");
+    }, 2000);
 });
 
 /*
@@ -406,6 +413,10 @@ bindEvent("click", ".volume", function (e) {
     }
 
     playlist[playIndex]["player"].setGain(volume * 65535);
+
+    sliderTimeout = setTimeout(function() {
+        volumeSlider.classList.remove("show");
+    }, 2000);
 });
 
 page = getPage();

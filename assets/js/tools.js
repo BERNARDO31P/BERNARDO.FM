@@ -9,6 +9,8 @@ let currentHover = null,
     previousVolume = null,
     repeatMode = 0;
 
+let sliderTimeout = null;
+
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 const mobileWidth = 1150;
