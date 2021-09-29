@@ -6,6 +6,7 @@ let currentHover = null,
     playlist = [],
     partlist = {},
     volume = 0.5,
+    previousVolume = null,
     repeatMode = 0;
 
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
@@ -221,6 +222,23 @@ function removeControls(elementID) {
 
     if (typeof controls !== 'undefined' && controls.style.display !== "none")
         controls.style.display = "none";
+}
+
+/*
+ * Funktion: setVolumeIcon()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  volumeIcon: (Objekt) Definiert das Lautstärke Symbol
+ *  volumeSlider: (Objekt) Definiert den Lautstärkeregler
+ *
+ * Setzt je nach Lautstärke das richtige Symbol
+ */
+function setVolumeIcon(volumeIcon, volumeSlider) {
+    volumeIcon.classList.remove("fa-volume-*");
+
+    if (volumeSlider.value >= 50) volumeIcon.classList.add("fa-volume-up");
+    else if (volumeSlider.value >= 1) volumeIcon.classList.add("fa-volume-down");
+    else volumeIcon.classList.add("fa-volume-off");
 }
 
 /*

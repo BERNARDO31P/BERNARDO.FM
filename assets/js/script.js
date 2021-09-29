@@ -323,7 +323,14 @@ bindEvent("click", "#theme-toggler", function () {
     }
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Änder je nach Wiederholungsmodus die Farbe des Symbols
+ * Zeigt an, dass entweder die Playlist oder auch nur ein Lied wiederholt wird
+ * Setzt den Wiederholungsmodus
+ */
 bindEvent("click", ".repeat", function () {
     switch (repeatMode) {
         case 0:
@@ -342,19 +349,62 @@ bindEvent("click", ".repeat", function () {
     }
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Zeigt den Lautstärkeregler an
+ */
 bindEvent("mouseover", ".volume", function () {
     document.getElementsByClassName("volumeSlider")[0].classList.add("show");
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Versteckt den Lautstärkeregler
+ */
 bindEvent("mouseout", ".volume", function () {
     document.getElementsByClassName("volumeSlider")[0].classList.remove("show");
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Ändert die Lautstärke
+ */
 bindEvent("input", ".volumeSlider", function () {
     volume = this.value / 100;
+    playlist[playIndex]["player"].setGain(volume * 65535);
+
+    let volumeIcon = prev(this.closest("label"));
+    setVolumeIcon(volumeIcon, this);
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Schaltet die Wiedergabe auf stumm oder setzt die vorherige Lautstärke
+ */
+bindEvent("click", ".volume", function (e) {
+    let volumeIcon = this.querySelector("svg"), volumeSlider = this.querySelector(".volumeSlider");
+    if (e.target === volumeSlider) return;
+
+    if (previousVolume) {
+        volumeSlider.value = previousVolume * 100;
+        setVolumeIcon(volumeIcon, volumeSlider);
+        volume = previousVolume;
+        previousVolume = null;
+    } else {
+        volumeIcon.classList.remove("fa-volume-*");
+        volumeIcon.classList.add("fa-volume-mute");
+        previousVolume = volume;
+        volumeSlider.value = volume = 0;
+    }
+
     playlist[playIndex]["player"].setGain(volume * 65535);
 });
 

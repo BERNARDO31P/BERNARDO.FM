@@ -502,6 +502,12 @@ body {
       display: inline-flex;
     }
 
+    .volume {
+      svg {
+        width: 18px;
+      }
+    }
+
     .volumeSlider {
       display: none;
       position: absolute;

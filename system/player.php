@@ -23,6 +23,8 @@ function search_songs($search) {
             array_push($songs, $data);
         } else if ((stripos($data["artist"], $search) !== false)) {
             array_push($songs, $data);
+        } else if ((stripos($data["category"], $search) !== false)) {
+			array_push($songs, $data);
         }
     }
 
