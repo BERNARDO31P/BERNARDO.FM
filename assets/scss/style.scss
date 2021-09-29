@@ -384,7 +384,7 @@ body {
 
   z-index: 2;
 
-  overscroll-behavior: none;
+  overscroll-behavior: contain;
 
   div {
     position: relative;
