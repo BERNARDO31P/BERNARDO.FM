@@ -384,6 +384,8 @@ body {
 
   z-index: 2;
 
+  overscroll-behavior: none;
+
   div {
     position: relative;
   }
@@ -503,8 +505,6 @@ body {
     }
 
     .volume {
-      overscroll-behavior: none;
-
       svg {
         width: 18px;
       }
