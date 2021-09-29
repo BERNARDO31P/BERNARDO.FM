@@ -113,26 +113,8 @@ window["music"] = () => {
         }, 50);
     });
 
-    /*
-     * Funktion: Anonym
-     * Autor: Bernardo de Oliveira
-     *
-     * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
-     */
-    bindEvent("mouseover", ".songCard img", function () {
-        let controls = document.getElementById("controlsContent");
-        controls.style.display = "none";
-
-        let pos = this.getBoundingClientRect();
-
-        controls.style.top = pos.top + pos.height - 38 + "px";
-        controls.style.left = pos.left + "px";
-        controls.setAttribute("data-id", this.closest(".songCard").getAttribute("data-id"));
-
-        setTimeout(() => {
-            controls.style.display = "initial"
-        }, 50);
-    });
+    bindEvent("mouseover", ".songCard img", (e) => showControlsCard(e));
+    bindEvent("click", ".songCard", (e) => showControlsCard(e));
 
     /*
      * Funktion: Anonym
@@ -337,6 +319,36 @@ function downloadPart(time) {
     let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID + "&time=" + time));
 
     playlist[playIndex]["player"].addTrack(data["location"]);
+}
+
+/*
+ * Funktion: showControlsCard()
+ * Autor: Bernardo de Oliveira
+ *
+ * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
+ */
+function showControlsCard (event) {
+    let songCard = event.target.closest(".songCard"), songCover = songCard.querySelector("img");
+    let controls = document.getElementById("controlsContent");
+    let pos = songCover.getBoundingClientRect();
+    let top = Math.round((pos.top + pos.height - 36) * 1000) / 1000 + "px", left = Math.round((pos.left - 2) * 1000) / 1000 + "px";
+
+    controls.style.display = "initial";
+    if (controls.style.top !== top || controls.style.left !== left) {
+        console.log(controls.style.top + " -> " + top);
+        console.log(controls.style.left + " -> " + left);
+
+        controls.style.display = "none";
+
+        controls.style.top = top;
+        controls.style.left = left;
+
+        controls.setAttribute("data-id", songCard.getAttribute("data-id"));
+
+        setTimeout(() => {
+            controls.style.display = "initial";
+        }, 50);
+    }
 }
 
 /*

@@ -160,9 +160,13 @@ body {
       display: flex;
       flex-wrap: wrap;
 
-      div {
+      .songCard {
         position: relative;
         margin: 0 20px 55px 0;
+
+        &:hover > .name, &:hover > .artist {
+          text-decoration: underline;
+        }
 
         span {
           max-width: 156px;
@@ -177,16 +181,20 @@ body {
           left: 2px;
 
           font-size: 15px;
+          cursor: pointer;
+
+          transition: 0.2s;
         }
 
         .artist {
+          color: #444444;
+
           position: absolute;
           top: 183px;
           left: 2px;
 
           font-size: 13px;
-
-          color: #444444;
+          cursor: pointer;
         }
 
         .length {
