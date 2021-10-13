@@ -123,14 +123,28 @@ const prev = (element, className = "") => {
  * Wenn der Player angezeigt wird, wird die Benachrichtigung drüber angezeigt, sonst ganz unten
  */
 function showNotification(message, time) {
-    let notification = document.getElementById("notification");
     let player = document.getElementById("player");
     let playerStyle = window.getComputedStyle(player);
     let content = document.getElementById("content");
 
+    let notifications = document.getElementsByClassName("notification");
+    for (let i = 0; i < notifications.length; i++) {
+        let notification = notifications[i];
+        let notificationStyle = window.getComputedStyle(notification);
+        let notificationPosition = notification.getBoundingClientRect();
+
+        let bottom = Number(notificationStyle.bottom.replace("px", ""));
+        notification.style.bottom = bottom + notificationPosition.height + 5 + "px";
+    }
+
+    let notification = document.createElement("div");
+    notification.classList.add("notification");
+
     notification.innerText = message;
-    notification.style.display = "initial";
     notification.style.left = content.getBoundingClientRect().left + 10 + "px";
+
+
+    content.parentNode.appendChild(notification);
 
     notification.animateCallback([
         {opacity: 0},
@@ -147,7 +161,7 @@ function showNotification(message, time) {
                 duration: 100,
                 fill: "forwards"
             }, function () {
-                notification.style.display = "none";
+                notification.remove();
             });
         }, time);
     });
@@ -158,16 +172,19 @@ function showNotification(message, time) {
                 {bottom: '10px'},
                 {bottom: '110px'}
             ], {
-                duration: 100,
-                fill: "forwards"
+                duration: 100
             }, function () {
+                notification.style.bottom = "110px";
                 setTimeout(function () {
-                    notification.animate([
-                        {bottom: '110px'},
+                    let position = window.getComputedStyle(notification);
+
+                    notification.animateCallback([
+                        {bottom: position.bottom},
                         {bottom: '10px'}
                     ], {
-                        duration: 100,
-                        fill: "forwards"
+                        duration: 100
+                    }, function () {
+                        notification.style.bottom = "10px";
                     });
                 }, time);
             });
