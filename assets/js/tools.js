@@ -7,7 +7,8 @@ let currentHover = null,
     partlist = {},
     volume = 0.5,
     previousVolume = null,
-    repeatMode = 0;
+    repeatMode = 0,
+    touched = false;
 
 let sliderTimeout = null;
 
@@ -345,6 +346,7 @@ function hideVolumeSlider() {
     clearTimeout(sliderTimeout);
     sliderTimeout = setTimeout(function () {
         document.getElementsByClassName("volumeBackground")[0].classList.remove("show");
+        touched = false;
     }, 2000);
 }
 

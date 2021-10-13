@@ -394,7 +394,9 @@ bindEvent("input", ".volumeSlider", function () {
  * Schaltet die Wiedergabe auf stumm oder setzt die vorherige Lautstärke
  */
 bindEvent("click", ".volume", function (e) {
-    if (!isTouchScreen()) {
+    let volumeBackground = this.querySelector(".volumeBackground");
+
+    if (!isTouchScreen() || touched) {
         let volumeIcon = this.querySelector("svg"), volumeSlider = this.querySelector(".volumeSlider");
         if (e.target === volumeSlider) return;
 
@@ -413,7 +415,7 @@ bindEvent("click", ".volume", function (e) {
         playlist[playIndex]["player"].setGain(volume * 65535);
 
         hideVolumeSlider();
-    }
+    } else touched = true;
 });
 
 page = getPage();
