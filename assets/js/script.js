@@ -379,6 +379,8 @@ bindEvent("mouseout", ".volume", function () {
 bindEvent("input", ".volumeSlider", function () {
     let volumeSlider = this;
     volume = volumeSlider.value / 100;
+    previousVolume = null;
+    
     playlist[playIndex]["player"].setGain(volume * 65535);
 
     let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
