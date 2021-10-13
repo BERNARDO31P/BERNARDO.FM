@@ -113,6 +113,71 @@ const prev = (element, className = "") => {
 }
 
 /*
+ * Funktion: showNotification()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  message: (String) Definiert die Nachricht in der Benachrichtigung
+ *  time: (Integer) Definiert wie lange die Benachrichtigung angezeigt werden soll
+ *
+ * Animiert eine Benachrichtigung in die Anzeige
+ * Wenn der Player angezeigt wird, wird die Benachrichtigung drüber angezeigt, sonst ganz unten
+ */
+function showNotification(message, time) {
+    let notification = document.getElementById("notification");
+    let player = document.getElementById("player");
+    let playerStyle = window.getComputedStyle(player);
+    let content = document.getElementById("content");
+
+    notification.innerText = message;
+    notification.style.display = "initial";
+    notification.style.left = content.getBoundingClientRect().left + 10 + "px";
+
+    notification.animateCallback([
+        {opacity: 0},
+        {opacity: 1}
+    ], {
+        duration: 100,
+        fill: "forwards"
+    }, function () {
+        setTimeout(function () {
+            notification.animateCallback([
+                {opacity: 1},
+                {opacity: 0}
+            ], {
+                duration: 100,
+                fill: "forwards"
+            }, function () {
+                notification.style.display = "none";
+            });
+        }, time);
+    });
+
+    if (playerStyle.display !== "none") {
+        if (getWidth() > 500) {
+            notification.animateCallback([
+                {bottom: '10px'},
+                {bottom: '110px'}
+            ], {
+                duration: 100,
+                fill: "forwards"
+            }, function () {
+                setTimeout(function () {
+                    notification.animate([
+                        {bottom: '110px'},
+                        {bottom: '10px'}
+                    ], {
+                        duration: 100,
+                        fill: "forwards"
+                    });
+                }, time);
+            });
+        } else {
+            notification.style.bottom = "110px";
+        }
+    }
+}
+
+/*
  * Funktion: isElementVisible()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -130,6 +195,16 @@ function isElementVisible(el, holder = undefined) {
     let visibleTop = elRect.top - holderRect.top >= 0;
 
     return !(!visibleTop || !visibleBottom);
+}
+
+/*
+ * Funktion: isTouchScreen()
+ * Autor: Daniel Lavedonio de Lima (https://stackoverflow.com/questions/36408960/check-if-click-was-triggered-by-touch-or-click)
+ *
+ * Überprüft ob der Benutzer irgendwo momentan mit der Maus ist, wenn nicht ist es ein Touchgerät
+ */
+function isTouchScreen() {
+    return window.matchMedia('(hover: none)').matches;
 }
 
 /*
@@ -241,6 +316,19 @@ function setVolumeIcon(volumeIcon, volumeSlider) {
     if (volumeSlider.value >= 50) volumeIcon.classList.add("fa-volume-up");
     else if (volumeSlider.value >= 1) volumeIcon.classList.add("fa-volume-down");
     else volumeIcon.classList.add("fa-volume-off");
+}
+
+/*
+ * Funktion: hideVolumeSlider()
+ * Autor: Bernardo de Oliveira
+ *
+ * Versteckt den Lautstärkeregler
+ */
+function hideVolumeSlider() {
+    clearTimeout(sliderTimeout);
+    sliderTimeout = setTimeout(function () {
+        document.getElementsByClassName("volumeBackground")[0].classList.remove("show");
+    }, 2000);
 }
 
 /*

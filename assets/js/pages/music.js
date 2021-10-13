@@ -141,6 +141,7 @@ window["music"] = () => {
      */
     bindEvent("click", "#content .listAdd", function () {
         addSongToPlaylist(this);
+        showNotification("Song added to queue", 3000);
     });
 
     /*
@@ -335,9 +336,6 @@ function showControlsCard (event) {
 
     controls.style.display = "initial";
     if (controls.style.top !== top || controls.style.left !== left) {
-        console.log(controls.style.top + " -> " + top);
-        console.log(controls.style.left + " -> " + left);
-
         controls.style.display = "none";
 
         controls.style.top = top;

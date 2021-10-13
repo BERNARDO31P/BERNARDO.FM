@@ -99,7 +99,7 @@ body {
   }
 
   &.shadow {
-    box-shadow: 0 3px 6px #d6d6d6
+    box-shadow: 0 1px 5px #d6d6d6;
   }
 
   .right {
@@ -110,7 +110,9 @@ body {
 }
 
 #content {
-  box-shadow: 3px 3px 5px #dedede, -3px -3px 5px #efefef;
+  /*box-shadow: 3px 3px 5px #dedede, -3px -3px 5px #efefef;*/
+
+  box-shadow: 1px 1px 3px #dedede, -1px -1px 2px #efefef;
   border-radius: 15px;
 
   padding: 20px 40px 40px 40px;
@@ -462,6 +464,8 @@ body {
     &::-ms-track {
       background: #ddd;
       color: transparent;
+
+  border-color: #00b900;
       height: 40px;
       border: none;
     }
@@ -575,6 +579,26 @@ body {
   display: block;
   width: 100%;
   height: 150px;
+}
+
+#notification {
+  font-family: "Roboto Regular", sans-serif;
+
+  background-color: #ededed;
+  box-shadow: 1px 1px 1px #dedede, -1px -1px 1px #efefef;
+
+  left: 0;
+  bottom: 10px;
+
+  z-index: 3;
+
+  padding: 10px 15px;
+  position: fixed;
+
+  display: none;
+  opacity: 0;
+
+  border-radius: 3px;
 }
 
 .listView {
@@ -862,6 +886,13 @@ body {
     #queue {
       margin: 15px 0 0 0 !important;
     }
+  }
+}
+
+@media screen and (max-width: 500px) {
+  #notification {
+    right: 20px;
+    left: 20px;
   }
 }
 

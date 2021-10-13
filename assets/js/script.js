@@ -357,6 +357,7 @@ bindEvent("click", ".repeat", function () {
  */
 bindEvent("mouseover", ".volume", function () {
     document.getElementsByClassName("volumeBackground")[0].classList.add("show");
+    hideVolumeSlider();
 });
 
 /*
@@ -383,10 +384,7 @@ bindEvent("input", ".volumeSlider", function () {
     let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
     setVolumeIcon(volumeIcon, volumeSlider);
 
-    clearTimeout(sliderTimeout);
-    sliderTimeout = setTimeout(function() {
-        document.getElementsByClassName("volumeBackground")[0].classList.remove("show");
-    }, 2000);
+    hideVolumeSlider();
 });
 
 /*
@@ -396,26 +394,26 @@ bindEvent("input", ".volumeSlider", function () {
  * Schaltet die Wiedergabe auf stumm oder setzt die vorherige Lautstärke
  */
 bindEvent("click", ".volume", function (e) {
-    let volumeIcon = this.querySelector("svg"), volumeSlider = this.querySelector(".volumeSlider");
-    if (e.target === volumeSlider) return;
+    if (!isTouchScreen()) {
+        let volumeIcon = this.querySelector("svg"), volumeSlider = this.querySelector(".volumeSlider");
+        if (e.target === volumeSlider) return;
 
-    if (previousVolume) {
-        volumeSlider.value = previousVolume * 100;
-        setVolumeIcon(volumeIcon, volumeSlider);
-        volume = previousVolume;
-        previousVolume = null;
-    } else {
-        volumeIcon.classList.remove("fa-volume-*");
-        volumeIcon.classList.add("fa-volume-mute");
-        previousVolume = volume;
-        volumeSlider.value = volume = 0;
+        if (previousVolume) {
+            volumeSlider.value = previousVolume * 100;
+            setVolumeIcon(volumeIcon, volumeSlider);
+            volume = previousVolume;
+            previousVolume = null;
+        } else {
+            volumeIcon.classList.remove("fa-volume-*");
+            volumeIcon.classList.add("fa-volume-mute");
+            previousVolume = volume;
+            volumeSlider.value = volume = 0;
+        }
+
+        playlist[playIndex]["player"].setGain(volume * 65535);
+
+        hideVolumeSlider();
     }
-
-    playlist[playIndex]["player"].setGain(volume * 65535);
-
-    sliderTimeout = setTimeout(function() {
-        volumeSlider.classList.remove("show");
-    }, 2000);
 });
 
 page = getPage();
