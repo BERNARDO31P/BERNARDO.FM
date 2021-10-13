@@ -311,7 +311,7 @@ function downloadNextPart() {
             if (typeof partlist[playIndex] === 'undefined') partlist[playIndex] = {};
             partlist[playIndex][indexPart] = index;
 
-        } else if (typeof partlist[nextIndex] === 'undefined') {
+        } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
             let songID = playlist[nextIndex]["id"];
             let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID + "&time=0"));
 
