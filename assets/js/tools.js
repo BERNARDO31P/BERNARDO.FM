@@ -608,56 +608,6 @@ function resetSong(index) {
 }
 
 /*
- * Funktion: nextSong()
- * Autor: Bernardo de Oliveira
- *
- * Überprüft ob weitere Lieder in der Wiedergabenliste verfügbar sind
- * Falls dies der Fall sein sollte, wird der Playindex um eine ID inkrementiert
- *
- * Die Wiedergabe wird gestartet
- */
-function nextSong() {
-    resetSong(playIndex);
-
-    currentTime = 0;
-    partIndex = 0;
-
-    clearInterval(secondsInterval);
-    playPauseButton(false);
-
-    let nextIndex = nextSongIndex();
-    if (typeof playlist[nextIndex] !== 'undefined') {
-        playIndex = nextIndex;
-        play(true);
-    }
-}
-
-/*
- * Funktion: previousSong()
- * Autor: Bernardo de Oliveira
- *
- * Überprüft ob weitere Lieder in der Wiedergabenliste verfügbar sind
- * Falls dies der Fall sein sollte, wird der Playindex um eine ID dekrementiert
- *
- * Die Wiedergabe wird gestartet
- */
-function previousSong() {
-    resetSong(playIndex);
-
-    currentTime = 0;
-    partIndex = 0;
-
-    clearInterval(secondsInterval);
-    playPauseButton(false);
-
-    let previousIndex = previousSongIndex();
-    if (typeof playlist[previousIndex] !== 'undefined') {
-        playIndex = previousIndex;
-        play(true);
-    }
-}
-
-/*
  * Funktion: pauseSong()
  * Autor: Bernardo de Oliveira
  *

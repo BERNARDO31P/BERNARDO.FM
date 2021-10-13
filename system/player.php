@@ -43,32 +43,27 @@ function search_song($id) {
 
 ob_start();
 header('Content-Type: application/json');
+
 if (isset($_GET["id"])) {
-    include_once __DIR__ . "/vendor/autoload.php";
-
     $song = search_song($_GET["id"]);
-    $newName = "/temp/" . bin2hex(random_bytes(22)) . ".mp3";
 
-    $time = 0;
-    $timeSet = false;
-    if (isset($_GET["time"]) && $_GET["time"] !== 0) {
-        $time += $_GET["time"];
-        $timeSet = true;
-    }
+    if (isset($_GET["time"])) {
+        include_once __DIR__ . "/vendor/autoload.php";
+        $newName = "/temp/" . bin2hex(random_bytes(22)) . ".mp3";
 
-    \falahati\PHPMP3\MpegAudio::fromFile(__DIR__ . "/music/" . $song["fileName"])->trim($time, 20)->saveFile(__DIR__ . $newName);
+        \falahati\PHPMP3\MpegAudio::fromFile(__DIR__ . "/music/" . $song["fileName"])->trim($_GET["time"], 20)->saveFile(__DIR__ . $newName);
 
-    recursive_unset($song, "fileName");
-	$document_path = str_replace(str_replace("\\", "/", $_SERVER["DOCUMENT_ROOT"]), "", str_replace("\\", "/", __DIR__));
-    $song["location"] = $document_path . $newName;
+        $document_path = str_replace(str_replace("\\", "/", $_SERVER["DOCUMENT_ROOT"]), "", str_replace("\\", "/", __DIR__));
+        $song["location"] = $document_path . $newName;
 
-    if ($timeSet) {
         recursive_unset($song, "id");
         recursive_unset($song, "name");
         recursive_unset($song, "artist");
         recursive_unset($song, "length");
         recursive_unset($song, "cover");
+        recursive_unset($song, "category");
     }
+    recursive_unset($song, "fileName");
 
     echo json_encode($song);
 } else {

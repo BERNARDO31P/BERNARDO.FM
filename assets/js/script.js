@@ -130,10 +130,6 @@ bindEvent("click", "#player .fa-pause", () => pauseSong());
 
 bindEvent("click", "#player .fa-play", () => playSong());
 
-bindEvent("click", "#player .fa-forward", () => nextSong());
-
-bindEvent("click", "#player .fa-backward", () => previousSong());
-
 bindEvent("touchstart", "#timeline", () => onTimelinePress());
 
 bindEvent("mousedown", "#timeline", () => onTimelinePress());
@@ -380,7 +376,7 @@ bindEvent("input", ".volumeSlider", function () {
     let volumeSlider = this;
     volume = volumeSlider.value / 100;
     previousVolume = null;
-    
+
     playlist[playIndex]["player"].setGain(volume * 65535);
 
     let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
