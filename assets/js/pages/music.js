@@ -213,6 +213,7 @@ function addEvents(player) {
         let index = Math.ceil(timeline.value / 20);
 
         clearInterval(secondsInterval);
+        resetSong(playIndex);
 
         if (typeof partlist[playIndex][index] !== "undefined") {
             let partLength = getCurrentPartLength();
@@ -310,7 +311,7 @@ function downloadNextPart() {
             if (typeof partlist[playIndex] === 'undefined') partlist[playIndex] = {};
             partlist[playIndex][indexPart] = index;
 
-        } else if (typeof playlist[nextIndex] !== 'undefined') {
+        } else if (typeof partlist[nextIndex] === 'undefined') {
             let songID = playlist[nextIndex]["id"];
             let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID + "&time=0"));
 
