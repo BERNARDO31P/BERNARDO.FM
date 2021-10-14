@@ -84,18 +84,22 @@ window["music"] = () => {
                     title.innerText = category;
                     gridView.appendChild(title);
 
-                    let categoryView = document.createElement("div"), test = document.createElement("div");
-                    test.classList.add("songCategory");
+                    let div = document.createElement("div"), categoryView = document.createElement("div");
+                    categoryView.classList.add("songCategory");
+
+                    div.addEventListener("scroll", () => {
+                        removeControls("controlsContent");
+                    });
 
                     cards = cards.sort((a, b) => 0.5 - Math.random());
 
                     for (let arrayID in cards) {
                         let card = cards[arrayID];
-                        test.appendChild(card);
+                        categoryView.appendChild(card);
                     }
 
-                    categoryView.appendChild(test);
-                    gridView.appendChild(categoryView);
+                    div.appendChild(categoryView);
+                    gridView.appendChild(div);
                 }
 
                 object.parentNode.insertBefore(gridView, object);
