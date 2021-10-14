@@ -385,69 +385,6 @@ function hidePlaylist(body, queueView, angleIcon) {
 }
 
 /*
- * Funktion: generateTable()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  data: (Object) Die Daten, welche verarbeitet werden sollen
- *  categories: (Boolean) Definiert ob die Categorien angezeigt werden sollen
- *  scroll: (Boolean) Definiert ob die Scroll-Events angewendet werden sollen
- *
- * Generiert eine Tabelle aus den Daten (Table body) und Schlüssel (Table head)
- */
-function generateTable(data, categories = true, scroll = false) {
-    let listView = document.createElement("table");
-
-    let columns = Object.keys(data[0]);
-    columns.shift();
-    columns.pop();
-
-    listView.classList.add("listView");
-
-    let row = document.createElement("tr");
-    for (let j = 0; j < columns.length; j++) {
-        let th = document.createElement("th");
-        th.innerText = ucFirst(columns[j]);
-        row.appendChild(th);
-    }
-
-    let thead = document.createElement("thead");
-    thead.appendChild(row);
-
-    listView.appendChild(thead);
-
-    let tbody = document.createElement("tbody"), category;
-
-    if (scroll) tbody.onscroll = () => {
-        removeControls("controlsQueue");
-    };
-
-    for (let j = 0; j < Object.keys(data).length; j++) {
-        let song = data[j];
-
-        if (category !== song["category"] && categories) {
-            category = song["category"];
-
-            let row = document.createElement("tr");
-
-            row.innerHTML = "<td colspan='4'>" + category + "</td>";
-            tbody.appendChild(row);
-        }
-
-        let row = document.createElement("tr");
-        row.setAttribute("data-id", song["id"]);
-        row.innerHTML = "<td><img src='/system/img/" + song["cover"] + "' alt='Cover'/></td>" +
-            "<td>" + song["name"] + "</td>" +
-            "<td>" + song["artist"] + "</td>" +
-            "<td>" + song["length"] + "</td>";
-
-        tbody.appendChild(row);
-    }
-
-    listView.appendChild(tbody);
-    return listView;
-}
-
-/*
  * Funktion: play()
  * Autor: Bernardo de Oliveira
  *

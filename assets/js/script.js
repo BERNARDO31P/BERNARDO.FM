@@ -196,52 +196,6 @@ bindEvent("mouseover", "#queueView tr[data-id]", function () {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * Öffnet die Playlist-Ansicht
- * Generiert die Playlist-Tabelle
- *
- * Rotiert das Icon, damit der Benutzer erkennt, dass man das Menü wieder schliessen kann
- */
-bindEvent("click", ".fa-angle-up", function () {
-    let queueView = document.getElementById("queueView");
-    let body = document.getElementsByTagName("body")[0];
-
-    if (this.getAttribute("data-angle") === "up") {
-        hidePlaylist(body, queueView, this);
-    } else {
-        body.style.overflowY = "hidden";
-
-        this.animate([
-            {transform: 'rotate(0deg)'},
-            {transform: 'rotate(-180deg)'}
-        ], {
-            duration: 200,
-            fill: "forwards"
-        });
-
-        let queue = queueView.querySelector("#queue");
-        queue.innerHTML = "";
-        queue.appendChild(generateTable(playlist, false, true));
-
-        queueView.classList.add("show");
-        queueView.animate([
-            {height: '0%'},
-            {height: 'calc(100% - 200px)'}
-        ], {
-            duration: 300,
-            fill: "forwards"
-        });
-
-        this.setAttribute("data-angle", "up");
-    }
-
-    document.getElementById("controlsContent").style.display = "none";
-    document.getElementById("controlsQueue").style.display = "none";
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
  * Ändert die Unterseite zu "music" und speichert sich die vorherige Seite
  */
 bindEvent("input", "#search", function () {

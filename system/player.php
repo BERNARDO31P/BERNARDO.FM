@@ -63,9 +63,18 @@ if (isset($_GET["id"])) {
         recursive_unset($song, "cover");
         recursive_unset($song, "category");
     }
-    recursive_unset($song, "fileName");
 
-    echo json_encode($song);
+    if (isset($song["playlist"])) {
+        $playlist = array();
+        foreach ($song["playlist"] as $songID) {
+            $playlist[] = search_song($songID);
+        }
+        recursive_unset($playlist, "fileName");
+        echo json_encode($playlist);
+    } else {
+        recursive_unset($song, "fileName");
+        echo json_encode($song);
+    }
 } else {
     recursive_unset($db, "fileName");
 

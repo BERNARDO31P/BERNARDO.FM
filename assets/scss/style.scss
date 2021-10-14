@@ -162,8 +162,56 @@ body {
       flex-wrap: wrap;
 
       .songCard {
+        img {
+          transition: 0.2s;
+          max-width: 160px;
+
+          border-radius: 5px;
+
+          &:hover {
+            filter: brightness(50%);
+          }
+
+          &:hover ~.length {
+            opacity: 1;
+          }
+        }
+      }
+
+      .playlistCard {
+        transition: 0.2s;
+
+        img {
+          max-width: 80px;
+
+          &:nth-child(1) {
+            border-top-left-radius: 5px;
+          }
+
+          &:nth-child(2) {
+            border-top-right-radius: 5px;
+          }
+
+          &:nth-child(3) {
+            margin-top: -5px;
+            border-bottom-left-radius: 5px;
+          }
+
+          &:nth-child(4) {
+            margin-top: -5px;
+            border-bottom-right-radius: 5px;
+          }
+        }
+
+        &:hover {
+          filter: brightness(50%);
+        }
+      }
+
+      .songCard, .playlistCard {
         position: relative;
         margin: 0 20px 55px 0;
+        width: 160px;
 
         &:hover > .name, &:hover > .artist {
           text-decoration: underline;
@@ -207,21 +255,6 @@ body {
 
           color: #cccccc;
         }
-
-        img {
-          transition: 0.2s;
-          max-width: 160px;
-
-          border-radius: 5px;
-        }
-
-        img:hover {
-          filter: brightness(50%);
-        }
-
-        img:hover ~ .length {
-          opacity: 1;
-        }
       }
     }
   }
@@ -237,13 +270,42 @@ body {
   .listView {
     margin: 35px 0 0 0;
 
-    img {
-      border-radius: 5px;
-      width: 35px;
-      height: 35px;
-      margin: 6px 0 0 0;
+    .cover {
+      max-width: 35px;
+
+      img {
+        max-width: 17.5px;
+        max-height: 17.5px;
+
+        &:nth-child(1) {
+          margin-bottom: -5px;
+          border-top-left-radius: 5px;
+        }
+
+        &:nth-child(2) {
+          margin-bottom: -5px;
+          border-top-right-radius: 5px;
+        }
+
+        &:nth-child(3) {
+          border-bottom-left-radius: 5px;
+        }
+
+        &:nth-child(4) {
+          border-bottom-right-radius: 5px;
+        }
+      }
     }
-  }
+
+    td > img {
+
+        border-radius: 5px;
+        width: 35px;
+        height: 35px;
+        margin: 6px 0 0 0;
+      }
+    }
+
 }
 
 #controlsContent, #controlsQueue {
@@ -608,7 +670,7 @@ body {
 
   thead {
     text-align: left;
-    box-shadow: -1px -1px 4px #efefef, 1px 1px 4px #dedede;
+    box-shadow: -1px -1px 3px #efefef, 1px 1px 3px #dedede;
 
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;

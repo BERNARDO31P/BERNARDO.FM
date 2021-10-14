@@ -52,5 +52,11 @@
     "length": "2:00",
     "fileName": "J Dilla - Don't Cry.mp3",
     "category": "Trip-Hop"
+  },
+  {
+    "id": 7,
+    "name": "Full-On",
+    "category": "Playlists",
+    "playlist": [1, 2, 4, 5]
   }
 ]
