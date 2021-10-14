@@ -521,8 +521,10 @@ function getCurrentPartTime() {
  * Löscht alle Teile eines Liedes
  */
 function clearSong(index) {
-    playlist[index]["player"].stop();
-    playlist[index]["player"].removeAllTracks();
+    if (typeof playlist[index]["player"] !== 'undefined') {
+        playlist[index]["player"].stop();
+        playlist[index]["player"].removeAllTracks();
+    }
 }
 
 /*
