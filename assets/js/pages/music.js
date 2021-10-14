@@ -36,32 +36,18 @@ window["music"] = () => {
                 document.getElementsByClassName("fa-grip-horizontal")[0].classList.add("active");
 
                 let columns = Object.keys(data[0]);
-                columns.shift();
-                columns.pop();
+                columns = columns.slice(1, 5);
 
                 let gridView = document.createElement("div");
                 gridView.classList.add("songGrid");
 
-                let category, categoryView;
+                let parsed = {};
                 for (let j = 0; j < Object.keys(data).length; j++) {
                     let song = data[j];
 
-                    if (category !== song["category"]) {
-                        if (typeof categoryView !== 'undefined') gridView.appendChild(categoryView);
-
-                        categoryView = document.createElement("div");
-                        categoryView.classList.add("songCategory");
-
-                        category = song["category"];
-
-                        let title = document.createElement("h2");
-
-                        title.innerText = category;
-                        gridView.appendChild(title);
-                    }
-
                     let card = document.createElement("div");
                     card.setAttribute("data-id", song["id"]);
+
                     if (typeof song["playlist"] === 'undefined') {
                         card.classList.add("songCard");
                         card.innerHTML = "<img src='/system/img/" + song["cover"] + "' alt='Cover'/>" +
@@ -84,10 +70,34 @@ window["music"] = () => {
                         card.innerHTML += "<span class='name'>" + song["name"] + "</span>" +
                             "<span class='artist'>" + artists + "</span>";
                     }
-                    categoryView.appendChild(card);
+
+                    if (typeof parsed[song["category"]] === 'undefined') parsed[song["category"]] = [];
+
+                    let key = Object.keys(parsed[song["category"]] ?? []).length;
+                    parsed[song["category"]].push(card);
+
                 }
 
-                gridView.appendChild(categoryView);
+                for (let category in parsed) {
+                    let cards = parsed[category], title = document.createElement("h2");
+
+                    title.innerText = category;
+                    gridView.appendChild(title);
+
+                    let categoryView = document.createElement("div"), test = document.createElement("div");
+                    test.classList.add("songCategory");
+
+                    cards = cards.sort((a, b) => 0.5 - Math.random());
+
+                    for (let arrayID in cards) {
+                        let card = cards[arrayID];
+                        test.appendChild(card);
+                    }
+
+                    categoryView.appendChild(test);
+                    gridView.appendChild(categoryView);
+                }
+
                 object.parentNode.insertBefore(gridView, object);
             }
         } else {
@@ -128,10 +138,18 @@ window["music"] = () => {
         }, 50);
     });
 
-    bindEvent("mouseover", ".songCard", function () {showControlsCard(this)});
-    bindEvent("mouseover", ".playlistCard", function () {showControlsCard(this)});
-    bindEvent("click", ".songCard", function () {showControlsCard(this)});
-    bindEvent("click", ".playlistCard", function () {showControlsCard(this)});
+    bindEvent("mouseover", ".songCard", function () {
+        showControlsCard(this)
+    });
+    bindEvent("mouseover", ".playlistCard", function () {
+        showControlsCard(this)
+    });
+    bindEvent("click", ".songCard", function () {
+        showControlsCard(this)
+    });
+    bindEvent("click", ".playlistCard", function () {
+        showControlsCard(this)
+    });
 
     /*
      * Funktion: Anonym
@@ -420,8 +438,7 @@ function generateTable(data, categories = true, scroll = false) {
     let listView = document.createElement("table");
 
     let columns = Object.keys(data[0]);
-    columns.shift();
-    columns.pop();
+    columns = columns.slice(1, 5);
 
     listView.classList.add("listView");
 

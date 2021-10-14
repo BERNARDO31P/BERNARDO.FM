@@ -148,7 +148,6 @@ body {
   }
 
   .songGrid {
-
     h2 {
       margin: 5px 0 5px 0;
     }
@@ -157,108 +156,111 @@ body {
       margin: 30px 0 5px 0
     }
 
-    .songCategory {
-      display: flex;
-      flex-wrap: wrap;
+    & > div {
+      overflow-x: auto;
 
-      .songCard {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+      .songCategory {
+        display: inline-flex;
 
-        img {
+        .songCard {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          img {
+            transition: 0.2s;
+            max-width: 160px;
+
+            border-radius: 5px;
+
+            &:hover {
+              filter: brightness(50%);
+            }
+
+            &:hover ~.length {
+              opacity: 1;
+            }
+          }
+        }
+
+        .playlistCard {
           transition: 0.2s;
-          max-width: 160px;
 
-          border-radius: 5px;
+          img {
+            max-width: 80px;
+
+            &:nth-child(1) {
+              border-top-left-radius: 5px;
+            }
+
+            &:nth-child(2) {
+              border-top-right-radius: 5px;
+            }
+
+            &:nth-child(3) {
+              margin-top: -5px;
+              border-bottom-left-radius: 5px;
+            }
+
+            &:nth-child(4) {
+              margin-top: -5px;
+              border-bottom-right-radius: 5px;
+            }
+          }
 
           &:hover {
             filter: brightness(50%);
           }
-
-          &:hover ~.length {
-            opacity: 1;
-          }
         }
-      }
 
-      .playlistCard {
-        transition: 0.2s;
+        .songCard, .playlistCard {
+          position: relative;
+          margin: 0 20px 55px 0;
+          width: 160px;
+          height: 160px;
 
-        img {
-          max-width: 80px;
-
-          &:nth-child(1) {
-            border-top-left-radius: 5px;
+          &:hover > .name, &:hover > .artist {
+            text-decoration: underline;
           }
 
-          &:nth-child(2) {
-            border-top-right-radius: 5px;
+          span {
+            max-width: 156px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
 
-          &:nth-child(3) {
-            margin-top: -5px;
-            border-bottom-left-radius: 5px;
+          .name {
+            position: absolute;
+            top: 163px;
+            left: 2px;
+
+            font-size: 15px;
+            cursor: pointer;
+
+            transition: 0.2s;
           }
 
-          &:nth-child(4) {
-            margin-top: -5px;
-            border-bottom-right-radius: 5px;
+          .artist {
+            color: #444444;
+
+            position: absolute;
+            top: 183px;
+            left: 2px;
+
+            font-size: 13px;
+            cursor: pointer;
           }
-        }
 
-        &:hover {
-          filter: brightness(50%);
-        }
-      }
+          .length {
+            transition: 0.2s;
+            position: absolute;
+            opacity: 0;
+            top: 133px;
+            right: 10px;
 
-      .songCard, .playlistCard {
-        position: relative;
-        margin: 0 20px 55px 0;
-        width: 160px;
-        height: 160px;
-
-        &:hover > .name, &:hover > .artist {
-          text-decoration: underline;
-        }
-
-        span {
-          max-width: 156px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .name {
-          position: absolute;
-          top: 163px;
-          left: 2px;
-
-          font-size: 15px;
-          cursor: pointer;
-
-          transition: 0.2s;
-        }
-
-        .artist {
-          color: #444444;
-
-          position: absolute;
-          top: 183px;
-          left: 2px;
-
-          font-size: 13px;
-          cursor: pointer;
-        }
-
-        .length {
-          transition: 0.2s;
-          position: absolute;
-          opacity: 0;
-          top: 133px;
-          right: 10px;
-
-          color: #cccccc;
+            color: #cccccc;
+          }
         }
       }
     }
