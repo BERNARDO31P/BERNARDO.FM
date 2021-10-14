@@ -498,9 +498,8 @@ function generateTable(data, categories = true, scroll = false) {
  * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
  */
 function showControlsCard(card) {
-    let songCover = card.querySelectorAll("img")[2] ?? card.querySelector("img");
     let controls = document.getElementById("controlsContent");
-    let pos = songCover.getBoundingClientRect();
+    let pos = card.getBoundingClientRect();
     let top = Math.round((pos.top + pos.height - 36) * 1000) / 1000 + "px",
         left = Math.round((pos.left - 2) * 1000) / 1000 + "px";
 

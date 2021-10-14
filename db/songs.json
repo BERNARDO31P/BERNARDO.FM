@@ -55,8 +55,179 @@
   },
   {
     "id": 7,
+    "cover": "Astrix - Sahara (Tristan Remix).jpg",
+    "name": "Sahara (Tristan Remix)",
+    "artist": "Astrix",
+    "length": "7:50",
+    "fileName": "Astrix - Sahara (Tristan Remix).mp3",
+    "category": "Psy-Trance"
+  },
+  {
+    "id": 8,
+    "cover": "Transient Disorder - The Watchers.jpg",
+    "name": "The Watchers",
+    "artist": "Transient Disorder",
+    "length": "8:23",
+    "fileName": "Transient Disorder - The Watchers.mp3",
+    "category": "Psy-Trance"
+  },
+  {
+    "id": 9,
+    "cover": "Tropical Bleyage - My Thoughts.jpg",
+    "name": "My Thoughts",
+    "artist": "Tropical Bleyage",
+    "length": "7:23",
+    "fileName": "Tropical Bleyage - My Thoughts.mp3",
+    "category": "Psy-Trance"
+  },
+  {
+    "id": 10,
+    "cover": "Mad Tribe - Alien Hoax.jpg",
+    "name": "Alien Hoax",
+    "artist": "Mad Tribe",
+    "length": "7:43",
+    "fileName": "Mad Tribe - Alien Hoax.mp3",
+    "category": "Psy-Trance"
+  },
+  {
+    "id": 11,
+    "cover": "Dillon Cooper - Knuckle Up.jpg",
+    "name": "Knuckle Up",
+    "artist": "Dillon Cooper",
+    "length": "3:05",
+    "fileName": "Dillon Cooper - Knuckle Up.mp3",
+    "category": "Hip-Hop"
+  },
+  {
+    "id": 12,
+    "cover": "Soulchef - Write This Down x Ice Cube x Dr Dre x MC Ren.jpg",
+    "name": "Write This Down",
+    "artist": "Soulchef feat. Ice Cube, Dr. Dre and MC Ren",
+    "length": "3:12",
+    "fileName": "Soulchef - Write This Down x Ice Cube x Dr Dre x MC Ren.mp3",
+    "category": "Hip-Hop"
+  },
+  {
+    "id": 13,
+    "cover": "Dr. Dre - The Message.jpg",
+    "name": "The Message",
+    "artist": "Dr. Dre",
+    "length": "5:29",
+    "fileName": "Dr. Dre - The Message.mp3",
+    "category": "Hip-Hop"
+  },
+  {
+    "id": 14,
+    "cover": "2Pac - They Dont Give A Fuck About Us.jpg",
+    "name": "They Don't Give A F*** About Us",
+    "artist": "2Pac",
+    "length": "5:06",
+    "fileName": "2Pac - They Dont Give A Fuck About Us.mp3",
+    "category": "Hip-Hop"
+  },
+  {
+    "id": 15,
+    "cover": "Dillon Cooper - State of Elevation.jpg",
+    "name": "State of Elevation",
+    "artist": "Dillon Cooper",
+    "length": "3:39",
+    "fileName": "Dillon Cooper - State of Elevation.mp3",
+    "category": "Hip-Hop"
+  },
+  {
+    "id": 16,
+    "cover": "MR. HYDE feat. Q-Unique, Ill Bill, NECRO, Tech N9ne - KILLER COLLAGE.jpg",
+    "name": "KILLER COLLAGE",
+    "artist": "MR. HYDE feat. Q-Unique, Ill Bill, NECRO, Tech N9ne",
+    "length": "4:58",
+    "fileName": "MR. HYDE feat. Q-Unique, Ill Bill, NECRO, Tech N9ne - KILLER COLLAGE.mp3",
+    "category": "Hip-Hop"
+  },
+  {
+    "id": 17,
+    "cover": "Artifacts - The Interview.png",
+    "name": "The Interview",
+    "artist": "Artifacts",
+    "length": "3:39",
+    "fileName": "Artifacts - The Interview.mp3",
+    "category": "Hip-Hop"
+  },
+  {
+    "id": 18,
+    "cover": "Dillon Cooper - Charge It To The Game.jpg",
+    "name": "Charge It To The Game",
+    "artist": "Dillon Cooper",
+    "length": "3:32",
+    "fileName": "Dillon Cooper - Charge It To The Game.mp3",
+    "category": "Hip-Hop"
+  },
+  {
+    "id": 19,
+    "cover": "A-Tech - Frequencies.jpg",
+    "name": "Frequencies",
+    "artist": "A-Tech",
+    "length": "7:56",
+    "fileName": "A-Tech - Frequencies.mp3",
+    "category": "Psy-Trance"
+  },
+  {
+    "id": 20,
+    "cover": "Ours Samplus - Canopée.jpg",
+    "name": "Canopée",
+    "artist": "Ours Samplus",
+    "length": "8:15",
+    "fileName": "Ours Samplus - Canopée.mp3",
+    "category": "Trip-Hop"
+  },
+  {
+    "id": 21,
+    "cover": "Gramatik - Indigo Child.jpg",
+    "name": "Indigo Child",
+    "artist": "Gramatik",
+    "length": "3:56",
+    "fileName": "Gramatik - Indigo Child.mp3",
+    "category": "Trip-Hop"
+  },
+  {
+    "id": 22,
+    "cover": "Ours Samplus - Memento.jpg",
+    "name": "Memento",
+    "artist": "Ours Samplus",
+    "length": "2:39",
+    "fileName": "Ours Samplus - Memento.mp3",
+    "category": "Trip-Hop"
+  },
+  {
+    "id": 23,
+    "cover": "Bent - An Ordinary Day.jpg",
+    "name": "An Ordinary Day",
+    "artist": "Bent",
+    "length": "4:46",
+    "fileName": "Bent - An Ordinary Day.mp3",
+    "category": "Trip-Hop"
+  },
+  {
+    "id": 24,
+    "cover": "Ours Samplus - Over.jpg",
+    "name": "Over",
+    "artist": "Ours Samplus",
+    "length": "4:05",
+    "fileName": "Ours Samplus - Over.mp3",
+    "category": "Trip-Hop"
+  },
+  {
+    "id": 25,
+    "cover": "Shamanizm Parallelii - Mountains Snow.jpg",
+    "name": "Mountain's Snow",
+    "artist": "Shamanizm Parallelii",
+    "length": "7:08",
+    "fileName": "Shamanizm Parallelii - Mountains Snow.mp3",
+    "category": "Trip-Hop"
+  },
+  {
+    "id": 20,
     "name": "Full-On",
     "category": "Playlists",
-    "playlist": [1, 2, 4, 5]
+    "playlist": [1, 2, 4, 19]
   }
 ]
