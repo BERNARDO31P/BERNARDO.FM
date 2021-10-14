@@ -1,4 +1,4 @@
-/*@import './variables.scss';*/
+@import './variables.scss';
 
 @font-face {
   font-family: "Roboto Regular";
@@ -220,6 +220,9 @@ body {
           margin: 0 20px 55px 0;
           width: 160px;
           height: 160px;
+
+          background-color: black;
+          border-radius: 5px;
 
           &:hover > .name, &:hover > .artist {
             text-decoration: underline;
