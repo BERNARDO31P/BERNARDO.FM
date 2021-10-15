@@ -278,13 +278,21 @@ bindEvent("click", "#queueView .fa-play", function () {
  * Ändert das Design-Attribut und ändert somit auch das Design
  */
 bindEvent("click", "#theme-toggler", function () {
-    let html = document.getElementsByTagName("html")[0];
+    let html = document.getElementsByTagName("html")[0], icon = this.querySelector("svg");
 
     if (html.getAttribute("data-theme") === "dark") {
         html.setAttribute("data-theme", "light");
+
+        icon.classList.remove("fa-sun");
+        icon.classList.add("fa-moon");
+
         setCookie("theme", "light");
     } else {
         html.setAttribute("data-theme", "dark");
+
+        icon.classList.remove("fa-moon");
+        icon.classList.add("fa-sun");
+
         setCookie("theme", "dark");
     }
 });
@@ -382,6 +390,14 @@ bindEvent("click", ".volume", function (e) {
 
         hideVolumeSlider();
     } else touched = true;
+});
+
+setTimeout(function () {
+    let theme = document.querySelector("[data-theme]").getAttribute("data-theme");
+    let icon = document.getElementById("theme-toggler").querySelector("svg");
+
+    if (theme === "light") icon.classList.add("fa-moon");
+    else icon.classList.add("fa-sun");
 });
 
 page = getPage();
