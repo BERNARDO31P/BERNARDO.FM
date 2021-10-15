@@ -11,28 +11,45 @@
 
 input:not([type="range"]) {
   transition: 0.2s;
-  box-shadow: inset 2px 2px 5px #babecc, inset -5px -5px 7px #fff;
+  box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -5px -5px 7px var(--shadow-light);
   border: none;
   border-radius: 15px;
   padding: 12px 16px;
-  background-color: #f5f5f5;
-  text-shadow: 1px 1px 0 #fff;
+  background-color: var(--navbar-background);
   outline: none;
   text-align: left !important;
 
   font-family: "Roboto Regular", sans-serif;
 
   &:focus {
-    box-shadow:  inset 1px 1px 2px #babecc, inset -1px -1px 2px #fff;
+    box-shadow:  inset 1px 1px 2px var(--shadow-dark), inset -1px -1px 2px var(--shadow-light);
   }
 }
 
 body {
-  background-color: #f5f5f5;
+  background-color: var(--body-background);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--body-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 #navbar {
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid var(--border-color);
 
   padding: 0 30px;
   position: fixed;
@@ -44,8 +61,8 @@ body {
   height: 60px;
   line-height: 60px;
 
-  background-color: #f5f5f5;
-  color: #171717;
+  background-color: var(--navbar-background);
+  color: var(--text-color-title);
 
   user-select: none;
   font-family: "Roboto Regular", sans-serif;
@@ -73,16 +90,16 @@ body {
   }
 
   #navbar-toggler, #theme-toggler {
-    box-shadow: -2px -2px 4px #efefef, 2px 2px 4px #dedede;
+    box-shadow: -2px -2px 4px var(--shadow-light), 2px 2px 4px var(--shadow-dark);
     border-radius: 25px;
     transition: 0.2s;
 
     &:hover {
-      box-shadow: -2px -2px 5px #efefef, 2px 2px 5px #dedede;
+      box-shadow: -2px -2px 5px var(--shadow-light), 2px 2px 5px var(--shadow-dark);
     }
 
     &:active {
-      box-shadow:  inset 1px 1px 2px #dedede, inset -1px -1px 2px #efefef;
+      box-shadow:  inset 1px 1px 2px var(--shadow-dark), inset -1px -1px 2px var(--shadow-light);
     }
   }
 
@@ -101,7 +118,7 @@ body {
   }
 
   &.shadow {
-    box-shadow: 0 1px 5px #d6d6d6;
+    box-shadow: 0 1px 5px var(--shadow-dark);
   }
 
   .right {
@@ -112,9 +129,7 @@ body {
 }
 
 #content {
-  /*box-shadow: 3px 3px 5px #dedede, -3px -3px 5px #efefef;*/
-
-  box-shadow: 1px 1px 3px #dedede, -1px -1px 2px #efefef;
+  box-shadow: 1px 1px 3px var(--shadow-dark), -1px -1px 2px var(--shadow-light);
   border-radius: 15px;
 
   padding: 20px 40px 40px 40px;
@@ -124,16 +139,18 @@ body {
   margin: 0 auto 0 auto;
 
   font-family: "Roboto Regular", sans-serif;
-  background-color: #f5f5f5;
+  background-color: var(--primary-color);
 
   position: relative;
   overflow-y: auto;
 
   #view {
+    color: var(--text-color);
+
     position: absolute;
     right: 50px;
 
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--border-color);
     border-radius: 5px;
 
     padding: 2px 2px 0 2px;
@@ -144,13 +161,14 @@ body {
     }
 
     *.active {
-      background-color: #e2e2e2;
+      background-color: var(--view-active);
       border-radius: 2px;
     }
   }
 
   .songGrid {
     h2 {
+      color: var(--text-color-title);
       margin: 5px 0 5px 0;
     }
 
@@ -221,6 +239,8 @@ body {
           width: 160px;
           height: 160px;
 
+          color: var(--text-color);
+
           background-color: black;
           border-radius: 5px;
 
@@ -247,7 +267,7 @@ body {
           }
 
           .artist {
-            color: #444444;
+            color: var(--text-color-artist);
 
             position: absolute;
             top: 183px;
@@ -332,7 +352,9 @@ body {
   text-align: center;
 
   border-top-right-radius: 5px;
-  background-color: #f5f5f5;
+  background-color: var(--primary-color);
+
+  color: var(--text-color);
 
   z-index: 1;
 
@@ -349,7 +371,7 @@ body {
     padding: 0;
 
     .fa-plus {
-      background-color: #f5f5f5;
+      background-color: var(--primary-color);
 
       padding: 0 !important;
 
@@ -375,11 +397,12 @@ body {
 
   overflow: hidden;
 
-  background-color: #f5f5f5;
+  background-color: var(--primary-color);
 
   padding: 20px;
 
   h3 {
+    color: var(--text-color-title);
     margin: 5px 0 0 15px;
   }
 
@@ -463,8 +486,10 @@ body {
   line-height: 100px;
   text-align: center;
 
-  background-color: #f5f5f5;
+  background-color: var(--primary-color);
   font-family: "Roboto Regular", sans-serif;
+
+  color: var(--text-color);
 
   z-index: 2;
 
@@ -487,7 +512,7 @@ body {
     overflow: hidden;
 
     &::-webkit-slider-runnable-track {
-      background: #ddd;
+      background: var(--range-background);
     }
 
     &::-webkit-slider-thumb {
@@ -496,12 +521,12 @@ body {
       width: 20px;
       height: 40px;
       background: #fff;
-      box-shadow: -100vw 0 0 100vw #1d93ff;
+      box-shadow: -100vw 0 0 100vw var(--secondary-color);
     }
 
     &::-moz-range-track {
       height: 40px;
-      background: #ddd;
+      background: var(--range-background);
     }
 
     &::-moz-range-thumb {
@@ -511,12 +536,12 @@ body {
       width: 20px;
       border: 3px solid #999;
       border-radius: 0 !important;
-      box-shadow: -100vw 0 0 100vw #1d93ff;
+      box-shadow: -100vw 0 0 100vw var(--secondary-color);
       box-sizing: border-box;
     }
 
     &::-ms-fill-lower {
-      background: #1d93ff;
+      background: var(--secondary-color);
     }
 
     &::-ms-thumb {
@@ -536,12 +561,10 @@ body {
     }
 
     &::-ms-track {
-      background: #ddd;
+      background: var(--range-background);
       color: transparent;
 
-  border-color: #00b900;
       height: 40px;
-      border: none;
     }
 
     &::-ms-tooltip {
@@ -560,8 +583,8 @@ body {
     left: calc(50% - 60px);
 
     border-radius: 10px;
-    background-color: #f5f5f5;
-    border: 1px solid #e0e0e0;
+    background-color: var(--primary-color);
+    border: 1px solid var(--border-color);
   }
 
   #data {
@@ -659,7 +682,7 @@ body {
   font-family: "Roboto Regular", sans-serif;
 
   background-color: #ededed;
-  box-shadow: 1px 1px 1px #dedede, -1px -1px 1px #efefef;
+  box-shadow: 1px 1px 1px var(--shadow-dark), -1px -1px 1px var(--shadow-light);
 
   left: 0;
   bottom: 10px;
@@ -682,7 +705,9 @@ body {
 
   thead {
     text-align: left;
-    box-shadow: -1px -1px 3px #efefef, 1px 1px 3px #dedede;
+    box-shadow: -1px -1px 3px var(--shadow-light), 1px 1px 3px var(--shadow-dark);
+
+    color: var(--text-color-title);
 
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -697,7 +722,7 @@ body {
 
   tbody {
     td {
-      color: #4b4b4b;
+      color: var(--text-color);
       padding: 0 10px;
       height: 40px;
     }
@@ -731,7 +756,7 @@ body {
     tr[data-id]:hover {
       cursor: default;
       transition: 0.1s;
-      box-shadow: -2px -2px 4px #efefef, 2px 2px 4px #dedede;
+      box-shadow: -2px -2px 4px var(--shadow-light), 2px 2px 4px var(--shadow-dark);
     }
   }
 }
@@ -740,11 +765,12 @@ body {
   position: relative;
   padding: 0 0 0 10px;
 
-  border-left: 4px solid rgba(137, 161, 255, 0.16);
+  border-left: 4px solid var(--border-blockquote);
   border-radius: 7px;
 
   h2 {
     margin: 0.83em 0 10px 0;
+    color: var(--text-color-title)
   }
 
   .authorDate {
@@ -752,30 +778,30 @@ body {
     right: 0;
     bottom: 0;
 
-    color: #b7b6b6;
+    color: var(--text-color-author);
   }
 
   .message {
-    color: #5b5b5b;
+    color: var(--text-color);
     max-width: calc(100% - 275px);
     display: block;
 
     .mail {
       text-decoration: none;
-      color: #1d93ff;
+      color: var(--secondary-color);
     }
   }
 
   .details {
     transition: 0.3s ease-in-out, padding 0.6s;
 
-    color: #6b6b6b;
+    color: var(--text-color);
 
     display: block;
     overflow: hidden;
     max-height: 0;
 
-    box-shadow: inset 2px 2px 5px #babecc, inset -5px -5px 7px #fff;
+    box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -5px -5px 7px var(--shadow-light);
     border-radius: 5px;
 
     margin: 5px 0 0 0;
@@ -807,7 +833,7 @@ body {
 }
 
 .divider {
-  border-top: 1px solid #eaeaea;
+  border-top: 1px solid var(--border-color);
 
   display: block;
   width: 100%;
@@ -823,8 +849,8 @@ body {
 
     ul {
       margin: 0;
-      box-shadow: 0 3px 6px #d6d6d6;
-      background-color: #f5f5f5;
+      box-shadow: 0 3px 6px -2px var(--shadow-dark);
+      background-color: var(--primary-color);
       display: block;
       left: 0;
       width: 100%;
@@ -861,6 +887,10 @@ body {
       margin-left: calc(50% - 170px);
     }
 
+    #search {
+      margin: 0 0 0 10px;
+    }
+
     .permanent {
       position: fixed;
       display: initial;
@@ -870,6 +900,11 @@ body {
       width: auto;
       left: auto;
       box-shadow: initial;
+    }
+
+    .divider {
+      display: block;
+      margin: 0;
     }
   }
 

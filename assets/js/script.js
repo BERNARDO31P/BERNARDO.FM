@@ -211,6 +211,22 @@ bindEvent("input", "#search", function () {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
+ * Schliess die Navigation beim Drücken von "Enter"
+ */
+bindEvent("keyup", "#search", function (e) {
+    if (e.keyCode === 13) {
+        e.preventDefault();
+
+        let navigation = document.querySelector("#navigation");
+        if (navigation.classList.contains("show"))
+            navigation.classList.remove("show");
+    }
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
  * Ändert die Ansicht auf Listenansicht
  */
 bindEvent("click", "#view .fa-list", function () {

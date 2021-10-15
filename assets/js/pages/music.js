@@ -501,8 +501,7 @@ function generateTable(data, categories = true, scroll = false) {
             row.appendChild(td);
 
             row.innerHTML += "<td>" + song["name"] + "</td>" +
-                "<td>" + artists.substring(0, 50) + "..</td>" +
-                "<td></td>";
+                "<td colspan='2'>" + artists.substring(0, 50) + "..</td>";
         }
 
         tbody.appendChild(row);
