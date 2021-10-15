@@ -315,7 +315,7 @@ function getMinutesAndSeconds(time) {
 function removeControls(elementID) {
     let controls = document.getElementById(elementID);
 
-    if (typeof controls !== 'undefined' && controls.style.display !== "none")
+    if (controls !== null && controls.style.display !== "none")
         controls.style.display = "none";
 }
 
