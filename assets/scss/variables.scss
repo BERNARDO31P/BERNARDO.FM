@@ -16,9 +16,9 @@
 }
 
 :root[data-theme='dark'] {
-  --primary-color: #1c1c1c;
+  --primary-color: #212121;
   --secondary-color: #1d93ff;
-  --body-background: #212121;
+  --body-background: #1c1c1c;
   --navbar-background: var(--body-background);
   --shadow-light: #1a1a1a;
   --shadow-dark: #0e0e0e;
@@ -28,7 +28,7 @@
   --text-color-title: #b9b9b9;
   --text-color-author: #797979;
   --text-color-artist: var(--text-color-author);
-  --view-active: #262626;
+  --view-active: #161616;
 
   --range-background: #323232;
 }
