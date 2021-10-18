@@ -11,10 +11,7 @@ window["music"] = () => {
         let object = objects[i];
         let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(object.getAttribute("data-url") + "?search=" + search.value));
 
-        if (view === "") {
-            if (getWidth() < mobileWidth) view = "list";
-            else view = "grid";
-        }
+        if (view === "") view = "grid";
 
         if (search.value !== "") {
             let div = document.createElement("div");
@@ -69,8 +66,8 @@ window["music"] = () => {
                         if (typeof song["playlist"] === 'undefined') {
                             card.classList.add("songCard");
                             card.innerHTML = "<img src='/system/img/" + song["cover"] + "' alt='Cover'/>" +
-                                "<span class='name'>" + song["name"] + "</span>" +
-                                "<span class='artist'>" + song["artist"] + "</span>" +
+                                "<span title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
+                                "<span title=\"" + song["artist"] + "\" class='artist'>" + song["artist"] + "</span>" +
                                 "<span class='length'>" + song["length"] + "</span>";
                         } else {
                             card.classList.add("playlistCard");
@@ -84,9 +81,10 @@ window["music"] = () => {
 
                                 artists += data["artist"] + ", ";
                             }
+                            artists = artists.substring(0, artists.length - 2) + " and more..";
 
-                            card.innerHTML += "<span class='name'>" + song["name"] + "</span>" +
-                                "<span class='artist'>" + artists + "</span>";
+                            card.innerHTML += "<span title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
+                                "<span title=\"" + artists + "\" class='artist'>" + artists + "</span>";
                         }
 
                         categoryView.appendChild(card);

@@ -10,8 +10,15 @@
       "role": "lead"
     }
   ],
+  "repositories": [
+    {
+      "url": "https://github.com/BERNARDO31P/PHP-FFMpeg.git",
+      "type": "vcs"
+    }
+  ],
   "require": {
     "falahati/php-mp3": "dev-master",
+    "php-ffmpeg/php-ffmpeg": "dev-master",
     "ext-json": "*"
   }
 }

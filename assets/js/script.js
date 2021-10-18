@@ -242,7 +242,7 @@ bindEvent("click", "#view .fa-list", function () {
  * Ändert die Ansicht auf Gitteransicht
  */
 bindEvent("click", "#view .fa-grip-horizontal", function () {
-    setCookie("view", "grip");
+    setCookie("view", "grid");
     window.location.href = "#!page=" + page;
 });
 
