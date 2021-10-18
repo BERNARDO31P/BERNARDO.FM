@@ -14,7 +14,8 @@ function recursive_unset(&$array, $unwanted_key) {
     }
 }
 
-function search_songs($search) {
+function search_songs($search): array
+{
     global $db;
     $songs = array();
 
@@ -80,8 +81,10 @@ if (isset($_GET["id"])) {
 
     if (isset($_GET["search"]) && $_GET["search"] !== "")
         echo json_encode(search_songs($_GET["search"]));
-    else
+    else {
+        shuffle($db);
         echo json_encode($db);
+    }
 }
 
 $size = ob_get_length();

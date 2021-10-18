@@ -29,57 +29,26 @@ window["music"] = () => {
         }
 
         if (data.length > 0) {
+            let parsed = {};
+
+            for (let j = 0; j < Object.keys(data).length; j++) {
+                let song = data[j];
+
+                if (typeof parsed[song["category"]] === 'undefined') parsed[song["category"]] = [];
+                parsed[song["category"]].push(song);
+            }
+
             if (view === "list") {
                 document.getElementsByClassName("fa-list")[0].classList.add("active");
-                object.parentNode.insertBefore(generateTable(data), object);
+                object.parentNode.insertBefore(generateTable(parsed), object);
             } else {
                 document.getElementsByClassName("fa-grip-horizontal")[0].classList.add("active");
-
-                let columns = Object.keys(data[0]);
-                columns = columns.slice(1, 5);
 
                 let gridView = document.createElement("div");
                 gridView.classList.add("songGrid");
 
-                let parsed = {};
-                for (let j = 0; j < Object.keys(data).length; j++) {
-                    let song = data[j];
-
-                    let card = document.createElement("div");
-                    card.setAttribute("data-id", song["id"]);
-
-                    if (typeof song["playlist"] === 'undefined') {
-                        card.classList.add("songCard");
-                        card.innerHTML = "<img src='/system/img/" + song["cover"] + "' alt='Cover'/>" +
-                            "<span class='name'>" + song["name"] + "</span>" +
-                            "<span class='artist'>" + song["artist"] + "</span>" +
-                            "<span class='length'>" + song["length"] + "</span>";
-                    } else {
-                        card.classList.add("playlistCard");
-                        song["playlist"] = song["playlist"].sort((a, b) => 0.5 - Math.random());
-
-                        let artists = "";
-                        for (let i = 0; i < 4; i++) {
-                            let songID = song["playlist"][i];
-                            let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID));
-                            card.innerHTML += "<img src='/system/img/" + data["cover"] + "' alt='Cover'/>";
-
-                            artists += data["artist"] + ", ";
-                        }
-
-                        card.innerHTML += "<span class='name'>" + song["name"] + "</span>" +
-                            "<span class='artist'>" + artists + "</span>";
-                    }
-
-                    if (typeof parsed[song["category"]] === 'undefined') parsed[song["category"]] = [];
-
-                    let key = Object.keys(parsed[song["category"]] ?? []).length;
-                    parsed[song["category"]].push(card);
-
-                }
-
                 for (let category in parsed) {
-                    let cards = parsed[category], title = document.createElement("h2");
+                    let songs = parsed[category], title = document.createElement("h2");
 
                     title.innerText = category;
                     gridView.appendChild(title);
@@ -91,10 +60,35 @@ window["music"] = () => {
                         removeControls("controlsContent");
                     });
 
-                    cards = cards.sort((a, b) => 0.5 - Math.random());
+                    for (let arrayID in songs) {
+                        let song = songs[arrayID];
 
-                    for (let arrayID in cards) {
-                        let card = cards[arrayID];
+                        let card = document.createElement("div");
+                        card.setAttribute("data-id", song["id"]);
+
+                        if (typeof song["playlist"] === 'undefined') {
+                            card.classList.add("songCard");
+                            card.innerHTML = "<img src='/system/img/" + song["cover"] + "' alt='Cover'/>" +
+                                "<span class='name'>" + song["name"] + "</span>" +
+                                "<span class='artist'>" + song["artist"] + "</span>" +
+                                "<span class='length'>" + song["length"] + "</span>";
+                        } else {
+                            card.classList.add("playlistCard");
+                            song["playlist"] = song["playlist"].sort((a, b) => 0.5 - Math.random());
+
+                            let artists = "";
+                            for (let i = 0; i < 4; i++) {
+                                let songID = song["playlist"][i];
+                                let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID));
+                                card.innerHTML += "<img src='/system/img/" + data["cover"] + "' alt='Cover'/>";
+
+                                artists += data["artist"] + ", ";
+                            }
+
+                            card.innerHTML += "<span class='name'>" + song["name"] + "</span>" +
+                                "<span class='artist'>" + artists + "</span>";
+                        }
+
                         categoryView.appendChild(card);
                     }
 
@@ -129,12 +123,12 @@ window["music"] = () => {
         let controls = document.getElementById("controlsContent");
         controls.style.display = "none";
 
-
-        let height = Number(getComputedStyle(controls).height.replace("px", ""));
         let pos = this.getBoundingClientRect();
 
         controls.style.left = pos.right - 100 + "px";
-        controls.style.top = pos.top + (pos.height - height) / 2 + "px";
+        controls.style.top = pos.top + "px";
+        controls.style.height = pos.height + "px";
+        controls.style.lineHeight = pos.height + "px";
         controls.setAttribute("data-id", this.getAttribute("data-id"));
 
         setTimeout(() => {
@@ -235,7 +229,7 @@ window["music"] = () => {
 
             let queue = queueView.querySelector("#queue");
             queue.innerHTML = "";
-            queue.appendChild(generateTable(playlist, false, true));
+            queue.appendChild(generateQueue(playlist));
 
             queueView.classList.add("show");
             queueView.animate([
@@ -249,8 +243,8 @@ window["music"] = () => {
             this.setAttribute("data-angle", "up");
         }
 
-        document.getElementById("controlsContent").style.display = "none";
-        document.getElementById("controlsQueue").style.display = "none";
+        removeControls("controlsContent");
+        removeControls("controlsQueue");
     });
 
     bindEvent("touchend", "#timeline", (e) => onTimelineRelease(e));
@@ -429,54 +423,80 @@ function downloadPart(time) {
 }
 
 /*
+ * Funktion: generateQueue()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  data: (Object) Die Daten, welche verarbeitet werden sollen
+ *
+ * Generiert die Wiedergabeliste
+ */
+function generateQueue(data) {
+    let listView = document.createElement("table");
+    listView.classList.add("listView");
+
+    let columns = Object.keys(data[0]);
+    let thead = generateTableHead(columns);
+    listView.appendChild(thead);
+
+    let tbody = document.createElement("tbody");
+
+    tbody.onscroll = () => {
+        removeControls("controlsQueue");
+    };
+
+    generateTableBody(data, tbody);
+
+    listView.appendChild(tbody);
+    return listView;
+}
+
+/*
  * Funktion: generateTable()
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  data: (Object) Die Daten, welche verarbeitet werden sollen
- *  categories: (Boolean) Definiert ob die Categorien angezeigt werden sollen
- *  scroll: (Boolean) Definiert ob die Scroll-Events angewendet werden sollen
  *
  * Generiert eine Tabelle aus den Daten (Table body) und Schlüssel (Table head)
  */
-function generateTable(data, categories = true, scroll = false) {
+function generateTable(data) {
     let listView = document.createElement("table");
-
-    let columns = Object.keys(data[0]);
-    columns = columns.slice(1, 5);
-
     listView.classList.add("listView");
 
-    let row = document.createElement("tr");
-    for (let j = 0; j < columns.length; j++) {
-        let th = document.createElement("th");
-        th.innerText = ucFirst(columns[j]);
-        row.appendChild(th);
-    }
-
-    let thead = document.createElement("thead");
-    thead.appendChild(row);
-
+    let columns = Object.keys(data[Object.keys(data)[0]][0]);
+    let thead = generateTableHead(columns);
     listView.appendChild(thead);
 
-    let tbody = document.createElement("tbody"), category;
+    let tbody = document.createElement("tbody");
 
-    if (scroll) tbody.onscroll = () => {
+    tbody.onscroll = () => {
         removeControls("controlsQueue");
     };
 
+    for (let category in data) {
+        let songs = data[category], row = document.createElement("tr");
+        row.innerHTML = "<td colspan='4'>" + category + "</td>";
+
+        tbody.appendChild(row);
+
+        generateTableBody(songs, tbody);
+    }
+
+    listView.appendChild(tbody);
+    return listView;
+}
+
+/*
+ * Funktion: generateTableBody()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  data: (Object) Die Daten, welche verarbeitet werden sollen
+ *  tbody: (Object) Definiert den Tablebody
+ *
+ * Generiert eine Tabelle aus den Daten (Table body)
+ */
+function generateTableBody(data, tbody) {
     for (let j = 0; j < Object.keys(data).length; j++) {
-        let song = data[j];
-
-        if (category !== song["category"] && categories) {
-            category = song["category"];
-
-            let row = document.createElement("tr");
-
-            row.innerHTML = "<td colspan='4'>" + category + "</td>";
-            tbody.appendChild(row);
-        }
-
-        let row = document.createElement("tr");
+        let song = data[j], row = document.createElement("tr");
         row.setAttribute("data-id", song["id"]);
 
         if (typeof song["playlist"] === 'undefined') {
@@ -489,6 +509,7 @@ function generateTable(data, categories = true, scroll = false) {
 
             let artists = "", cover = document.createElement("div");
             cover.classList.add("cover");
+
             for (let i = 0; i < 4; i++) {
                 let songID = song["playlist"][i];
                 let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID));
@@ -496,6 +517,7 @@ function generateTable(data, categories = true, scroll = false) {
 
                 artists += data["artist"] + ", ";
             }
+
             let td = document.createElement("td");
             td.appendChild(cover)
             row.appendChild(td);
@@ -506,9 +528,21 @@ function generateTable(data, categories = true, scroll = false) {
 
         tbody.appendChild(row);
     }
+}
 
-    listView.appendChild(tbody);
-    return listView;
+// TODO: Comment
+function generateTableHead(columns) {
+    let thead = document.createElement("thead");
+    columns = columns.slice(1, 5);
+
+    let row = document.createElement("tr");
+    for (let j = 0; j < columns.length; j++) {
+        let th = document.createElement("th");
+        th.innerText = ucFirst(columns[j]);
+        row.appendChild(th);
+    }
+    thead.appendChild(row);
+    return thead;
 }
 
 /*

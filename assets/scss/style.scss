@@ -362,6 +362,9 @@ body {
     padding: 10px;
     cursor: pointer;
     margin: 0 2px;
+
+    display: inline-block;
+    vertical-align: middle;
   }
 
   .listAdd {
@@ -374,10 +377,9 @@ body {
       background-color: var(--primary-color);
 
       padding: 0 !important;
+      margin: 5px 0 0 -15px;
 
-      position: absolute;
       font-size: 10px;
-      margin: 14px 0 0 -15px;
       z-index: 1;
     }
   }

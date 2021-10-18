@@ -179,11 +179,12 @@ bindEvent("mouseover", "#queueView tr[data-id]", function () {
 
     let tbody = this.closest("tbody");
     if (isElementVisible(this, tbody)) {
-        let height = Number(getComputedStyle(controls).height.replace("px", ""));
         let pos = this.getBoundingClientRect();
 
         controls.style.left = pos.right - 100 + "px";
-        controls.style.top = pos.top + (pos.height - height) / 2 + "px";
+        controls.style.top = pos.top + 2 + "px";
+        controls.style.height = pos.height - 4 + "px";
+        controls.style.lineHeight = pos.height - 4 + "px";
         controls.setAttribute("data-id", this.getAttribute("data-id"));
 
         setTimeout(() => {
@@ -317,7 +318,7 @@ bindEvent("click", ".repeat", function () {
             break;
         case 2:
             repeatMode = 0;
-            this.style.color = "black";
+            this.style.color = "unset";
             this.querySelector(".repeatOne").classList.remove("show");
             break;
     }
