@@ -275,14 +275,6 @@ window["music"] = () => {
  * onfinishedall: Sobald das Lied abgeschlossen ist, wird das nächste Lied wiedergeben
  */
 function addEvents(player) {
-    /*player.onplay = function () {
-        let currentPart = playlist[playIndex]["player"].trk.trackNumber;
-        let partCount = playlist[playIndex]["player"].totalTracks();
-
-        if (currentPart === partCount)
-            downloadNextPart();
-    }*/
-
     player.onplay = () => downloadNextPart();
 
     player.onfinishedtrack = function () {
@@ -375,23 +367,20 @@ function downloadNextPart() {
 
         if (!nextSong && currentPart === partCount) {
             let songID = playlist[playIndex]["id"];
-            let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID + "&time=" + nextTime));
-
             let indexPart = partIndex + 1;
             let index = playlist[playIndex]["player"].sources.length;
 
-            playlist[playIndex]["player"].addTrack(data["location"]);
+            playlist[playIndex]["player"].addTrack(pageURL + "system/player.php?id=" + songID + "&time=" + nextTime);
 
             if (typeof partlist[playIndex] === 'undefined') partlist[playIndex] = {};
             partlist[playIndex][indexPart] = index;
 
         } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
             let songID = playlist[nextIndex]["id"];
-            let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID + "&time=0"));
-
             let gapless = new Gapless5();
-            gapless.addTrack(data["location"]);
+
             addEvents(gapless);
+            gapless.addTrack(pageURL + "system/player.php?id=" + songID + "&time=0");
 
             playlist[nextIndex]["player"] = gapless;
             partlist[nextIndex] = {0: 0};
@@ -409,7 +398,6 @@ function downloadNextPart() {
  */
 function downloadPart(time) {
     let songID = playlist[playIndex]["id"];
-    let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID + "&time=" + time));
 
     if (typeof playlist[playIndex]["player"] === 'undefined') {
         let gapless = new Gapless5();
@@ -417,7 +405,8 @@ function downloadPart(time) {
 
         playlist[playIndex]["player"] = gapless;
     }
-    playlist[playIndex]["player"].addTrack(data["location"]);
+
+    playlist[playIndex]["player"].addTrack(pageURL + "system/player.php?id=" + songID + "&time=" + time);
 }
 
 /*
@@ -528,7 +517,14 @@ function generateTableBody(data, tbody) {
     }
 }
 
-// TODO: Comment
+/*
+ * Funktion: generateTableHead()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  columns: (Object) Die Daten, welche verarbeitet werden sollen
+ *
+ * Generiert eine Tabelle aus den Schlüssel (Table head)
+ */
 function generateTableHead(columns) {
     let thead = document.createElement("thead");
     columns = columns.slice(1, 5);

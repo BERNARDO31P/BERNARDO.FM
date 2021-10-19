@@ -44,9 +44,6 @@ function search_song($id)
 	return array();
 }
 
-ob_start();
-header('Content-Type: application/json');
-
 if (isset($_GET["id"])) {
 	$song = search_song($_GET["id"]);
 
@@ -66,32 +63,26 @@ if (isset($_GET["id"])) {
 		$audio->filters()->clip(FFMpeg\Coordinate\TimeCode::fromSeconds($_GET["time"]), FFMpeg\Coordinate\TimeCode::fromSeconds(20));
 		$format = new FFMpeg\Format\Audio\Mp3();
 		$audio->save($format, __DIR__ . $newName);
-		//\falahati\PHPMP3\MpegAudio::fromFile(__DIR__ . "/music/" . $song["fileName"])->trim($_GET["time"], 20)->saveFile(__DIR__ . $newName);
 
-
-		$document_path = str_replace(str_replace("\\", "/", $_SERVER["DOCUMENT_ROOT"]), "", str_replace("\\", "/", __DIR__));
-		$song["location"] = $document_path . $newName;
-
-		recursive_unset($song, "id");
-		recursive_unset($song, "name");
-		recursive_unset($song, "artist");
-		recursive_unset($song, "length");
-		recursive_unset($song, "cover");
-		recursive_unset($song, "category");
-	}
-
-	if (isset($song["playlist"])) {
-		$playlist = array();
-		foreach ($song["playlist"] as $songID) {
-			$playlist[] = search_song($songID);
-		}
-		recursive_unset($playlist, "fileName");
-		echo json_encode($playlist);
+        header('Content-Type: audio/mpeg');
+        echo file_get_contents(__DIR__ . $newName);
+        unlink(__DIR__ . $newName);
 	} else {
-		recursive_unset($song, "fileName");
-		echo json_encode($song);
-	}
+        header('Content-Type: application/json');
+        if (isset($song["playlist"])) {
+            $playlist = array();
+            foreach ($song["playlist"] as $songID) {
+                $playlist[] = search_song($songID);
+            }
+            recursive_unset($playlist, "fileName");
+            echo json_encode($playlist);
+        } else {
+            recursive_unset($song, "fileName");
+            echo json_encode($song);
+        }
+    }
 } else {
+    header('Content-Type: application/json');
 	recursive_unset($db, "fileName");
 
 	if (isset($_GET["search"]) && $_GET["search"] !== "")
@@ -100,21 +91,4 @@ if (isset($_GET["id"])) {
 		shuffle($db);
 		echo json_encode($db);
 	}
-}
-
-$size = ob_get_length();
-header("Content-Encoding: none");
-header("Content-Length: " . $size);
-header("Connection: close");
-
-ob_end_flush();
-@ob_flush();
-flush();
-
-if (session_id()) session_write_close();
-
-$files = glob(__DIR__ . "/temp/*");
-foreach ($files as $file) {
-	if (is_file($file) && time() - filemtime($file) >= 60 * 60 * 24)
-		unlink($file);
 }
