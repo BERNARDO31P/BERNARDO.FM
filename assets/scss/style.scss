@@ -498,6 +498,11 @@ body {
     overflow: auto;
     height: calc(100vh - 320px);
 
+    table {
+      width: calc(100% - 10px);
+      margin: 5px;
+    }
+
     thead {
       position: sticky;
       top: 0;
@@ -989,18 +994,16 @@ body {
       }
     }
 
-    table {
-      min-width: initial !important;
-      max-width: initial !important;
-      right: initial;
-      left: 20px;
-    }
-
     #queue {
-      box-shadow: 0 -5px 3px -5px var(--shadow-dark);
-
       height: calc(70vh - 320px);
       width: calc(100% - 20px);
+
+      .listView {
+        min-width: initial !important;
+        max-width: initial !important;
+        right: initial;
+        left: 20px;
+      }
     }
   }
 }
