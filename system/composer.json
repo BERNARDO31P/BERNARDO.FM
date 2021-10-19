@@ -13,12 +13,12 @@
   "repositories": [
     {
       "url": "https://github.com/BERNARDO31P/PHP-FFMpeg.git",
-      "type": "vcs"
+      "type": "git"
     }
   ],
   "require": {
     "falahati/php-mp3": "dev-master",
-    "php-ffmpeg/php-ffmpeg": "dev-master",
+    "php-ffmpeg/php-ffmpeg": "v0.18.1",
     "ext-json": "*"
   }
 }
