@@ -699,7 +699,6 @@ body {
   thead {
     text-align: left;
     box-shadow: -1px -1px 3px var(--shadow-light), 1px 1px 3px var(--shadow-dark);
-
     color: var(--text-color-title);
 
     border-top-left-radius: 10px;
@@ -998,10 +997,10 @@ body {
     }
 
     #queue {
-      margin: 0;
-      width: 100%;
+      box-shadow: 0 -5px 3px -5px var(--shadow-dark);
 
-      display: initial;
+      height: calc(70vh - 320px);
+      width: calc(100% - 20px);
     }
   }
 }
