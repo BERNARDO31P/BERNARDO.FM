@@ -998,8 +998,10 @@ body {
     }
 
     #queue {
-      margin: 15px 0 0 0 !important;
+      margin: 0;
       width: 100%;
+
+      display: initial;
     }
   }
 }
