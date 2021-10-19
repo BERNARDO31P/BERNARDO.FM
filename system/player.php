@@ -54,7 +54,14 @@ if (isset($_GET["id"])) {
 		include_once __DIR__ . "/vendor/autoload.php";
 		$newName = "/temp/" . bin2hex(random_bytes(22)) . ".mp3";
 
-		$ffmpeg = FFMpeg\FFMpeg::create();
+		$ffmpeg = FFMpeg\FFMpeg::create(
+            array(
+                'ffmpeg.binaries'  => "/usr/bin/ffmpeg",
+                'ffprobe.binaries' => "/usr/bin/ffprobe",
+                'timeout'          => 10,
+                'ffmpeg.threads'   => 4,
+            )
+        );
 		$audio = $ffmpeg->open(__DIR__ . "/music/" . $song["fileName"]);
 		$audio->filters()->clip(FFMpeg\Coordinate\TimeCode::fromSeconds($_GET["time"]), FFMpeg\Coordinate\TimeCode::fromSeconds(20));
 		$format = new FFMpeg\Format\Audio\Mp3();
