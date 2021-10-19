@@ -203,6 +203,36 @@ window["music"] = () => {
      * Funktion: Anonym
      * Autor: Bernardo de Oliveira
      *
+     * Findet heraus welches Lied abgespielt werden soll
+     * Spielt das Lied ab
+     */
+    bindEvent("click", "#queueView .fa-play", function () {
+        playlist[playIndex]["player"].stop();
+
+        let id = Number(this.closest("#controlsQueue").getAttribute("data-id"));
+
+        for (let key in playlist) {
+            let value = playlist[key];
+
+            if (value["id"] === id) playIndex = key;
+        }
+
+        currentTime = 0;
+        partIndex = 0;
+
+        if (typeof playlist[playIndex]["player"] === 'undefined') {
+            downloadPart(0);
+            partlist[playIndex] = {0: 0};
+        }
+
+        clearInterval(secondsInterval);
+        play(true);
+    });
+
+    /*
+     * Funktion: Anonym
+     * Autor: Bernardo de Oliveira
+     *
      * Öffnet die Playlist-Ansicht
      * Generiert die Playlist-Tabelle
      *

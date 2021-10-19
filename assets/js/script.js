@@ -20,12 +20,14 @@ function loadPage() {
     let subpage = (data.querySelector("title")) ? data.querySelector("title").innerText : "error";
     title.innerText = title.innerText.split(" - ")[0] + " - " + subpage;
 
-    let scripts = data.getElementsByTagName("script");
-    for (let i = 0; i < scripts.length; i++) {
-        let script = URL.createObjectURL(new Blob([httpGetM.httpGet(scripts[i].src)], {
-            type: 'application/javascript'
-        }));
-        import(script);
+    if (typeof window[page] === 'undefined') {
+        let scripts = data.getElementsByTagName("script");
+        for (let i = 0; i < scripts.length; i++) {
+            let script = URL.createObjectURL(new Blob([httpGetM.httpGet(scripts[i].src)], {
+                type: 'application/javascript'
+            }));
+            import(script);
+        }
     }
 
     let i = 0;
@@ -244,32 +246,6 @@ bindEvent("click", "#view .fa-list", function () {
 bindEvent("click", "#view .fa-grip-horizontal", function () {
     setCookie("view", "grid");
     window.location.href = "#!page=" + page;
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Findet heraus welches Lied abgespielt werden soll
- * Spielt das Lied ab
- */
-bindEvent("click", "#queueView .fa-play", function () {
-    playlist[playIndex]["player"].stop();
-
-    let id = Number(this.closest("#controlsQueue").getAttribute("data-id"));
-
-    for (let key = 0; key < Object.keys(playlist).length; key++) {
-        let value = playlist[key];
-
-        if (value["id"] === id)
-            playIndex = key;
-    }
-
-    currentTime = 0;
-    partIndex = 0;
-
-    clearInterval(secondsInterval);
-    play();
 });
 
 /*
