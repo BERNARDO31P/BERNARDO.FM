@@ -22,7 +22,7 @@ input:not([type="range"]) {
   font-family: "Roboto Regular", sans-serif;
 
   &:focus {
-    box-shadow:  inset 1px 1px 2px var(--shadow-dark), inset -1px -1px 2px var(--shadow-light);
+    box-shadow: inset 1px 1px 2px var(--shadow-dark), inset -1px -1px 2px var(--shadow-light);
   }
 }
 
@@ -161,7 +161,7 @@ body {
     }
 
     &:active {
-      box-shadow:  inset 1px 1px 2px var(--shadow-dark), inset -1px -1px 2px var(--shadow-light);
+      box-shadow: inset 1px 1px 2px var(--shadow-dark), inset -1px -1px 2px var(--shadow-light);
     }
   }
 
@@ -259,7 +259,7 @@ body {
               filter: brightness(50%);
             }
 
-            &:hover ~.length {
+            &:hover ~ .length {
               opacity: 1;
             }
           }
@@ -393,12 +393,12 @@ body {
 
     td > img {
 
-        border-radius: 5px;
-        width: 35px;
-        height: 35px;
-        margin: 6px 0 0 0;
-      }
+      border-radius: 5px;
+      width: 35px;
+      height: 35px;
+      margin: 6px 0 0 0;
     }
+  }
 
 }
 
@@ -470,59 +470,40 @@ body {
     margin: 5px 0 0 15px;
   }
 
+  .container {
+    display: flex;
+
+    width: 100%;
+    height: 100%;
+  }
+
   #playingCover {
-    position: absolute;
-
-    top: 0;
-    bottom: 0;
-    margin: 150px auto;
-
-    left: 10%;
-
-    width: 30%;
-    max-width: 500px;
-    max-height: 500px;
+    display: flex;
+    width: 50%;
 
     img {
-      top:0;
-      bottom:0;
-      left:0;
-      right:0;
-
-      max-width: 100%;
-      max-height: 100%;
-      min-width: 190px;
-      min-height: 190px;
-      position: absolute;
-      margin:auto;
-
+      max-width: 75%;
+      max-height: 75%;
+      margin: auto;
       border-radius: 5px;
     }
   }
 
   #queue {
     margin: 15px 0 0 0;
+    padding: 0 10px 10px 10px;
 
-    table, thead, tbody, tr {
-      display: block;
-    }
+    width: 50%;
 
-    tr {
-      display: table;
-      table-layout: fixed;
-      width:100%;
-    }
+    overflow: auto;
+    height: calc(100vh - 320px);
 
-    tbody {
-      max-height: calc(100vh - 320px);
-      overflow: auto;
-    }
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 1;
 
-    table {
-      min-width: 45%;
-      max-width: 45%;
-      position: fixed;
-      right: 40px;
+      background-color: var(--primary-color);
     }
 
     img {
@@ -535,6 +516,7 @@ body {
   &.show {
     display: initial;
   }
+
 }
 
 #player {
@@ -990,12 +972,25 @@ body {
   }
 
   #queueView {
+    .container {
+      display: initial;
+    }
+
     #playingCover {
-      display: none;
+      margin: 15px 0 0 0;
+
+      display: block;
+      width: initial;
+
+      img {
+        max-width: 50%;
+        max-height: 50%;
+
+        display: flex;
+      }
     }
 
     table {
-      width: calc(100% - 40px);
       min-width: initial !important;
       max-width: initial !important;
       right: initial;
@@ -1004,6 +999,7 @@ body {
 
     #queue {
       margin: 15px 0 0 0 !important;
+      width: 100%;
     }
   }
 }
@@ -1028,28 +1024,3 @@ body {
   }
 }
 
-@media screen and (max-height: 500px) {
-  #queueView {
-    #playingCover {
-      margin: 75px auto;
-
-      img {
-        min-width: initial;
-        min-height: initial;
-      }
-    }
-
-    #queue {
-      margin: -30px 0 0 0;
-
-      table {
-        max-height: calc(100% - 200px);
-        overflow: hidden;
-      }
-
-      tbody {
-        max-height: calc(100vh - 250px);
-      }
-    }
-  }
-}

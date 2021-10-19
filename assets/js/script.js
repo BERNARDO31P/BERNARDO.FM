@@ -142,6 +142,16 @@ bindEvent("input", "#timeline", (e) => onTimelineMove(e));
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
+ * Versteckt beim Scrollen, in der Wiedergabenliste, die Liedoptionen
+ */
+document.getElementById("queue").onscroll = function () {
+    removeControls("controlsQueue");
+}
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
  * Ändert die Farbe des Icons, damit der Benutzer erkennt, dass es aktiviert wurde
  * Mischt die Playlist durch und aktualisiert die Playlist-Ansicht
  */
@@ -375,7 +385,8 @@ setTimeout(function () {
 
     if (theme === "light") icon.classList.add("fa-moon");
     else icon.classList.add("fa-sun");
-});
+}, 500);
 
 page = getPage();
 window.location.href = "#!page=" + page;
+loadPage();

@@ -393,8 +393,7 @@ function hidePlaylist(body, queueView, angleIcon) {
  * Erstellt eine Schleife, welche jede Sekunde sich wiederholt und den Fortschritt ins Tooltip einfügt
  */
 function play(diffSong = false) {
-    let player = document.getElementById("player"),
-        cover = document.getElementById("queueView").querySelector("#playingCover").querySelector("img");
+    let player = document.getElementById("player");
 
     let song = playlist[playIndex];
     let gapless = song["player"];
@@ -402,6 +401,7 @@ function play(diffSong = false) {
     if (diffSong) {
         let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
         let songLength = document.getElementById("tooltip").querySelector("#length");
+        let cover = document.getElementById("queueView").querySelector("#playingCover").querySelector("img");
 
         cover.src = "/system/img/" + song["cover"];
         songLength.innerText = song["length"];

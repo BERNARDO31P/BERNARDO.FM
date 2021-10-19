@@ -244,7 +244,8 @@ window["music"] = () => {
 
         if (this.getAttribute("data-angle") === "up") {
             hidePlaylist(body, queueView, this);
-            navbar.classList.add("shadow");
+
+            if (window.scrollY !== 0) navbar.classList.add("shadow");
         } else {
             navbar.classList.remove("shadow");
             body.style.overflowY = "hidden";
@@ -451,10 +452,6 @@ function generateQueue(data) {
     listView.appendChild(thead);
 
     let tbody = document.createElement("tbody");
-
-    tbody.onscroll = () => {
-        removeControls("controlsQueue");
-    };
 
     generateTableBody(data, tbody);
 
