@@ -160,8 +160,7 @@ window["music"] = () => {
             && e.target.closest(".songCard") === null
             && e.target.closest(".playlistCard") === null) {
 
-            let controls = document.getElementById("controlsContent");
-            if (controls) controls.style.display = "none";
+            removeControls("controlsContent");
         }
     });
 
@@ -240,11 +239,14 @@ window["music"] = () => {
      */
     bindEvent("click", ".fa-angle-up", function () {
         let queueView = document.getElementById("queueView");
+        let navbar = document.getElementById("navbar");
         let body = document.getElementsByTagName("body")[0];
 
         if (this.getAttribute("data-angle") === "up") {
             hidePlaylist(body, queueView, this);
+            navbar.classList.add("shadow");
         } else {
+            navbar.classList.remove("shadow");
             body.style.overflowY = "hidden";
 
             this.animate([

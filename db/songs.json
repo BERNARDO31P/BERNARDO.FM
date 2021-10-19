@@ -50,7 +50,7 @@
     "name": "Don't Cry",
     "artist": "J Dilla",
     "length": "2:00",
-    "fileName": "J Dilla - Don't Cry.mp3",
+    "fileName": "J Dilla - Don't Cry.aac",
     "category": "Trip-Hop"
   },
   {
@@ -185,7 +185,7 @@
     "name": "Indigo Child",
     "artist": "Gramatik",
     "length": "3:56",
-    "fileName": "Gramatik - Indigo Child.mp3",
+    "fileName": "Gramatik - Indigo Child.aac",
     "category": "Trip-Hop"
   },
   {
@@ -235,5 +235,14 @@
     "name": "Old-School",
     "category": "Playlists",
     "playlist": [17, 16, 3, 14, 15]
-  }
+  },
+  {
+  "id": 28,
+  "cover": "Alienatic - War of the World.jpg",
+  "name": "War of the World",
+  "artist": "Alienatic",
+  "length": "7:08",
+  "fileName": "Alienatic - War of the World.aac",
+  "category": "Psy-Trance"
+}
 ]
