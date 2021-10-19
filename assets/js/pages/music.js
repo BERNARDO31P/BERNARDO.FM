@@ -286,10 +286,7 @@ function addEvents(player) {
         resetSong(playIndex);
 
         if (typeof partlist[playIndex][index] !== "undefined") {
-            let partLength = getCurrentPartLength();
-            if (!partLength) partLength = 20;
-
-            if (Number(timeline.max) - currentTime > 0) currentTime += partLength;
+            if (Number(timeline.max) - currentTime > 0) currentTime += 20;
 
             gapless.gotoTrack(partlist[playIndex][index]);
             gapless.sources[partlist[playIndex][index]].setPosition(0);
@@ -351,11 +348,7 @@ function addSongToPlaylist(element) {
 function downloadNextPart() {
     setTimeout(function () {
         let timeline = document.getElementById("timeline");
-        let partLength = getCurrentPartLength();
-
-        if (!partLength) partLength = 20;
-
-        let nextTime = currentTime + partLength, nextSong = false, nextIndex;
+        let nextTime = currentTime + 20, nextSong = false, nextIndex;
 
         if (!(Number(timeline.max) - nextTime > 1)) {
             nextSong = true;

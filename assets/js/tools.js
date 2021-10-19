@@ -485,20 +485,6 @@ function playPauseButton(play = false) {
 }
 
 /*
- * Funktion: getCurrentPartLength()
- * Autor: Bernardo de Oliveira
- *
- * Gibt die Länge des jetzigen Songteiles zurück
- */
-function getCurrentPartLength() {
-    try {
-        return playlist[playIndex]["player"].sources[partlist[playIndex][partIndex]].getLength() / 1000;
-    } catch (e) {
-        return 20;
-    }
-}
-
-/*
  * Funktion: getCurrentPartTime()
  * Autor: Bernardo de Oliveira
  *
