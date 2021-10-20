@@ -75,6 +75,7 @@ if (isset($_GET["id"])) {
                 $playlist[] = search_song($songID);
             }
             recursive_unset($playlist, "fileName");
+            shuffle($playlist);
             echo json_encode($playlist);
         } else {
             recursive_unset($song, "fileName");
