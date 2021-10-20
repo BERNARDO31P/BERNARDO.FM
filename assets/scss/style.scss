@@ -297,7 +297,7 @@ body {
 
         .songCard, .playlistCard {
           position: relative;
-          margin: 0 20px 55px 0;
+          margin: 0 10px 55px 0;
           width: 160px;
           height: 160px;
 
@@ -933,14 +933,6 @@ body {
 
     h2:first-of-type {
       margin: 30px 0 5px 5px;
-    }
-
-    .songCategory {
-      justify-content: space-between;
-
-      div {
-        margin: 0 5px 55px 5px !important;
-      }
     }
   }
 
