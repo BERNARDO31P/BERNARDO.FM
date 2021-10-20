@@ -553,8 +553,21 @@ function generateTableBody(data, tbody) {
         if (typeof song["playlist"] === 'undefined') {
             row.classList.add("song");
             row.innerHTML = "<td><img src='/system/img/" + song["cover"] + "' alt='Cover'/></td>" +
-                "<td>" + song["name"] + "</td>" +
-                "<td>" + song["artist"] + "</td>" +
+                "<td>" +
+                "<div class='truncate'>" +
+                "<div class='content'>" + song["name"] + "</div>" +
+                "<div class='spacer'>" + song["name"] + "</div>" +
+                "<span>&nbsp;</span>" +
+                "</div>" +
+                "</td>" +
+
+                "<td>" +
+                "<div class='truncate'>" +
+                "<div class='content'>" + song["artist"] + "</div>" +
+                "<div class='spacer'>" + song["artist"] + "</div>" +
+                "<span>&nbsp;</span>" +
+                "</div>" +
+                "</td>" +
                 "<td>" + song["length"] + "</td>";
         } else {
             row.classList.add("playlist");
@@ -576,7 +589,13 @@ function generateTableBody(data, tbody) {
             row.appendChild(td);
 
             row.innerHTML += "<td>" + song["name"] + "</td>" +
-                "<td colspan='2'>" + artists.substring(0, 50) + "..</td>";
+                "<td colspan='2'>" +
+                "<div class='truncate'>" +
+                "<div class='content'>" + artists.substring(0, 50) + "...</div>" +
+                "<div class='spacer'>" + artists.substring(0, 50) + "...</div>" +
+                "<span>&nbsp;</span>" +
+                "</div>" +
+                "</td>";
         }
 
         tbody.appendChild(row);

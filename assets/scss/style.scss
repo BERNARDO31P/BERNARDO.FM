@@ -487,10 +487,11 @@ body {
     width: 50%;
 
     img {
-      max-width: 75%;
-      max-height: 75%;
       margin: auto;
       border-radius: 5px;
+
+      max-width: 75%;
+      max-height: 75%;
     }
   }
 
@@ -730,6 +731,21 @@ body {
       height: 40px;
       padding: 0 10px;
       position: relative;
+
+      .truncate {
+        position: relative;
+      }
+      .content {
+        position: absolute;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .spacer {
+        height: 0;
+        overflow: hidden;
+      }
     }
 
     tr:not([data-id]) {
@@ -946,6 +962,40 @@ body {
   }
 }
 
+@media screen and (max-width: 750px) {
+  #queueView {
+    .container {
+      flex-flow: column;
+    }
+
+    #playingCover {
+      margin: 15px 0 0 0;
+
+      display: block;
+      width: initial;
+
+      img {
+        max-width: 50%;
+        max-height: initial;
+
+        display: flex;
+      }
+    }
+
+    #queue {
+      height: initial;
+      width: calc(100% - 20px);
+
+      .listView {
+        min-width: initial !important;
+        max-width: initial !important;
+        right: initial;
+        left: 20px;
+      }
+    }
+  }
+}
+
 @media screen and (max-width: 650px) {
   #content {
     padding: 20px 10px 40px 10px;
@@ -963,38 +1013,6 @@ body {
 
     .volumeBackground {
       left: 10px !important;
-    }
-  }
-
-  #queueView {
-    .container {
-      display: initial;
-    }
-
-    #playingCover {
-      margin: 15px 0 0 0;
-
-      display: block;
-      width: initial;
-
-      img {
-        max-width: 50%;
-        max-height: 50%;
-
-        display: flex;
-      }
-    }
-
-    #queue {
-      height: calc(70vh - 320px);
-      width: calc(100% - 20px);
-
-      .listView {
-        min-width: initial !important;
-        max-width: initial !important;
-        right: initial;
-        left: 20px;
-      }
     }
   }
 }

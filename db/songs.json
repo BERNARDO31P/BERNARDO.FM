@@ -6,7 +6,7 @@
     "artist": "Altered State & Xenoben",
     "length": "6:51",
     "fileName": "Altered State _ Xenoben - Perception.mp3",
-    "category": "Psy-Trance"
+    "category": "Psytrance"
   },
   {
     "id": 2,
@@ -15,7 +15,7 @@
     "artist": "Infected Mushroom",
     "length": "6:49",
     "fileName": "Infected Mushroom - Groove Attack.mp3",
-    "category": "Psy-Trance"
+    "category": "Psytrance"
   },
   {
     "id": 3,
@@ -33,7 +33,7 @@
     "artist": "Atacama & Jakaan",
     "length": "8:39",
     "fileName": "Atacama _ Jakaan - KMOS.mp3",
-    "category": "Psy-Trance"
+    "category": "Psytrance"
   },
   {
     "id": 5,
@@ -42,7 +42,7 @@
     "artist": "Reborn",
     "length": "7:42",
     "fileName": "Reborn - Deep Future.mp3",
-    "category": "Psy-Trance"
+    "category": "Psytrance"
   },
   {
     "id": 6,
@@ -60,7 +60,7 @@
     "artist": "Astrix",
     "length": "7:50",
     "fileName": "Astrix - Sahara (Tristan Remix).mp3",
-    "category": "Psy-Trance"
+    "category": "Psytrance"
   },
   {
     "id": 8,
@@ -69,7 +69,7 @@
     "artist": "Transient Disorder",
     "length": "8:23",
     "fileName": "Transient Disorder - The Watchers.mp3",
-    "category": "Psy-Trance"
+    "category": "Psytrance"
   },
   {
     "id": 9,
@@ -78,7 +78,7 @@
     "artist": "Tropical Bleyage",
     "length": "7:23",
     "fileName": "Tropical Bleyage - My Thoughts.mp3",
-    "category": "Psy-Trance"
+    "category": "Psytrance"
   },
   {
     "id": 10,
@@ -87,7 +87,7 @@
     "artist": "Mad Tribe",
     "length": "7:43",
     "fileName": "Mad Tribe - Alien Hoax.mp3",
-    "category": "Psy-Trance"
+    "category": "Psytrance"
   },
   {
     "id": 11,
@@ -168,7 +168,7 @@
     "artist": "A-Tech",
     "length": "7:56",
     "fileName": "A-Tech - Frequencies.mp3",
-    "category": "Psy-Trance"
+    "category": "Psytrance"
   },
   {
     "id": 20,
@@ -222,27 +222,49 @@
     "artist": "Shamanizm Parallelii",
     "length": "7:08",
     "fileName": "Shamanizm Parallelii - Mountains Snow.mp3",
-    "category": "Trip-Hop"
+    "category": "Psybient"
   },
   {
     "id": 26,
     "name": "Full-On",
     "category": "Playlists",
-    "playlist": [1, 2, 4, 19]
+    "playlist": [
+      1,
+      2,
+      4,
+      19,
+      29,
+      28
+    ]
   },
   {
     "id": 27,
     "name": "Old-School",
     "category": "Playlists",
-    "playlist": [17, 16, 3, 14, 15]
+    "playlist": [
+      17,
+      16,
+      3,
+      14,
+      15
+    ]
   },
   {
-  "id": 28,
-  "cover": "Alienatic - War of the World.jpg",
-  "name": "War of the World",
-  "artist": "Alienatic",
-  "length": "7:08",
-  "fileName": "Alienatic - War of the World.aac",
-  "category": "Psy-Trance"
-}
+    "id": 28,
+    "cover": "Alienatic - War of the World.jpg",
+    "name": "War of the World",
+    "artist": "Alienatic",
+    "length": "7:08",
+    "fileName": "Alienatic - War of the World.aac",
+    "category": "Psytrance"
+  },
+  {
+    "id": 29,
+    "cover": "Bellatrix - Higher Dimensions.jpg",
+    "name": "Higher Dimensions",
+    "artist": "Bellatrix",
+    "length": "9:02",
+    "fileName": "Bellatrix - Higher Dimensions.aac",
+    "category": "Psytrance"
+  }
 ]
