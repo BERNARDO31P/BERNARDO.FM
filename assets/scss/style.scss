@@ -16,6 +16,7 @@ input:not([type="range"]) {
   border-radius: 15px;
   padding: 12px 16px;
   background-color: var(--navbar-background);
+  color: var(--text-color);
   outline: none;
   text-align: left !important;
 
@@ -266,9 +267,12 @@ body {
         }
 
         .playlistCard {
-          transition: 0.2s;
+          &:hover > img {
+            filter: brightness(50%);
+          }
 
           img {
+            transition: 0.2s;
             max-width: 80px;
 
             &:nth-child(1) {
@@ -288,10 +292,6 @@ body {
               margin-top: -5px;
               border-bottom-right-radius: 5px;
             }
-          }
-
-          &:hover {
-            filter: brightness(50%);
           }
         }
 
@@ -402,9 +402,8 @@ body {
 
 }
 
-#controlsContent, #controlsQueue {
-  position: fixed;
-  display: none;
+.controlsContent, .controlsQueue {
+  position: absolute;
 
   height: 38px;
   width: 98px;
@@ -418,7 +417,13 @@ body {
 
   color: var(--text-color);
 
-  z-index: 1;
+  opacity: 0;
+
+  transition: 0.2s;
+
+  &.show {
+    opacity: 1;
+  }
 
   * {
     padding: 10px;
@@ -679,7 +684,8 @@ body {
 .notification {
   font-family: "Roboto Regular", sans-serif;
 
-  background-color: #ededed;
+  color: var(--text-color);
+  background-color: var(--notification-background);
   box-shadow: 1px 1px 1px var(--shadow-dark), -1px -1px 1px var(--shadow-light);
 
   left: 0;
@@ -720,25 +726,10 @@ body {
   tbody {
     td {
       color: var(--text-color);
-      padding: 0 10px;
+
       height: 40px;
-    }
-
-    td:last-of-type {
-      svg {
-        padding: 10px;
-        margin: 0 20px;
-      }
-
-      svg:first-of-type {
-        margin: 0 20px 0 0
-      }
-
-      .listAdd {
-        svg {
-          padding: 10px 0;
-        }
-      }
+      padding: 0 10px;
+      position: relative;
     }
 
     tr:not([data-id]) {

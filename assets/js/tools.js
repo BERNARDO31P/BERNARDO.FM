@@ -1,5 +1,6 @@
 let currentHover = null,
     secondsInterval = null,
+    controlsTimeout = null,
     currentTime = 0,
     playIndex = 0,
     partIndex = 0,
@@ -14,7 +15,6 @@ let sliderTimeout = null;
 
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
-const mobileWidth = 1150;
 
 let theme = getCookie("theme");
 if (!theme)
@@ -205,7 +205,7 @@ function showNotification(message, time) {
  * Überprüft ob ein Element sichtbar ist
  */
 function isElementVisible(el, holder = undefined) {
-    holder = holder || document.body;
+    holder = holder || el.parentNode || document.body;
     const elRect = el.getBoundingClientRect();
     const holderRect = holder.getBoundingClientRect();
 
@@ -305,18 +305,67 @@ function getMinutesAndSeconds(time) {
 }
 
 /*
+ * Funktion: createControls()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  elementClass: (String) Defineirt die Klasse, welche dem Objekt zugewiesen wird
+ *  actions: (Array) Definiert die Liedoptionen welche angezeigt werden sollen
+ *
+ * Generiert die Liedoptionen je nach Parameter
+ */
+function createControls(elementClass, actions) {
+    let controls = document.createElement("div");
+    controls.classList.add(elementClass);
+
+    for (let key in actions) {
+        let action = actions[key];
+
+        let icon;
+        switch (action) {
+            case "play":
+
+                icon = document.createElement("i");
+                icon.title = "Play this song";
+                icon.classList.add("fas", "fa-play");
+
+                break;
+            case "add":
+
+                icon = document.createElement("div");
+                icon.title = "Add this song to the queue";
+                icon.classList.add("listAdd");
+
+                let listIcon = document.createElement("i"), plusIcon = document.createElement("i");
+                listIcon.classList.add("fas", "fa-list");
+                plusIcon.classList.add("fas", "fa-plus");
+
+                icon.appendChild(listIcon);
+                icon.appendChild(plusIcon);
+
+                break;
+        }
+        controls.appendChild(icon);
+    }
+
+    return controls;
+}
+
+/*
  * Funktion: removeControls()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  elementID: (String) Defineirt das Objekt
+ *  elementClass: (String) Defineirt die Objekte durch die Klasse
  *
- * Versteckt beim Scrollen die Liedoptionen
+ * Entfernt die Liedoptionen
  */
-function removeControls(elementID) {
-    let controls = document.getElementById(elementID);
+function removeControls(elementClass) {
+    let controls = document.getElementsByClassName(elementClass);
 
-    if (controls !== null && controls.style.display !== "none")
-        controls.style.display = "none";
+    if (controls) {
+        for (let i = 0; i < controls.length; i++) {
+            controls[i].remove();
+        }
+    }
 }
 
 /*
@@ -492,7 +541,7 @@ function playPauseButton(play = false) {
  */
 function getCurrentPartTime() {
     try {
-        return playlist[playIndex]["player"].sources[partlist[playIndex][partIndex]].getPosition() / 1000;
+        return playlist[playIndex]["player"].playlist.sources[partlist[playIndex][partIndex]].getPosition() / 1000;
     } catch (e) {
         return 0;
     }
@@ -528,7 +577,7 @@ function resetSong(index) {
 
     for (let key in partlist[index]) {
         let value = partlist[index][key];
-        playlist[index]["player"].sources[value].setPosition(0);
+        playlist[index]["player"].playlist.sources[value].setPosition(0);
     }
 }
 

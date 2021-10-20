@@ -31,7 +31,7 @@ function loadPage() {
     }
 
     let i = 0;
-    let pageLoad = setInterval(function () {
+    let pageLoad = setInterval(() => {
         if (typeof window[page] !== 'undefined') {
             clearInterval(pageLoad);
             window[page]();
@@ -42,8 +42,6 @@ function loadPage() {
         i++;
     }, 100);
 }
-
-window.addEventListener('popstate', loadPage);
 
 /*
  * Funktion: getPage()
@@ -111,6 +109,7 @@ bindEvent("click", "[data-page]", function (e) {
     page = e.target.dataset.page;
     prevPage = undefined;
     window.location.href = "#!page=" + page;
+    loadPage();
 });
 
 /*
@@ -152,57 +151,42 @@ document.getElementById("queue").onscroll = function () {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * Ändert die Farbe des Icons, damit der Benutzer erkennt, dass es aktiviert wurde
- * Mischt die Playlist durch und aktualisiert die Playlist-Ansicht
+ * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
  */
-bindEvent("click", ".fa-random", function () {
-    let currentSong = playlist[playIndex];
+bindEvent("mouseover", "#queueView tr[data-id]", function () {
+    let controls = this.querySelector(".controlsQueue");
+    if (!controls) {
+        removeControls("controlsQueue");
+        controls = createControls("controlsQueue", ["play"]);
+        let pos = this.getBoundingClientRect();
 
-    currentSong["player"].sources[partlist[playIndex][partIndex]].setPosition(0);
-    currentSong["player"].stop();
+        controls.style.top = "3px";
+        controls.style.right = "0";
+        controls.style.height = pos.height - 6 + "px";
+        controls.style.lineHeight = pos.height - 6 + "px";
+        controls.setAttribute("data-id", this.getAttribute("data-id"));
 
-    delete playlist[playIndex];
-    playlist.splice(0, 1);
-    playlist = playlist.sort((a, b) => 0.5 - Math.random());
-    playlist.unshift(currentSong);
-
-    playIndex = 0;
-    partIndex = 0;
-    currentTime = 0;
-
-    playlist[playIndex]["player"].sources[partlist[playIndex][partIndex]].setPosition(0);
-    let queueView = document.getElementById("queueView");
-    let queue = queueView.querySelector("#queue");
-    queue.innerHTML = "";
-    queue.appendChild(generateTable(playlist, false));
-
-    play();
+        setTimeout(() => {
+            this.querySelector("td:last-of-type").appendChild(controls);
+            controls.classList.add("show");
+        }, 50);
+    } else clearTimeout(controlsTimeout);
 });
 
 /*
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
+ * Entfernt die Liedoptionen
  */
-bindEvent("mouseover", "#queueView tr[data-id]", function () {
-    let controls = document.getElementById("controlsQueue");
-    controls.style.display = "none";
-
-    let tbody = this.closest("tbody");
-    if (isElementVisible(this, tbody)) {
-        let pos = this.getBoundingClientRect();
-
-        controls.style.left = pos.right - 100 + "px";
-        controls.style.top = pos.top + 2 + "px";
-        controls.style.height = pos.height - 4 + "px";
-        controls.style.lineHeight = pos.height - 4 + "px";
-        controls.setAttribute("data-id", this.getAttribute("data-id"));
-
-        setTimeout(() => {
-            controls.style.display = "initial"
-        }, 50);
-    }
+bindEvent("mouseout", "#queueView tr[data-id]", function (e) {
+    let row = this;
+    controlsTimeout = setTimeout(function () {
+        if (row !== currentHover.closest("tr")) {
+            let controls = row.querySelector(".controlsQueue");
+            if (controls) controls.remove();
+        }
+    }, 0);
 });
 
 /*
@@ -244,7 +228,7 @@ bindEvent("keyup", "#search", function (e) {
  */
 bindEvent("click", "#view .fa-list", function () {
     setCookie("view", "list");
-    window.location.href = "#!page=" + page;
+    loadPage();
 });
 
 /*
@@ -255,7 +239,7 @@ bindEvent("click", "#view .fa-list", function () {
  */
 bindEvent("click", "#view .fa-grip-horizontal", function () {
     setCookie("view", "grid");
-    window.location.href = "#!page=" + page;
+    loadPage();
 });
 
 /*
