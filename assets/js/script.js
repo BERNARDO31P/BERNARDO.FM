@@ -137,6 +137,18 @@ bindEvent("mousedown", "#timeline", () => onTimelinePress());
 
 bindEvent("input", "#timeline", (e) => onTimelineMove(e));
 
+bindEvent("click", "[data-title]", function () {
+    if (!isTouchScreen() || touched) {
+        let element = this;
+        setTimeout(function() {
+            if (currentHover === element) {
+                touched = false;
+                showNotification(element.getAttribute("data-title"), 3000);
+            }
+        }, 200);
+    } else touched = true;
+});
+
 /*
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
@@ -183,6 +195,7 @@ bindEvent("mouseout", "#queueView tr[data-id]", function (e) {
     let row = this;
     controlsTimeout = setTimeout(function () {
         if (row !== currentHover.closest("tr")) {
+            touched = false;
             let controls = row.querySelector(".controlsQueue");
             if (controls) controls.remove();
         }

@@ -81,8 +81,8 @@ window["music"] = () => {
                         if (typeof song["playlist"] === 'undefined') {
                             card.classList.add("songCard");
                             card.innerHTML = "<img src='/system/img/" + song["cover"] + "' alt='Cover'/>" +
-                                "<span title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
-                                "<span title=\"" + song["artist"] + "\" class='artist'>" + song["artist"] + "</span>" +
+                                "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
+                                "<span data-title=\"" + song["artist"] + "\" class='artist'>" + song["artist"] + "</span>" +
                                 "<span class='length'>" + song["length"] + "</span>";
                         } else {
                             card.classList.add("playlistCard");
@@ -98,8 +98,8 @@ window["music"] = () => {
                             }
                             artists = artists.substring(0, artists.length - 2) + " and more..";
 
-                            card.innerHTML += "<span title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
-                                "<span title=\"" + artists + "\" class='artist'>" + artists + "</span>";
+                            card.innerHTML += "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
+                                "<span data-title=\"" + artists + "\" class='artist'>" + artists + "</span>";
                         }
 
                         categoryView.appendChild(card);
@@ -166,6 +166,7 @@ window["music"] = () => {
         let row = this;
         controlsTimeout = setTimeout(function () {
             if (row !== currentHover) {
+                touched = false;
                 let controls = row.querySelector(".controlsContent");
                 if (controls) controls.remove();
             }
@@ -570,7 +571,7 @@ function generateTableBody(data, tbody) {
             row.innerHTML = "<td><img src='/system/img/" + song["cover"] + "' alt='Cover'/></td>" +
                 "<td>" +
                 "<div class='truncate'>" +
-                "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" +
+                "<div class='content' data-title='" + song["name"] + "'>" + song["name"] + "</div>" +
                 "<div class='spacer'>" + song["name"] + "</div>" +
                 "<span>&nbsp;</span>" +
                 "</div>" +
@@ -578,7 +579,7 @@ function generateTableBody(data, tbody) {
 
                 "<td>" +
                 "<div class='truncate'>" +
-                "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" +
+                "<div class='content' data-title='" + song["artist"] + "'>" + song["artist"] + "</div>" +
                 "<div class='spacer'>" + song["artist"] + "</div>" +
                 "<span>&nbsp;</span>" +
                 "</div>" +
@@ -599,6 +600,8 @@ function generateTableBody(data, tbody) {
                 artists += data["artist"] + ", ";
             }
 
+            artists = artists.substring(0, artists.length - 2) + " and more..";
+
             let td = document.createElement("td");
             td.appendChild(cover)
             row.appendChild(td);
@@ -606,8 +609,8 @@ function generateTableBody(data, tbody) {
             row.innerHTML += "<td>" + song["name"] + "</td>" +
                 "<td colspan='2'>" +
                 "<div class='truncate'>" +
-                "<div class='content'>" + artists.substring(0, 50) + "...</div>" +
-                "<div class='spacer'>" + artists.substring(0, 50) + "...</div>" +
+                "<div class='content' data-title='" + artists + "'>" + artists + "</div>" +
+                "<div class='spacer'>" + artists + "</div>" +
                 "<span>&nbsp;</span>" +
                 "</div>" +
                 "</td>";
@@ -676,6 +679,7 @@ function showControlsCard(card) {
 function removeControlsCard(card) {
     controlsTimeout = setTimeout(function () {
         if (card !== currentHover) {
+            touched = false;
             let controls = card.querySelector(".controlsContent");
             if (controls) controls.remove();
         }

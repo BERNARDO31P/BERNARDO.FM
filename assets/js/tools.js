@@ -9,7 +9,7 @@ let currentHover = null,
     repeatMode = 0,
     touched = false;
 
-let sliderTimeout = null, controlsTimeout = null, secondsInterval = null;
+let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, notificationTimeout = {};
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 
@@ -125,8 +125,6 @@ const prev = (element, className = "") => {
  * Wenn der Player angezeigt wird, wird die Benachrichtigung drüber angezeigt, sonst ganz unten
  */
 function showNotification(message, time) {
-    let player = document.getElementById("player");
-    let playerStyle = window.getComputedStyle(player);
     let content = document.getElementById("content");
 
     let notifications = document.getElementsByClassName("notification");
@@ -145,8 +143,12 @@ function showNotification(message, time) {
     notification.innerText = message;
     notification.style.left = content.getBoundingClientRect().left + 10 + "px";
 
-
     content.parentNode.appendChild(notification);
+
+    let player = document.getElementById("player");
+    let playerStyle = window.getComputedStyle(player);
+
+    let timeoutOpacity, timeoutBottom;
 
     notification.animateCallback([
         {opacity: 0},
@@ -155,16 +157,8 @@ function showNotification(message, time) {
         duration: 100,
         fill: "forwards"
     }, function () {
-        setTimeout(function () {
-            notification.animateCallback([
-                {opacity: 1},
-                {opacity: 0}
-            ], {
-                duration: 100,
-                fill: "forwards"
-            }, function () {
-                notification.remove();
-            });
+        timeoutOpacity = setTimeout(() => {
+            removeOpacityNotification(notification);
         }, time);
     });
 
@@ -177,23 +171,52 @@ function showNotification(message, time) {
                 duration: 100
             }, function () {
                 notification.style.bottom = "110px";
-                setTimeout(function () {
-                    let position = window.getComputedStyle(notification);
 
-                    notification.animateCallback([
-                        {bottom: position.bottom},
-                        {bottom: '10px'}
-                    ], {
-                        duration: 100
-                    }, function () {
-                        notification.style.bottom = "10px";
-                    });
+                timeoutBottom = setTimeout(function () {
+                    hideNotification(notification);
                 }, time);
             });
         } else {
             notification.style.bottom = "110px";
         }
     }
+
+    notification.onmouseover = function () {
+        clearTimeout(timeoutOpacity);
+        clearTimeout(timeoutBottom);
+    }
+
+    notification.onmouseout = function () {
+        removeOpacityNotification(notification);
+        hideNotification(notification);
+    }
+}
+
+// TODO: Comment
+function removeOpacityNotification (notification) {
+    notification.animateCallback([
+        {opacity: 1},
+        {opacity: 0}
+    ], {
+        duration: 100,
+        fill: "forwards"
+    }, function () {
+        notification.remove();
+    });
+}
+
+// TODO: Comment
+function hideNotification (notification) {
+    let position = window.getComputedStyle(notification);
+
+    notification.animateCallback([
+        {bottom: position.bottom},
+        {bottom: '10px'}
+    ], {
+        duration: 100
+    }, function () {
+        notification.style.bottom = "10px";
+    });
 }
 
 /*
