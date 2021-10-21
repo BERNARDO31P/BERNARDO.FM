@@ -235,26 +235,6 @@ function hideNotification(notification) {
 }
 
 /*
- * Funktion: isElementVisible()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  el: (Objekt) Das zu überprüfende Objekt
- *  holder: (Objekt) Das Element in welchem sich das zu überprüfende Element befinden
- *
- * Überprüft ob ein Element sichtbar ist
- */
-function isElementVisible(el, holder = undefined) {
-    holder = holder || el.parentNode || document.body;
-    const elRect = el.getBoundingClientRect();
-    const holderRect = holder.getBoundingClientRect();
-
-    let visibleBottom = holderRect.bottom - elRect.top >= elRect.height - 2;
-    let visibleTop = elRect.top - holderRect.top >= 0;
-
-    return !(!visibleTop || !visibleBottom);
-}
-
-/*
  * Funktion: isTouchScreen()
  * Autor: Daniel Lavedonio de Lima (https://stackoverflow.com/questions/36408960/check-if-click-was-triggered-by-touch-or-click)
  *
