@@ -454,9 +454,20 @@ function play(diffSong = false) {
 
         cover.src = "/system/img/" + song["cover"];
         songLength.innerText = song["length"];
-        player.querySelector("#name").innerText = song["name"];
-        player.querySelector("#artist").innerText = song["artist"];
         player.querySelector("#timeline").max = length;
+
+        player.querySelector("#name").innerHTML = "<div class='truncate'>" +
+            "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" +
+            "<div class='spacer'>" + song["name"] + "</div>" +
+            "<span>&nbsp;</span>" +
+            "</div>";
+
+        player.querySelector("#artist").innerHTML = "<div class='truncate'>" +
+            "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" +
+            "<div class='spacer'>" + song["artist"] + "</div>" +
+            "<span>&nbsp;</span>" +
+            "</div>";
+
     }
 
     gapless.setGain(volume * 65535);

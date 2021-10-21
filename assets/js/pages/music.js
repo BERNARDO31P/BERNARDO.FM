@@ -555,7 +555,7 @@ function generateTableBody(data, tbody) {
             row.innerHTML = "<td><img src='/system/img/" + song["cover"] + "' alt='Cover'/></td>" +
                 "<td>" +
                 "<div class='truncate'>" +
-                "<div class='content'>" + song["name"] + "</div>" +
+                "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" +
                 "<div class='spacer'>" + song["name"] + "</div>" +
                 "<span>&nbsp;</span>" +
                 "</div>" +
@@ -563,7 +563,7 @@ function generateTableBody(data, tbody) {
 
                 "<td>" +
                 "<div class='truncate'>" +
-                "<div class='content'>" + song["artist"] + "</div>" +
+                "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" +
                 "<div class='spacer'>" + song["artist"] + "</div>" +
                 "<span>&nbsp;</span>" +
                 "</div>" +

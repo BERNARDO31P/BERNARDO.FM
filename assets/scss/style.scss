@@ -554,6 +554,25 @@ body {
     position: relative;
   }
 
+  table {
+    margin: auto;
+
+    .truncate {
+      position: relative;
+    }
+    .content {
+      position: absolute;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .spacer {
+      height: 0;
+      overflow: hidden;
+    }
+  }
+
   #timeline {
     transition: 0.25s;
     position: absolute;
