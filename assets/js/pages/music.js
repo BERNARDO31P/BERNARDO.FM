@@ -700,9 +700,9 @@ function onTimelineRelease(rangeEvent) {
     let index = Math.floor(rangeEvent.target.value / 20);
     currentTime = index * 20;
 
-    if (typeof gapless.sources[partlist[playIndex][index]] === "undefined") {
+    if (typeof gapless.playlist.sources[partlist[playIndex][index]] === "undefined") {
         downloadPart(currentTime);
-        partlist[playIndex][index] = gapless.sources.length - 1;
+        partlist[playIndex][index] = gapless.playlist.numTracks() - 1;
     }
 
     let startFrom = (rangeEvent.target.value % 20) * 1000;
@@ -710,7 +710,7 @@ function onTimelineRelease(rangeEvent) {
     partIndex = index;
 
     setTimeout(() => {
-        gapless.sources[partlist[playIndex][partIndex]].setPosition(startFrom, false);
+        gapless.playlist.sources[partlist[playIndex][partIndex]].setPosition(startFrom, false);
         play();
     }, 1000);
 }
