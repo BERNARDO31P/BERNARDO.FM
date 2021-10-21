@@ -330,6 +330,7 @@ bindEvent("input", ".volumeSlider", function () {
 
     let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
     setVolumeIcon(volumeIcon, volumeSlider);
+    setCookie("volume", volume);
 
     hideVolumeSlider();
 });

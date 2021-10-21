@@ -7,6 +7,21 @@ window["music"] = () => {
     let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search");
     let view = getCookie("view");
 
+    /*
+     * Author: Bernardo de Oliveira
+     *
+     * Die Lautstärke wird in einem Cookie gespeichert
+     * Hier wird dieser ausgelesen und gesetzt
+     */
+    let vol = getCookie("volume");
+    if (vol === "") vol = 0.5;
+    volume = Number(vol);
+
+    let volumeSlider = document.getElementsByClassName("volume")[0].querySelector(".volumeSlider");
+    let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
+    volumeSlider.value = volume * 100;
+    setVolumeIcon(volumeIcon, volumeSlider);
+
     for (let i = 0; i < objects.length; i++) {
         let object = objects[i];
         let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(object.getAttribute("data-url") + "?search=" + search.value));

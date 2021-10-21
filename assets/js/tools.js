@@ -1,25 +1,26 @@
 let currentHover = null,
-    secondsInterval = null,
-    controlsTimeout = null,
     currentTime = 0,
     playIndex = 0,
     partIndex = 0,
     playlist = [],
     partlist = {},
-    volume = 0.5,
+    volume = 0,
     previousVolume = null,
     repeatMode = 0,
     touched = false;
 
-let sliderTimeout = null;
-
+let sliderTimeout = null, controlsTimeout = null, secondsInterval = null;
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 
+/*
+ * Autor: Bernardo de Oliveira
+ *
+ * Das Design wird in einem Cookie gespeichert
+ * Hier wird dieser ausgelesen und das Design angewendet
+ */
 let theme = getCookie("theme");
-if (!theme)
-    theme = "light";
-
+if (!theme) theme = "light";
 document.getElementsByTagName("html")[0].setAttribute("data-theme", theme);
 
 HTMLElement.prototype.animateCallback = function (keyframes, options, callback) {
