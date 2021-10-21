@@ -137,6 +137,13 @@ bindEvent("mousedown", "#timeline", () => onTimelinePress());
 
 bindEvent("input", "#timeline", (e) => onTimelineMove(e));
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Zeigt bei einem Click eine Benachrichtigung mit dem Songnamen oder Künstlernamen
+ * Wenn das Endgerät ein Touchgerät ist, muss man doppelt drücken
+ */
 bindEvent("click", "[data-title]", function () {
     if (!isTouchScreen() || touched) {
         let element = this;

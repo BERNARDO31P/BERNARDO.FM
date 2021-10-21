@@ -192,8 +192,16 @@ function showNotification(message, time) {
     }
 }
 
-// TODO: Comment
-function removeOpacityNotification (notification) {
+/*
+ * Funktion: removeOpacityNotification()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  notification: (Object) Definiert die Benachrichtigung
+ *
+ * Entfernt die Sichtbarkeit von einer Benachrichtigung
+ * Entfernt die Benachrichtigung nach Schluss
+ */
+function removeOpacityNotification(notification) {
     notification.animateCallback([
         {opacity: 1},
         {opacity: 0}
@@ -205,8 +213,15 @@ function removeOpacityNotification (notification) {
     });
 }
 
-// TODO: Comment
-function hideNotification (notification) {
+/*
+ * Funktion: hideNotification()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  notification: (Object) Definiert die Benachrichtigung
+ *
+ * Bewegt eine Benachrichtigung nach unten um sie zu verstecken
+ */
+function hideNotification(notification) {
     let position = window.getComputedStyle(notification);
 
     notification.animateCallback([
