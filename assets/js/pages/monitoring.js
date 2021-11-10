@@ -8,7 +8,7 @@ window["monitoring"] = () => {
     setInterval(function () {
         let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet("/db/monitoring.json"));
 
-        if (data) {
+        if (typeof data === 'object') {
             let timestamps = Object.keys(data);
             let timeValues = [...new Set(timestampToTime(timestamps))];
 
