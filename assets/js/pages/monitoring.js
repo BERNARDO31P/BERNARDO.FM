@@ -7,18 +7,29 @@ window["monitoring"] = () => {
 
     setInterval(function () {
         let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet("/db/monitoring.json"));
-        let timestamps = Object.keys(data);
-        let timeValues = [...new Set(timestampToTime(timestamps))];
 
-        let downValues = Object.values(data).map(function(d) { return d["network"]["down"]; });
-        let upValues = Object.values(data).map(function(d) { return d["network"]["up"]; });
-        let cpuValues = Object.values(data).map(function(d) { return d["cpu"]; });
-        let ramValues = Object.values(data).map(function(d) { return d["ram"]; });
+        if (data) {
+            let timestamps = Object.keys(data);
+            let timeValues = [...new Set(timestampToTime(timestamps))];
 
-        drawGraph(canvasDown, downValues, timeValues, "Mbit/s");
-        drawGraph(canvasUp, upValues, timeValues, "Mbit/s");
-        drawGraph(canvasCpu, cpuValues, timeValues, "%");
-        drawGraph(canvasRam, ramValues, timeValues, "%");
+            let downValues = Object.values(data).map(function (d) {
+                return d["network"]["down"];
+            });
+            let upValues = Object.values(data).map(function (d) {
+                return d["network"]["up"];
+            });
+            let cpuValues = Object.values(data).map(function (d) {
+                return d["cpu"];
+            });
+            let ramValues = Object.values(data).map(function (d) {
+                return d["ram"];
+            });
+
+            drawGraph(canvasDown, downValues, timeValues, "Mbit/s");
+            drawGraph(canvasUp, upValues, timeValues, "Mbit/s");
+            drawGraph(canvasCpu, cpuValues, timeValues, "%");
+            drawGraph(canvasRam, ramValues, timeValues, "%");
+        }
     }, 2000);
 }
 
