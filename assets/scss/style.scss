@@ -403,6 +403,11 @@ body {
 
 }
 
+.fullWidth {
+  width: 100%;
+  overflow-x: auto;
+}
+
 .controlsContent, .controlsQueue {
   position: absolute;
 
@@ -946,6 +951,12 @@ body {
 }
 
 @media screen and (max-width: 850px) {
+  #content {
+    .graph {
+      width: 754px;
+    }
+  }
+
   .songGrid {
     h2 {
       margin: 5px 0 5px 5px;

@@ -17,6 +17,11 @@ window["monitoring"] = () => {
     backgroundProcesses[1] = setInterval(function () {
         redraw();
     }, 500);
+
+    canvasDown.parentNode.scrollLeft = canvasDown.width;
+    canvasUp.parentNode.scrollLeft = canvasUp.width;
+    canvasCpu.parentNode.scrollLeft = canvasCpu.width;
+    canvasRam.parentNode.scrollLeft = canvasRam.width;
 }
 
 /*
@@ -150,7 +155,15 @@ function drawGraph(canvas, dataArr, timeArr, measurement) {
         context.strokeStyle = "#d0d0d0";
     }
 
-    context.lineWidth = 2;
+    let radius;
+    if (getWidth() > 1000) {
+        radius = 3;
+        context.lineWidth = 2;
+    } else {
+        radius = 2;
+        context.lineWidth = 1;
+    }
+
     for (let i = 0; i < arrayLen; i++) {
         context.lineTo((GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * i + GRAPH_LEFT, ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[i] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP);
 
@@ -160,7 +173,7 @@ function drawGraph(canvas, dataArr, timeArr, measurement) {
     // Punkte zeichnen
     for (let i = 0; i < arrayLen; i++) {
         const circle = new Path2D();
-        circle.arc((GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * i + GRAPH_LEFT, ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[i] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP, 3, 0, 2 * Math.PI);
+        circle.arc((GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * i + GRAPH_LEFT, ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[i] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP, radius, 0, 2 * Math.PI);
         context.fill(circle);
     }
 }
