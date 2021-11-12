@@ -18,10 +18,10 @@ window["monitoring"] = () => {
         redraw();
     }, 500);
 
-    canvasDown.parentNode.scrollLeft = canvasDown.width;
-    canvasUp.parentNode.scrollLeft = canvasUp.width;
-    canvasCpu.parentNode.scrollLeft = canvasCpu.width;
-    canvasRam.parentNode.scrollLeft = canvasRam.width;
+    canvasDown.parentNode.scrollLeft = canvasDown.scrollWidth;
+    canvasUp.parentNode.scrollLeft = canvasUp.scrollWidth;
+    canvasCpu.parentNode.scrollLeft = canvasCpu.scrollWidth;
+    canvasRam.parentNode.scrollLeft = canvasRam.scrollWidth;
 }
 
 /*
