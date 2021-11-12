@@ -9,6 +9,7 @@ let currentHover = null,
     repeatMode = 0,
     touched = false;
 
+let backgroundProcesses = [];
 let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, notificationTimeout = {};
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;

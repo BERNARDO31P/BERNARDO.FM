@@ -9,13 +9,19 @@
 function loadPage() {
     let content = document.querySelector("#content"), title = document.querySelector("title");
     let data = htmlToElement(httpGet("./pages/" + page + ".html"));
-
     dataIncludeReplace(data);
 
     content.innerHTML = data.body.innerHTML;
 
     let subpage = (data.querySelector("title")) ? data.querySelector("title").innerText : "error";
     title.innerText = title.innerText.split(" - ")[0] + " - " + subpage;
+
+    if (backgroundProcesses.length) {
+        for (let backgroundProcess of backgroundProcesses) {
+            clearInterval(backgroundProcess);
+        }
+        backgroundProcesses = [];
+    }
 
     if (typeof window[page] === 'undefined') {
         let scripts = data.getElementsByTagName("script");
@@ -274,6 +280,7 @@ bindEvent("click", "#theme-toggler", function () {
         icon.classList.remove("fa-sun");
         icon.classList.add("fa-moon");
 
+        theme = "light";
         setCookie("theme", "light");
     } else {
         html.setAttribute("data-theme", "dark");
@@ -281,6 +288,7 @@ bindEvent("click", "#theme-toggler", function () {
         icon.classList.remove("fa-moon");
         icon.classList.add("fa-sun");
 
+        theme = "dark";
         setCookie("theme", "dark");
     }
 });

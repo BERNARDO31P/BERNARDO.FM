@@ -1,35 +1,22 @@
 if (typeof window["monitoring"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
+let timeValues = [], downValues = [], upValues = [], cpuValues = [], ramValues = [];
+let canvasDown, canvasUp, canvasCpu, canvasRam;
+
 window["monitoring"] = () => {
-    let canvasDown = document.getElementById("download"), canvasUp = document.getElementById("upload"),
-        canvasCpu = document.getElementById("cpu"), canvasRam = document.getElementById("ram");
+    canvasDown = document.getElementById("download");
+    canvasUp = document.getElementById("upload");
+    canvasCpu = document.getElementById("cpu");
+    canvasRam = document.getElementById("ram");
 
-    setInterval(function () {
-        let data = tryParseJSON(httpGet("/db/monitoring.json"));
-
-        if (typeof data === 'object') {
-            let timestamps = Object.keys(data);
-            let timeValues = [...new Set(timestampToTime(timestamps))];
-
-            let downValues = Object.values(data).map(function (d) {
-                return d["network"]["down"];
-            });
-            let upValues = Object.values(data).map(function (d) {
-                return d["network"]["up"];
-            });
-            let cpuValues = Object.values(data).map(function (d) {
-                return d["cpu"];
-            });
-            let ramValues = Object.values(data).map(function (d) {
-                return d["ram"];
-            });
-
-            drawGraph(canvasDown, downValues, timeValues, "Mbit/s");
-            drawGraph(canvasUp, upValues, timeValues, "Mbit/s");
-            drawGraph(canvasCpu, cpuValues, timeValues, "%");
-            drawGraph(canvasRam, ramValues, timeValues, "%");
-        }
+    getData();
+    backgroundProcesses[0] = setInterval(function () {
+        getData();
     }, 2000);
+
+    backgroundProcesses[1] = setInterval(function () {
+        redraw();
+    }, 500);
 }
 
 /*
@@ -93,6 +80,14 @@ function drawGraph(canvas, dataArr, timeArr, measurement) {
     // Setze Schriftart für fillText()
     context.font = "13px Arial";
 
+    if (theme === "light") {
+        context.strokeStyle = "#BBB";
+        context.fillStyle = "black";
+    } else {
+        context.strokeStyle = "#606060";
+        context.fillStyle = "#b9b9b9";
+    }
+
     // Umriss Generierung
     context.beginPath();
     context.moveTo(GRAPH_LEFT, GRAPH_BOTTOM);
@@ -102,10 +97,10 @@ function drawGraph(canvas, dataArr, timeArr, measurement) {
 
     // Referenzlinien zeichnen
     context.beginPath();
-    context.strokeStyle = "#BBB";
     context.moveTo(GRAPH_LEFT, GRAPH_TOP);
     context.lineTo(GRAPH_RIGHT, GRAPH_TOP);
     // Referenz für die Daten: Erster Wert
+
     context.fillText(Math.round(largest * 100) / 100, GRAPH_RIGHT + 15, GRAPH_TOP);
     context.stroke();
 
@@ -146,11 +141,19 @@ function drawGraph(canvas, dataArr, timeArr, measurement) {
 
     // Verbindungslinie Zeichnen
     context.beginPath();
-    context.fillStyle = "black";
-    context.strokeStyle = "black";
+
+    if (theme === "light") {
+        context.fillStyle = "black";
+        context.strokeStyle = "black";
+    } else {
+        context.fillStyle = "#d0d0d0";
+        context.strokeStyle = "#d0d0d0";
+    }
+
     context.lineWidth = 2;
     for (let i = 0; i < arrayLen; i++) {
         context.lineTo((GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * i + GRAPH_LEFT, ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[i] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP);
+
     }
     context.stroke();
 
@@ -158,7 +161,39 @@ function drawGraph(canvas, dataArr, timeArr, measurement) {
     for (let i = 0; i < arrayLen; i++) {
         const circle = new Path2D();
         circle.arc((GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * i + GRAPH_LEFT, ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[i] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP, 3, 0, 2 * Math.PI);
-        context.fillStyle = 'black';
         context.fill(circle);
     }
+}
+
+window.addEventListener('resize', () => {
+    redraw();
+});
+
+function getData() {
+    let data = tryParseJSON(httpGet("/db/monitoring.json"));
+
+    if (typeof data === 'object') {
+        let timestamps = Object.keys(data);
+        timeValues = [...new Set(timestampToTime(timestamps))];
+
+        downValues = Object.values(data).map(function (d) {
+            return d["network"]["down"];
+        });
+        upValues = Object.values(data).map(function (d) {
+            return d["network"]["up"];
+        });
+        cpuValues = Object.values(data).map(function (d) {
+            return d["cpu"];
+        });
+        ramValues = Object.values(data).map(function (d) {
+            return d["ram"];
+        });
+    }
+}
+
+function redraw() {
+    drawGraph(canvasDown, downValues, timeValues, "Mbit/s");
+    drawGraph(canvasUp, upValues, timeValues, "Mbit/s");
+    drawGraph(canvasCpu, cpuValues, timeValues, "%");
+    drawGraph(canvasRam, ramValues, timeValues, "%");
 }

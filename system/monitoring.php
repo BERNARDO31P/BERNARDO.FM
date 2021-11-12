@@ -3,7 +3,8 @@ $amount = 30;
 $db = json_decode(file_get_contents(__DIR__ . "/../db/monitoring.json"), true) ?? array();
 $db = array_slice($db, -($amount * 4), $amount * 4, true);
 
-function get_server_memory_usage() {
+function get_server_memory_usage(): float
+{
     $free = shell_exec('free');
     $free = (string)trim($free);
     $free_arr = explode("\n", $free);
@@ -13,7 +14,8 @@ function get_server_memory_usage() {
     return round($mem[2]/$mem[1]*100, 2);
 }
 
-function get_server_cpu_usage() {
+function get_server_cpu_usage(): float
+{
     $cont = file('/proc/stat');
     $cpuloadtmp = explode(' ',$cont[0]);
     $cpuload0[0] = $cpuloadtmp[2] + $cpuloadtmp[4];
