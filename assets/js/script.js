@@ -1,19 +1,16 @@
-let httpGetM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/httpGet.js");
-let includeHTMLM = await import(window.location.protocol + "//" + window.location.host + "/assets/js/includeHTML.js");
-
 /*
- * Funktion: dataIncludeReplace()
+ * Funktion: loadPage()
  * Autor: Bernardo de Oliveira
  *
- * Lädt eine den Inhalt einer externen SeiLeider konnten wir keine Songs findente und fügt diesen in den internen Inhalt ein
+ * Lädt eine den Inhalt einer externen Seite und fügt diesen in den internen Inhalt ein
  * Ändert den Titel der Webseite
  * Wird durch ein Event aufgerufen
  */
 function loadPage() {
     let content = document.querySelector("#content"), title = document.querySelector("title");
-    let data = includeHTMLM.htmlToElement(httpGetM.httpGet("./pages/" + page + ".html"));
+    let data = htmlToElement(httpGet("./pages/" + page + ".html"));
 
-    includeHTMLM.dataIncludeReplace(data);
+    dataIncludeReplace(data);
 
     content.innerHTML = data.body.innerHTML;
 
@@ -23,7 +20,7 @@ function loadPage() {
     if (typeof window[page] === 'undefined') {
         let scripts = data.getElementsByTagName("script");
         for (let i = 0; i < scripts.length; i++) {
-            let script = URL.createObjectURL(new Blob([httpGetM.httpGet(scripts[i].src)], {
+            let script = URL.createObjectURL(new Blob([httpGet(scripts[i].src)], {
                 type: 'application/javascript'
             }));
             import(script);
@@ -395,3 +392,4 @@ setTimeout(function () {
 page = getPage();
 window.location.href = "#!page=" + page;
 loadPage();
+dataIncludeReplace(document.body);

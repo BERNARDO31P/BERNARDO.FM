@@ -1,6 +1,3 @@
-let httpGetM = await import(pageURL + "assets/js/httpGet.js");
-let tryParseJSONM = await import(pageURL + "assets/js/tryParseJSON.js");
-
 if (typeof window["home"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
 window["home"] = () => {
@@ -8,7 +5,7 @@ window["home"] = () => {
 
     for (let i = 0; i < objects.length; i++) {
         let object = objects[i];
-        let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(object.getAttribute("data-url")));
+        let data = tryParseJSON(httpGet(object.getAttribute("data-url")));
 
         if (data) {
             data = Array.prototype.concat(data["greeting"], data["changelog"]);

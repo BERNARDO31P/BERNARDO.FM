@@ -1,6 +1,3 @@
-let httpGetM = await import(pageURL + "assets/js/httpGet.js");
-let tryParseJSONM = await import(pageURL + "assets/js/tryParseJSON.js");
-
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
 window["music"] = () => {
@@ -24,7 +21,7 @@ window["music"] = () => {
 
     for (let i = 0; i < objects.length; i++) {
         let object = objects[i];
-        let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(object.getAttribute("data-url") + "?search=" + search.value));
+        let data = tryParseJSON(httpGet(object.getAttribute("data-url") + "?search=" + search.value));
 
         if (view === "") view = "grid";
 
@@ -91,7 +88,7 @@ window["music"] = () => {
                             let artists = "";
                             for (let i = 0; i < 4; i++) {
                                 let songID = song["playlist"][i];
-                                let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID));
+                                let data = tryParseJSON(httpGet(pageURL + "system/player.php?id=" + songID));
                                 card.innerHTML += "<img src='/system/img/" + data["cover"] + "' alt='Cover'/>";
 
                                 artists += data["artist"] + ", ";
@@ -419,7 +416,7 @@ function addEvents(player) {
 function addSongToPlaylist(element) {
     let controls = element.closest(".controlsContent");
     let songID = controls.getAttribute("data-id");
-    let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID));
+    let data = tryParseJSON(httpGet(pageURL + "system/player.php?id=" + songID));
 
     if (typeof data.length !== 'number') {
         let id = playlist.length;
@@ -594,7 +591,7 @@ function generateTableBody(data, tbody) {
 
             for (let i = 0; i < 4; i++) {
                 let songID = song["playlist"][i];
-                let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet(pageURL + "system/player.php?id=" + songID));
+                let data = tryParseJSON(httpGet(pageURL + "system/player.php?id=" + songID));
                 cover.innerHTML += "<img src='/system/img/" + data["cover"] + "' alt='Cover'/>";
 
                 artists += data["artist"] + ", ";

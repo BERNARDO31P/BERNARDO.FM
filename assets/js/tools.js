@@ -115,6 +115,108 @@ const prev = (element, className = "") => {
 }
 
 /*
+ * Funktion: httpGet()
+ * Autor: Joan [https://stackoverflow.com/questions/247483/http-get-request-in-javascript]
+ * Argumente:
+ *  url: (String) URL von welcher heruntergeladen werden soll
+ *
+ * Holt sich den Inhalt einer URL und gibt diesen zurück
+ */
+function httpGet(url) {
+    let xmlHttp = new XMLHttpRequest();
+
+    xmlHttp.open("GET", url, false);
+
+    try {
+        xmlHttp.send(null);
+        return xmlHttp.responseText;
+    } catch (e) {
+        return "<body>There was an error performing this request. Please try again later or reloading the page.</body>";
+    }
+
+}
+
+
+/*
+ * Funktion: htmlToElement()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  html: (String) HTML String welcher zu einem Element werden soll
+ *
+ * Wandelt ein String zu einem HTML Element um und gibt dieses zurück
+ */
+function htmlToElement(html) {
+    let parser = new DOMParser();
+    return parser.parseFromString(html, "text/html");
+}
+
+/*
+ * Funktion: dataIncludeReplace()
+ * Autor: Bernardo de Oliveira
+ *
+ * Alle HTML Objekte mit dem Attribut "data-include" sowie "data-replace" werden ausgewählt
+ * Gefundene Objekte werden mit einer Schleife geladen
+ * In der Schleife wird das Attribut ausgelesen
+ *
+ * Die ausgelesene Datei wird in das Objekt geladen
+ * oder das Objekt wird durch die ausgelesene Datei ersetzt
+ */
+function dataIncludeReplace(object) {
+    let elementsInclude = object.querySelectorAll('[data-include]');
+    let elementsReplace = object.querySelectorAll('[data-replace]');
+
+
+    for (let i = 0, len = elementsInclude.length; i < len; i++) {
+        let url = elementsInclude[i].getAttribute("data-include");
+        let data = htmlToElement(httpGet(url));
+
+        let dataElementsInclude = data.querySelectorAll('[data-include]');
+        let dataElementsReplace = data.querySelectorAll('[data-replace]');
+        if (dataElementsInclude.length || dataElementsReplace.length) {
+            dataIncludeReplace(data);
+        }
+
+        elementsInclude[i].innerHTML = data.body.innerHTML;
+        elementsInclude[i].removeAttribute("data-include");
+    }
+
+    for (let i = 0, len = elementsReplace.length; i < len; i++) {
+        let url = elementsReplace[i].getAttribute("data-replace");
+        let data = htmlToElement(httpGet(url));
+
+        let dataElementsInclude = data.querySelectorAll('[data-include]');
+        let dataElementsReplace = data.querySelectorAll('[data-replace]');
+        if (dataElementsInclude.length || dataElementsReplace.length) {
+            dataIncludeReplace(data);
+        }
+
+        elementsReplace[i].outerHTML = data.body.innerHTML;
+    }
+}
+
+/*
+ * Funktion: tryParseJSON()
+ * Autor: Matt H. [https://stackoverflow.com/questions/3710204/how-to-check-if-a-string-is-a-valid-json-string-in-javascript-without-using-try]
+ * Argumente:
+ *  jsonString: (String) JSON String welcher auf Gültigkeit überprüft wird
+ *
+ * Überprüft ob der mitgegebene JSON String gültig ist, sowie ob dieser ein Inhalt besitzt
+ * Gibt dieses Objekt zurück, sonst false
+ */
+function tryParseJSON(jsonString) {
+    try {
+        let o = JSON.parse(jsonString);
+
+        if (o && typeof o === "object") {
+            return o;
+        }
+    } catch (e) {
+    }
+
+    return false;
+}
+
+/*
  * Funktion: showNotification()
  * Autor: Bernardo de Oliveira
  * Argumente:

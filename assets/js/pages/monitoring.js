@@ -1,12 +1,11 @@
-let httpGetM = await import(pageURL + "assets/js/httpGet.js");
-let tryParseJSONM = await import(pageURL + "assets/js/tryParseJSON.js");
+if (typeof window["monitoring"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
 window["monitoring"] = () => {
     let canvasDown = document.getElementById("download"), canvasUp = document.getElementById("upload"),
         canvasCpu = document.getElementById("cpu"), canvasRam = document.getElementById("ram");
 
     setInterval(function () {
-        let data = tryParseJSONM.tryParseJSON(httpGetM.httpGet("/db/monitoring.json"));
+        let data = tryParseJSON(httpGet("/db/monitoring.json"));
 
         if (typeof data === 'object') {
             let timestamps = Object.keys(data);
