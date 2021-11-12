@@ -192,10 +192,10 @@ function getData() {
         timeValues = [...new Set(timestampToTime(timestamps))];
 
         downValues = Object.values(data).map(function (d) {
-            return d["down"];
+            return d["network"]["down"];
         });
         upValues = Object.values(data).map(function (d) {
-            return d["up"];
+            return d["network"]["up"];
         });
         cpuValues = Object.values(data).map(function (d) {
             return d["cpu"];

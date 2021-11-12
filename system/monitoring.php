@@ -53,14 +53,12 @@ while(true) {
         unset($db[key($db)]);
     }
 
-    $network = get_server_network_usage();
+    $network =
     $db[time()] = array(
         "cpu" => get_server_cpu_usage(),
         "ram" => get_server_memory_usage(),
-        "down" => $network["down"],
-        "up" => $network["up"]
+        "network" => get_server_network_usage()
     );
 
-    file_put_contents(__DIR__ . "/../db/monitoring.tmp", json_encode($db));
-    rename(__DIR__ . "/../db/monitoring.tmp", __DIR__ . "/../db/monitoring.json");
+    file_put_contents(__DIR__ . "/../db/monitoring.json", json_encode($db));
 }
