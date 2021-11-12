@@ -59,5 +59,6 @@ while(true) {
         "network" => get_server_network_usage()
     );
 
-    file_put_contents(__DIR__ . "/../db/monitoring.json", json_encode($db));
+    file_put_contents(__DIR__ . "/../db/monitoring.tmp", json_encode($db));
+    rename(__DIR__ . "/../db/monitoring.tmp", __DIR__ . "/../db/monitoring.json");
 }
