@@ -26,10 +26,7 @@ function loadPage() {
     if (typeof window[page] === 'undefined') {
         let scripts = data.getElementsByTagName("script");
         for (let i = 0; i < scripts.length; i++) {
-            let script = URL.createObjectURL(new Blob([httpGet(scripts[i].src)], {
-                type: 'application/javascript'
-            }));
-            import(script);
+            getScript(scripts[i].src);
         }
     }
 
@@ -44,6 +41,31 @@ function loadPage() {
         }
         i++;
     }, 100);
+}
+
+/*
+ * Funktion: getScript()
+ * Autor: Mahn (https://stackoverflow.com/a/28002292)
+ * Argumente:
+ *  source: (String)
+ *
+ * Lädt ein Skript nachträglich nach und fügt dieses an dem Ort hinzu, wo es sich befand
+ */
+function getScript(source) {
+    let script = document.createElement('script');
+    let prior = document.querySelectorAll("body script:last-child")[0];
+    script.async = true;
+
+    script.onload = script.onreadystatechange = function( _, isAbort ) {
+        if(isAbort || !script.readyState || /loaded|complete/.test(script.readyState) ) {
+            script.onload = script.onreadystatechange = null;
+            script = undefined;
+        }
+    };
+
+    script.src = source;
+    prior.parentNode.insertBefore(script, prior);
+    prior.remove();
 }
 
 /*

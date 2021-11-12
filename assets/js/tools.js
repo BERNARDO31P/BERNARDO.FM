@@ -154,6 +154,8 @@ function htmlToElement(html) {
 /*
  * Funktion: dataIncludeReplace()
  * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  object: (Objekt) Definiert das HTML
  *
  * Alle HTML Objekte mit dem Attribut "data-include" sowie "data-replace" werden ausgewählt
  * Gefundene Objekte werden mit einer Schleife geladen
