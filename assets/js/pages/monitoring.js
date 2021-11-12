@@ -178,10 +178,12 @@ function drawGraph(canvas, dataArr, timeArr, measurement) {
     }
 }
 
-window.addEventListener('resize', () => {
-    redraw();
-});
-
+/*
+ * Funktion: getData()
+ * Autor: Bernardo de Oliveira
+ *
+ * Holt die Graph-Werte und speichert diese separat ab
+ */
 function getData() {
     let data = tryParseJSON(httpGet("/db/monitoring.json"));
 
@@ -204,9 +206,19 @@ function getData() {
     }
 }
 
+/*
+ * Funktion: redraw()
+ * Autor: Bernardo de Oliveira
+ *
+ * Führt die Funktionen zum die Graphen zu zeichnen mit den Werten aus
+ */
 function redraw() {
     drawGraph(canvasDown, downValues, timeValues, "Mbit/s");
     drawGraph(canvasUp, upValues, timeValues, "Mbit/s");
     drawGraph(canvasCpu, cpuValues, timeValues, "%");
     drawGraph(canvasRam, ramValues, timeValues, "%");
 }
+
+window.addEventListener('resize', () => {
+    redraw();
+});
