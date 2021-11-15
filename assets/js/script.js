@@ -247,6 +247,7 @@ bindEvent("input", "#search", function () {
     else page = prevPage;
 
     window.location.href = "#!page=" + page;
+    loadPage();
 });
 
 /*
