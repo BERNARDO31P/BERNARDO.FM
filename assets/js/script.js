@@ -223,7 +223,7 @@ bindEvent("mouseover", "#queueView tr[data-id]", function () {
  *
  * Entfernt die Liedoptionen
  */
-bindEvent("mouseout", "#queueView tr[data-id]", function (e) {
+bindEvent("mouseout", "#queueView tr[data-id]", function () {
     let row = this;
     controlsTimeout = setTimeout(function () {
         if (row !== currentHover.closest("tr")) {

@@ -24,14 +24,25 @@ window["monitoring"] = () => {
     canvasCpu.parentNode.scrollLeft = canvasCpu.scrollWidth;
     canvasRam.parentNode.scrollLeft = canvasRam.scrollWidth;
 
-    canvasDown.addEventListener("mousemove", function (e) { showTooltip(this, e) });
-    canvasUp.addEventListener("mousemove", function (e) { showTooltip(this, e) });
-    canvasCpu.addEventListener("mousemove", function (e) { showTooltip(this, e) });
-    canvasRam.addEventListener("mousemove", function (e) { showTooltip(this, e) });
-    canvasDown.addEventListener("click", function (e) { showTooltip(this, e) });
-    canvasUp.addEventListener("click", function (e) { showTooltip(this, e) });
-    canvasCpu.addEventListener("click", function (e) { showTooltip(this, e) });
-    canvasRam.addEventListener("click", function (e) { showTooltip(this, e) });
+    canvasDown.onmousemove
+        = canvasUp.onmousemove
+        = canvasCpu.onmousemove
+        = canvasRam.onmousemove
+        = canvasDown.onclick
+        = canvasUp.onclick
+        = canvasCpu.onclick
+        = canvasRam.onclick = function (e) {
+        showTooltip(this, e);
+    }
+
+    canvasDown.onmouseout = canvasUp.onmouseout = canvasCpu.onmouseout = canvasRam.onmouseout = function () {
+        let tooltip = document.getElementById("tooltip");
+
+        setTimeout(function () {
+            if (currentHover !== tooltip) tooltip.style.display = "none";
+        }, 0);
+
+    }
 }
 
 /*
@@ -254,7 +265,7 @@ function showTooltip(object, e) {
         let point = points[object.id][objectID]["coordinates"];
         let pointX = point[0], pointY = point[1];
 
-        if ((e.offsetY - 3 < pointY && e.offsetY + 3 > pointY) &&(e.offsetX - 3 < pointX && e.offsetX + 3 > pointX)) {
+        if ((e.offsetY - 3 < pointY && e.offsetY + 3 > pointY) && (e.offsetX - 3 < pointX && e.offsetX + 3 > pointX)) {
             let tooltip = document.getElementById("tooltip");
             tooltip.style.top = mouseY - 100 + window.scrollY + "px";
             tooltip.style.left = mouseX + "px";
