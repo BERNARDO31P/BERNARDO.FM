@@ -19,7 +19,15 @@ window["home"] = () => {
 
                 html += "<div class='blockquote'>";
                 html += "<h2>" + quote["title"] + "</h2>";
-                html += "<span class='message'>" + quote["message"] + "</span>";
+
+                let messages = quote["message"].split("<br/>");
+
+                html += "<span class='message'>";
+                for (const [i, message] of messages.entries()) {
+                    if (i !== messages.length - 1) html += "<p>" + message + "</p>";
+                    else html += "<p class='break'>" + message + "</p>";
+                }
+                html += "</span>";
 
                 if (typeof quote["details"] !== "undefined") {
                     html += "<div class='details'><span>" + quote["details"] + "</span></div>";

@@ -827,8 +827,15 @@ body {
 
   .message {
     color: var(--text-color);
-    max-width: calc(100% - 275px);
     display: block;
+
+    p {
+      margin: 0;
+    }
+
+    .break {
+      max-width: calc(100% - 275px);
+    }
 
     .mail {
       text-decoration: none;
@@ -850,12 +857,12 @@ body {
 
     margin: 5px 0 0 0;
     padding: 0 20px;
-  }
 
-  .details.show {
-    padding: 20px;
-    margin: 20px 0 0 0;
-    max-height: 1000px;
+    &.show {
+      padding: 20px;
+      margin: 20px 0 0 0;
+      max-height: 1000px;
+    }
   }
 
   .detailsButton {
@@ -869,10 +876,10 @@ body {
     color: #8eb6ff;
     font-size: 15px;
     cursor: pointer;
-  }
 
-  .detailsButton:hover {
-    color: #4f8eff;
+    &:hover {
+      color: #4f8eff;
+    }
   }
 }
 
