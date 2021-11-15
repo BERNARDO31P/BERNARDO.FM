@@ -154,7 +154,7 @@ bindEvent("click", "#navbar-toggler", function () {
 
 bindEvent("click", "#player .fa-pause", () => pauseSong());
 
-bindEvent("click", "#player .fa-play", () => playSong());
+bindEvent("click", "#player .fa-play", () => play());
 
 bindEvent("touchstart", "#timeline", () => onTimelinePress());
 
