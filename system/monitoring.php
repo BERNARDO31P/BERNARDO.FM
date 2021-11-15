@@ -1,6 +1,10 @@
 <?php
 $amount = 30;
-$db = json_decode(file_get_contents(__DIR__ . "/../db/monitoring.json"), true) ?? array();
+$dbFile = __DIR__ . "/../db/monitoring.json";
+
+if (!file_exists($dbFile)) touch($dbFile);
+
+$db = json_decode(file_get_contents($dbFile), true) ?? array();
 $db = array_slice($db, -($amount * 4), $amount * 4, true);
 
 function get_server_memory_usage(): float

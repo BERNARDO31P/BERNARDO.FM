@@ -20,6 +20,7 @@
       <excludeFolder url="file://$MODULE_DIR$/system/vendor/symfony/polyfill-ctype" />
       <excludeFolder url="file://$MODULE_DIR$/system/vendor/symfony/process" />
       <excludeFolder url="file://$MODULE_DIR$/system/vendor/php-ffmpeg/php-ffmpeg" />
+      <excludeFolder url="file://$MODULE_DIR$/system/vendor" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
