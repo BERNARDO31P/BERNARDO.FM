@@ -572,6 +572,33 @@ function play(diffSong = false) {
     let gapless = song["player"];
 
     if (diffSong) {
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: song["name"],
+                artist: song["artist"],
+                artwork: [
+                    {src: "/system/img/" + song["cover"], type: 'image/png'},
+                ]
+            });
+            navigator.mediaSession.playbackState = "playing";
+
+            navigator.mediaSession.setActionHandler('play', function() { playSong() });
+            navigator.mediaSession.setActionHandler('pause', function() { pauseSong() });
+            navigator.mediaSession.setActionHandler('previoustrack', function() { previousSong() });
+            navigator.mediaSession.setActionHandler('nexttrack', function() { nextSong() });
+        }
+
+        /*navigator.mediaSession.setActionHandler('play', function() { });
+        navigator.mediaSession.setActionHandler('pause', function() { });
+        navigator.mediaSession.setActionHandler('stop', function() { });
+        navigator.mediaSession.setActionHandler('seekbackward', function() { });
+        navigator.mediaSession.setActionHandler('seekforward', function() { });
+        navigator.mediaSession.setActionHandler('seekto', function() { });
+        navigator.mediaSession.setActionHandler('previoustrack', function() { });
+        navigator.mediaSession.setActionHandler('nexttrack', function() { });
+        navigator.mediaSession.setActionHandler('skipad', function() { });*/
+
+
         let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
         let songLength = document.getElementById("timeInfo").querySelector("#length");
         let cover = document.getElementById("queueView").querySelector("#playingCover").querySelector("img");
@@ -604,6 +631,14 @@ function play(diffSong = false) {
         let timeline = document.getElementById("timeline");
 
         timeline.value = getCurrentPartTime() + currentTime;
+
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.setPositionState({
+                duration: timeline.max,
+                playbackRate: 1,
+                position: timeline.value
+            });
+        }
     }, 1000);
 }
 
