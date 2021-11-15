@@ -212,6 +212,21 @@ body {
   position: relative;
   overflow-y: auto;
 
+  #tooltip {
+    position: absolute;
+    display: none;
+
+    padding: 5px 10px;
+
+    color: var(--text-color);
+    background-color: var(--primary-color);
+
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+
+    box-shadow: 1px 1px 1px var(--shadow-dark), -1px -1px 1px var(--shadow-light);
+  }
+
   #view {
     color: var(--text-color);
 
@@ -594,7 +609,7 @@ body {
     overflow: hidden;
   }
 
-  #tooltip {
+  #timeInfo {
     display: none;
 
     position: fixed;
@@ -954,16 +969,6 @@ body {
   #content {
     .graph {
       width: 754px;
-    }
-  }
-
-  .songGrid {
-    h2 {
-      margin: 5px 0 5px 5px;
-    }
-
-    h2:first-of-type {
-      margin: 30px 0 5px 5px;
     }
   }
 

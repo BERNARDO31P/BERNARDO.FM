@@ -573,7 +573,7 @@ function play(diffSong = false) {
 
     if (diffSong) {
         let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
-        let songLength = document.getElementById("tooltip").querySelector("#length");
+        let songLength = document.getElementById("timeInfo").querySelector("#length");
         let cover = document.getElementById("queueView").querySelector("#playingCover").querySelector("img");
 
         cover.src = "/system/img/" + song["cover"];
@@ -743,12 +743,12 @@ function playSong() {
  * Funktion: onTimelinePress()
  * Autor: Bernardo de Oliveira
  *
- * Sobald die Timeline angedrückt wird, wird das tooltip mit dem jetzigen Fortschritt des Liedes angezeigt
+ * Sobald die Timeline angedrückt wird, wird die Zeit Information mit dem jetzigen Fortschritt des Liedes angezeigt
  * Die Wiedergabe wird pausiert
  */
 function onTimelinePress() {
-    let tooltip = document.getElementById("tooltip");
-    tooltip.style.display = "initial";
+    let timeInfo = document.getElementById("timeInfo");
+    timeInfo.style.display = "initial";
 
     clearInterval(secondsInterval);
     playPauseButton(false);
@@ -761,23 +761,23 @@ function onTimelinePress() {
  * Argumente:
  *  rangeEvent: (Event) Das ausgelöste Ereignis
  *
- * Das Tooltip wird an die letzte bekannte Position der Maus verschoben
- * Im Tooltip wird der Fortschritt des Liedes aktualisiert
+ * Die Zeit Information wird an die letzte bekannte Position der Maus verschoben
+ * In der Zeit Information wird der Fortschritt des Liedes aktualisiert
  */
 function onTimelineMove(rangeEvent) {
-    let tooltip = document.getElementById("tooltip");
-    let measurementTooltip = tooltip.getBoundingClientRect();
+    let timeInfo = document.getElementById("timeInfo");
+    let measurementTimeInfo = timeInfo.getBoundingClientRect();
     let measurementRange = rangeEvent.target.getBoundingClientRect();
-    let leftPos = mouseX - (measurementTooltip["width"] / 2);
+    let leftPos = mouseX - (measurementTimeInfo["width"] / 2);
 
     if (leftPos < 0)
         leftPos = 0;
-    else if ((leftPos + measurementTooltip["width"]) > getWidth())
-        leftPos = getWidth() - measurementTooltip["width"];
+    else if ((leftPos + measurementTimeInfo["width"]) > getWidth())
+        leftPos = getWidth() - measurementTimeInfo["width"];
 
-    tooltip.style.top = (measurementRange["top"] - measurementTooltip["height"] - 10) + "px";
-    tooltip.style.left = leftPos + "px";
+    timeInfo.style.top = (measurementRange["top"] - measurementTimeInfo["height"] - 10) + "px";
+    timeInfo.style.left = leftPos + "px";
 
-    let currentTimestamp = tooltip.querySelector("#current");
+    let currentTimestamp = timeInfo.querySelector("#current");
     currentTimestamp.innerText = getMinutesAndSeconds(rangeEvent.target.value);
 }

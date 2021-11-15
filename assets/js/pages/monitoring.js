@@ -2,6 +2,7 @@ if (typeof window["monitoring"] !== 'undefined') throw new Error("Dieses Skript 
 
 let timeValues = [], downValues = [], upValues = [], cpuValues = [], ramValues = [];
 let canvasDown, canvasUp, canvasCpu, canvasRam;
+let points = {};
 
 window["monitoring"] = () => {
     canvasDown = document.getElementById("download");
@@ -22,6 +23,15 @@ window["monitoring"] = () => {
     canvasUp.parentNode.scrollLeft = canvasUp.scrollWidth;
     canvasCpu.parentNode.scrollLeft = canvasCpu.scrollWidth;
     canvasRam.parentNode.scrollLeft = canvasRam.scrollWidth;
+
+    canvasDown.addEventListener("mousemove", function (e) { showTooltip(this, e) });
+    canvasUp.addEventListener("mousemove", function (e) { showTooltip(this, e) });
+    canvasCpu.addEventListener("mousemove", function (e) { showTooltip(this, e) });
+    canvasRam.addEventListener("mousemove", function (e) { showTooltip(this, e) });
+    canvasDown.addEventListener("click", function (e) { showTooltip(this, e) });
+    canvasUp.addEventListener("click", function (e) { showTooltip(this, e) });
+    canvasCpu.addEventListener("click", function (e) { showTooltip(this, e) });
+    canvasRam.addEventListener("click", function (e) { showTooltip(this, e) });
 }
 
 /*
@@ -58,7 +68,7 @@ function timestampToTime(timestamps) {
  * Zeichnet einen Graphen anhand von Werten und Zeiten
  * !Inline-Kommentare beachten!
  */
-function drawGraph(canvas, dataArr, timeArr, measurement) {
+function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
     let context = canvas.getContext("2d");
     let canvasStyle = window.getComputedStyle(canvas);
     let canvasWidth = Number(canvasStyle.width.replace("px", ""));
@@ -87,7 +97,7 @@ function drawGraph(canvas, dataArr, timeArr, measurement) {
 
     if (theme === "light") {
         context.strokeStyle = "#BBB";
-        context.fillStyle = "black";
+        context.fillStyle = "#3f3f3f";
     } else {
         context.strokeStyle = "#606060";
         context.fillStyle = "#b9b9b9";
@@ -170,10 +180,20 @@ function drawGraph(canvas, dataArr, timeArr, measurement) {
     }
     context.stroke();
 
+    if (typeof points[canvasID] === 'undefined') points[canvasID] = {};
+
     // Punkte zeichnen
     for (let i = 0; i < arrayLen; i++) {
         const circle = new Path2D();
-        circle.arc((GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * i + GRAPH_LEFT, ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[i] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP, radius, 0, 2 * Math.PI);
+        let x = (GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * i + GRAPH_LEFT;
+        let y = ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[i] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP;
+
+        points[canvasID][i] = {};
+        points[canvasID][i]["coordinates"] = [x, y];
+        points[canvasID][i]["value"] = dataArr[i];
+        points[canvasID][i]["measurement"] = measurement;
+
+        circle.arc(x, y, radius, 0, 2 * Math.PI);
         context.fill(circle);
     }
 }
@@ -213,10 +233,36 @@ function getData() {
  * Führt die Funktionen zum die Graphen zu zeichnen mit den Werten aus
  */
 function redraw() {
-    drawGraph(canvasDown, downValues, timeValues, "Mbit/s");
-    drawGraph(canvasUp, upValues, timeValues, "Mbit/s");
-    drawGraph(canvasCpu, cpuValues, timeValues, "%");
-    drawGraph(canvasRam, ramValues, timeValues, "%");
+    drawGraph(canvasDown, downValues, timeValues, "Mbit/s", canvasDown.id);
+    drawGraph(canvasUp, upValues, timeValues, "Mbit/s", canvasUp.id);
+    drawGraph(canvasCpu, cpuValues, timeValues, "%", canvasCpu.id);
+    drawGraph(canvasRam, ramValues, timeValues, "%", canvasRam.id);
+}
+
+/*
+ * Funktion: showTooltip()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  object: (Objekt) Das Canvas, welches den Event ausgelöst hat
+ *  e: (Event) Das Event
+ *
+ * Zeigt ein Tooltip mit den genaueren Informationen an
+ * Berechnet die Position anhand der Position der Maus und der Scroll Position
+ */
+function showTooltip(object, e) {
+    for (let objectID in points[object.id]) {
+        let point = points[object.id][objectID]["coordinates"];
+        let pointX = point[0], pointY = point[1];
+
+        if ((e.offsetY - 3 < pointY && e.offsetY + 3 > pointY) &&(e.offsetX - 3 < pointX && e.offsetX + 3 > pointX)) {
+            let tooltip = document.getElementById("tooltip");
+            tooltip.style.top = mouseY - 100 + window.scrollY + "px";
+            tooltip.style.left = mouseX + "px";
+            tooltip.style.display = "initial";
+
+            tooltip.innerText = points[object.id][objectID]["value"] + " " + points[object.id][objectID]["measurement"];
+        }
+    }
 }
 
 window.addEventListener('resize', () => {

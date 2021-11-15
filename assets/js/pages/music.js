@@ -687,13 +687,13 @@ function removeControlsCard(card) {
  * Funktion: onTimelineRelease()
  * Autor: Bernardo de Oliveira
  *
- * Sobald die Timeline wieder losgelassen wird, wird das tooltip mit dem jetzigen Fortschritt des Liedes versteckt
+ * Sobald die Timeline wieder losgelassen wird, wird die Zeit information mit dem jetzigen Fortschritt des Liedes versteckt
  * Die Wiedergabe beginnt
  */
 function onTimelineRelease(rangeEvent) {
-    let tooltip = document.getElementById("tooltip");
+    let timeInfo = document.getElementById("timeInfo");
     let gapless = playlist[playIndex]["player"];
-    tooltip.style.display = "none";
+    timeInfo.style.display = "none";
 
     clearInterval(secondsInterval);
     resetSong(playIndex);
