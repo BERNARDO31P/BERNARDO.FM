@@ -411,13 +411,15 @@ bindEvent("click", ".volume", function (e) {
     } else touched = true;
 });
 
-setTimeout(function () {
-    let theme = document.querySelector("[data-theme]").getAttribute("data-theme");
+let iconInterval = setInterval(function () {
     let icon = document.getElementById("theme-toggler").querySelector("svg");
 
-    if (theme === "light") icon.classList.add("fa-moon");
-    else icon.classList.add("fa-sun");
-}, 500);
+    if (icon) {
+        if (theme === "light") icon.classList.add("fa-moon");
+        else icon.classList.add("fa-sun");
+        clearInterval(iconInterval);
+    }
+}, 50);
 
 page = getPage();
 window.location.href = "#!page=" + page;
