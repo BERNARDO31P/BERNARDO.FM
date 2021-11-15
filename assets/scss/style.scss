@@ -987,7 +987,9 @@ body {
 
   .blockquote {
     .message {
-      max-width: 100%;
+      .break {
+        max-width: 100%;
+      }
     }
 
     .authorDate {
