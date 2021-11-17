@@ -5,3 +5,4 @@ system/music
 system/temp
 system/img
 db/monitoring.json
+db/firewall.json
