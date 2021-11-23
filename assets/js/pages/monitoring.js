@@ -4,6 +4,8 @@ let timeValues = [], downValues = [], upValues = [], cpuValues = [], ramValues =
 let canvasDown, canvasUp, canvasCpu, canvasRam;
 let points = {};
 
+let tooltip = document.getElementById("tooltip");
+
 window["monitoring"] = () => {
     canvasDown = document.getElementById("download");
     canvasUp = document.getElementById("upload");
@@ -36,12 +38,13 @@ window["monitoring"] = () => {
     }
 
     canvasDown.onmouseout = canvasUp.onmouseout = canvasCpu.onmouseout = canvasRam.onmouseout = function () {
-        let tooltip = document.getElementById("tooltip");
-
         setTimeout(function () {
             if (currentHover !== tooltip) tooltip.style.display = "none";
         }, 0);
+    }
 
+    canvasDown.parentNode.onscroll = canvasUp.parentNode.onscroll = canvasCpu.parentNode.onscroll = canvasRam.parentNode.onscroll = function () {
+        tooltip.style.display = "none";
     }
 }
 
@@ -266,9 +269,11 @@ function showTooltip(object, e) {
         let pointX = point[0], pointY = point[1];
 
         if ((e.offsetY - 3 < pointY && e.offsetY + 3 > pointY) && (e.offsetX - 3 < pointX && e.offsetX + 3 > pointX)) {
-            let tooltip = document.getElementById("tooltip");
-            tooltip.style.top = mouseY - 100 + window.scrollY + "px";
-            tooltip.style.left = mouseX + "px";
+            let content = document.getElementById("content");
+            let contentRect = content.getBoundingClientRect();
+
+            tooltip.style.top = mouseY - contentRect.top + 10 + "px";
+            tooltip.style.left = mouseX - contentRect.left + 10 + "px";
             tooltip.style.display = "initial";
 
             tooltip.innerText = points[object.id][objectID]["value"] + " " + points[object.id][objectID]["measurement"];
