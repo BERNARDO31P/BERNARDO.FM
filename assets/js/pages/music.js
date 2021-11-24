@@ -19,8 +19,7 @@ window["music"] = () => {
     volumeSlider.value = volume * 100;
     setVolumeIcon(volumeIcon, volumeSlider);
 
-    for (let i = 0; i < objects.length; i++) {
-        let object = objects[i];
+    for (let object of objects) {
         let data = tryParseJSON(httpGet(object.getAttribute("data-url") + "?search=" + search.value));
 
         if (view === "") view = "grid";
@@ -237,9 +236,7 @@ window["music"] = () => {
 
         let id = Number(this.closest(".controlsQueue").getAttribute("data-id"));
 
-        for (let key in playlist) {
-            let value = playlist[key];
-
+        for (let [key, value] of Object.entries(playlist)) {
             if (value["id"] === id) playIndex = key;
         }
 
@@ -536,8 +533,8 @@ function generateListView(data) {
         removeControls("controlsQueue");
     };
 
-    for (let category in data) {
-        let songs = data[category], row = document.createElement("tr");
+    for (let [category, songs] of Object.entries(data)) {
+        let row = document.createElement("tr");
         row.innerHTML = "<td colspan='4'>" + category + "</td>";
 
         tbody.appendChild(row);
@@ -559,8 +556,8 @@ function generateListView(data) {
  * Generiert eine Tabelle aus den Daten (Table body)
  */
 function generateListViewBody(data, tbody) {
-    for (let j = 0; j < Object.keys(data).length; j++) {
-        let song = data[j], row = document.createElement("tr");
+    for (let song of data) {
+        let row = document.createElement("tr");
         row.setAttribute("data-id", song["id"]);
 
         if (typeof song["playlist"] === 'undefined') {
@@ -630,9 +627,9 @@ function generateListViewHead(columns) {
     columns = columns.slice(1, 5);
 
     let row = document.createElement("tr");
-    for (let j = 0; j < columns.length; j++) {
+    for (let column of columns) {
         let th = document.createElement("th");
-        th.innerText = ucFirst(columns[j]);
+        th.innerText = ucFirst(column);
         row.appendChild(th);
     }
     thead.appendChild(row);

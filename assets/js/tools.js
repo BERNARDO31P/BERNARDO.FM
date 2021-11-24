@@ -184,8 +184,8 @@ function dataIncludeReplace(object) {
     let elementsReplace = object.querySelectorAll('[data-replace]');
 
 
-    for (let i = 0, len = elementsInclude.length; i < len; i++) {
-        let url = elementsInclude[i].getAttribute("data-include");
+    for (let elementInclude of elementsInclude) {
+        let url = elementInclude.getAttribute("data-include");
         let data = htmlToElement(httpGet(url));
 
         let dataElementsInclude = data.querySelectorAll('[data-include]');
@@ -194,12 +194,12 @@ function dataIncludeReplace(object) {
             dataIncludeReplace(data);
         }
 
-        elementsInclude[i].innerHTML = data.body.innerHTML;
-        elementsInclude[i].removeAttribute("data-include");
+        elementInclude.innerHTML = data.body.innerHTML;
+        elementInclude.removeAttribute("data-include");
     }
 
-    for (let i = 0, len = elementsReplace.length; i < len; i++) {
-        let url = elementsReplace[i].getAttribute("data-replace");
+    for (let elementReplace of elementsReplace) {
+        let url = elementReplace.getAttribute("data-replace");
         let data = htmlToElement(httpGet(url));
 
         let dataElementsInclude = data.querySelectorAll('[data-include]');
@@ -208,7 +208,7 @@ function dataIncludeReplace(object) {
             dataIncludeReplace(data);
         }
 
-        elementsReplace[i].outerHTML = data.body.innerHTML;
+        elementReplace.outerHTML = data.body.innerHTML;
     }
 }
 
@@ -248,8 +248,7 @@ function showNotification(message, time) {
     let content = document.getElementById("content");
 
     let notifications = document.getElementsByClassName("notification");
-    for (let i = 0; i < notifications.length; i++) {
-        let notification = notifications[i];
+    for (let notification of notifications) {
         let notificationStyle = window.getComputedStyle(notification);
         let notificationPosition = notification.getBoundingClientRect();
 
@@ -422,7 +421,7 @@ function setCookie(name, value, expiresAt = "") {
  * Modifiziert eine Zeichenkette, sodass diese mit einem Grossbuchstaben beginnt
  */
 function ucFirst(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+    return String(string).charAt(0).toUpperCase() + string.slice(1);
 }
 
 /*
@@ -456,9 +455,7 @@ function createControls(elementClass, actions) {
     let controls = document.createElement("div");
     controls.classList.add(elementClass);
 
-    for (let key in actions) {
-        let action = actions[key];
-
+    for (let action of actions) {
         let icon;
         switch (action) {
             case "play":
@@ -500,10 +497,8 @@ function createControls(elementClass, actions) {
 function removeControls(elementClass) {
     let controls = document.getElementsByClassName(elementClass);
 
-    if (controls) {
-        for (let i = 0; i < controls.length; i++) {
-            controls[i].remove();
-        }
+    for (let control of controls) {
+        control.remove();
     }
 }
 
@@ -749,9 +744,8 @@ function resetSong(index) {
     playlist[index]["player"].stop();
     playlist[index]["player"].gotoTrack(0);
 
-    for (let key in partlist[index]) {
-        let value = partlist[index][key];
-        playlist[index]["player"].playlist.sources[value].setPosition(0);
+    for (let part of partlist[index]) {
+        playlist[index]["player"].playlist.sources[part].setPosition(0);
     }
 }
 

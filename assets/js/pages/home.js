@@ -3,19 +3,17 @@ if (typeof window["home"] !== 'undefined') throw new Error("Dieses Skript wurde 
 window["home"] = () => {
     let objects = document.querySelectorAll("[data-url]");
 
-    for (let i = 0; i < objects.length; i++) {
-        let object = objects[i];
+    for (let object of objects) {
         let data = tryParseJSON(httpGet(object.getAttribute("data-url")));
 
         if (data) {
             data = Array.prototype.concat(data["greeting"], data["changelog"]);
-            for (let j = 0; j < data.length; j++) {
+
+            for (let [key, quote] of Object.entries(data)){
+            //for (let j = 0; j < data.length; j++) {
                 let html = "";
 
-                if (j !== 0)
-                    html += "<div class='divider'></div>";
-
-                let quote = data[j];
+                if (Number(key) !== 0) html += "<div class='divider'></div>";
 
                 html += "<div class='blockquote'>";
                 html += "<h2>" + quote["title"] + "</h2>";
@@ -63,8 +61,8 @@ window["home"] = () => {
             details.classList.remove("show");
         } else {
             let elements = document.querySelectorAll(".details.show");
-            for (let i = 0; i < elements.length; i++) {
-                elements[i].classList.remove("show");
+            for (let element of elements) {
+                element.classList.remove("show");
             }
 
             this.innerText = "Show less";

@@ -25,8 +25,8 @@ function loadPage() {
 
     if (typeof window[page] === 'undefined') {
         let scripts = data.getElementsByTagName("script");
-        for (let i = 0; i < scripts.length; i++) {
-            getScript(scripts[i].src);
+        for (let script of scripts) {
+            getScript(script.src);
         }
     }
 
