@@ -152,6 +152,21 @@ function htmlToElement(html) {
 }
 
 /*
+ * Funktion: setActiveNavbar()
+ * Autor: Bernardo de Oliveira
+ *
+ * Entfernt alle aktiven Menüpunkte
+ * Setzt den korrekten Menüpunkt auf aktiv
+ */
+function setActiveNavbar() {
+    document.querySelectorAll("#navigation li.active").forEach(function (element) {
+        element.classList.remove("active");
+    });
+
+    document.querySelector("[data-page='" + page + "']").parentElement.classList.add("active");
+}
+
+/*
  * Funktion: dataIncludeReplace()
  * Autor: Bernardo de Oliveira
  * Argumente:

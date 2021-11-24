@@ -135,6 +135,7 @@ bindEvent("click", "[data-page]", function (e) {
     prevPage = undefined;
     window.location.href = "#!page=" + page;
     loadPage();
+    setActiveNavbar();
 });
 
 /*
@@ -426,3 +427,4 @@ page = getPage();
 window.location.href = "#!page=" + page;
 loadPage();
 dataIncludeReplace(document.body);
+setActiveNavbar();

@@ -160,10 +160,23 @@ body {
     cursor: default;
   }
 
+  #navigation {
+    color: var(--text-color);
+
+    li {
+      transition: 0.2s;
+    }
+
+    li.active {
+      color: var(--text-color-title);
+    }
+  }
+
   #navbar-toggler, #theme-toggler {
     box-shadow: -2px -2px 4px var(--shadow-light), 2px 2px 4px var(--shadow-dark);
     border-radius: 25px;
     transition: 0.2s;
+    color: var(--text-color-title);
 
     &:hover {
       box-shadow: -2px -2px 5px var(--shadow-light), 2px 2px 5px var(--shadow-dark);
