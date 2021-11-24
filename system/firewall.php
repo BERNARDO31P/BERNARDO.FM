@@ -193,5 +193,5 @@ while (sleep(2) !== null) {
     sort_recursive($data);
     $data = structureArray($data);
 
-    file_put_contents(__DIR__ . "/../db/firewall.json", json_encode($data));
+    file_put_contents(__DIR__ . "/../db/firewall.json", json_encode(array_filter($data)));
 }
