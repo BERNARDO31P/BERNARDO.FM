@@ -49,7 +49,7 @@ window["music"] = () => {
 
             if (view === "list") {
                 document.getElementsByClassName("fa-list")[0].classList.add("active");
-                object.parentNode.insertBefore(generateTable(parsed), object);
+                object.parentNode.insertBefore(generateListView(parsed), object);
             } else {
                 document.getElementsByClassName("fa-grip-horizontal")[0].classList.add("active");
 
@@ -331,7 +331,7 @@ window["music"] = () => {
         let queueView = document.getElementById("queueView");
         let queue = queueView.querySelector("#queue");
         queue.innerHTML = "";
-        queue.appendChild(generateTable(playlist, false));
+        queue.appendChild(generateListView(playlist, false));
 
         play();
     });
@@ -500,34 +500,34 @@ function downloadPart(time) {
  */
 function generateQueue(data) {
     let listView = document.createElement("table");
-    listView.classList.add("listView");
+    listView.classList.add("responsive-table");
 
     let columns = Object.keys(data[0]);
-    let thead = generateTableHead(columns);
+    let thead = generateListViewHead(columns);
     listView.appendChild(thead);
 
     let tbody = document.createElement("tbody");
 
-    generateTableBody(data, tbody);
+    generateListViewBody(data, tbody);
 
     listView.appendChild(tbody);
     return listView;
 }
 
 /*
- * Funktion: generateTable()
+ * Funktion: generateListView()
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  data: (Object) Die Daten, welche verarbeitet werden sollen
  *
  * Generiert eine Tabelle aus den Daten (Table body) und Schlüssel (Table head)
  */
-function generateTable(data) {
+function generateListView(data) {
     let listView = document.createElement("table");
-    listView.classList.add("listView");
+    listView.classList.add("responsive-table");
 
     let columns = Object.keys(data[Object.keys(data)[0]][0]);
-    let thead = generateTableHead(columns);
+    let thead = generateListViewHead(columns);
     listView.appendChild(thead);
 
     let tbody = document.createElement("tbody");
@@ -542,7 +542,7 @@ function generateTable(data) {
 
         tbody.appendChild(row);
 
-        generateTableBody(songs, tbody);
+        generateListViewBody(songs, tbody);
     }
 
     listView.appendChild(tbody);
@@ -550,7 +550,7 @@ function generateTable(data) {
 }
 
 /*
- * Funktion: generateTableBody()
+ * Funktion: generateListViewBody()
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  data: (Object) Die Daten, welche verarbeitet werden sollen
@@ -558,7 +558,7 @@ function generateTable(data) {
  *
  * Generiert eine Tabelle aus den Daten (Table body)
  */
-function generateTableBody(data, tbody) {
+function generateListViewBody(data, tbody) {
     for (let j = 0; j < Object.keys(data).length; j++) {
         let song = data[j], row = document.createElement("tr");
         row.setAttribute("data-id", song["id"]);
@@ -618,14 +618,14 @@ function generateTableBody(data, tbody) {
 }
 
 /*
- * Funktion: generateTableHead()
+ * Funktion: generateListViewHead()
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  columns: (Object) Die Daten, welche verarbeitet werden sollen
  *
  * Generiert eine Tabelle aus den Schlüssel (Table head)
  */
-function generateTableHead(columns) {
+function generateListViewHead(columns) {
     let thead = document.createElement("thead");
     columns = columns.slice(1, 5);
 

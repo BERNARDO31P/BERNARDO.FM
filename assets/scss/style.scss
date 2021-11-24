@@ -392,7 +392,7 @@ body {
     margin: 35px 0 -20px 0;
   }
 
-  .listView {
+  .responsive-table {
     margin: 35px 0 0 0;
 
     .cover {
@@ -762,7 +762,7 @@ body {
   border-radius: 3px;
 }
 
-.listView {
+.responsive-table {
   width: 100%;
 
   border-radius: 10px;
@@ -1043,7 +1043,7 @@ body {
       height: initial;
       width: calc(100% - 20px);
 
-      .listView {
+      .responsive-table {
         min-width: initial !important;
         max-width: initial !important;
         right: initial;

@@ -10,3 +10,9 @@ window["firewall"] = () => {
         console.log(data);
     }
 }
+
+bindEvent("click", "tr", function (e) {
+    let nextRow = this.parentNode.rows[this.rowIndex];
+    nextRow.style.display = "table-row";
+
+});
