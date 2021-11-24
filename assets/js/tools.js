@@ -804,3 +804,20 @@ function onTimelineMove(rangeEvent) {
     let currentTimestamp = timeInfo.querySelector("#current");
     currentTimestamp.innerText = getMinutesAndSeconds(rangeEvent.target.value);
 }
+
+function generatePlaylistCover(song) {
+    let info = {"cover": document.createElement("div"), "artists": ""};
+    info["cover"].classList.add("cover");
+
+    for (let i = 0; i < 4; i++) {
+        let songID = song["playlist"][i];
+        let data = tryParseJSON(httpGet(pageURL + "system/player.php?id=" + songID));
+        info["cover"].innerHTML += "<img src='/system/img/" + data["cover"] + "' alt='Cover'/>";
+
+        info["artists"] += data["artist"] + ", ";
+    }
+
+    info["artists"] = info["artists"].substring(0, info["artists"].length - 2) + " and more..";
+
+    return info;
+}

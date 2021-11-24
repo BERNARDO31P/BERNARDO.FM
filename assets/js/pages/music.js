@@ -84,18 +84,11 @@ window["music"] = () => {
                             card.classList.add("playlistCard");
                             song["playlist"] = song["playlist"].sort((a, b) => 0.5 - Math.random());
 
-                            let artists = "";
-                            for (let i = 0; i < 4; i++) {
-                                let songID = song["playlist"][i];
-                                let data = tryParseJSON(httpGet(pageURL + "system/player.php?id=" + songID));
-                                card.innerHTML += "<img src='/system/img/" + data["cover"] + "' alt='Cover'/>";
+                            let info = generatePlaylistCover(song);
 
-                                artists += data["artist"] + ", ";
-                            }
-                            artists = artists.substring(0, artists.length - 2) + " and more..";
-
+                            card.innerHTML += info["cover"].innerHTML;
                             card.innerHTML += "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
-                                "<span data-title=\"" + artists + "\" class='artist'>" + artists + "</span>";
+                                "<span data-title=\"" + info["artists"] + "\" class='artist'>" + info["artists"] + "</span>";
                         }
 
                         categoryView.appendChild(card);
@@ -583,28 +576,16 @@ function generateListViewBody(data, tbody) {
             row.classList.add("playlist");
             song["playlist"] = song["playlist"].sort((a, b) => 0.5 - Math.random());
 
-            let artists = "", cover = document.createElement("div");
-            cover.classList.add("cover");
-
-            for (let i = 0; i < 4; i++) {
-                let songID = song["playlist"][i];
-                let data = tryParseJSON(httpGet(pageURL + "system/player.php?id=" + songID));
-                cover.innerHTML += "<img src='/system/img/" + data["cover"] + "' alt='Cover'/>";
-
-                artists += data["artist"] + ", ";
-            }
-
-            artists = artists.substring(0, artists.length - 2) + " and more..";
-
+            let info = generatePlaylistCover(song);
             let td = document.createElement("td");
-            td.appendChild(cover)
+            td.appendChild(info["cover"])
             row.appendChild(td);
 
             row.innerHTML += "<td>" + song["name"] + "</td>" +
                 "<td colspan='2'>" +
                 "<div class='truncate'>" +
-                "<div class='content' data-title='" + artists + "'>" + artists + "</div>" +
-                "<div class='spacer'>" + artists + "</div>" +
+                "<div class='content' data-title='" + info["artists"] + "'>" + info["artists"] + "</div>" +
+                "<div class='spacer'>" + info["artists"] + "</div>" +
                 "<span>&nbsp;</span>" +
                 "</div>" +
                 "</td>";

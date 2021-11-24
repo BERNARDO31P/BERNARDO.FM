@@ -3,8 +3,7 @@ if (typeof window["firewall"] !== 'undefined') throw new Error("Dieses Skript wu
 window["firewall"] = () => {
     let objects = document.querySelectorAll("[data-url]");
 
-    for (let i = 0; i < objects.length; i++) {
-        let object = objects[i];
+    for (let object of objects) {
         let data = tryParseJSON(httpGet(object.getAttribute("data-url")));
 
         console.log(data);
