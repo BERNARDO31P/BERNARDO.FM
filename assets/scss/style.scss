@@ -152,6 +152,9 @@ body {
   a {
     cursor: pointer;
     padding: 10px 15px;
+
+    color: var(--text-color);
+    text-decoration: none;
   }
 
   #logo {
@@ -167,7 +170,7 @@ body {
       transition: 0.2s;
     }
 
-    li.active {
+    li.active > a {
       color: var(--text-color-title);
     }
   }

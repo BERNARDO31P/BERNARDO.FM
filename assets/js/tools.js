@@ -620,10 +620,18 @@ function play(diffSong = false) {
         });
         navigator.mediaSession.playbackState = "playing";
 
-        navigator.mediaSession.setActionHandler('play', function() { play() });
-        navigator.mediaSession.setActionHandler('pause', function() { pauseSong() });
-        navigator.mediaSession.setActionHandler('previoustrack', function() { previousSong() });
-        navigator.mediaSession.setActionHandler('nexttrack', function() { nextSong() });
+        navigator.mediaSession.setActionHandler('play', function () {
+            play()
+        });
+        navigator.mediaSession.setActionHandler('pause', function () {
+            pauseSong()
+        });
+        navigator.mediaSession.setActionHandler('previoustrack', function () {
+            previousSong()
+        });
+        navigator.mediaSession.setActionHandler('nexttrack', function () {
+            nextSong()
+        });
     }
 
     secondsInterval = setInterval(function () {
@@ -805,7 +813,19 @@ function onTimelineMove(rangeEvent) {
     currentTimestamp.innerText = getMinutesAndSeconds(rangeEvent.target.value);
 }
 
+// TODO: Comment
+/*
+ * Funktion: generatePlaylistCover()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  song: (Objekt) Die Songs, welche in der Playlist sind
+ *
+ * Generiert ein Cover aus vier Liedern für eine Playlist
+ * Generiert die Künstler für die Playlist
+ */
 function generatePlaylistCover(song) {
+    song["playlist"] = song["playlist"].sort((a, b) => 0.5 - Math.random());
+
     let info = {"cover": document.createElement("div"), "artists": ""};
     info["cover"].classList.add("cover");
 
@@ -820,4 +840,48 @@ function generatePlaylistCover(song) {
     info["artists"] = info["artists"].substring(0, info["artists"].length - 2) + " and more..";
 
     return info;
+}
+
+/*
+ * Funktion: generateTableHead()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  columns: (Objekt) Die Daten, welche verarbeitet werden sollen
+ *
+ * Generiert eine Tabelle aus den Schlüssel (Table head)
+ */
+function generateTableHead(columns) {
+    let thead = document.createElement("thead");
+    let row = document.createElement("tr");
+
+    for (let column of columns) {
+        let th = document.createElement("th");
+        th.innerText = ucFirst(column);
+        row.appendChild(th);
+    }
+    thead.appendChild(row);
+    return thead;
+}
+
+/*
+ * Funktion: removeFromObject()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  object: (Objekt): Das zu bearbeitende Objekt
+ *  toRemove: (Objekt/String): Die Schlüssel die entfernt werden sollen
+ *
+ * Entfernt ein oder mehrere Schlüssel in einem Objekt, rekursiv
+ */
+function removeFromObject(object, toRemove = "") {
+    let cleaned = {};
+
+    for (let [key, value] of Object.entries(object)) {
+        if (typeof value === 'object') {
+            cleaned[key] = removeFromObject(value, toRemove);
+        } else if (key !== toRemove && !toRemove.includes(key)) {
+            cleaned[key] = value;
+        }
+    }
+
+    return cleaned;
 }

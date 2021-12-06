@@ -39,9 +39,7 @@ window["music"] = () => {
         if (data.length > 0) {
             let parsed = {};
 
-            for (let j = 0; j < Object.keys(data).length; j++) {
-                let song = data[j];
-
+            for (let song of data) {
                 if (typeof parsed[song["category"]] === 'undefined') parsed[song["category"]] = [];
                 parsed[song["category"]].push(song);
             }
@@ -82,7 +80,6 @@ window["music"] = () => {
                                 "<span class='length'>" + song["length"] + "</span>";
                         } else {
                             card.classList.add("playlistCard");
-                            song["playlist"] = song["playlist"].sort((a, b) => 0.5 - Math.random());
 
                             let info = generatePlaylistCover(song);
 
@@ -493,7 +490,7 @@ function generateQueue(data) {
     listView.classList.add("responsive-table");
 
     let columns = Object.keys(data[0]);
-    let thead = generateListViewHead(columns);
+    let thead = generateTableHead(columns);
     listView.appendChild(thead);
 
     let tbody = document.createElement("tbody");
@@ -516,8 +513,8 @@ function generateListView(data) {
     let listView = document.createElement("table");
     listView.classList.add("responsive-table");
 
-    let columns = Object.keys(data[Object.keys(data)[0]][0]);
-    let thead = generateListViewHead(columns);
+    let columns = Object.keys(removeFromObject(data[Object.keys(data)[0]][0], ["id", "category"]));
+    let thead = generateTableHead(columns);
     listView.appendChild(thead);
 
     let tbody = document.createElement("tbody");
@@ -574,7 +571,6 @@ function generateListViewBody(data, tbody) {
                 "<td>" + song["length"] + "</td>";
         } else {
             row.classList.add("playlist");
-            song["playlist"] = song["playlist"].sort((a, b) => 0.5 - Math.random());
 
             let info = generatePlaylistCover(song);
             let td = document.createElement("td");
@@ -593,28 +589,6 @@ function generateListViewBody(data, tbody) {
 
         tbody.appendChild(row);
     }
-}
-
-/*
- * Funktion: generateListViewHead()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  columns: (Object) Die Daten, welche verarbeitet werden sollen
- *
- * Generiert eine Tabelle aus den Schlüssel (Table head)
- */
-function generateListViewHead(columns) {
-    let thead = document.createElement("thead");
-    columns = columns.slice(1, 5);
-
-    let row = document.createElement("tr");
-    for (let column of columns) {
-        let th = document.createElement("th");
-        th.innerText = ucFirst(column);
-        row.appendChild(th);
-    }
-    thead.appendChild(row);
-    return thead;
 }
 
 /*

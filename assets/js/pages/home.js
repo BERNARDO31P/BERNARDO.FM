@@ -9,8 +9,7 @@ window["home"] = () => {
         if (data) {
             data = Array.prototype.concat(data["greeting"], data["changelog"]);
 
-            for (let [key, quote] of Object.entries(data)){
-            //for (let j = 0; j < data.length; j++) {
+            for (let [key, quote] of Object.entries(Object(data))) {
                 let html = "";
 
                 if (Number(key) !== 0) html += "<div class='divider'></div>";

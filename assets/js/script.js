@@ -119,6 +119,8 @@ window.addEventListener("resize", function () {
  * Sobald eine neue Unterseite angedrückt wird, wird diese in die URL eingefügt
  */
 bindEvent("click", "[data-page]", function (e) {
+    e.preventDefault();
+
     let navigation = document.querySelector("#navigation");
     if (navigation.classList.contains("show"))
         navigation.classList.remove("show");
