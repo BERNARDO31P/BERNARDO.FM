@@ -268,6 +268,35 @@ body {
     }
   }
 
+  .responsive-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    position: relative;
+    padding: 2px;
+
+    .responsive-table {
+      margin: 0;
+    }
+
+    .comment > td {
+      height: auto !important;
+      line-height: unset;
+
+      & > div {
+        transition: all 1s ease-in-out;
+
+        max-height: 0;
+        opacity: 0;
+      }
+    }
+
+    .comment.show > td > div {
+      max-height: 500px;
+      opacity: 1;
+    }
+  }
+
   .info span {
     color: var(--text-color);
   }
@@ -880,11 +909,14 @@ body {
 
     margin: 5px 0 0 0;
     padding: 0 20px;
+    opacity: 0;
 
     &.show {
       padding: 20px;
       margin: 20px 0 0 0;
       max-height: 1000px;
+
+      opacity: 1;
     }
   }
 
@@ -904,6 +936,10 @@ body {
       color: #4f8eff;
     }
   }
+}
+
+.csr-pointer {
+  cursor: pointer;
 }
 
 .divider {

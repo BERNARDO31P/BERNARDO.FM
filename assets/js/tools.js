@@ -586,7 +586,7 @@ function play(diffSong = false) {
         let songLength = document.getElementById("timeInfo").querySelector("#length");
         let cover = document.getElementById("queueView").querySelector("#playingCover").querySelector("img");
 
-        cover.src = "/system/img/" + song["cover"];
+        cover.src = song["cover"]["url"];
         songLength.innerText = song["length"];
         player.querySelector("#timeline").max = length;
 
@@ -615,7 +615,7 @@ function play(diffSong = false) {
             title: song["name"],
             artist: song["artist"],
             artwork: [
-                {src: "/system/img/" + song["cover"], type: 'image/png'},
+                {src: song["cover"]["url"], type: 'image/png'},
             ]
         });
         navigator.mediaSession.playbackState = "playing";
@@ -813,7 +813,6 @@ function onTimelineMove(rangeEvent) {
     currentTimestamp.innerText = getMinutesAndSeconds(rangeEvent.target.value);
 }
 
-// TODO: Comment
 /*
  * Funktion: generatePlaylistCover()
  * Autor: Bernardo de Oliveira
@@ -832,7 +831,7 @@ function generatePlaylistCover(song) {
     for (let i = 0; i < 4; i++) {
         let songID = song["playlist"][i];
         let data = tryParseJSON(httpGet(pageURL + "system/player.php?id=" + songID));
-        info["cover"].innerHTML += "<img src='/system/img/" + data["cover"] + "' alt='Cover'/>";
+        info["cover"].innerHTML += "<img src='" + data["cover"]["url"] + "' alt='Cover'/>";
 
         info["artists"] += data["artist"] + ", ";
     }
@@ -864,6 +863,72 @@ function generateTableHead(columns) {
 }
 
 /*
+ * Funktion: generateTableBody()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  data: (Objekt) Die Daten, welche verarbeitet werden sollen
+ *  columns: (Array) Definiert die Spalten der Tabelle
+ *  tbody: (Objekt) Definiert den Table Body
+ *
+ * Erstellt einen Table Body, wenn keiner mitgesendet wird
+ * Generiert die Tabellenzeilen aus den Daten
+ */
+function generateTableBody(data, columns, tbody = null) {
+    if (!tbody) tbody = document.createElement("tbody");
+
+    for (let row of data) {
+        let tableRow = document.createElement("tr");
+        if (typeof row["id"] !== 'undefined') tableRow.setAttribute("data-id", row["id"]);
+        row = removeFromObject(row, ["id", "category", "player"]);
+
+        generateTableRow(row, tableRow, columns);
+
+        tbody.appendChild(tableRow);
+    }
+
+    return tbody;
+}
+
+// TODO: Comment
+function generateTableRow(rowData, tableRow, columns) {
+    if (typeof rowData["playlist"] === 'undefined') {
+        for (let column of columns) {
+            column = column.toLowerCase();
+
+            let element = rowData[column];
+            if (typeof element !== 'undefined') {
+                if (typeof element === 'object' && element["html"] === "img") {
+                    tableRow.innerHTML += "<td><img src='" + element["url"] + "' alt='Cover'/></td>";
+                    delete rowData["cover"];
+                } else {
+                    tableRow.innerHTML += "<td>" +
+                        "<div class='truncate'>" +
+                        "<div class='content' data-title='" + element + "'>" + element + "</div>" +
+                        "<div class='spacer'>" + element + "</div>" +
+                        "<span>&nbsp;</span>" +
+                        "</div>" +
+                        "</td>";
+                }
+            } else tableRow.innerHTML += "<td></td>";
+        }
+    } else {
+        let info = generatePlaylistCover(rowData);
+        let td = document.createElement("td");
+        td.appendChild(info["cover"])
+        tableRow.appendChild(td);
+
+        tableRow.innerHTML += "<td>" + rowData["name"] + "</td>" +
+            "<td colspan='2'>" +
+            "<div class='truncate'>" +
+            "<div class='content' data-title='" + info["artists"] + "'>" + info["artists"] + "</div>" +
+            "<div class='spacer'>" + info["artists"] + "</div>" +
+            "<span>&nbsp;</span>" +
+            "</div>" +
+            "</td>";
+    }
+}
+
+/*
  * Funktion: removeFromObject()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -873,15 +938,76 @@ function generateTableHead(columns) {
  * Entfernt ein oder mehrere Schlüssel in einem Objekt, rekursiv
  */
 function removeFromObject(object, toRemove = "") {
-    let cleaned = {};
+    let cleaned;
 
-    for (let [key, value] of Object.entries(object)) {
-        if (typeof value === 'object') {
-            cleaned[key] = removeFromObject(value, toRemove);
-        } else if (key !== toRemove && !toRemove.includes(key)) {
-            cleaned[key] = value;
+    if (object instanceof Object && object instanceof Array) {
+        cleaned = [];
+
+        for (let value of object) {
+            if (value !== toRemove && !toRemove.includes(value)) cleaned.push(value);
+        }
+    } else {
+        cleaned = {};
+
+        for (let [key, value] of Object.entries(object)) {
+
+            if (key !== toRemove && !toRemove.includes(key)) {
+                if (typeof value === 'object') {
+                    cleaned[key] = removeFromObject(Object.assign({}, value), toRemove);
+                } else {
+                    if (!isNum(key)) cleaned[key] = value;
+                    else {
+                        if (!Array.isArray(cleaned)) cleaned = [];
+                        cleaned.push(value);
+                    }
+                }
+            }
         }
     }
 
     return cleaned;
+}
+
+/*
+ * Funktion: isNum()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  val: (String) Definiert die Zeichenkette welche überprüft werden soll
+ *
+ * isNaN überprüft ob eine Zeichenkette keine Zahl ist
+ * Falls es keine ist, wird TRUE zurückgegeben
+ * Falls es eine ist, wird FALSE zurückgegeben
+ *
+ * Durch das Ausrufezeichen vor dem Return negiert die Ausgabe, somit ist eine Zahl TRUE und keine FALSE
+ */
+function isNum(val) {
+    return !isNaN(val);
+}
+
+/*
+ * Funktion: getColumns()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  data: (Objekt) Definiert die assoziativen Daten
+ *  level: (Integer) Definiert wie weit gesucht werden soll (Rekursion)
+ *  start: (Integer) Definiert die Ebene in welcher beginnt wird
+ *
+ * Holt die Objekt-Schlüssel aus der angegebenen Ebene
+ * Speichert die Schlüssel, welche die grösste Länge haben (am meisten Spalten)
+ * Gibt diese zurück
+ */
+function getColumns(data, level = 0, start = 0) {
+    let columns = [];
+
+    for (let value of Object.values(data)) {
+        if (typeof value === 'object' && start < level) {
+            let tempColumns = getColumns(value, level, start + 1);
+
+            if (tempColumns.length > columns.length) columns = tempColumns;
+        }
+
+        if (start >= level) return Object.keys(data);
+    }
+
+    return columns;
 }

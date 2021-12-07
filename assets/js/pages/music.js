@@ -74,7 +74,7 @@ window["music"] = () => {
 
                         if (typeof song["playlist"] === 'undefined') {
                             card.classList.add("songCard");
-                            card.innerHTML = "<img src='/system/img/" + song["cover"] + "' alt='Cover'/>" +
+                            card.innerHTML = "<img src='" + song["cover"]["url"] + "' alt='Cover'/>" +
                                 "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
                                 "<span data-title=\"" + song["artist"] + "\" class='artist'>" + song["artist"] + "</span>" +
                                 "<span class='length'>" + song["length"] + "</span>";
@@ -489,15 +489,10 @@ function generateQueue(data) {
     let listView = document.createElement("table");
     listView.classList.add("responsive-table");
 
-    let columns = Object.keys(data[0]);
-    let thead = generateTableHead(columns);
-    listView.appendChild(thead);
+    let columns = Object.keys(removeFromObject(data[0], ["id", "category", "player"]));
+    listView.appendChild(generateTableHead(columns));
+    listView.appendChild(generateTableBody(data, columns));
 
-    let tbody = document.createElement("tbody");
-
-    generateListViewBody(data, tbody);
-
-    listView.appendChild(tbody);
     return listView;
 }
 
@@ -513,12 +508,12 @@ function generateListView(data) {
     let listView = document.createElement("table");
     listView.classList.add("responsive-table");
 
-    let columns = Object.keys(removeFromObject(data[Object.keys(data)[0]][0], ["id", "category"]));
-    let thead = generateTableHead(columns);
-    listView.appendChild(thead);
+    let columns = getColumns(data, 2);
+    columns = removeFromObject(columns, ["id", "category"]);
+
+    listView.appendChild(generateTableHead(columns));
 
     let tbody = document.createElement("tbody");
-
     tbody.onscroll = () => {
         removeControls("controlsQueue");
     };
@@ -528,67 +523,11 @@ function generateListView(data) {
         row.innerHTML = "<td colspan='4'>" + category + "</td>";
 
         tbody.appendChild(row);
-
-        generateListViewBody(songs, tbody);
+        tbody = generateTableBody(songs, columns, tbody);
     }
 
     listView.appendChild(tbody);
     return listView;
-}
-
-/*
- * Funktion: generateListViewBody()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  data: (Object) Die Daten, welche verarbeitet werden sollen
- *  tbody: (Object) Definiert den Tablebody
- *
- * Generiert eine Tabelle aus den Daten (Table body)
- */
-function generateListViewBody(data, tbody) {
-    for (let song of data) {
-        let row = document.createElement("tr");
-        row.setAttribute("data-id", song["id"]);
-
-        if (typeof song["playlist"] === 'undefined') {
-            row.classList.add("song");
-            row.innerHTML = "<td><img src='/system/img/" + song["cover"] + "' alt='Cover'/></td>" +
-                "<td>" +
-                "<div class='truncate'>" +
-                "<div class='content' data-title='" + song["name"] + "'>" + song["name"] + "</div>" +
-                "<div class='spacer'>" + song["name"] + "</div>" +
-                "<span>&nbsp;</span>" +
-                "</div>" +
-                "</td>" +
-
-                "<td>" +
-                "<div class='truncate'>" +
-                "<div class='content' data-title='" + song["artist"] + "'>" + song["artist"] + "</div>" +
-                "<div class='spacer'>" + song["artist"] + "</div>" +
-                "<span>&nbsp;</span>" +
-                "</div>" +
-                "</td>" +
-                "<td>" + song["length"] + "</td>";
-        } else {
-            row.classList.add("playlist");
-
-            let info = generatePlaylistCover(song);
-            let td = document.createElement("td");
-            td.appendChild(info["cover"])
-            row.appendChild(td);
-
-            row.innerHTML += "<td>" + song["name"] + "</td>" +
-                "<td colspan='2'>" +
-                "<div class='truncate'>" +
-                "<div class='content' data-title='" + info["artists"] + "'>" + info["artists"] + "</div>" +
-                "<div class='spacer'>" + info["artists"] + "</div>" +
-                "<span>&nbsp;</span>" +
-                "</div>" +
-                "</td>";
-        }
-
-        tbody.appendChild(row);
-    }
 }
 
 /*
@@ -603,8 +542,8 @@ function showControlsCard(card) {
         removeControls("controlsContent");
         if (card.classList.contains("songCard"))
             controls = createControls("controlsContent", ["play", "add"]);
-         else
-             controls = createControls("controlsContent", ["play"]);
+        else
+            controls = createControls("controlsContent", ["play"]);
 
         controls.setAttribute("data-id", card.getAttribute("data-id"));
         controls.style.bottom = "0";

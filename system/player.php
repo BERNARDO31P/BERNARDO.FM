@@ -10,9 +10,20 @@ function recursive_unset(&$array, $unwanted_key)
 {
 	unset($array[$unwanted_key]);
 	foreach ($array as &$value) {
-		if (is_array($value))
-			recursive_unset($value, $unwanted_key);
+		if (is_array($value)) recursive_unset($value, $unwanted_key);
 	}
+}
+
+function recursive_prepend(&$array, $key, $data)
+{
+    foreach ($array as $arrKey => &$value) {
+        if (is_array($value)) recursive_prepend($value, $key, $data);
+        else {
+            if ($arrKey === $key) {
+                $value = $data . $value;
+            }
+        }
+    }
 }
 
 function search_songs($search): array
@@ -75,16 +86,21 @@ if (isset($_GET["id"])) {
                 $playlist[] = search_song($songID);
             }
             recursive_unset($playlist, "fileName");
+            recursive_prepend($playlist, "url", "system/img/");
+
             shuffle($playlist);
             echo json_encode($playlist);
         } else {
             recursive_unset($song, "fileName");
+            recursive_prepend($song, "url", "system/img/");
+
             echo json_encode($song);
         }
     }
 } else {
     header('Content-Type: application/json');
 	recursive_unset($db, "fileName");
+    recursive_prepend($db, "url", "system/img/");
 
 	if (isset($_GET["search"]) && $_GET["search"] !== "")
 		echo json_encode(search_songs($_GET["search"]));
