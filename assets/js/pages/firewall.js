@@ -6,9 +6,9 @@ window["firewall"] = () => {
     let objects = document.querySelectorAll("[data-url]");
 
     generateFirewall(objects);
-    backgroundProcesses[0] = setInterval(function () {
+    /*backgroundProcesses[0] = setInterval(function () {
         generateFirewall(objects);
-    }, 2000);
+    }, 2000);*/
 
 }
 

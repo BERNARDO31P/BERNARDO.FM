@@ -1,24 +1,10 @@
 <?php
-
-/*
- * Funktion: myFilter()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  var: (Objekt) Definiert das zu überprüfende Element
- *
- * Eigener Filter für array_filter
- * Überprüft, ob das Element leer ist
- */
-function myFilter($var): bool
-{
-    return ($var !== NULL && $var !== FALSE && $var !== '');
-}
-
 /*
  * Funktion: special_split()
  * Autor: Bernardo de Oliveira & lonesomeday (https://stackoverflow.com/a/4538153)
  * Argumente:
  *  string: (String) Definiert den Text, welcher geteilt werden soll
+ *  columns: (String) Definiert den Spaltentext
  *
  * Da str_split() keine Zusammenhänge erkennt und nur ein Zeichen beachtet, wurde diese Funktion programmiert
  * Funktioniert wie str_split(), teilt bei jedem Leerzeichen, beachtet aber zusammenhängende Zeichen
@@ -31,7 +17,6 @@ function special_split($string, $columns): array
     $ret = array("");
     $cur = 0;
     $found = false;
-    $comment = false;
 
     for ($i = 0; $i < strlen($string); $i++) {
         switch ($string[$i]) {
@@ -126,7 +111,7 @@ function clearArray($array, $columns = ""): array
  * Argumente:
  *  array: (Array) Definiert das Array welches sortiert werden soll
  *
- * Definiert die Array-Schlüssel neu, wenn diese aus Zahlen bestehen
+ * Definiert die Array-Schlüssel neu, wenn diese aus Zahlen bestehen, damit keine Lücken vorhanden sind
  */
 function sort_recursive(&$array)
 {
@@ -174,13 +159,6 @@ function structureArray($array): array
                     continue;
                 }
 
-                /*preg_match("/(?<=Chain)(.*)(?=\(policy)/", $rule[0], $matches);
-                if (!empty($matches)) {
-                    $chain = $matches[0];
-                    unset($value[$ruleID]);
-                    continue;
-                }*/
-
                 if ($rule[0] === "pkts") {
                     $keys = $rule;
                     unset($value[$ruleID]);
@@ -201,6 +179,11 @@ function structureArray($array): array
                 if (count($removed)) {
                     foreach ($removed as $column) {
                         $matches = array();
+                        if (preg_match('(dpt:)', $column, $matches)) {
+                            array_push($extraKeys, "destination port");
+                            array_push($rule, (int) filter_var($column, FILTER_SANITIZE_NUMBER_INT));
+                        }
+
                         if (preg_match('(NEW|RELATED|ESTABLISHED)', $column, $matches)) {
                             array_push($extraKeys, "state");
                             array_push($rule, $column);
