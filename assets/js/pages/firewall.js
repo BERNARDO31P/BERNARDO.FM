@@ -6,9 +6,9 @@ window["firewall"] = () => {
     let objects = document.querySelectorAll("[data-url]");
 
     generateFirewall(objects);
-    /*backgroundProcesses[0] = setInterval(function () {
+    backgroundProcesses[0] = setInterval(function () {
         generateFirewall(objects);
-    }, 2000);*/
+    }, 2000);
 
 }
 
@@ -64,10 +64,23 @@ function generateFirewall(objects) {
             }
         }
 
+        let comments = {};
         let oldContainers = object.querySelectorAll(".responsive-container");
         let i = 0;
         for (let oldContainer of Object.values(oldContainers)) {
             if (oldContainer.scrollLeft) toScroll[i] = oldContainer.scrollLeft;
+
+            let commentElements = oldContainer.querySelectorAll(".comment");
+
+            let j = 0;
+            for (let commentElement of Object.values(commentElements)) {
+                if (commentElement.classList.contains("show")) {
+                    if (typeof comments[i] === 'undefined') comments[i] = [];
+                    comments[i].push(j);
+                }
+
+                j++;
+            }
 
             i++;
         }
@@ -78,6 +91,20 @@ function generateFirewall(objects) {
         let newContainers = object.querySelectorAll(".responsive-container");
         for (let [key, value] of Object.entries(toScroll)) {
             newContainers[key].scrollLeft = value;
+        }
+
+        i = 0;
+        for (let newContainer of Object.values(newContainers)) {
+            let commentElements = newContainer.querySelectorAll(".comment");
+
+            let j = 0;
+            for (let commentElement of Object.values(commentElements)) {
+                if (typeof comments[i] !== 'undefined' && comments[i].includes(j)) {
+                    commentElement.classList.add("show");
+                }
+                j++;
+            }
+            i++;
         }
     }
 }
