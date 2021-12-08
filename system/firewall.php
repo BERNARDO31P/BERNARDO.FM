@@ -15,7 +15,7 @@ function myFilter($var): bool
 }
 
 /*
- * Funktion: specialSplit()
+ * Funktion: special_split()
  * Autor: Bernardo de Oliveira & lonesomeday (https://stackoverflow.com/a/4538153)
  * Argumente:
  *  string: (String) Definiert den Text, welcher geteilt werden soll
@@ -24,17 +24,24 @@ function myFilter($var): bool
  * Funktioniert wie str_split(), teilt bei jedem Leerzeichen, beachtet aber zusammenhängende Zeichen
  * Teilt nicht, wenn die Zeichenfolge sich zwischen Klammern () oder zwischen \/**\/ befindet (ohne \).
  */
-function specialSplit($string): array
+function special_split($string, $columns): array
 {
+    $column = (strpos(strtolower($string), 'pkts') !== false || strpos(strtolower($string), 'chain') !== false);
     $level = 0;
-    $ret = array('');
+    $ret = array("");
     $cur = 0;
+    $found = false;
+    $comment = false;
 
     for ($i = 0; $i < strlen($string); $i++) {
         switch ($string[$i]) {
             case "/":
-                if (isset($string[$i + 1]) && $string[$i + 1] === "*") $level++;
-                elseif (isset($string[$i - 1]) && $string[$i - 1] === "*") $level--;
+                if (isset($string[$i + 1]) && $string[$i + 1] === "*") {
+                    $level++;
+                } elseif (isset($string[$i - 1]) && $string[$i - 1] === "*") {
+                    $comment = false;
+                    $level--;
+                }
 
                 $ret[$cur] .= "/";
                 break;
@@ -47,12 +54,39 @@ function specialSplit($string): array
                 $ret[$cur] .= ')';
                 break;
             case ' ':
-                if ($level == 0) {
-                    $cur++;
-                    $ret[$cur] = '';
-                    break;
+                if (!$level) {
+                    if (!$column) {
+                        if ($i) {
+                            if ($string[$i - 1] !== " ") {
+                                $found = true;
+                                $cur++;
+                                $ret[$cur] = "";
+                                break;
+                            }
+
+                            if (isset($columns[$i]) && $columns[$i] !== " ") {
+                                $found = false;
+                                break;
+                            } elseif (isset($columns[$i]) && $columns[$i] === " " && !$found) {
+                                $found = true;
+                                $cur++;
+                                $ret[$cur] = "";
+                                break;
+                            }
+                        }
+                    } else {
+                        if (!$found && $i) {
+                            $found = true;
+                            $cur++;
+                            $ret[$cur] = "";
+                            break;
+                        }
+                    }
                 }
+            case '\t':
+                if (!$level) break;
             default:
+                $found = false;
                 $ret[$cur] .= $string[$i];
         }
     }
@@ -68,13 +102,18 @@ function specialSplit($string): array
  *
  * Entfernt rekursiv alle leeren Elemente aus dem Array
  */
-function clearArray($array): array
+function clearArray($array, $columns = ""): array
 {
+    $array = array_filter($array);
     foreach ($array as $arrID => $value) {
         if (is_array($value)) {
-            $array[$arrID] = clearArray($value);
+            $array[$arrID] = clearArray($value, $columns);
         } else {
-            $array[$arrID] = array_filter(specialSplit($value), 'myFilter');
+            $array[$arrID] = special_split($value, $columns);
+            if (strpos(strtolower($value), 'pkts') !== false) {
+                $columns = $value;
+                $array[$arrID] = array_filter($array[$arrID]);
+            }
         }
 
     }
@@ -89,13 +128,14 @@ function clearArray($array): array
  *
  * Definiert die Array-Schlüssel neu, wenn diese aus Zahlen bestehen
  */
-function sort_recursive(&$array) {
+function sort_recursive(&$array)
+{
     foreach ($array as &$value) {
         if (is_array($value)) sort_recursive($value);
     }
     unset($value);
 
-    if (array_filter(array_keys($array), "is_int"))  {
+    if (array_filter(array_keys($array), "is_int")) {
         $i = 0;
         $sorted = array();
 
@@ -126,11 +166,20 @@ function structureArray($array): array
     foreach ($array as $arrID => &$value) {
         if (!is_int($arrID) && is_array($value)) {
             foreach ($value as $ruleID => $rule) {
+
+
                 if (strtolower($rule[0]) === "chain") {
                     $chain = $rule[1];
                     unset($value[$ruleID]);
                     continue;
                 }
+
+                /*preg_match("/(?<=Chain)(.*)(?=\(policy)/", $rule[0], $matches);
+                if (!empty($matches)) {
+                    $chain = $matches[0];
+                    unset($value[$ruleID]);
+                    continue;
+                }*/
 
                 if ($rule[0] === "pkts") {
                     $keys = $rule;
@@ -140,8 +189,12 @@ function structureArray($array): array
 
                 $removed = array();
                 if (count($keys) !== count($rule)) {
-                    $removed = array_chunk($rule, count($keys), true)[1];
-                    $rule = array_slice($rule, 0, count($keys));
+                    $chunk = array_chunk($rule, count($keys), true);
+                    if (isset($chunk[1])) {
+                        $removed = $chunk[1];
+                        $rule = array_slice($rule, 0, count($keys));
+                    }
+
                 }
 
                 $extraKeys = array();
@@ -160,7 +213,9 @@ function structureArray($array): array
                     }
                 }
 
-                $value[$chain][] = array_combine(array_merge($keys, $extraKeys), $rule);
+                if (count($rule) === count(array_merge($keys, $extraKeys))) {
+                    $value[$chain][] = array_combine(array_merge($keys, $extraKeys), $rule);
+                }
                 unset($value[$ruleID]);
             }
         }
@@ -178,10 +233,10 @@ function structureArray($array): array
  * Speichert diese ab
  */
 while (sleep(2) !== null) {
-    $raw = shell_exec("sudo iptables -t raw -L -n -v");
-    $mangle = shell_exec("sudo iptables -t mangle -L -n -v");
-    $nat = shell_exec("sudo iptables -t nat -L -n -v");
-    $filter = shell_exec("sudo iptables -t filter -L -n -v");
+    $raw = shell_exec("sudo iptables -t raw -L -n -v | sed '/^[[:space:]]*$/d'");
+    $mangle = shell_exec("sudo iptables -t mangle -L -n -v | sed '/^[[:space:]]*$/d'");
+    $nat = shell_exec("sudo iptables -t nat -L -n -v | sed '/^[[:space:]]*$/d'");
+    $filter = shell_exec("sudo iptables -t filter -L -n -v | sed '/^[[:space:]]*$/d'");
 
     $data = array();
     $data["raw"] = explode("\n", $raw);
@@ -190,8 +245,10 @@ while (sleep(2) !== null) {
     $data["filter"] = explode("\n", $filter);
 
     $data = clearArray($data);
+
     sort_recursive($data);
+
     $data = structureArray($data);
 
-    file_put_contents(__DIR__ . "/../db/firewall.json", json_encode(array_filter($data)));
+    file_put_contents(__DIR__ . "/../db/firewall.json", json_encode($data));
 }
