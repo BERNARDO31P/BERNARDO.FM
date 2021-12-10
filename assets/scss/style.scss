@@ -828,13 +828,23 @@ body {
       .truncate {
         position: relative;
       }
+
       .content {
         position: absolute;
         max-width: 100%;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+
+        &.green {
+          color: #006900;
+        }
+
+        &.red {
+          color: #ad0000;
+        }
       }
+
       .spacer {
         height: 0;
         overflow: hidden;

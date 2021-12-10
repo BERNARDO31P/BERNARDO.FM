@@ -1,7 +1,5 @@
 if (typeof window["firewall"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
-let text = {};
-
 window["firewall"] = () => {
     let objects = document.querySelectorAll("[data-url]");
 
@@ -12,7 +10,13 @@ window["firewall"] = () => {
 
 }
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Zeigt bei einem Click den Kommentar der Tabellenzeile
+ * Blendet alle anderen Kommentare aus
+ */
 bindEvent("click", "#firewall tr", function () {
     let nextRow = this.parentNode.rows[this.rowIndex];
 
@@ -23,11 +27,25 @@ bindEvent("click", "#firewall tr", function () {
     if (nextRow && nextRow.classList.contains("comment")) nextRow.classList.add("show");
 });
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Beim Verlassen von einem Kommentar wird der Kommentar ausgeblendet
+ */
 bindEvent("mouseout", ".comment.show", function () {
     this.classList.remove("show");
 });
 
-// TODO: Comment
+/*
+ * Funktion: generateFirewall()
+ * Autor: Bernardo de Oliveira
+ *
+ * Holt sich die Firewall Daten und verarbeitet diese
+ * Generiert die Titel der Firewall Tabellen und Chains
+ * Scrollt an die gleiche Position in der Tabelle wie vor dem Aktualisieren der Daten
+ * Öffnet die vorher geöffneten Kommentare
+ */
 function generateFirewall(objects) {
     let toScroll = {};
 
@@ -41,13 +59,13 @@ function generateFirewall(objects) {
 
         for (let [table, chains] of Object.entries(data)) {
             let h2 = document.createElement("h2");
-            h2.innerText = ucFirst(table);
+            h2.textContent = ucFirst(table);
 
             firewall.appendChild(h2);
 
             for (let [chain, rules] of Object.entries(Object(chains))) {
                 let h3 = document.createElement("h3");
-                h3.innerText = chain;
+                h3.textContent = chain;
 
                 firewall.appendChild(h3);
 
@@ -78,10 +96,8 @@ function generateFirewall(objects) {
                     if (typeof comments[i] === 'undefined') comments[i] = [];
                     comments[i].push(j);
                 }
-
                 j++;
             }
-
             i++;
         }
 
@@ -113,9 +129,15 @@ function generateFirewall(objects) {
  * Funktion: generateFirewallBody()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  data: (Object) Die Daten, welche verarbeitet werden sollen
+ *  data: (Objekt) Die Daten, welche verarbeitet werden sollen
+ *  columns: (Array) Definiert die Spaltentitel
+ *  tbody: (Objekt) Definiert den Table Body
  *
- * Generiert eine Tabelle aus den Daten (Table body)
+ * Generiert den Table Body aus den Daten
+ * Generiert einzelne Zeilen und verwendet die gleiche Funktion wie bei music.js
+ * Generiert noch eine Kommentarzeile
+ *
+ * Fügt alles zum Table Body hinzu
  */
 function generateFirewallBody(data, columns, tbody = null) {
     if (!tbody) tbody = document.createElement("tbody");
@@ -137,7 +159,19 @@ function generateFirewallBody(data, columns, tbody = null) {
     return tbody;
 }
 
-// TODO: Comment
+/*
+ * Funktion: generateCommentRow()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  row: (Objekt) Die Daten der Zeile um einen Kommentar zu generieren
+ *  comment: (String) Definiert den vordefinierten Kommentar (IPTables Kommentar)
+ *  columnCount: (Integer) Definiert die Spalten Anzahl
+ *
+ * Generiert aus den Daten ein Kommentar
+ * Fügt noch zusätzlich den IPTables Kommentar hinzu
+ *
+ * Gibt diesen zurück
+ */
 function generateCommentRow(row, comment, columnCount) {
     let tableRow = document.createElement("tr");
     tableRow.classList.add("comment");
@@ -147,7 +181,7 @@ function generateCommentRow(row, comment, columnCount) {
 
     // TODO: Generate info text
     let div = document.createElement("div");
-    div.innerText = comment;
+    div.textContent = comment;
 
     tableData.appendChild(div);
     tableRow.appendChild(tableData);

@@ -29,7 +29,7 @@ window["music"] = () => {
             div.classList.add("searchterm");
 
             let h3 = document.createElement("h3");
-            h3.innerText = "Search results for '" + search.value + "'";
+            h3.textContent = "Search results for '" + search.value + "'";
 
             div.appendChild(h3);
 
@@ -56,7 +56,7 @@ window["music"] = () => {
                 for (let category in parsed) {
                     let songs = parsed[category], title = document.createElement("h2");
 
-                    title.innerText = category;
+                    title.textContent = category;
                     gridView.appendChild(title);
 
                     let div = document.createElement("div"), categoryView = document.createElement("div");
@@ -102,7 +102,7 @@ window["music"] = () => {
             div.classList.add("info");
 
             let span = document.createElement("span");
-            span.innerText = "We couldn't find any song with that search term";
+            span.textContent = "We couldn't find any song with that search term";
 
             div.appendChild(span);
 

@@ -276,7 +276,7 @@ function showTooltip(object, e) {
             tooltip.style.left = mouseX - contentRect.left + 10 + "px";
             tooltip.style.display = "initial";
 
-            tooltip.innerText = points[object.id][objectID]["value"] + " " + points[object.id][objectID]["measurement"];
+            tooltip.textContent = points[object.id][objectID]["value"] + " " + points[object.id][objectID]["measurement"];
         }
     }
 }

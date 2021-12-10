@@ -56,7 +56,7 @@ window["home"] = () => {
         let details = prev(this);
 
         if (details.classList.contains("show")) {
-            this.innerText = "Show more";
+            this.textContent = "Show more";
             details.classList.remove("show");
         } else {
             let elements = document.querySelectorAll(".details.show");
@@ -64,7 +64,7 @@ window["home"] = () => {
                 element.classList.remove("show");
             }
 
-            this.innerText = "Show less";
+            this.textContent = "Show less";
             details.classList.add("show");
         }
     });

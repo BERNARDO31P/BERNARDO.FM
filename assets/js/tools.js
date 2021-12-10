@@ -259,7 +259,7 @@ function showNotification(message, time) {
     let notification = document.createElement("div");
     notification.classList.add("notification");
 
-    notification.innerText = message;
+    notification.textContent = message;
     notification.style.left = content.getBoundingClientRect().left + 10 + "px";
 
     content.parentNode.appendChild(notification);
@@ -587,7 +587,7 @@ function play(diffSong = false) {
         let cover = document.getElementById("queueView").querySelector("#playingCover").querySelector("img");
 
         cover.src = song["cover"]["url"];
-        songLength.innerText = song["length"];
+        songLength.textContent = song["length"];
         player.querySelector("#timeline").max = length;
 
         player.querySelector("#name").innerHTML = "<div class='truncate'>" +
@@ -810,7 +810,7 @@ function onTimelineMove(rangeEvent) {
     timeInfo.style.left = leftPos + "px";
 
     let currentTimestamp = timeInfo.querySelector("#current");
-    currentTimestamp.innerText = getMinutesAndSeconds(rangeEvent.target.value);
+    currentTimestamp.textContent = getMinutesAndSeconds(rangeEvent.target.value);
 }
 
 /*
@@ -855,7 +855,7 @@ function generateTableHead(columns) {
 
     for (let column of columns) {
         let th = document.createElement("th");
-        th.innerText = ucFirst(column);
+        th.textContent = ucFirst(column);
         row.appendChild(th);
     }
     thead.appendChild(row);
@@ -901,13 +901,37 @@ function generateTableRow(rowData, tableRow, columns) {
                     tableRow.innerHTML += "<td><img src='" + element["url"] + "' alt='Cover'/></td>";
                     delete rowData["cover"];
                 } else {
-                    tableRow.innerHTML += "<td>" +
-                        "<div class='truncate'>" +
-                        "<div class='content' data-title='" + element + "'>" + element + "</div>" +
-                        "<div class='spacer'>" + element + "</div>" +
-                        "<span>&nbsp;</span>" +
-                        "</div>" +
-                        "</td>";
+                    let truncate = document.createElement("div");
+                    truncate.classList.add("truncate");
+
+                    let content = document.createElement("div");
+                    content.setAttribute("data-title", element);
+                    content.classList.add("content");
+                    content.textContent = element;
+
+                    switch (element) {
+                        case "ACCEPT":
+                            content.classList.add("green");
+                            break;
+                        case "DROP":
+                            content.classList.add("red");
+                            break;
+                    }
+
+                    let spacer = document.createElement("div");
+                    spacer.classList.add("spacer");
+                    spacer.textContent = element;
+
+                    let span = document.createElement("span");
+                    span.innerHTML = "&nbsp;";
+
+                    truncate.appendChild(content);
+                    truncate.appendChild(spacer);
+                    truncate.appendChild(span);
+
+                    let tableData = document.createElement("td");
+                    tableData.appendChild(truncate);
+                    tableRow.appendChild(tableData);
                 }
             } else tableRow.innerHTML += "<td></td>";
         }

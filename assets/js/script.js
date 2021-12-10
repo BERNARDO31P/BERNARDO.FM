@@ -13,8 +13,8 @@ function loadPage() {
 
     content.innerHTML = data.body.innerHTML;
 
-    let subpage = (data.querySelector("title")) ? data.querySelector("title").innerText : "error";
-    title.innerText = title.innerText.split(" - ")[0] + " - " + subpage;
+    let subpage = (data.querySelector("title")) ? data.querySelector("title").textContent : "error";
+    title.textContent = title.textContent.split(" - ")[0] + " - " + subpage;
 
     if (backgroundProcesses.length) {
         for (let backgroundProcess of backgroundProcesses) {
