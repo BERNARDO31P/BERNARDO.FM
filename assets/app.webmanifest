@@ -4,9 +4,9 @@
   "display": "fullscreen",
   "icons": [
     {
-        "src": "./img/icon512x512.ico",
+        "src": "./img/icon512x512.png",
         "sizes": "512x512",
-        "type": "image/x-icon"
+        "type": "image/png"
     }
   ],
   "name": "A beautiful music experience",
