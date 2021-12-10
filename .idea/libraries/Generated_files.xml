@@ -1,0 +1,26 @@
+<component name="libraryTable">
+  <library name="Generated files" type="javaScript">
+    <properties>
+      <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/assets/js/lib/gapless5.min.js" />
+        <item url="file://$PROJECT_DIR$/assets/js/pages/firewall.min.js" />
+        <item url="file://$PROJECT_DIR$/assets/js/pages/home.min.js" />
+        <item url="file://$PROJECT_DIR$/assets/js/pages/monitoring.min.js" />
+        <item url="file://$PROJECT_DIR$/assets/js/pages/music.min.js" />
+        <item url="file://$PROJECT_DIR$/assets/js/script.min.js" />
+        <item url="file://$PROJECT_DIR$/assets/js/tools.min.js" />
+      </sourceFilesUrls>
+    </properties>
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/assets/js/lib/gapless5.min.js" />
+      <root url="file://$PROJECT_DIR$/assets/js/pages/firewall.min.js" />
+      <root url="file://$PROJECT_DIR$/assets/js/pages/home.min.js" />
+      <root url="file://$PROJECT_DIR$/assets/js/pages/monitoring.min.js" />
+      <root url="file://$PROJECT_DIR$/assets/js/pages/music.min.js" />
+      <root url="file://$PROJECT_DIR$/assets/js/script.min.js" />
+      <root url="file://$PROJECT_DIR$/assets/js/tools.min.js" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
