@@ -4,9 +4,29 @@
   "display": "fullscreen",
   "icons": [
     {
-      "src": "",
-      "sizes": "192x192",
-      "type": "image/png"
+        "src": "./img/icon512x512.ico",
+        "sizes": "512x512",
+        "type": "image/x-icon"
+    },
+    {
+        "src": "./img/icon256x256.ico",
+        "sizes": "256x256",
+        "type": "image/x-icon"
+    },
+    {
+        "src": "./img/icon128x128.ico",
+        "sizes": "128x128",
+        "type": "image/x-icon"
+    },
+    {
+        "src": "./img/icon64x64.ico",
+        "sizes": "64x64",
+        "type": "image/x-icon"
+    },
+    {
+        "src": "./img/icon32x32.ico",
+        "sizes": "32x32",
+        "type": "image/x-icon"
     }
   ],
   "name": "A beautiful music experience",
