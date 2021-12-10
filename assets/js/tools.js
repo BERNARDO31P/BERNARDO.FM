@@ -752,7 +752,7 @@ function resetSong(index) {
     playlist[index]["player"].stop();
     playlist[index]["player"].gotoTrack(0);
 
-    for (let part of partlist[index]) {
+    for (let part of Object.values(partlist[index])) {
         playlist[index]["player"].playlist.sources[part].setPosition(0);
     }
 }
