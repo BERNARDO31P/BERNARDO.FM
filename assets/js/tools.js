@@ -938,8 +938,9 @@ function generateTableRow(rowData, tableRow, columns) {
     } else {
         let info = generatePlaylistCover(rowData);
         let td = document.createElement("td");
-        td.appendChild(info["cover"])
+        td.appendChild(info["cover"]);
         tableRow.appendChild(td);
+        tableRow.classList.add("playlist");
 
         tableRow.innerHTML += "<td>" + rowData["name"] + "</td>" +
             "<td colspan='2'>" +

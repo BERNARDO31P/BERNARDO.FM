@@ -122,7 +122,7 @@ window["music"] = () => {
         let controls = this.querySelector(".controlsContent");
         if (!controls) {
             removeControls("controlsContent");
-            if (this.classList.contains("song"))
+            if (!this.classList.contains("playlist"))
                 controls = createControls("controlsContent", ["play", "add"]);
             else
                 controls = createControls("controlsContent", ["play"]);
@@ -301,9 +301,7 @@ window["music"] = () => {
      */
     bindEvent("click", ".fa-random", function () {
         let currentSong = playlist[playIndex];
-
-        currentSong["player"].sources[partlist[playIndex][partIndex]].setPosition(0);
-        currentSong["player"].stop();
+        resetSong(playIndex);
 
         delete playlist[playIndex];
         playlist.splice(0, 1);
@@ -314,9 +312,9 @@ window["music"] = () => {
         partIndex = 0;
         currentTime = 0;
 
-        playlist[playIndex]["player"].sources[partlist[playIndex][partIndex]].setPosition(0);
         let queueView = document.getElementById("queueView");
         let queue = queueView.querySelector("#queue");
+
         queue.innerHTML = "";
         queue.appendChild(generateListView(playlist, false));
 
@@ -504,12 +502,18 @@ function generateQueue(data) {
  *
  * Generiert eine Tabelle aus den Daten (Table body) und Schlüssel (Table head)
  */
-function generateListView(data) {
+function generateListView(data, categories = true) {
     let listView = document.createElement("table");
     listView.classList.add("responsive-table");
 
-    let columns = getColumns(data, 2);
-    columns = removeFromObject(columns, ["id", "category"]);
+    let columns = [];
+    if (categories) {
+        columns = getColumns(data, 2);
+    } else {
+        columns = getColumns(data, 1);
+    }
+    
+    columns = removeFromObject(columns, ["id", "category", "player"]);
 
     listView.appendChild(generateTableHead(columns));
 
@@ -518,12 +522,16 @@ function generateListView(data) {
         removeControls("controlsQueue");
     };
 
-    for (let [category, songs] of Object.entries(data)) {
-        let row = document.createElement("tr");
-        row.innerHTML = "<td colspan='4'>" + category + "</td>";
+    if (categories) {
+        for (let [category, songs] of Object.entries(data)) {
+            let row = document.createElement("tr");
+            row.innerHTML = "<td colspan='4'>" + category + "</td>";
 
-        tbody.appendChild(row);
-        tbody = generateTableBody(songs, columns, tbody);
+            tbody.appendChild(row);
+            generateTableBody(songs, columns, tbody);
+        }
+    } else {
+        generateTableBody(data, columns, tbody);
     }
 
     listView.appendChild(tbody);
@@ -557,7 +565,7 @@ function showControlsCard(card) {
 }
 
 /*
- * Funktion: showControlsCard()
+ * Funktion: removeControlsCard()
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  card: (Objekt) Definiert das Objekt welches verlassen wurde
