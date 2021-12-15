@@ -26,6 +26,11 @@ function recursive_prepend(&$array, $key, $data)
     }
 }
 
+function recursive_paging($array, $page, $pageCount): array
+{
+    return array();
+}
+
 function search_songs($search): array
 {
 	global $db;
@@ -103,9 +108,12 @@ if (isset($_GET["id"])) {
     recursive_prepend($db, "url", "system/img/");
 
 	if (isset($_GET["search"]) && $_GET["search"] !== "")
-		echo json_encode(search_songs($_GET["search"]));
-	else {
-		shuffle($db);
-		echo json_encode($db);
-	}
+        $db = search_songs($_GET["search"]);
+    else
+        shuffle($db);
+
+    // TODO: Implement sorting system (ex. most views or newest first)
+
+    //$db = recursive_paging($db, $_GET["page"], 10);
+    echo json_encode($db);
 }

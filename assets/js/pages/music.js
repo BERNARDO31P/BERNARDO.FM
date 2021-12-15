@@ -37,6 +37,8 @@ window["music"] = () => {
         }
 
         if (data.length > 0) {
+            // TODO: Add shuffling of songs
+
             let parsed = {};
 
             for (let song of data) {
@@ -222,7 +224,7 @@ window["music"] = () => {
      * Spielt das Lied ab
      */
     bindEvent("click", "#queueView .fa-play", function () {
-        playlist[playIndex]["player"].stop();
+        clearSong(playIndex);
 
         let id = Number(this.closest(".controlsQueue").getAttribute("data-id"));
 
