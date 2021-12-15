@@ -4,6 +4,7 @@ let currentHover = null,
     partIndex = 0,
     playlist = [],
     partlist = {},
+    playing = false,
     volume = 0,
     previousVolume = null,
     repeatMode = 0,
@@ -567,6 +568,47 @@ function hidePlaylist(body, queueView, angleIcon) {
     angleIcon.setAttribute("data-angle", "down");
 }
 
+// TODO: Comment
+function setVolume(volume) {
+    let volumeSlider = document.getElementById("player").querySelector(".volumeSlider");
+
+    previousVolume = null;
+    playlist[playIndex]["player"].setGain(volume * 65535);
+    volumeSlider.value = volume * 100;
+
+    let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
+    setVolumeIcon(volumeIcon, volumeSlider);
+    setCookie("volume", volume);
+
+    hideVolumeSlider();
+}
+
+// TODO: Comment
+function muteAudio(e = null) {
+    if (!isTouchScreen() || touched) {
+        let volumeSlider = document.getElementById("player").querySelector(".volumeSlider"),
+            volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
+
+        if (e && e.target === volumeSlider) return;
+
+        if (previousVolume) {
+            volumeSlider.value = previousVolume * 100;
+            setVolumeIcon(volumeIcon, volumeSlider);
+            volume = previousVolume;
+            previousVolume = null;
+        } else {
+            volumeIcon.classList.remove("fa-volume-*");
+            volumeIcon.classList.add("fa-volume-mute");
+            previousVolume = volume;
+            volumeSlider.value = volume = 0;
+        }
+
+        playlist[playIndex]["player"].setGain(volume * 65535);
+
+        hideVolumeSlider();
+    } else touched = true;
+}
+
 /*
  * Funktion: play()
  * Autor: Bernardo de Oliveira
@@ -606,6 +648,7 @@ function play(diffSong = false) {
 
     gapless.setGain(volume * 65535);
     gapless.play();
+    playing = true;
 
     playPauseButton(true);
     player.style.display = "initial";
@@ -768,6 +811,8 @@ function pauseSong() {
 
     playlist[playIndex]["player"].pause();
     clearInterval(secondsInterval);
+
+    playing = false;
 }
 
 /*

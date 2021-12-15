@@ -1,4 +1,75 @@
 /*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Wenn der Benutzer sich nicht ganz oben befindet, wird ein Schatten zur Navigation hinzugefügt
+ */
+window.addEventListener("scroll", () => {
+    let navbar = document.querySelector("#navbar");
+
+    if (window.scrollY === 0) {
+        navbar.classList.remove("shadow");
+    } else {
+        navbar.classList.add("shadow");
+    }
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Wenn der Benutzer die Fenstergrösse verändert, werden die Controls versteckt
+ */
+window.addEventListener("resize", function () {
+    removeControls("controlsContent");
+    removeControls("controlsQueue");
+}, true);
+
+// TODO: Comment
+document.onkeydown = function(e) {
+    let keys = ["K", "Space", "M", "ArrowLeft", "ArrowRight", "J", "L", "ArrowUp", "ArrowDown"];
+    let key = e.code.replace("Key", "");
+
+    if (!(currentHover instanceof HTMLInputElement)) {
+        if (keys.includes(key)) {
+            e.preventDefault();
+
+            switch (key) {
+                case "K":
+                case "Space":
+                    if (playing) pauseSong();
+                    else play();
+                    break;
+                case "M":
+                    muteAudio();
+                    break;
+                case "ArrowLeft":
+                    break;
+                case "ArrowRight":
+                    break;
+                case "J":
+                    break;
+                case "L":
+                    break;
+                case "ArrowUp":
+                    volume = volume + 0.1;
+                    if (volume > 1) volume = 1;
+
+                    setVolume(volume);
+                    break;
+                case "ArrowDown":
+                    volume = volume - 0.1
+                    if (volume < 0) volume = 0;
+
+                    setVolume(volume);
+                    break;
+            }
+        }
+    }
+
+};
+
+/*
  * Funktion: loadPage()
  * Autor: Bernardo de Oliveira
  *
@@ -89,33 +160,6 @@ function getPage() {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * Wenn der Benutzer sich nicht ganz oben befindet, wird ein Schatten zur Navigation hinzugefügt
- */
-window.addEventListener("scroll", () => {
-    let navbar = document.querySelector("#navbar");
-
-    if (window.scrollY === 0) {
-        navbar.classList.remove("shadow");
-    } else {
-        navbar.classList.add("shadow");
-    }
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Wenn der Benutzer die Fenstergrösse verändert, werden die Controls versteckt
- */
-window.addEventListener("resize", function () {
-    removeControls("controlsContent");
-    removeControls("controlsQueue");
-}, true);
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
  * Sobald eine neue Unterseite angedrückt wird, wird diese in die URL eingefügt
  */
 bindEvent("click", "[data-page]", function (e) {
@@ -183,16 +227,6 @@ bindEvent("click", "[data-title]", function () {
         }, 200);
     } else touched = true;
 });
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Versteckt beim Scrollen, in der Wiedergabenliste, die Liedoptionen
- */
-document.getElementById("queue").onscroll = function () {
-    removeControls("controlsQueue");
-}
 
 /*
  * Funktion: Anonym
@@ -375,15 +409,8 @@ bindEvent("mouseout", ".volume", function () {
 bindEvent("input", ".volumeSlider", function () {
     let volumeSlider = this;
     volume = volumeSlider.value / 100;
-    previousVolume = null;
 
-    playlist[playIndex]["player"].setGain(volume * 65535);
-
-    let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
-    setVolumeIcon(volumeIcon, volumeSlider);
-    setCookie("volume", volume);
-
-    hideVolumeSlider();
+    setVolume(volume);
 });
 
 /*
@@ -393,26 +420,7 @@ bindEvent("input", ".volumeSlider", function () {
  * Schaltet die Wiedergabe auf stumm oder setzt die vorherige Lautstärke
  */
 bindEvent("click", ".volume", function (e) {
-    if (!isTouchScreen() || touched) {
-        let volumeIcon = this.querySelector("svg"), volumeSlider = this.querySelector(".volumeSlider");
-        if (e.target === volumeSlider) return;
-
-        if (previousVolume) {
-            volumeSlider.value = previousVolume * 100;
-            setVolumeIcon(volumeIcon, volumeSlider);
-            volume = previousVolume;
-            previousVolume = null;
-        } else {
-            volumeIcon.classList.remove("fa-volume-*");
-            volumeIcon.classList.add("fa-volume-mute");
-            previousVolume = volume;
-            volumeSlider.value = volume = 0;
-        }
-
-        playlist[playIndex]["player"].setGain(volume * 65535);
-
-        hideVolumeSlider();
-    } else touched = true;
+    muteAudio(e);
 });
 
 let iconInterval = setInterval(function () {
