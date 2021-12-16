@@ -69,8 +69,8 @@ if (isset($_GET["id"])) {
 
 		$ffmpeg = FFMpeg\FFMpeg::create(
             array(
-                'ffmpeg.binaries'  => "/usr/bin/ffmpeg",
-                'ffprobe.binaries' => "/usr/bin/ffprobe",
+                'ffmpeg.binaries'  => "ffmpeg",
+                'ffprobe.binaries' => "ffprobe",
                 'timeout'          => 10,
                 'ffmpeg.threads'   => 4,
             )

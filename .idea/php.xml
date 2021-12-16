@@ -14,6 +14,7 @@
       <path value="$PROJECT_DIR$/system/vendor/symfony/polyfill-ctype" />
       <path value="$PROJECT_DIR$/system/vendor/symfony/process" />
       <path value="$PROJECT_DIR$/system/vendor/php-ffmpeg/php-ffmpeg" />
+      <path value="$PROJECT_DIR$/system/vendor/symfony/polyfill-mbstring" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.4" />

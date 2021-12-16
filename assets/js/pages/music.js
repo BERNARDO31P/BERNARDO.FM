@@ -353,7 +353,35 @@ window["music"] = () => {
  * onfinishedall: Sobald das Lied abgeschlossen ist, wird das nächste Lied wiedergeben
  */
 function addEvents(player) {
-    player.onplay = () => downloadNextPart();
+    player.onplay = function () {
+        if ('mediaSession' in navigator) {
+            let song = playlist[playIndex];
+
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: song["name"],
+                artist: song["artist"],
+                artwork: [
+                    {src: song["cover"]["url"], type: 'image/png'},
+                ]
+            });
+            navigator.mediaSession.playbackState = "playing";
+
+            navigator.mediaSession.setActionHandler('play', function () {
+                play()
+            });
+            navigator.mediaSession.setActionHandler('pause', function () {
+                pauseSong()
+            });
+            navigator.mediaSession.setActionHandler('previoustrack', function () {
+                previousSong()
+            });
+            navigator.mediaSession.setActionHandler('nexttrack', function () {
+                nextSong()
+            });
+        }
+
+        downloadNextPart();
+    }
 
     player.onfinishedtrack = function () {
         let timeline = document.getElementById("timeline");

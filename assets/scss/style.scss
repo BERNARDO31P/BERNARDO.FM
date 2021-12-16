@@ -336,7 +336,8 @@ body {
 
           img {
             transition: 0.2s;
-            max-width: 80px;
+            width: 80px;
+            height: 80px;
 
             &:nth-child(1) {
               border-top-left-radius: 5px;

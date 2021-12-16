@@ -653,42 +653,18 @@ function play(diffSong = false) {
     playPauseButton(true);
     player.style.display = "initial";
 
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: song["name"],
-            artist: song["artist"],
-            artwork: [
-                {src: song["cover"]["url"], type: 'image/png'},
-            ]
-        });
-        navigator.mediaSession.playbackState = "playing";
-
-        navigator.mediaSession.setActionHandler('play', function () {
-            play()
-        });
-        navigator.mediaSession.setActionHandler('pause', function () {
-            pauseSong()
-        });
-        navigator.mediaSession.setActionHandler('previoustrack', function () {
-            previousSong()
-        });
-        navigator.mediaSession.setActionHandler('nexttrack', function () {
-            nextSong()
-        });
-    }
-
     secondsInterval = setInterval(function () {
         let timeline = document.getElementById("timeline");
 
         timeline.value = getCurrentPartTime() + currentTime;
 
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.setPositionState({
-                duration: timeline.max,
-                playbackRate: 1,
-                position: timeline.value
-            });
-        }
+        // if ('mediaSession' in navigator) {
+        //     navigator.mediaSession.setPositionState({
+        //         duration: timeline.max,
+        //         playbackRate: 1,
+        //         position: timeline.value
+        //     });
+        // }
     }, 1000);
 }
 
