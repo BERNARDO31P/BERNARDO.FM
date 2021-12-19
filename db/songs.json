@@ -347,5 +347,41 @@
     "length": "9:02",
     "fileName": "Bellatrix - Higher Dimensions.aac",
     "category": "Psytrance"
+  },
+  {
+    "id": 30,
+    "cover": {
+      "url": "Sybarite - Sonic Staircase.jpg",
+      "html": "img"
+    },
+    "name": "Sonic Staircase",
+    "artist": "Sybarite",
+    "length": "8:39",
+    "fileName": "Sybarite - Sonic Staircase.mp3",
+    "category": "Psytrance"
+  },
+  {
+    "id": 31,
+    "cover": {
+      "url": "Ashtar Command & Razzle Dazzle - Rebirth.jpg",
+      "html": "img"
+    },
+    "name": "Rebirth",
+    "artist": "Ashtar Command & Razzle Dazzle",
+    "length": "8:37",
+    "fileName": "Ashtar Command & Razzle Dazzle - Rebirth.mp3",
+    "category": "Psytrance"
+  },
+  {
+    "id": 32,
+    "cover": {
+      "url": "Pixel & Wrecked Machines - Mother Funker (FNX Rmx).jpg",
+      "html": "img"
+    },
+    "name": "Mother Funker (FNX Rmx)",
+    "artist": "Pixel & Wrecked Machines",
+    "length": "8:26",
+    "fileName": "Pixel & Wrecked Machines - Mother Funker (FNX Rmx).mp3",
+    "category": "Psytrance"
   }
 ]
