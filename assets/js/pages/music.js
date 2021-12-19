@@ -361,15 +361,14 @@ function addEvents(player) {
     player.onfinishedtrack = function () {
         let timeline = document.getElementById("timeline");
         let gapless = playlist[playIndex]["player"];
-        let index = Math.ceil(timeline.value / 20);
 
         clearInterval(secondsInterval);
-        if (typeof partlist[playIndex][index] !== "undefined") {
-            if (Number(timeline.max) - currentTime > 0) currentTime += 20;
+        if (typeof partlist[playIndex][partIndex] !== "undefined") {
+            currentTime += getPartLength(partIndex - 1);
 
-            gapless.gotoTrack(partlist[playIndex][index]);
-            gapless.playlist.sources[partlist[playIndex][index]].setPosition(0);
-            partIndex = index;
+            let gid = partlist[playIndex][partIndex]["gid"];
+            gapless.gotoTrack(gid);
+            gapless.playlist.sources[gid].setPosition(0);
 
             play();
         } else {
@@ -424,9 +423,10 @@ function addSongToPlaylist(element) {
  * Lädt den nächsten Teil herunter oder pausiert die weitere Wiedergabes
  */
 function downloadNextPart() {
-    setTimeout(function () {
-        let timeline = document.getElementById("timeline");
-        let nextTime = currentTime + 20, nextSong = false, nextIndex;
+    let timeline = document.getElementById("timeline");
+
+    getCurrentPartLengthCallback(function (length) {
+        let nextTime = currentTime + length, nextSong = false, nextIndex;
 
         if (!(Number(timeline.max) - nextTime > 1)) {
             nextSong = true;
@@ -435,17 +435,12 @@ function downloadNextPart() {
 
         let currentPart = playlist[playIndex]["player"].playlist.trackNumber;
         let partCount = playlist[playIndex]["player"].totalTracks() - 1;
-
         if (!nextSong && currentPart === partCount) {
-            let indexPart = partIndex + 1;
-            let index = playlist[playIndex]["player"].totalTracks();
-
-            downloadPart(nextTime, playIndex);
-            partlist[playIndex][indexPart] = index;
-
+            partIndex++;
+            downloadPart(nextTime);
         } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined')
             downloadPart(0, nextIndex);
-    }, 2000);
+    });
 }
 
 /*
@@ -466,10 +461,13 @@ function downloadPart(time, index = null) {
         addEvents(gapless);
 
         playlist[index]["player"] = gapless;
-        partlist[index] = {0: 0};
     }
 
     playlist[index]["player"].addTrack(pageURL + "system/player.php?id=" + songID + "&time=" + time);
+
+    getPartLengthCallback(partIndex, function (length) {
+        partlist[playIndex][partIndex] = {"gid": playlist[playIndex]["player"].totalTracks() - 1, "from": time, "till": time + length};
+    });
 }
 
 /*
@@ -594,15 +592,22 @@ function onTimelineRelease(rangeEvent) {
     clearInterval(secondsInterval);
     resetSong(playIndex);
 
-    let index = Math.floor(rangeEvent.target.value / 20);
-    currentTime = index * 20;
+    let partInfo = getPartIndexByTime(rangeEvent.target.value);
 
-    if (typeof gapless.playlist.sources[partlist[playIndex][index]] === "undefined") {
+    console.log(partInfo);
+
+    let index = partInfo[2];
+    currentTime = partInfo[0];
+
+    //let index = Math.floor(rangeEvent.target.value / 20);
+    //currentTime = index * 20;
+
+    if (typeof index === "undefined") {
         downloadPart(currentTime);
         partlist[playIndex][index] = gapless.playlist.numTracks() - 1;
     }
 
-    let startFrom = (rangeEvent.target.value % 20) * 1000;
+    let startFrom = (partInfo[1] - rangeEvent.target.value) * 1000;
     gapless.gotoTrack(partlist[playIndex][index]);
     partIndex = index;
 
@@ -634,10 +639,7 @@ function nextSong() {
     if (typeof playlist[nextIndex] !== 'undefined') {
         playIndex = nextIndex;
 
-        if (typeof playlist[nextIndex]["player"] === 'undefined') {
-            downloadPart(0);
-            partlist[playIndex] = {0: 0};
-        }
+        if (typeof playlist[nextIndex]["player"] === 'undefined') downloadPart(0);
 
         play(true);
     }
@@ -665,10 +667,7 @@ function previousSong() {
     if (typeof playlist[previousIndex] !== 'undefined') {
         playIndex = previousIndex;
 
-        if (typeof playlist[previousIndex]["player"] === 'undefined') {
-            downloadPart(0);
-            partlist[playIndex] = {0: 0};
-        }
+        if (typeof playlist[previousIndex]["player"] === 'undefined') downloadPart(0);
 
         play(true);
     }

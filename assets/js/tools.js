@@ -767,7 +767,7 @@ function playPauseButton(option = "pause") {
  */
 function getCurrentPartTime() {
     try {
-        return playlist[playIndex]["player"].playlist.sources[partlist[playIndex][partIndex]].getPosition() / 1000;
+        return playlist[playIndex]["player"].playlist.sources[partlist[playIndex][partIndex - 1]["gid"]].getPosition() / 1000;
     } catch (e) {
         return 0;
     }
@@ -1090,10 +1090,53 @@ function getColumns(data, level = 0, start = 0) {
 
 // TODO: Comment
 function getPartLength(index) {
-    return playlist[playIndex]["player"].playlist.sources[index].getLength() / 1000;
+    return Number((playlist[playIndex]["player"].playlist.sources[index].getLength() / 1000).toFixed());
+}
+
+// TODO: Comment
+function getPartLengthCallback(index, callback) {
+    let length = 0;
+
+    let interval = setInterval(function () {
+        if (typeof playlist[playIndex]["player"].playlist.sources[index] !== 'undefined') {
+            length = Number((playlist[playIndex]["player"].playlist.sources[index].getLength() / 1000).toFixed());
+
+            if (length) {
+                clearInterval(interval);
+                callback(length);
+            }
+        }
+    }, 50);
 }
 
 // TODO: Comment
 function getCurrentPartLength() {
-    return playlist[playIndex]["player"].playlist.sources[partIndex].getLength() / 1000;
+    return Number((playlist[playIndex]["player"].playlist.sources[partIndex].getLength() / 1000).toFixed());
+}
+
+// TODO: Comment
+function getCurrentPartLengthCallback(callback) {
+    let length = 0;
+
+    let interval = setInterval(function () {
+        length = Number((playlist[playIndex]["player"].playlist.sources[partIndex].getLength() / 1000).toFixed());
+
+        if (length) {
+            clearInterval(interval);
+            callback(length);
+        }
+    }, 50);
+}
+
+function getPartIndexByTime(time) {
+    let fullTime = 0;
+
+    for (let [index, part] of Object.entries(partlist[playIndex])) {
+        let partTime = getPartLength(part);
+
+        if (fullTime < time && fullTime + partTime > time) return [fullTime, fullTime + partTime, index];
+        else fullTime += partTime;
+    }
+
+    return [undefined, undefined, undefined];
 }

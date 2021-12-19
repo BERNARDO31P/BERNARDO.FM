@@ -69,14 +69,24 @@ if (isset($_GET["id"])) {
 
 		$ffmpeg = FFMpeg\FFMpeg::create(
             array(
-                'ffmpeg.binaries'  => "ffmpeg",
-                'ffprobe.binaries' => "ffprobe",
+                'ffmpeg.binaries'  => "/usr/bin/ffmpeg",
+                'ffprobe.binaries' => "/usr/bin/ffprobe",
                 'timeout'          => 10,
                 'ffmpeg.threads'   => 4,
             )
         );
 		$audio = $ffmpeg->open(__DIR__ . "/music/" . $song["fileName"]);
-		$audio->filters()->clip(FFMpeg\Coordinate\TimeCode::fromSeconds($_GET["time"]), FFMpeg\Coordinate\TimeCode::fromSeconds(20));
+
+		$time = 0;
+		if ($_GET["time"] < 25) {
+		    $time = 5;
+        } elseif ($_GET["time"] < 50) {
+		    $time = 10;
+        } else {
+		    $time = 20;
+        }
+
+		$audio->filters()->clip(FFMpeg\Coordinate\TimeCode::fromSeconds($_GET["time"]), FFMpeg\Coordinate\TimeCode::fromSeconds($time));
 		$format = new FFMpeg\Format\Audio\Mp3();
 		$audio->save($format, __DIR__ . $newName);
 
