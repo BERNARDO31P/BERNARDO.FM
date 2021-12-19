@@ -364,11 +364,8 @@ function addEvents(player) {
 
         clearInterval(secondsInterval);
 
-        let currentTrack = playlist[playIndex]["player"].playlist.trackNumber;
-        let trackCount = playlist[playIndex]["player"].playlist.sources.length;
         let nextPartIndex = getPartIndexByTime(Number(timeline.value) + 2)[2];
-
-        if (typeof partlist[playIndex][nextPartIndex] !== "undefined" && currentTrack !== trackCount) {
+        if (typeof partlist[playIndex][nextPartIndex] !== "undefined") {
             currentTime += getPartLength(partIndex);
             partIndex = nextPartIndex;
 
