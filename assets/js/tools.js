@@ -671,11 +671,13 @@ function play(diffSong = false) {
         }
     }
 
+    playPauseButton("load");
+
     gapless.setGain(volume * 65535);
     gapless.play();
     playing = true;
 
-    playPauseButton(true);
+
     player.style.display = "initial";
 
     secondsInterval = setInterval(function () {
@@ -740,17 +742,20 @@ function previousSongIndex() {
  *
  * Ändert das Icon von "abspielen/pausieren"
  */
-function playPauseButton(play = false) {
+function playPauseButton(option = "pause") {
     let player = document.getElementById("player");
-    let playButton = player.querySelector(".fa-play");
-    let pauseButton = player.querySelector(".fa-pause");
+    let button = player.querySelector(".fa-play, .fa-pause, .fa-circle-notch");
 
-    if (playButton !== null && play) {
-        playButton.classList.remove("fa-play");
-        playButton.classList.add("fa-pause");
-    } else if (pauseButton !== null && !play) {
-        pauseButton.classList.remove("fa-pause");
-        pauseButton.classList.add("fa-play");
+    button.classList.remove("fa-play");
+    button.classList.remove("fa-pause");
+    button.classList.remove("fa-circle-notch");
+
+    if (option === "play") {
+        button.classList.add("fa-pause");
+    } else if (option === "pause") {
+        button.classList.add("fa-play");
+    } else if (option === "load") {
+        button.classList.add("fa-circle-notch");
     }
 }
 
@@ -808,7 +813,7 @@ function resetSong(index) {
  * Pausiert die Wiedergabe
  */
 function pauseSong() {
-    playPauseButton(false);
+    playPauseButton("pause");
 
     playlist[playIndex]["player"].pause();
     clearInterval(secondsInterval);
@@ -828,7 +833,7 @@ function onTimelinePress() {
     timeInfo.style.display = "initial";
 
     clearInterval(secondsInterval);
-    playPauseButton(false);
+    playPauseButton("pause");
     playlist[playIndex]["player"].pause();
 }
 

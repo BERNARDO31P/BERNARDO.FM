@@ -354,6 +354,7 @@ window["music"] = () => {
  */
 function addEvents(player) {
     player.onplay = function () {
+        playPauseButton("play");
         downloadNextPart();
     }
 
@@ -376,7 +377,7 @@ function addEvents(player) {
 
             resetSong(playIndex);
             clearInterval(secondsInterval);
-            playPauseButton(false);
+            playPauseButton("pause");
 
             currentTime = 0;
             partIndex = 0;
@@ -635,7 +636,7 @@ function nextSong() {
     partIndex = 0;
 
     clearInterval(secondsInterval);
-    playPauseButton(false);
+    playPauseButton("pause");
 
     let nextIndex = nextSongIndex();
     if (typeof playlist[nextIndex] !== 'undefined') {
@@ -666,7 +667,7 @@ function previousSong() {
     partIndex = 0;
 
     clearInterval(secondsInterval);
-    playPauseButton(false);
+    playPauseButton("pause");
 
     let previousIndex = previousSongIndex();
     if (typeof playlist[previousIndex] !== 'undefined') {
