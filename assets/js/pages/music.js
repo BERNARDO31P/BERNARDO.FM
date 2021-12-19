@@ -212,7 +212,7 @@ window["music"] = () => {
 
         clearInterval(secondsInterval);
         addSongToPlaylist(this);
-        downloadPart(0);
+        downloadPart(0, playIndex, partIndex);
         play(true);
     });
 
@@ -363,8 +363,11 @@ function addEvents(player) {
         let gapless = playlist[playIndex]["player"];
 
         clearInterval(secondsInterval);
-        if (typeof partlist[playIndex][partIndex] !== "undefined") {
-            currentTime += getPartLength(partIndex - 1);
+
+        let nextPartIndex = getPartIndexByTime(Number(timeline.value) + 2)[2];
+        if (typeof partlist[playIndex][nextPartIndex] !== "undefined") {
+            currentTime += getPartLength(partIndex);
+            partIndex = nextPartIndex;
 
             let gid = partlist[playIndex][partIndex]["gid"];
             gapless.gotoTrack(gid);
@@ -433,13 +436,16 @@ function downloadNextPart() {
             nextIndex = nextSongIndex();
         }
 
-        let currentPart = playlist[playIndex]["player"].playlist.trackNumber;
-        let partCount = playlist[playIndex]["player"].totalTracks() - 1;
-        if (!nextSong && currentPart === partCount) {
-            partIndex++;
-            downloadPart(nextTime);
+        /*
+         * TODO: Check the start time of the next part
+         *  If the time doesn't match with the current part, delete it and redownload it
+         */
+
+        let partInfo = getPartIndexByTime(nextTime + 2);
+        if (!nextSong && typeof partInfo[2] === 'undefined') {
+            downloadPart(nextTime, playIndex, partIndex + 1);
         } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined')
-            downloadPart(0, nextIndex);
+            downloadPart(0, nextIndex, 0);
     });
 }
 
@@ -451,22 +457,20 @@ function downloadNextPart() {
  *
  * Lädt ein Teilstück von einem Lied herunter, ab einer bestimmten Zeit
  */
-function downloadPart(time, index = null) {
-    if (!index) index = playIndex;
+function downloadPart(time, sIndex, pIndex) {
+    let songID = playlist[sIndex]["id"];
 
-    let songID = playlist[index]["id"];
-
-    if (typeof playlist[index]["player"] === 'undefined') {
+    if (typeof playlist[sIndex]["player"] === 'undefined') {
         let gapless = new Gapless5({singleMode: true});
         addEvents(gapless);
 
-        playlist[index]["player"] = gapless;
+        playlist[sIndex]["player"] = gapless;
     }
 
-    playlist[index]["player"].addTrack(pageURL + "system/player.php?id=" + songID + "&time=" + time);
+    playlist[sIndex]["player"].addTrack(pageURL + "system/player.php?id=" + songID + "&time=" + time);
 
-    getPartLengthCallback(partIndex, function (length) {
-        partlist[playIndex][partIndex] = {"gid": playlist[playIndex]["player"].totalTracks() - 1, "from": time, "till": time + length};
+    getPartLengthCallback(pIndex, function (length) {
+        partlist[sIndex][pIndex] = {"gid": playlist[sIndex]["player"].totalTracks() - 1, "from": time, "till": time + length - 1};
     });
 }
 
@@ -589,32 +593,35 @@ function onTimelineRelease(rangeEvent) {
     let gapless = playlist[playIndex]["player"];
     timeInfo.style.display = "none";
 
+    playPauseButton("load");
     clearInterval(secondsInterval);
     resetSong(playIndex);
 
     let partInfo = getPartIndexByTime(rangeEvent.target.value);
-
-    console.log(partInfo);
-
     let index = partInfo[2];
     currentTime = partInfo[0];
 
-    //let index = Math.floor(rangeEvent.target.value / 20);
-    //currentTime = index * 20;
-
     if (typeof index === "undefined") {
-        downloadPart(currentTime);
-        partlist[playIndex][index] = gapless.playlist.numTracks() - 1;
+        index = Object.keys(partlist[playIndex]).length;
+        downloadPart(Number(rangeEvent.target.value), playIndex, index);
+
+        currentTime = Number(rangeEvent.target.value);
     }
 
-    let startFrom = (partInfo[1] - rangeEvent.target.value) * 1000;
-    gapless.gotoTrack(partlist[playIndex][index]);
-    partIndex = index;
+    let interval = setInterval(function () {
+        if (typeof partlist[playIndex][index] !== 'undefined') {
+            clearInterval(interval);
 
-    setTimeout(() => {
-        gapless.playlist.sources[partlist[playIndex][partIndex]].setPosition(startFrom, false);
-        play();
-    }, 1000);
+            let startFrom = (rangeEvent.target.value - currentTime) * 1000;
+            gapless.gotoTrack(partlist[playIndex][index]["gid"]);
+            partIndex = index;
+
+            setTimeout(() => {
+                gapless.playlist.sources[partlist[playIndex][partIndex]["gid"]].setPosition(startFrom, false);
+                play();
+            }, 1000);
+        }
+    }, 50);
 }
 
 /*
@@ -639,7 +646,7 @@ function nextSong() {
     if (typeof playlist[nextIndex] !== 'undefined') {
         playIndex = nextIndex;
 
-        if (typeof playlist[nextIndex]["player"] === 'undefined') downloadPart(0);
+        if (typeof playlist[nextIndex]["player"] === 'undefined') downloadPart(0, playIndex, partIndex);
 
         play(true);
     }
@@ -667,7 +674,7 @@ function previousSong() {
     if (typeof playlist[previousIndex] !== 'undefined') {
         playIndex = previousIndex;
 
-        if (typeof playlist[previousIndex]["player"] === 'undefined') downloadPart(0);
+        if (typeof playlist[previousIndex]["player"] === 'undefined') downloadPart(0, playIndex, partIndex);
 
         play(true);
     }

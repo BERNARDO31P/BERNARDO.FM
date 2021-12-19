@@ -767,7 +767,7 @@ function playPauseButton(option = "pause") {
  */
 function getCurrentPartTime() {
     try {
-        return playlist[playIndex]["player"].playlist.sources[partlist[playIndex][partIndex - 1]["gid"]].getPosition() / 1000;
+        return playlist[playIndex]["player"].playlist.sources[partlist[playIndex][partIndex]["gid"]].getPosition() / 1000;
     } catch (e) {
         return 0;
     }
@@ -802,7 +802,7 @@ function resetSong(index) {
     playlist[index]["player"].gotoTrack(0);
 
     for (let part of Object.values(partlist[index])) {
-        playlist[index]["player"].playlist.sources[part].setPosition(0);
+        playlist[index]["player"].playlist.sources[part["gid"]].setPosition(0);
     }
 }
 
@@ -1129,13 +1129,8 @@ function getCurrentPartLengthCallback(callback) {
 }
 
 function getPartIndexByTime(time) {
-    let fullTime = 0;
-
     for (let [index, part] of Object.entries(partlist[playIndex])) {
-        let partTime = getPartLength(part);
-
-        if (fullTime < time && fullTime + partTime > time) return [fullTime, fullTime + partTime, index];
-        else fullTime += partTime;
+        if (part["from"] <= time && part["till"] >= time) return [part["from"], part["till"], Number(index)];
     }
 
     return [undefined, undefined, undefined];
