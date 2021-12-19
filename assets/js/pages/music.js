@@ -140,7 +140,7 @@ window["music"] = () => {
             setTimeout(() => {
                 this.querySelector("td:last-of-type").appendChild(controls);
                 controls.classList.add("show");
-            }, 50);
+            }, 0);
         } else clearTimeout(controlsTimeout);
     });
 
@@ -447,7 +447,7 @@ function downloadNextPart() {
 
         } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
             let songID = playlist[nextIndex]["id"];
-            let gapless = new Gapless5({ singleMode: true });
+            let gapless = new Gapless5({singleMode: true});
 
             addEvents(gapless);
             gapless.addTrack(pageURL + "system/player.php?id=" + songID + "&time=0");
@@ -470,7 +470,7 @@ function downloadPart(time) {
     let songID = playlist[playIndex]["id"];
 
     if (typeof playlist[playIndex]["player"] === 'undefined') {
-        let gapless = new Gapless5({ singleMode: true });
+        let gapless = new Gapless5({singleMode: true});
         addEvents(gapless);
 
         playlist[playIndex]["player"] = gapless;
@@ -516,7 +516,7 @@ function generateListView(data, categories = true) {
     } else {
         columns = getColumns(data, 1);
     }
-    
+
     columns = removeFromObject(columns, ["id", "category", "player"]);
 
     listView.appendChild(generateTableHead(columns));
@@ -561,10 +561,10 @@ function showControlsCard(card) {
         controls.style.bottom = "0";
         controls.style.left = "0";
 
-        setTimeout(() => {
+        setTimeout(function () {
             card.appendChild(controls);
             controls.classList.add("show");
-        }, 50);
+        }, 0);
     } else clearTimeout(controlsTimeout);
 }
 
