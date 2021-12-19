@@ -1087,3 +1087,13 @@ function getColumns(data, level = 0, start = 0) {
 
     return columns;
 }
+
+// TODO: Comment
+function getPartLength(index) {
+    return playlist[playIndex]["player"].playlist.sources[index].getLength() / 1000;
+}
+
+// TODO: Comment
+function getCurrentPartLength() {
+    return playlist[playIndex]["player"].playlist.sources[partIndex].getLength() / 1000;
+}

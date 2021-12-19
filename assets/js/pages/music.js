@@ -437,25 +437,14 @@ function downloadNextPart() {
         let partCount = playlist[playIndex]["player"].totalTracks() - 1;
 
         if (!nextSong && currentPart === partCount) {
-            let songID = playlist[playIndex]["id"];
             let indexPart = partIndex + 1;
             let index = playlist[playIndex]["player"].totalTracks();
 
-            playlist[playIndex]["player"].addTrack(pageURL + "system/player.php?id=" + songID + "&time=" + nextTime);
-
-            if (typeof partlist[playIndex] === 'undefined') partlist[playIndex] = {};
+            downloadPart(nextTime, playIndex);
             partlist[playIndex][indexPart] = index;
 
-        } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
-            let songID = playlist[nextIndex]["id"];
-            let gapless = new Gapless5({singleMode: true});
-
-            addEvents(gapless);
-            gapless.addTrack(pageURL + "system/player.php?id=" + songID + "&time=0");
-
-            playlist[nextIndex]["player"] = gapless;
-            partlist[nextIndex] = {0: 0};
-        }
+        } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined')
+            downloadPart(0, nextIndex);
     }, 2000);
 }
 
@@ -467,17 +456,20 @@ function downloadNextPart() {
  *
  * Lädt ein Teilstück von einem Lied herunter, ab einer bestimmten Zeit
  */
-function downloadPart(time) {
-    let songID = playlist[playIndex]["id"];
+function downloadPart(time, index = null) {
+    if (!index) index = playIndex;
 
-    if (typeof playlist[playIndex]["player"] === 'undefined') {
+    let songID = playlist[index]["id"];
+
+    if (typeof playlist[index]["player"] === 'undefined') {
         let gapless = new Gapless5({singleMode: true});
         addEvents(gapless);
 
-        playlist[playIndex]["player"] = gapless;
+        playlist[index]["player"] = gapless;
+        partlist[index] = {0: 0};
     }
 
-    playlist[playIndex]["player"].addTrack(pageURL + "system/player.php?id=" + songID + "&time=" + time);
+    playlist[index]["player"].addTrack(pageURL + "system/player.php?id=" + songID + "&time=" + time);
 }
 
 /*
