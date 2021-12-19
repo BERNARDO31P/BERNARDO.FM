@@ -602,7 +602,7 @@ function Gapless5FileList(inShuffle, inLoadLimit = -1) {
 //     singleMode (default = false): whether to treat single track as playlist
 //     exclusive (default = false): whether to stop other gapless players when this is playing
 function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unused-vars
-                                                   // Backwards-compatibility with deprecated API
+    // Backwards-compatibility with deprecated API
     if (typeof options === 'string') {
         console.warn('Using deprecated API.  Pass element id into options as "guiId"');
         options = { // eslint-disable-line no-param-reassign

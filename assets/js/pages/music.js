@@ -354,32 +354,6 @@ window["music"] = () => {
  */
 function addEvents(player) {
     player.onplay = function () {
-        if ('mediaSession' in navigator) {
-            let song = playlist[playIndex];
-
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: song["name"],
-                artist: song["artist"],
-                artwork: [
-                    {src: song["cover"]["url"], type: 'image/png'},
-                ]
-            });
-            navigator.mediaSession.playbackState = "playing";
-
-            navigator.mediaSession.setActionHandler('play', function () {
-                play()
-            });
-            navigator.mediaSession.setActionHandler('pause', function () {
-                pauseSong()
-            });
-            navigator.mediaSession.setActionHandler('previoustrack', function () {
-                previousSong()
-            });
-            navigator.mediaSession.setActionHandler('nexttrack', function () {
-                nextSong()
-            });
-        }
-
         downloadNextPart();
     }
 
@@ -473,7 +447,7 @@ function downloadNextPart() {
 
         } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
             let songID = playlist[nextIndex]["id"];
-            let gapless = new Gapless5();
+            let gapless = new Gapless5({ singleMode: true });
 
             addEvents(gapless);
             gapless.addTrack(pageURL + "system/player.php?id=" + songID + "&time=0");
@@ -496,7 +470,7 @@ function downloadPart(time) {
     let songID = playlist[playIndex]["id"];
 
     if (typeof playlist[playIndex]["player"] === 'undefined') {
-        let gapless = new Gapless5();
+        let gapless = new Gapless5({ singleMode: true });
         addEvents(gapless);
 
         playlist[playIndex]["player"] = gapless;
