@@ -413,8 +413,10 @@ function downloadNextPart() {
         nextPartIndex = partInfo[2] ?? partIndex + 1;
         if (!nextSong && typeof partInfo[2] === 'undefined') {
             downloadPart(nextTime, playIndex, nextPartIndex);
-        } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined')
+        } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
+            partlist[nextIndex] = {};
             downloadPart(0, nextIndex, 0);
+        }
     });
 }
 
