@@ -364,8 +364,8 @@ function addEvents(player) {
 
         clearInterval(secondsInterval);
 
-        let nextPartIndex = getPartIndexByTime(Number(timeline.value) + 2)[2];
-        if (typeof partlist[playIndex][nextPartIndex] !== "undefined" && Number(timeline.value) + 2 < Number(timeline.max)) {
+        let nextPartIndex = getPartIndexByStartTime(partlist[playIndex][partIndex]["till"] + 1)[2];
+        if (typeof partlist[playIndex][nextPartIndex] !== "undefined" && Number(timeline.value) + 1 < Number(timeline.max)) {
             currentTime += getPartLength(partIndex);
             partIndex = nextPartIndex;
 
@@ -436,14 +436,8 @@ function downloadNextPart() {
             nextIndex = nextSongIndex();
         }
 
-        /*
-         * TODO: Check the start time of the next part
-         *  If the time doesn't match with the current part, delete it and redownload it
-         */
-
-        let partInfo = getPartIndexByTime(nextTime + 2);
+        let partInfo = getPartIndexByStartTime(nextTime + 1);
         if (!nextSong && typeof partInfo[2] === 'undefined') {
-            console.log("what");
             downloadPart(nextTime, playIndex, partIndex + 1);
         } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined')
             downloadPart(0, nextIndex, 0);

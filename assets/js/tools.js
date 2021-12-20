@@ -1135,3 +1135,11 @@ function getPartIndexByTime(time) {
 
     return [undefined, undefined, undefined];
 }
+
+function getPartIndexByStartTime(time) {
+    for (let [index, part] of Object.entries(partlist[playIndex])) {
+        if (part["from"] === time) return [part["from"], part["till"], Number(index)];
+    }
+
+    return [undefined, undefined, undefined];
+}
