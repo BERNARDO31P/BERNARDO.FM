@@ -27,12 +27,20 @@ window.addEventListener("resize", function () {
 
 // TODO: Comment
 document.onkeydown = function(e) {
+
     let keys = ["K", "Space", "M", "ArrowLeft", "ArrowRight", "J", "L", "ArrowUp", "ArrowDown"];
     let key = e.code.replace("Key", "");
 
     if (!(currentHover instanceof HTMLInputElement)) {
         if (keys.includes(key)) {
             e.preventDefault();
+
+            let timeline = document.getElementById("timeline");
+
+            let event = new Event('mouseup', {
+                bubbles: true,
+                cancelable: true,
+            });
 
             switch (key) {
                 case "K":
@@ -44,12 +52,20 @@ document.onkeydown = function(e) {
                     muteAudio();
                     break;
                 case "ArrowLeft":
+                    timeline.value = Number(timeline.value) - 5;
+                    timeline.dispatchEvent(event);
                     break;
                 case "ArrowRight":
+                    timeline.value = Number(timeline.value) + 5;
+                    timeline.dispatchEvent(event);
                     break;
                 case "J":
+                    timeline.value = Number(timeline.value) - 10;
+                    timeline.dispatchEvent(event);
                     break;
                 case "L":
+                    timeline.value = Number(timeline.value) + 10;
+                    timeline.dispatchEvent(event);
                     break;
                 case "ArrowUp":
                     volume = volume + 0.1;
@@ -66,7 +82,6 @@ document.onkeydown = function(e) {
             }
         }
     }
-
 };
 
 /*

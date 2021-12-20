@@ -12,7 +12,7 @@ let currentHover = null,
     touched = false;
 
 let backgroundProcesses = [];
-let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, notificationTimeout = {};
+let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null;
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 
@@ -604,7 +604,8 @@ function muteAudio(e = null) {
             volumeSlider.value = volume = 0;
         }
 
-        playlist[playIndex]["player"].setGain(volume * 65535);
+        if (typeof playlist[playIndex] !== 'undefined')
+            playlist[playIndex]["player"].setGain(volume * 65535);
 
         hideVolumeSlider();
     } else touched = true;

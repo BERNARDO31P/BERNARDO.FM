@@ -591,6 +591,7 @@ function removeControlsCard(card) {
  * Die Wiedergabe beginnt
  */
 function onTimelineRelease(rangeEvent) {
+
     let timeInfo = document.getElementById("timeInfo");
     let gapless = playlist[playIndex]["player"];
     timeInfo.style.display = "none";
@@ -599,29 +600,32 @@ function onTimelineRelease(rangeEvent) {
     clearInterval(secondsInterval);
     resetSong(playIndex);
 
-    let partInfo = getPartIndexByTime(rangeEvent.target.value);
-    let index = partInfo[2];
-    currentTime = partInfo[0];
+    clearTimeout(timelineTimeout);
+    timelineTimeout = setTimeout(function () {
+        let partInfo = getPartIndexByTime(rangeEvent.target.value);
+        let index = partInfo[2];
+        currentTime = partInfo[0];
 
-    if (typeof index === "undefined") {
-        index = Object.keys(partlist[playIndex]).length;
-        downloadPart(Number(rangeEvent.target.value), playIndex, index);
+        if (typeof index === "undefined") {
+            index = Object.keys(partlist[playIndex]).length;
+            downloadPart(Number(rangeEvent.target.value), playIndex, index);
 
-        currentTime = Number(rangeEvent.target.value);
-    }
-
-    let interval = setInterval(function () {
-        if (typeof partlist[playIndex][index] !== 'undefined') {
-            clearInterval(interval);
-
-            let startFrom = (rangeEvent.target.value - currentTime) * 1000;
-            gapless.gotoTrack(partlist[playIndex][index]["gid"]);
-            partIndex = index;
-
-            gapless.playlist.sources[partlist[playIndex][partIndex]["gid"]].setPosition(startFrom, false);
-            play();
+            currentTime = Number(rangeEvent.target.value);
         }
-    }, 50);
+
+        let interval = setInterval(function () {
+            if (typeof partlist[playIndex][index] !== 'undefined') {
+                clearInterval(interval);
+
+                let startFrom = (rangeEvent.target.value - currentTime) * 1000;
+                gapless.gotoTrack(partlist[playIndex][index]["gid"]);
+                partIndex = index;
+
+                gapless.playlist.sources[partlist[playIndex][partIndex]["gid"]].setPosition(startFrom, false);
+                play();
+            }
+        }, 50);
+    }, 2000);
 }
 
 /*
