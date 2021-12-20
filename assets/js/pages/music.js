@@ -626,7 +626,10 @@ function nextSong() {
     if (typeof playlist[nextIndex] !== 'undefined') {
         playIndex = nextIndex;
 
-        if (typeof playlist[nextIndex]["player"] === 'undefined') downloadPart(0, playIndex, partIndex);
+        if (typeof playlist[nextIndex]["player"] === 'undefined') {
+            partlist[nextIndex] = {};
+            downloadPart(0, playIndex, partIndex);
+        }
 
         play(true);
     }
@@ -654,7 +657,10 @@ function previousSong() {
     if (typeof playlist[previousIndex] !== 'undefined') {
         playIndex = previousIndex;
 
-        if (typeof playlist[previousIndex]["player"] === 'undefined') downloadPart(0, playIndex, partIndex);
+        if (typeof playlist[previousIndex]["player"] === 'undefined') {
+            partlist[previousIndex] = {};
+            downloadPart(0, playIndex, partIndex);
+        }
 
         play(true);
     }
