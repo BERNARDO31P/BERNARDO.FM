@@ -425,8 +425,11 @@ function downloadNextPart() {
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  time: (Integer) Definiert die Zeit, ab wann der nächste Teil beginnt
+ *  sIndex: (Integer) Definiert den Index des Songs (auch playIndex)
+ *  pIndex: (Interger) Definiert den Index des Teils (auch partIndex)
  *
  * Lädt ein Teilstück von einem Lied herunter, ab einer bestimmten Zeit
+ * Fügt die Informationen zur partlist hinzu
  */
 function downloadPart(time, sIndex, pIndex) {
     let songID = playlist[sIndex]["id"];
