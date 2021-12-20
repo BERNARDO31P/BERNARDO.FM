@@ -297,35 +297,6 @@ window["music"] = () => {
         removeControls("controlsQueue");
     });
 
-    /*
-     * Funktion: Anonym
-     * Autor: Bernardo de Oliveira
-     *
-     * Ändert die Farbe des Icons, damit der Benutzer erkennt, dass es aktiviert wurde
-     * Mischt die Playlist durch und aktualisiert die Playlist-Ansicht
-     */
-    bindEvent("click", ".fa-random", function () {
-        let currentSong = playlist[playIndex];
-        resetSong(playIndex);
-
-        delete playlist[playIndex];
-        playlist.splice(0, 1);
-        playlist = playlist.sort((a, b) => 0.5 - Math.random());
-        playlist.unshift(currentSong);
-
-        playIndex = 0;
-        partIndex = 0;
-        currentTime = 0;
-
-        let queueView = document.getElementById("queueView");
-        let queue = queueView.querySelector("#queue");
-
-        queue.innerHTML = "";
-        queue.appendChild(generateListView(playlist, false));
-
-        play();
-    });
-
     bindEvent("touchend", "#timeline", (e) => onTimelineRelease(e));
     bindEvent("mouseup", "#timeline", (e) => onTimelineRelease(e));
 

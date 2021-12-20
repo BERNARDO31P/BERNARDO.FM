@@ -28,21 +28,37 @@ window.addEventListener("resize", function () {
 // TODO: Comment
 document.onkeydown = function(e) {
 
-    let keys = ["K", "Space", "M", "ArrowLeft", "ArrowRight", "J", "L", "ArrowUp", "ArrowDown"];
+    let keys = ["K", "Space", "M", "ArrowLeft", "ArrowRight", "J", "L", "R", "S", "ArrowUp", "ArrowDown"];
     let key = e.code.replace("Key", "");
 
     if (!(currentHover instanceof HTMLInputElement)) {
         if (keys.includes(key)) {
             e.preventDefault();
 
-            let timeline = document.getElementById("timeline");
+            let player = document.getElementById("player");
+            let timeline = player.querySelector("#timeline");
 
-            let event = new Event('mouseup', {
+            let mouseUpEvent = new Event('mouseup', {
+                bubbles: true,
+                cancelable: true,
+            });
+
+            let clickEvent = new Event('click', {
                 bubbles: true,
                 cancelable: true,
             });
 
             switch (key) {
+                case "R":
+                    let repeatButton = player.querySelector(".repeat");
+                    repeatButton.dispatchEvent(clickEvent);
+
+                    break;
+                case "S":
+                    let shuffleButton = player.querySelector(".fa-random");
+                    shuffleButton.dispatchEvent(clickEvent);
+
+                    break;
                 case "K":
                 case "Space":
                     if (playing) pauseSong();
@@ -53,19 +69,19 @@ document.onkeydown = function(e) {
                     break;
                 case "ArrowLeft":
                     timeline.value = Number(timeline.value) - 5;
-                    timeline.dispatchEvent(event);
+                    timeline.dispatchEvent(mouseUpEvent);
                     break;
                 case "ArrowRight":
                     timeline.value = Number(timeline.value) + 5;
-                    timeline.dispatchEvent(event);
+                    timeline.dispatchEvent(mouseUpEvent);
                     break;
                 case "J":
                     timeline.value = Number(timeline.value) - 10;
-                    timeline.dispatchEvent(event);
+                    timeline.dispatchEvent(mouseUpEvent);
                     break;
                 case "L":
                     timeline.value = Number(timeline.value) + 10;
-                    timeline.dispatchEvent(event);
+                    timeline.dispatchEvent(mouseUpEvent);
                     break;
                 case "ArrowUp":
                     volume = volume + 0.1;
@@ -392,6 +408,35 @@ bindEvent("click", ".repeat", function () {
             this.querySelector(".repeatOne").classList.remove("show");
             break;
     }
+});
+
+/*
+     * Funktion: Anonym
+     * Autor: Bernardo de Oliveira
+     *
+     * Ändert die Farbe des Icons, damit der Benutzer erkennt, dass es aktiviert wurde
+     * Mischt die Playlist durch und aktualisiert die Playlist-Ansicht
+     */
+bindEvent("click", ".fa-random", function () {
+    let currentSong = playlist[playIndex];
+    resetSong(playIndex);
+
+    delete playlist[playIndex];
+    playlist.splice(0, 1);
+    playlist = playlist.sort((a, b) => 0.5 - Math.random());
+    playlist.unshift(currentSong);
+
+    playIndex = 0;
+    partIndex = 0;
+    currentTime = 0;
+
+    let queueView = document.getElementById("queueView");
+    let queue = queueView.querySelector("#queue");
+
+    queue.innerHTML = "";
+    queue.appendChild(generateListView(playlist, false));
+
+    play();
 });
 
 /*
