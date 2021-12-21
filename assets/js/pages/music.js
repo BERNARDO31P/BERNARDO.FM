@@ -399,25 +399,30 @@ function addSongToPlaylist(element) {
  * Lädt den nächsten Teil herunter oder pausiert die weitere Wiedergabes
  */
 function downloadNextPart() {
-    let timeline = document.getElementById("timeline");
+    let timeline = document.getElementById("timeline"), nextTime;
 
-    getCurrentPartLengthCallback(function (length) {
-        let nextTime = partlist[playIndex][partIndex]["from"] + length, nextSong = false, nextIndex;
+    let interval = setInterval(function () {
+        nextTime = partlist[playIndex][partIndex]["till"] + 1;
+        if (nextTime) {
+            clearInterval(interval);
 
-        if (!(Number(timeline.max) - nextTime > 1)) {
-            nextSong = true;
-            nextIndex = nextSongIndex();
+            let nextSong = false, nextIndex;
+
+            if (!(Number(timeline.max) - nextTime > 1)) {
+                nextSong = true;
+                nextIndex = nextSongIndex();
+            }
+
+            let partInfo = getPartIndexByStartTime(nextTime);
+            nextPartIndex = partInfo[2] ?? partIndex + 1;
+            if (!nextSong && typeof partInfo[2] === 'undefined') {
+                downloadPart(nextTime, playIndex, nextPartIndex);
+            } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
+                partlist[nextIndex] = {};
+                downloadPart(0, nextIndex, 0);
+            }
         }
-
-        let partInfo = getPartIndexByStartTime(nextTime + 1);
-        nextPartIndex = partInfo[2] ?? partIndex + 1;
-        if (!nextSong && typeof partInfo[2] === 'undefined') {
-            downloadPart(nextTime, playIndex, nextPartIndex);
-        } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
-            partlist[nextIndex] = {};
-            downloadPart(0, nextIndex, 0);
-        }
-    });
+    }, 50);
 }
 
 /*

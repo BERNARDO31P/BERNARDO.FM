@@ -804,7 +804,8 @@ function resetSong(index) {
     playlist[index]["player"].gotoTrack(0);
 
     for (let part of Object.values(partlist[index])) {
-        playlist[index]["player"].playlist.sources[part["gid"]].setPosition(0);
+        if (typeof playlist[index]["player"].playlist.sources[part["gid"]] !== 'undefined')
+            playlist[index]["player"].playlist.sources[part["gid"]].setPosition(0);
     }
 }
 
@@ -1112,24 +1113,6 @@ function getPartLengthCallback(index, callback) {
 }
 
 // TODO: Comment
-function getCurrentPartLength() {
-    return Number((playlist[playIndex]["player"].playlist.sources[partIndex].getLength() / 1000).toFixed());
-}
-
-// TODO: Comment
-function getCurrentPartLengthCallback(callback) {
-    let length = 0;
-
-    let interval = setInterval(function () {
-        length = Number((playlist[playIndex]["player"].playlist.sources[partIndex].getLength() / 1000).toFixed());
-
-        if (length) {
-            clearInterval(interval);
-            callback(length);
-        }
-    }, 50);
-}
-
 function getPartIndexByTime(time) {
     for (let [index, part] of Object.entries(partlist[playIndex])) {
         if (part["from"] <= time && part["till"] >= time) return [part["from"], part["till"], Number(index)];
@@ -1138,6 +1121,7 @@ function getPartIndexByTime(time) {
     return [undefined, undefined, undefined];
 }
 
+// TODO: Comment
 function getPartIndexByStartTime(time) {
     for (let [index, part] of Object.entries(partlist[playIndex])) {
         if (part["from"] === time) return [part["from"], part["till"], Number(index)];
