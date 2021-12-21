@@ -337,8 +337,6 @@ function addEvents(player) {
         let timeline = document.getElementById("timeline");
         let gapless = playlist[playIndex]["player"];
 
-        console.log("finished");
-
         clearInterval(secondsInterval);
 
         let interval = setInterval(function () {
