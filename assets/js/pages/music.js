@@ -338,34 +338,40 @@ function addEvents(player) {
 
         clearInterval(secondsInterval);
 
-        if (typeof partlist[playIndex][nextPartIndex] !== "undefined" && partlist[playIndex][partIndex]["till"] + 1 < Number(timeline.max)) {
-            currentTime += getPartLength(partIndex);
-            partIndex = nextPartIndex;
+        let interval = setInterval(function () {
+            if (!downloading) {
+                clearInterval(interval);
 
-            let gid = partlist[playIndex][partIndex]["gid"];
-            gapless.gotoTrack(gid);
-            gapless.playlist.sources[gid].setPosition(0);
+                if (typeof partlist[playIndex][nextPartIndex] !== "undefined" && partlist[playIndex][partIndex]["till"] + 1 < Number(timeline.max)) {
+                    currentTime += getPartLength(partIndex);
+                    partIndex = nextPartIndex;
 
-            play();
-        } else {
-            let nextIndex = nextSongIndex();
+                    let gid = partlist[playIndex][partIndex]["gid"];
+                    gapless.gotoTrack(gid);
+                    gapless.playlist.sources[gid].setPosition(0);
 
-            resetSong(playIndex);
-            clearInterval(secondsInterval);
-            playPauseButton("pause");
+                    play();
+                } else {
+                    let nextIndex = nextSongIndex();
 
-            currentTime = 0;
-            partIndex = 0;
+                    resetSong(playIndex);
+                    clearInterval(secondsInterval);
+                    playPauseButton("pause");
 
-            if (typeof playlist[nextIndex] !== 'undefined') {
-                playIndex = nextIndex;
-                playlist[playIndex]["player"].gotoTrack(partIndex);
+                    currentTime = 0;
+                    partIndex = 0;
 
-                setTimeout(() => {
-                    play(true);
-                }, 1000);
+                    if (typeof playlist[nextIndex] !== 'undefined') {
+                        playIndex = nextIndex;
+                        playlist[playIndex]["player"].gotoTrack(partIndex);
+
+                        setTimeout(() => {
+                            play(true);
+                        }, 1000);
+                    }
+                }
             }
-        }
+        }, 1);
     }
 }
 
@@ -446,9 +452,12 @@ function downloadPart(time, sIndex, pIndex) {
         playlist[sIndex]["player"] = gapless;
     }
 
+    downloading = true;
+
     playlist[sIndex]["player"].addTrack(pageURL + "system/player.php?id=" + songID + "&time=" + time);
 
     getPartLengthCallback(pIndex, function (length) {
+        downloading = false;
         partlist[sIndex][pIndex] = {
             "gid": playlist[sIndex]["player"].totalTracks() - 1,
             "from": time,

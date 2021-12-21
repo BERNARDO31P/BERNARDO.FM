@@ -78,9 +78,11 @@ if (isset($_GET["id"])) {
 		$audio = $ffmpeg->open(__DIR__ . "/music/" . $song["fileName"]);
 
 		$time = 0;
-		if ($_GET["time"] < 25) {
-		    $time = 5;
+        if ($_GET["time"] < 25) {
+            $time = 3;
         } elseif ($_GET["time"] < 50) {
+		    $time = 5;
+        } elseif ($_GET["time"] < 75) {
 		    $time = 10;
         } else {
 		    $time = 20;
