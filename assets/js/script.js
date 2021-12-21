@@ -498,3 +498,7 @@ window.location.href = "#!page=" + page;
 loadPage();
 dataIncludeReplace(document.body);
 setActiveNavbar();
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.min.js');
+}

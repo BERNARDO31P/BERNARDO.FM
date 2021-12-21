@@ -8,6 +8,7 @@
         <item url="file://$PROJECT_DIR$/assets/js/pages/monitoring.min.js" />
         <item url="file://$PROJECT_DIR$/assets/js/pages/music.min.js" />
         <item url="file://$PROJECT_DIR$/assets/js/script.min.js" />
+        <item url="file://$PROJECT_DIR$/assets/js/sw.min.js" />
         <item url="file://$PROJECT_DIR$/assets/js/tools.min.js" />
       </sourceFilesUrls>
     </properties>
@@ -19,6 +20,7 @@
       <root url="file://$PROJECT_DIR$/assets/js/pages/music.min.js" />
       <root url="file://$PROJECT_DIR$/assets/js/script.min.js" />
       <root url="file://$PROJECT_DIR$/assets/js/tools.min.js" />
+      <root url="file://$PROJECT_DIR$/sw.min.js" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
