@@ -674,8 +674,6 @@ function play(diffSong = false) {
         }
     }
 
-    playPauseButton("load");
-
     gapless.setGain(volume * 65535);
     gapless.play();
     playing = true;
@@ -788,6 +786,18 @@ function clearSong(index) {
     if (typeof playlist[index]["player"] !== 'undefined') {
         playlist[index]["player"].stop();
         playlist[index]["player"].removeAllTracks();
+    }
+}
+
+/*
+ * Funktion: clearSong()
+ * Autor: Bernardo de Oliveira
+ *
+ * Löscht alle Teile aller Lieder
+ */
+function clearSongs() {
+    for (let index of Object.keys(playlist)) {
+        clearSong(index);
     }
 }
 

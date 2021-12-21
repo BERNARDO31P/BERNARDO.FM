@@ -419,24 +419,27 @@ bindEvent("click", ".repeat", function () {
      */
 bindEvent("click", ".fa-random", function () {
     let currentSong = playlist[playIndex];
-    resetSong(playIndex);
 
-    delete playlist[playIndex];
-    playlist.splice(0, 1);
-    playlist = playlist.sort((a, b) => 0.5 - Math.random());
-    playlist.unshift(currentSong);
+    if (currentSong) {
+        resetSong(playIndex);
 
-    playIndex = 0;
-    partIndex = 0;
-    currentTime = 0;
+        delete playlist[playIndex];
+        playlist.splice(0, 1);
+        playlist = playlist.sort((a, b) => 0.5 - Math.random());
+        playlist.unshift(currentSong);
 
-    let queueView = document.getElementById("queueView");
-    let queue = queueView.querySelector("#queue");
+        playIndex = 0;
+        partIndex = 0;
+        currentTime = 0;
 
-    queue.innerHTML = "";
-    queue.appendChild(generateListView(playlist, false));
+        let queueView = document.getElementById("queueView");
+        let queue = queueView.querySelector("#queue");
 
-    play();
+        queue.innerHTML = "";
+        queue.appendChild(generateListView(playlist, false));
+
+        play();
+    }
 });
 
 /*

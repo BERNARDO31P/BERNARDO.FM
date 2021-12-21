@@ -3,8 +3,7 @@ self.addEventListener('install', e => {
         caches.open('bernardofm').then(cache => {
             return cache.addAll([
                 '/',
-            ])
-                .then(() => self.skipWaiting());
+            ]).then(() => self.skipWaiting());
         })
     )
 });

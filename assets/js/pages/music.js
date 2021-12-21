@@ -200,9 +200,7 @@ window["music"] = () => {
      * Setzt die Wiedergabenliste zurück und spielt das Lied ab
      */
     bindEvent("click", "#content .fa-play", function () {
-        for (let i = 0; i < playlist.length; i++) {
-            clearSong(i);
-        }
+        clearSongs();
 
         playIndex = 0;
         partIndex = 0;
@@ -327,14 +325,19 @@ window["music"] = () => {
  * onfinishedall: Sobald das Lied abgeschlossen ist, wird das nächste Lied wiedergeben
  */
 function addEvents(player) {
-    player.onplay = function () {
-        playPauseButton("play");
+    player.onplayrequest = () => {
         downloadNextPart();
     }
 
-    player.onfinishedtrack = function () {
+    player.onplay = () => {
+        playPauseButton("play");
+    }
+
+    player.onfinishedtrack = () => {
         let timeline = document.getElementById("timeline");
         let gapless = playlist[playIndex]["player"];
+
+        console.log("finished");
 
         clearInterval(secondsInterval);
 
@@ -453,7 +456,6 @@ function downloadPart(time, sIndex, pIndex) {
     }
 
     downloading = true;
-
     playlist[sIndex]["player"].addTrack(pageURL + "system/player.php?id=" + songID + "&time=" + time);
 
     getPartLengthCallback(pIndex, function (length) {
