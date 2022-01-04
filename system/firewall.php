@@ -18,6 +18,7 @@ function special_split($string, $columns): array
     $cur = 0;
     $found = false;
     $whitespace = false;
+    $extra = false;
 
     for ($i = 0; $i < strlen($string); $i++) {
         switch ($string[$i]) {
@@ -38,7 +39,13 @@ function special_split($string, $columns): array
             case ' ':
                 if (!$level) {
                     if (!$column) {
-                        if ($i) {
+                        if (strlen($columns) < $i) {
+                            $extra = true;
+                            $ret[$cur] .= ' ';
+                            break;
+                        }
+
+                        if ($i && !$extra) {
                             if ($string[$i - 1] !== " " && !$found) {
                                 $found = true;
                                 $cur++;
@@ -193,19 +200,19 @@ function structureArray($array): array
                 if (count($removed)) {
                     foreach ($removed as $column) {
                         $matches = array();
-                        if (preg_match('(dpt:)', $column, $matches)) {
-                            array_push($extraKeys, "destination port");
-                            array_push($rule, (int)filter_var($column, FILTER_SANITIZE_NUMBER_INT));
+                        if (preg_match('/dpt:(.*?)\s/', $column, $matches)) {
+                            $extraKeys[] = "dport";
+                            $rule[] = $matches[1];
                         }
 
                         if (preg_match('(NEW|RELATED|ESTABLISHED)', $column, $matches)) {
-                            array_push($extraKeys, "state");
-                            array_push($rule, $column);
+                            $extraKeys[] = "state";
+                            $rule[] = $column;
                         }
 
                         if (preg_match('/\/\* (.*?) \*\//', $column, $matches)) {
-                            array_push($extraKeys, "comment");
-                            array_push($rule, $matches[1]);
+                            $extraKeys[] = "comment";
+                            $rule[] = $matches[1];
                         }
                     }
                 }
