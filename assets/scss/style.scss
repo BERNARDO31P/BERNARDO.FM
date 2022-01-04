@@ -972,7 +972,7 @@ body {
 @media screen and (max-width: 1150px) {
   #navbar {
     li {
-      display: block;
+      display: inline-block;
       text-align: left;
     }
 
@@ -1136,6 +1136,18 @@ body {
   .notification {
     right: 20px;
     left: 20px;
+  }
+}
+
+@media screen and (max-width: 485px) {
+
+  #navbar {
+    a {
+      padding: 5px 10px;
+    }
+    li {
+      margin: 0;
+    }
   }
 }
 
