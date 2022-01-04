@@ -17,16 +17,13 @@ function special_split($string, $columns): array
     $ret = array("");
     $cur = 0;
     $found = false;
+    $whitespace = false;
 
     for ($i = 0; $i < strlen($string); $i++) {
         switch ($string[$i]) {
             case "/":
-                if (isset($string[$i + 1]) && $string[$i + 1] === "*") {
-                    $level++;
-                } elseif (isset($string[$i - 1]) && $string[$i - 1] === "*") {
-                    $comment = false;
-                    $level--;
-                }
+                if (isset($string[$i + 1]) && $string[$i + 1] === "*") $level++;
+                elseif (isset($string[$i - 1]) && $string[$i - 1] === "*") $level--;
 
                 $ret[$cur] .= "/";
                 break;
@@ -42,21 +39,37 @@ function special_split($string, $columns): array
                 if (!$level) {
                     if (!$column) {
                         if ($i) {
-                            if ($string[$i - 1] !== " ") {
+                            if ($string[$i - 1] !== " " && !$found) {
                                 $found = true;
                                 $cur++;
                                 $ret[$cur] = "";
                                 break;
                             }
 
-                            if (isset($columns[$i]) && $columns[$i] !== " ") {
-                                $found = false;
-                                break;
-                            } elseif (isset($columns[$i]) && $columns[$i] === " " && !$found) {
+                            if (isset($columns[$i]) && $columns[$i] === " " && !$found) {
                                 $found = true;
                                 $cur++;
                                 $ret[$cur] = "";
                                 break;
+                            }
+
+                            if (isset($columns[$i + 1]) && $columns[$i + 1] !== " " && !$whitespace) {
+                                $hasValue = false;
+                                for ($j = $i + 1; $j < 999; $j++) {
+                                    if (isset($columns[$j]) && $columns[$j] === " ") break;
+
+                                    if (isset($string[$j]) && $string[$j] !== " ") {
+                                        $hasValue = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!$hasValue) {
+                                    $whitespace = true;
+                                    $cur++;
+                                    $ret[$cur] = "";
+                                    break;
+                                }
                             }
                         }
                     } else {
@@ -72,6 +85,7 @@ function special_split($string, $columns): array
                 if (!$level) break;
             default:
                 $found = false;
+                $whitespace = false;
                 $ret[$cur] .= $string[$i];
         }
     }
@@ -181,7 +195,7 @@ function structureArray($array): array
                         $matches = array();
                         if (preg_match('(dpt:)', $column, $matches)) {
                             array_push($extraKeys, "destination port");
-                            array_push($rule, (int) filter_var($column, FILTER_SANITIZE_NUMBER_INT));
+                            array_push($rule, (int)filter_var($column, FILTER_SANITIZE_NUMBER_INT));
                         }
 
                         if (preg_match('(NEW|RELATED|ESTABLISHED)', $column, $matches)) {
