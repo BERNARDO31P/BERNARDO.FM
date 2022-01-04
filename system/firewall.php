@@ -13,7 +13,7 @@
 function special_split($string, $columns): array
 {
     $column = (strpos(strtolower($string), 'pkts') !== false || strpos(strtolower($string), 'chain') !== false);
-    $level = 0;
+    $level = false;
     $ret = array("");
     $cur = 0;
     $found = false;
@@ -23,17 +23,17 @@ function special_split($string, $columns): array
     for ($i = 0; $i < strlen($string); $i++) {
         switch ($string[$i]) {
             case "/":
-                if (isset($string[$i + 1]) && $string[$i + 1] === "*") $level++;
-                elseif (isset($string[$i - 1]) && $string[$i - 1] === "*") $level--;
+                if (isset($string[$i + 1]) && $string[$i + 1] === "*") $level = true;
+                elseif (isset($string[$i - 1]) && $string[$i - 1] === "*") $level = false;
 
                 $ret[$cur] .= "/";
                 break;
             case '(':
-                $level++;
+                $level = true;
                 $ret[$cur] .= '(';
                 break;
             case ')':
-                $level--;
+                $level = false;
                 $ret[$cur] .= ')';
                 break;
             case ' ':
