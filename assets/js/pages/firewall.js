@@ -179,10 +179,26 @@ function generateCommentRow(row, comment, columnCount) {
     let tableData = document.createElement("td");
     tableData.setAttribute("colspan", columnCount);
 
-    // TODO: Generate info text
+    let infoText = document.createElement("div");
+    if (["ACCEPT", "DROP"].includes(row["target"])) {
+        if (row["target"] === "DROP") {
+            infoText.textContent += ucFirst(row["target"].toLowerCase()) + "ping ";
+        } else {
+            infoText.textContent += ucFirst(row["target"].toLowerCase()) + "ing ";
+        }
+
+        if (["tcp", "udp"].includes(row["prot"])) {
+            infoText.textContent += "all " + row["prot"] + " packets";
+        } else {
+            infoText.textContent += row["prot"] + " packets";
+        }
+
+    }
+
     let div = document.createElement("div");
     div.textContent = comment;
 
+    tableData.appendChild(infoText);
     tableData.appendChild(div);
     tableRow.appendChild(tableData);
 
