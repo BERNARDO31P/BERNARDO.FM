@@ -512,7 +512,6 @@ bindEvent("click", "#menu-toggler", function () {
     let menu = this.parentNode.querySelector("#menu");
 
     if (menu.classList.contains("show")) {
-        console.log("contains");
         menu.classList.remove("show");
     } else {
         let interval = setInterval(function () {
