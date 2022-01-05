@@ -20,11 +20,15 @@ window["firewall"] = () => {
 bindEvent("click", "#firewall tr", function () {
     let nextRow = this.parentNode.rows[this.rowIndex];
 
-    document.querySelectorAll("#firewall .comment").forEach(function (element) {
-        element.classList.remove("show");
-    });
+    if (!nextRow.classList.contains("show")) {
+        document.querySelectorAll("#firewall .comment").forEach(function (element) {
+            element.classList.remove("show");
+        });
 
-    if (nextRow && nextRow.classList.contains("comment")) nextRow.classList.add("show");
+        if (nextRow && nextRow.classList.contains("comment")) nextRow.classList.add("show");
+    } else {
+        nextRow.classList.remove("show");
+    }
 });
 
 /*
