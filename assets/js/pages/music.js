@@ -1,7 +1,7 @@
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
 window["music"] = () => {
-    let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search");
+    let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search input");
     let view = getCookie("view");
 
     /*
@@ -37,8 +37,6 @@ window["music"] = () => {
         }
 
         if (data.length > 0) {
-            // TODO: Add shuffling of songs
-
             let parsed = {};
 
             for (let song of data) {

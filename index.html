@@ -19,7 +19,7 @@
 </head>
 <body>
     <nav id="navbar">
-        <div id="navbar-toggler">☰</div>
+        <div id="navbar-toggler"><i class="fas fa-bars"></i></div>
         <span id="logo">BERNARDO.FM</span>
         <div id="navigation">
             <ul class="left">
@@ -30,14 +30,30 @@
                 <li><a href="#!page=projects" data-page="projects">projects</a></li>
             </ul>
             <div class="divider"></div>
-            <ul class="right">
-                <li>
-                    <label><input id="search" type="text" placeholder="search a song"/></label>
-                </li>
-            </ul>
-            <ul class="permanent right">
-                <li id="theme-toggler"><i class="fas"></i></li>
-            </ul>
+            <div class="icons permanent right">
+                <div class="all-device permanent right">
+                    <div id="search">
+                        <label><input type="text" placeholder="search a song"/></label>
+                    </div>
+                </div>
+                <div class="big-device permanent right">
+                    <div class="search-toggler"><i class="fas fa-search"></i></div>
+                    <div class="theme-toggler"><i class="fas"></i></div>
+                </div>
+                <div class="small-device permanent right">
+                    <div id="menu-toggler"><i class="fas fa-ellipsis-v"></i></div>
+                    <div id="menu">
+                        <div class="theme-toggler">
+                            <i class="fas"></i>
+                            <p>Theme</p>
+                        </div>
+                        <div class="search-toggler">
+                            <i class="fas fa-search"></i>
+                            <p>Search</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
     <div id="content">This webpage isn't supported on your device.</div>
@@ -65,7 +81,8 @@
                 <i class="fas fa-forward"></i>
                 <div class="volume">
                     <i class="fas fa-volume-up"></i>
-                    <div class="volumeBackground"><label><input class="volumeSlider" type="range" min="0" max="100" step="5" value="50" /></label></div>
+                    <div class="volumeBackground"><label><input class="volumeSlider" type="range" min="0" max="100"
+                                                                step="5" value="50"/></label></div>
                 </div>
                 <i class="fas fa-angle-up"></i>
             </div>

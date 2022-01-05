@@ -6,6 +6,7 @@ usort($db, function ($a, $b) {
 	return $a['category'] <=> $b['category'];
 });
 
+// TODO: Comment
 function recursive_unset(&$array, $unwanted_key)
 {
 	unset($array[$unwanted_key]);
@@ -14,6 +15,7 @@ function recursive_unset(&$array, $unwanted_key)
 	}
 }
 
+// TODO: Comment
 function recursive_prepend(&$array, $key, $data)
 {
     foreach ($array as $arrKey => &$value) {
@@ -26,11 +28,13 @@ function recursive_prepend(&$array, $key, $data)
     }
 }
 
+// TODO: Comment
 function recursive_paging($array, $page, $pageCount): array
 {
     return array();
 }
 
+// TODO: Comment
 function search_songs($search): array
 {
 	global $db;
@@ -49,6 +53,7 @@ function search_songs($search): array
 	return $songs;
 }
 
+// TODO: Comment
 function search_song($id)
 {
 	global $db;

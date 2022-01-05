@@ -36,8 +36,8 @@
             "type": "image/png"
         }
     ],
-    "name": "A beautiful music experience",
-    "short_name": "BERNARDO.FM",
+    "name": "BERNARDO.FM",
+    "short_name": "B.FM",
     "scope": "/",
     "start_url": "/#!page=music"
 }

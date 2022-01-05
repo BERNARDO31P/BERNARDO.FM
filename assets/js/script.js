@@ -23,10 +23,12 @@ window.addEventListener("scroll", () => {
 window.addEventListener("resize", function () {
     removeControls("controlsContent");
     removeControls("controlsQueue");
+
+    if (!isTouchScreen()) document.querySelector("#search").querySelector("input").style.width = "";
 }, true);
 
 // TODO: Comment
-document.onkeydown = function(e) {
+document.onkeydown = function (e) {
 
     let keys = ["K", "Space", "M", "ArrowLeft", "ArrowRight", "J", "L", "R", "S", "ArrowUp", "ArrowDown"];
     let key = e.code.replace("Key", "");
@@ -158,8 +160,8 @@ function getScript(source) {
     let prior = document.querySelectorAll("body script:last-child")[0];
     script.async = true;
 
-    script.onload = script.onreadystatechange = function( _, isAbort ) {
-        if(isAbort || !script.readyState || /loaded|complete/.test(script.readyState) ) {
+    script.onload = script.onreadystatechange = function (_, isAbort) {
+        if (isAbort || !script.readyState || /loaded|complete/.test(script.readyState)) {
             script.onload = script.onreadystatechange = null;
             script = undefined;
         }
@@ -250,7 +252,7 @@ bindEvent("input", "#timeline", (e) => onTimelineMove(e));
 bindEvent("click", "[data-title]", function () {
     if (!isTouchScreen() || touched) {
         let element = this;
-        setTimeout(function() {
+        setTimeout(function () {
             if (currentHover === element) {
                 touched = false;
                 showNotification(element.getAttribute("data-title"), 3000);
@@ -308,7 +310,7 @@ bindEvent("mouseout", "#queueView tr[data-id]", function () {
  *
  * Ändert die Unterseite zu "music" und speichert sich die vorherige Seite
  */
-bindEvent("input", "#search", function () {
+bindEvent("input", "#search input", function () {
     if (page !== "music") prevPage = getPage();
 
     if (this.value || typeof prevPage === 'undefined') page = "music";
@@ -354,34 +356,6 @@ bindEvent("click", "#view .fa-list", function () {
 bindEvent("click", "#view .fa-grip-horizontal", function () {
     setCookie("view", "grid");
     loadPage();
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Ändert das Design-Attribut und ändert somit auch das Design
- */
-bindEvent("click", "#theme-toggler", function () {
-    let html = document.getElementsByTagName("html")[0], icon = this.querySelector("svg");
-
-    if (html.getAttribute("data-theme") === "dark") {
-        html.setAttribute("data-theme", "light");
-
-        icon.classList.remove("fa-sun");
-        icon.classList.add("fa-moon");
-
-        theme = "light";
-        setCookie("theme", "light");
-    } else {
-        html.setAttribute("data-theme", "dark");
-
-        icon.classList.remove("fa-moon");
-        icon.classList.add("fa-sun");
-
-        theme = "dark";
-        setCookie("theme", "dark");
-    }
 });
 
 /*
@@ -486,12 +460,84 @@ bindEvent("click", ".volume svg", function (e) {
     muteAudio(e);
 });
 
-let iconInterval = setInterval(function () {
-    let icon = document.getElementById("theme-toggler").querySelector("svg");
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Ändert das Design-Attribut und ändert somit auch das Design
+ */
+bindEvent("click", ".theme-toggler", function () {
+    let html = document.getElementsByTagName("html")[0], icon = this.querySelector("svg");
 
-    if (icon) {
-        if (theme === "light") icon.classList.add("fa-moon");
-        else icon.classList.add("fa-sun");
+    if (html.getAttribute("data-theme") === "dark") {
+        html.setAttribute("data-theme", "light");
+
+        icon.classList.remove("fa-sun");
+        icon.classList.add("fa-moon");
+
+        theme = "light";
+        setCookie("theme", "light");
+    } else {
+        html.setAttribute("data-theme", "dark");
+
+        icon.classList.remove("fa-moon");
+        icon.classList.add("fa-sun");
+
+        theme = "dark";
+        setCookie("theme", "dark");
+    }
+
+    document.getElementById("menu").classList.remove("show");
+});
+
+// TODO: Comment
+bindEvent("click", ".search-toggler", function () {
+    let input = this.closest(".icons").querySelector(".all-device input");
+    let rect = this.getBoundingClientRect();
+    let width = "0px";
+
+    if (getWidth() <= 500) width = rect.left + "px";
+    else if (getWidth() <= 1150) width = rect.left - 100 + "px";
+
+    input.style.width = width;
+    input.focus();
+    document.getElementById("menu").classList.remove("show");
+});
+
+// TODO: Comment
+bindEvent("click", "#menu-toggler", function () {
+    let menu = this.parentNode.querySelector("#menu");
+
+    if (menu.classList.contains("show")) menu.classList.remove("show");
+    else menu.classList.add("show");
+});
+
+// TODO: Comment
+bindEvent("mouseout", "#menu", function () {
+    let menu = this;
+    setTimeout(function () {
+        if (currentHover.closest("#menu") !== menu) menu.classList.remove("show");
+    });
+});
+
+// TODO: Comment
+bindEvent("focusout", "#search", function () {
+    if (getWidth() <= 1150) {
+        let input = this.querySelector("input");
+        input.style.width = "";
+    }
+});
+
+let iconInterval = setInterval(function () {
+    let togglers = document.getElementsByClassName("theme-toggler");
+
+    if (togglers) {
+        for (let toggler of togglers) {
+            let icon = toggler.querySelector("svg");
+
+            if (theme === "light") icon.classList.add("fa-moon");
+            else icon.classList.add("fa-sun");
+        }
         clearInterval(iconInterval);
     }
 }, 50);
