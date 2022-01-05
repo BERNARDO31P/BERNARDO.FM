@@ -508,8 +508,15 @@ bindEvent("click", ".search-toggler", function () {
 bindEvent("click", "#menu-toggler", function () {
     let menu = this.parentNode.querySelector("#menu");
 
-    if (menu.classList.contains("show")) menu.classList.remove("show");
-    else menu.classList.add("show");
+    if (menu.classList.contains("show")) {
+        console.log("contains");
+        menu.classList.remove("show");
+    } else {
+        let interval = setInterval(function () {
+            menu.classList.add("show");
+            if (menu.classList.contains("show")) clearInterval(interval);
+        }, 50);
+    }
 });
 
 // TODO: Comment
