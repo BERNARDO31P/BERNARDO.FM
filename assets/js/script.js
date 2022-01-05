@@ -5,13 +5,16 @@
  * Wenn der Benutzer sich nicht ganz oben befindet, wird ein Schatten zur Navigation hinzugefügt
  */
 window.addEventListener("scroll", () => {
-    let navbar = document.querySelector("#navbar");
+    let navbar = document.getElementById("navbar");
+    let menu = document.getElementById("menu");
 
     if (window.scrollY === 0) {
         navbar.classList.remove("shadow");
     } else {
         navbar.classList.add("shadow");
     }
+
+    if (menu.classList.contains("show")) menu.classList.remove("show");
 });
 
 /*
