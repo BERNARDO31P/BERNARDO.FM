@@ -36,7 +36,7 @@ document.onkeydown = function (e) {
     let keys = ["K", "Space", "M", "ArrowLeft", "ArrowRight", "J", "L", "R", "S", "ArrowUp", "ArrowDown"];
     let key = e.code.replace("Key", "");
 
-    if (!(currentHover instanceof HTMLInputElement)) {
+    if (!(document.activeElement instanceof HTMLInputElement)) {
         if (keys.includes(key)) {
             e.preventDefault();
 
