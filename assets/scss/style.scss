@@ -1070,11 +1070,11 @@ body {
       left: 0;
       max-height: 0;
       width: 100%;
-    }
 
-    #navigation.show {
-      max-height: 1000px;
-      padding-bottom: 10px;
+      &.show {
+        max-height: 1000px;
+        padding-bottom: 10px;
+      }
     }
 
     #logo {
