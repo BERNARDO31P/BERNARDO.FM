@@ -253,15 +253,19 @@ bindEvent("input", "#timeline", (e) => onTimelineMove(e));
  * Wenn das Endgerät ein Touchgerät ist, muss man doppelt drücken
  */
 bindEvent("click", "[data-title]", function () {
-    if (!isTouchScreen() || touched) {
+    if (!isTouchScreen() || (touched && touchedElement === this)) {
         let element = this;
+        touched = false;
+
         setTimeout(function () {
             if (currentHover === element) {
-                touched = false;
                 showNotification(element.getAttribute("data-title"), 3000);
             }
         }, 200);
-    } else touched = true;
+    } else {
+        touchedElement = this;
+        touched = true;
+    }
 });
 
 /*

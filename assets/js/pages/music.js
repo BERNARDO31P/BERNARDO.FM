@@ -152,7 +152,6 @@ window["music"] = () => {
         let row = this;
         controlsTimeout = setTimeout(function () {
             if (row !== currentHover) {
-                touched = false;
                 let controls = row.querySelector(".controlsContent");
                 if (controls) controls.remove();
             }

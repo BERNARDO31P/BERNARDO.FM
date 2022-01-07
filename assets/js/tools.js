@@ -10,7 +10,8 @@ let currentHover = null,
     volume = 0,
     previousVolume = null,
     repeatMode = 0,
-    touched = false;
+    touched = false,
+    touchedElement = null;
 
 let backgroundProcesses = [];
 let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null;
