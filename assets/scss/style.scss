@@ -158,6 +158,8 @@ body {
   }
 
   #logo {
+    position: initial;
+
     font-size: 30px;
     margin: 0 20px;
     cursor: default;
@@ -211,7 +213,7 @@ body {
   }
 
   #menu-toggler {
-    margin: 0 25px 0 0;
+    margin: 0 30px 0 0;
   }
 
   #menu {
@@ -1076,7 +1078,15 @@ body {
     }
 
     #logo {
-      margin-left: calc(50% - 170px);
+      position: absolute;
+      left: 0;
+      top: 0;
+
+      z-index: 1;
+
+      display: inline-block;
+      margin-left: 50%;
+      transform: translate(-50%);
     }
 
     .icons {
@@ -1217,7 +1227,7 @@ body {
 @media screen and (max-width: 500px) {
   #search {
     input {
-      margin: 0 25px 0 0 !important;
+      margin: 0 30px 0 0 !important;
     }
   }
 
