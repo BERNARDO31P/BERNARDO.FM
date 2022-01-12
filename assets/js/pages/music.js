@@ -444,7 +444,7 @@ function downloadPart(time, sIndex, pIndex) {
     let songID = playlist[sIndex]["id"];
 
     if (typeof playlist[sIndex]["player"] === 'undefined') {
-        let gapless = new Gapless5({singleMode: true, keepAliveHTML5Audio: true});
+        let gapless = new Gapless5({singleMode: true});
         addEvents(gapless);
 
         playlist[sIndex]["player"] = gapless;
