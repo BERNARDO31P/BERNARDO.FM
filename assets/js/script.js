@@ -499,7 +499,7 @@ bindEvent("click", ".theme-toggler", function () {
 
 // TODO: Comment
 bindEvent("click", ".search-toggler", function () {
-    let input = this.closest(".icons").querySelector("input");
+    let input = this.closest(".icons").querySelector("#search input");
     let rect = this.getBoundingClientRect();
     let width = "0px";
 
