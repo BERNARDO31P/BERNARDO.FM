@@ -172,7 +172,7 @@ if (isset($_GET["id"])) {
 
         $db = sorting_by_category($db);
         $db = paging($db, $_GET["page"]);
-        kshuffle($db, 2);
+        kshuffle($db);
     }
 
     echo json_encode($db);
