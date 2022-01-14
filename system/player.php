@@ -29,9 +29,49 @@ function recursive_prepend(&$array, $key, $data)
 }
 
 // TODO: Comment
+function sorting_by_category($array): array
+{
+    $parsed = array();
+    foreach ($array as $id => $song) {
+        $key = $song["category"];
+
+        if (!array_key_exists($key, $parsed))
+            $parsed[$key] = array();
+
+        $parsed[$key][$id] = $song;
+    }
+    return $parsed;
+}
+
+// TODO: Comment
 function recursive_paging($array, $page, $pageCount): array
 {
     return array();
+}
+
+// TODO: Comment
+function kshuffle(&$array)
+{
+    $tmp = array();
+    foreach ($array as $key => $value) {
+        if (is_array($value)) kshuffle($value);
+
+        if (is_int($key)) {
+            $tmp[] = array('v' => $value);
+        } else {
+            $tmp[] = array('k' => $key, 'v' => $value);
+        }
+
+    }
+    shuffle($tmp);
+    $array = array();
+    foreach ($tmp as $entry) {
+        if (isset($entry['k'])) {
+            $array[$entry['k']] = $entry['v'];
+        } else {
+            $array[] = $entry['v'];
+        }
+    }
 }
 
 // TODO: Comment
@@ -40,13 +80,13 @@ function search_songs($search): array
 	global $db;
 	$songs = array();
 
-	foreach ($db as $arrID => $data) {
-		if ((stripos($data["name"], $search) !== false)) {
-			array_push($songs, $data);
-		} else if ((stripos($data["artist"], $search) !== false)) {
-			array_push($songs, $data);
-		} else if ((stripos($data["category"], $search) !== false)) {
-			array_push($songs, $data);
+	foreach ($db as $data) {
+		if (
+            (stripos($data["name"], $search) !== false) ||
+            (stripos($data["artist"], $search) !== false) ||
+            (stripos($data["category"], $search) !== false)
+        ) {
+			$songs[] = $data;
 		}
 	}
 
@@ -119,16 +159,17 @@ if (isset($_GET["id"])) {
     }
 } else {
     header('Content-Type: application/json');
-	recursive_unset($db, "fileName");
-    recursive_prepend($db, "url", "system/img/");
-
 	if (isset($_GET["search"]) && $_GET["search"] !== "")
         $db = search_songs($_GET["search"]);
-    else
-        shuffle($db);
+    else {
+        recursive_unset($db, "fileName");
+        recursive_prepend($db, "url", "system/img/");
+        $db = sorting_by_category($db);
+        kshuffle($db, 2);
+    }
+
 
     // TODO: Implement sorting system (ex. most views or newest first)
 
-    //$db = recursive_paging($db, $_GET["page"], 10);
     echo json_encode($db);
 }

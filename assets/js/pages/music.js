@@ -40,25 +40,19 @@ window["music"] = () => {
             object.parentNode.insertBefore(div, object);
         }
 
-        if (data.length > 0) {
-            let parsed = {};
 
-            for (let song of data) {
-                if (typeof parsed[song["category"]] === 'undefined') parsed[song["category"]] = [];
-                parsed[song["category"]].push(song);
-            }
-
+        if (Object.keys(data).length > 0) {
             if (view === "list") {
                 document.getElementsByClassName("fa-list")[0].classList.add("active");
-                object.parentNode.insertBefore(generateListView(parsed), object);
+                object.parentNode.insertBefore(generateListView(data), object);
             } else {
                 document.getElementsByClassName("fa-grip-horizontal")[0].classList.add("active");
 
                 let gridView = document.createElement("div");
                 gridView.classList.add("songGrid");
 
-                for (let category in parsed) {
-                    let songs = parsed[category], title = document.createElement("h2");
+                for (let category in data) {
+                    let songs = data[category], title = document.createElement("h2");
 
                     title.textContent = category;
                     gridView.appendChild(title);

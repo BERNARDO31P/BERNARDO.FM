@@ -920,8 +920,6 @@ function onTimelineMove(rangeEvent) {
  * Generiert die Künstler für die Playlist
  */
 function generatePlaylistCover(song) {
-    song["playlist"] = song["playlist"].sort((a, b) => 0.5 - Math.random());
-
     let info = {"cover": document.createElement("div"), "artists": ""};
     info["cover"].classList.add("cover");
 
