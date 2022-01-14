@@ -657,6 +657,11 @@ function play(diffSong = false) {
         if ('mediaSession' in navigator) {
             let song = playlist[playIndex];
 
+            let mouseUpEvent = new Event('mouseup', {
+                bubbles: true,
+                cancelable: true,
+            });
+
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song["name"],
                 artist: song["artist"],
@@ -677,6 +682,24 @@ function play(diffSong = false) {
             navigator.mediaSession.setActionHandler('nexttrack', function () {
                 nextSong()
             });
+            navigator.mediaSession.setActionHandler('stop', function () {
+                pauseSong()
+            });
+            navigator.mediaSession.setActionHandler('seekbackward', function () {
+                let timeline = document.getElementById("timeline");
+
+                timeline.value = Number(timeline.value) - 10;
+                timeline.dispatchEvent(mouseUpEvent);
+            });
+            navigator.mediaSession.setActionHandler('seekforward', function () {
+                let timeline = document.getElementById("timeline");
+
+                timeline.value = Number(timeline.value) + 10;
+                timeline.dispatchEvent(mouseUpEvent);
+            });
+            navigator.mediaSession.setActionHandler('seekto', function (details) {
+                onTimelineRelease(details.seekTime);
+            })
         }
     }
 

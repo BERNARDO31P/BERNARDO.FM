@@ -300,8 +300,8 @@ window["music"] = () => {
         removeControls("controlsQueue");
     });
 
-    bindEvent("touchend", "#timeline", (e) => onTimelineRelease(e));
-    bindEvent("mouseup", "#timeline", (e) => onTimelineRelease(e));
+    bindEvent("touchend", "#timeline", (e) => onTimelineRelease(e.target.value));
+    bindEvent("mouseup", "#timeline", (e) => onTimelineRelease(e.target.value));
 
     bindEvent("click", "#player .fa-forward", () => nextSong());
     bindEvent("click", "#player .fa-backward", () => previousSong());
@@ -586,7 +586,7 @@ function removeControlsCard(card) {
  * Sobald die Timeline wieder losgelassen wird, wird die Zeit information mit dem jetzigen Fortschritt des Liedes versteckt
  * Die Wiedergabe beginnt
  */
-function onTimelineRelease(rangeEvent) {
+function onTimelineRelease(value) {
 
     let timeInfo = document.getElementById("timeInfo");
     let gapless = playlist[playIndex]["player"];
@@ -597,22 +597,22 @@ function onTimelineRelease(rangeEvent) {
 
     clearTimeout(timelineTimeout);
     timelineTimeout = setTimeout(function () {
-        let partInfo = getPartIndexByTime(rangeEvent.target.value);
+        let partInfo = getPartIndexByTime(value);
         let index = partInfo[2];
         currentTime = partInfo[0];
 
         if (typeof index === "undefined") {
             index = Object.keys(partlist[playIndex]).length;
-            downloadPart(Number(rangeEvent.target.value), playIndex, index);
+            downloadPart(Number(value), playIndex, index);
 
-            currentTime = Number(rangeEvent.target.value);
+            currentTime = Number(value);
         }
 
         let interval = setInterval(function () {
             if (typeof partlist[playIndex][index] !== 'undefined') {
                 clearInterval(interval);
 
-                let startFrom = (rangeEvent.target.value - currentTime) * 1000;
+                let startFrom = (value - currentTime) * 1000;
                 gapless.gotoTrack(partlist[playIndex][index]["gid"]);
                 partIndex = index;
 
