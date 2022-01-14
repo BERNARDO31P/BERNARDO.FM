@@ -202,6 +202,7 @@ function Gapless5Source(parentPlayer, inAudioPath) {
                 source.start(0, offsetSec);
             }
             setState(Gapless5State.Play);
+            onPlayRealEvent();
         } else if (audio !== null) {
             console.debug(`Playing HTML5 Audio: ${this.audioPath}`);
             audio.currentTime = offsetSec;
