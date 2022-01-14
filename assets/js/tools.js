@@ -576,7 +576,7 @@ function setVolume(volume) {
     let volumeSlider = document.getElementById("player").querySelector(".volumeSlider");
 
     previousVolume = null;
-    playlist[playIndex]["player"].setGain(volume * 65535);
+    playlist[playIndex]["player"].setVolume(volume);
     volumeSlider.value = volume * 100;
 
     let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
@@ -607,7 +607,7 @@ function muteAudio(e = null) {
         }
 
         if (typeof playlist[playIndex] !== 'undefined')
-            playlist[playIndex]["player"].setGain(volume * 65535);
+            playlist[playIndex]["player"].setVolume(volume);
 
         hideVolumeSlider();
     } else touched = true;
@@ -626,6 +626,11 @@ function play(diffSong = false) {
 
     let song = playlist[playIndex];
     let gapless = song["player"];
+
+    gapless.setVolume(volume);
+    gapless.play();
+    NSAPI.play();
+    playing = true;
 
     if (diffSong) {
         let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
@@ -675,26 +680,23 @@ function play(diffSong = false) {
         }
     }
 
-    gapless.setGain(volume * 65535);
-    gapless.play();
-    playing = true;
-
-
     player.style.display = "initial";
 
-    secondsInterval = setInterval(function () {
-        let timeline = document.getElementById("timeline");
+    if (!secondsInterval) {
+        secondsInterval = setInterval(function () {
+            let timeline = document.getElementById("timeline");
 
-        timeline.value = getCurrentPartTime() + currentTime;
+            timeline.value = getCurrentPartTime() + currentTime;
 
-         if ('mediaSession' in navigator) {
-             navigator.mediaSession.setPositionState({
-                 duration: timeline.max,
-                 playbackRate: 1,
-                 position: timeline.value
-             });
-         }
-    }, 1000);
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.setPositionState({
+                    duration: timeline.max,
+                    playbackRate: 1,
+                    position: timeline.value
+                });
+            }
+        }, 1000);
+    }
 }
 
 /*
@@ -831,7 +833,10 @@ function pauseSong() {
     playPauseButton("pause");
 
     playlist[playIndex]["player"].pause();
+    NSAPI.pause();
+
     clearInterval(secondsInterval);
+    secondsInterval = null;
 
     playing = false;
 }
@@ -847,8 +852,10 @@ function onTimelinePress() {
     let timeInfo = document.getElementById("timeInfo");
     timeInfo.style.display = "initial";
 
-    clearInterval(secondsInterval);
     playPauseButton("pause");
+    clearInterval(secondsInterval);
+    secondsInterval = null;
+
     playlist[playIndex]["player"].pause();
 }
 

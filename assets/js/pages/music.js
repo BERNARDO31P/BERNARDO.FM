@@ -1,5 +1,9 @@
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
+let NSAPI = new Audio("./system/music/quiet.mp3");
+NSAPI.loop = true;
+NSAPI.volume = 0.01;
+
 window["music"] = () => {
     let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search input");
     let view = getCookie("view");
@@ -206,6 +210,8 @@ window["music"] = () => {
         partlist[playIndex] = {0: 0};
 
         clearInterval(secondsInterval);
+        secondsInterval = null;
+
         addSongToPlaylist(this);
         playPauseButton("load");
         downloadPart(0, playIndex, partIndex);
@@ -237,6 +243,8 @@ window["music"] = () => {
         }
 
         clearInterval(secondsInterval);
+        secondsInterval = null;
+
         playPauseButton("load");
         downloadPart(0, playIndex, partIndex);
         play(true);
@@ -334,8 +342,6 @@ function addEvents(player) {
         let timeline = document.getElementById("timeline");
         let gapless = playlist[playIndex]["player"];
 
-        clearInterval(secondsInterval);
-
         let interval = setInterval(function () {
             if (!downloading) {
                 clearInterval(interval);
@@ -352,9 +358,10 @@ function addEvents(player) {
                 } else {
                     let nextIndex = nextSongIndex();
 
+                    playPauseButton("load");
                     resetSong(playIndex);
                     clearInterval(secondsInterval);
-                    playPauseButton("pause");
+                    secondsInterval = null;
 
                     currentTime = 0;
                     partIndex = 0;
@@ -366,6 +373,8 @@ function addEvents(player) {
                         setTimeout(() => {
                             play(true);
                         }, 1000);
+                    } else {
+                        pauseSong();
                     }
                 }
             }
@@ -584,7 +593,6 @@ function onTimelineRelease(rangeEvent) {
     timeInfo.style.display = "none";
 
     playPauseButton("load");
-    clearInterval(secondsInterval);
     resetSong(playIndex);
 
     clearTimeout(timelineTimeout);
@@ -630,8 +638,9 @@ function nextSong() {
     currentTime = 0;
     partIndex = 0;
 
+    playPauseButton("load");
     clearInterval(secondsInterval);
-    playPauseButton("pause");
+    secondsInterval = null;
 
     let nextIndex = nextSongIndex();
     if (typeof playlist[nextIndex] !== 'undefined') {
@@ -661,8 +670,9 @@ function previousSong() {
     currentTime = 0;
     partIndex = 0;
 
+    playPauseButton("load");
     clearInterval(secondsInterval);
-    playPauseButton("pause");
+    secondsInterval = null;
 
     let previousIndex = previousSongIndex();
     if (typeof playlist[previousIndex] !== 'undefined') {

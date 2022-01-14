@@ -549,10 +549,14 @@ let iconInterval = setInterval(function () {
         for (let toggler of togglers) {
             let icon = toggler.querySelector("svg");
 
-            if (theme === "light") icon.classList.add("fa-moon");
-            else icon.classList.add("fa-sun");
+            if (icon) {
+                if (theme === "light") icon.classList.add("fa-moon");
+                else icon.classList.add("fa-sun");
+
+                clearInterval(iconInterval);
+            }
         }
-        clearInterval(iconInterval);
+
     }
 }, 50);
 
