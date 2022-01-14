@@ -330,10 +330,6 @@ window["music"] = () => {
  * onfinishedall: Sobald das Lied abgeschlossen ist, wird das nächste Lied wiedergeben
  */
 function addEvents(player) {
-    /*player.onplayrequest = () => {
-
-    }*/
-
     player.onplayreal = () => {
         playPauseButton("play");
     }
