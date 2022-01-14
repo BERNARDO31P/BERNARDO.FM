@@ -44,9 +44,9 @@ function sorting_by_category($array): array
 }
 
 // TODO: Comment
-function recursive_paging($array, $page, $pageCount): array
+function paging($array, $page, $count = 10): array
 {
-    return array();
+    return $array;
 }
 
 // TODO: Comment
@@ -94,7 +94,7 @@ function search_songs($search): array
 }
 
 // TODO: Comment
-function search_song($id)
+function search_song($id): array
 {
     global $db;
 
@@ -169,12 +169,11 @@ if (isset($_GET["id"])) {
     } else {
         recursive_unset($db, "fileName");
         recursive_prepend($db, "url", "system/img/");
+
         $db = sorting_by_category($db);
+        $db = paging($db, $_GET["page"]);
         kshuffle($db, 2);
     }
-
-
-    // TODO: Implement sorting system (ex. most views or newest first)
 
     echo json_encode($db);
 }

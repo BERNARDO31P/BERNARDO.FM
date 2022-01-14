@@ -24,7 +24,8 @@ window["music"] = () => {
     setVolumeIcon(volumeIcon, volumeSlider);
 
     for (let object of objects) {
-        let data = tryParseJSON(httpGet(object.getAttribute("data-url") + "?search=" + search.value));
+        let url = object.getAttribute("data-url") + "?search=" + search.value + "&width=" + getWidth();
+        let data = tryParseJSON(httpGet(url));
 
         if (view === "") view = "grid";
 
