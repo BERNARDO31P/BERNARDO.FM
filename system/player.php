@@ -3,16 +3,16 @@ ini_set('memory_limit', -1);
 
 $db = json_decode(file_get_contents(__DIR__ . "/../db/songs.json"), true);
 usort($db, function ($a, $b) {
-	return $a['category'] <=> $b['category'];
+    return $a['category'] <=> $b['category'];
 });
 
 // TODO: Comment
 function recursive_unset(&$array, $unwanted_key)
 {
-	unset($array[$unwanted_key]);
-	foreach ($array as &$value) {
-		if (is_array($value)) recursive_unset($value, $unwanted_key);
-	}
+    unset($array[$unwanted_key]);
+    foreach ($array as &$value) {
+        if (is_array($value)) recursive_unset($value, $unwanted_key);
+    }
 }
 
 // TODO: Comment
@@ -77,68 +77,68 @@ function kshuffle(&$array)
 // TODO: Comment
 function search_songs($search): array
 {
-	global $db;
-	$songs = array();
+    global $db;
+    $songs = array();
 
-	foreach ($db as $data) {
-		if (
-            (stripos($data["name"], $search) !== false) ||
-            (stripos($data["artist"], $search) !== false) ||
-            (stripos($data["category"], $search) !== false)
+    foreach ($db as $song) {
+        if (
+            (stripos($song["name"], $search) !== false) ||
+            (stripos($song["artist"], $search) !== false) ||
+            (stripos($song["category"], $search) !== false)
         ) {
-			$songs[] = $data;
-		}
-	}
+            $songs[] = $song;
+        }
+    }
 
-	return $songs;
+    return $songs;
 }
 
 // TODO: Comment
 function search_song($id)
 {
-	global $db;
+    global $db;
 
-	foreach ($db as $arrID => $data) {
-		if ($data["id"] == $id)
-			return $data;
-	}
-	return array();
+    foreach ($db as $arrID => $data) {
+        if ($data["id"] == $id)
+            return $data;
+    }
+    return array();
 }
 
 if (isset($_GET["id"])) {
-	$song = search_song($_GET["id"]);
+    $song = search_song($_GET["id"]);
 
-	if (isset($_GET["time"])) {
-		include_once __DIR__ . "/vendor/autoload.php";
-		$newName = "/temp/" . bin2hex(random_bytes(22)) . ".mp3";
+    if (isset($_GET["time"])) {
+        include_once __DIR__ . "/vendor/autoload.php";
+        $newName = "/temp/" . bin2hex(random_bytes(22)) . ".mp3";
 
-		$ffmpeg = FFMpeg\FFMpeg::create(
+        $ffmpeg = FFMpeg\FFMpeg::create(
             array(
-                'ffmpeg.binaries'  => "/usr/bin/ffmpeg",
+                'ffmpeg.binaries' => "/usr/bin/ffmpeg",
                 'ffprobe.binaries' => "/usr/bin/ffprobe",
-                'timeout'          => 10,
-                'ffmpeg.threads'   => 4,
+                'timeout' => 10,
+                'ffmpeg.threads' => 4,
             )
         );
-		$audio = $ffmpeg->open(__DIR__ . "/music/" . $song["fileName"]);
+        $audio = $ffmpeg->open(__DIR__ . "/music/" . $song["fileName"]);
 
-		$time = 0;
+        $time = 0;
         if ($_GET["time"] < 50) {
-		    $time = 5;
+            $time = 5;
         } elseif ($_GET["time"] < 75) {
-		    $time = 10;
+            $time = 10;
         } else {
-		    $time = 20;
+            $time = 20;
         }
 
-		$audio->filters()->clip(FFMpeg\Coordinate\TimeCode::fromSeconds($_GET["time"]), FFMpeg\Coordinate\TimeCode::fromSeconds($time));
-		$format = new FFMpeg\Format\Audio\Mp3();
-		$audio->save($format, __DIR__ . $newName);
+        $audio->filters()->clip(FFMpeg\Coordinate\TimeCode::fromSeconds($_GET["time"]), FFMpeg\Coordinate\TimeCode::fromSeconds($time));
+        $format = new FFMpeg\Format\Audio\Mp3();
+        $audio->save($format, __DIR__ . $newName);
 
         header('Content-Type: audio/mpeg');
         echo file_get_contents(__DIR__ . $newName);
         unlink(__DIR__ . $newName);
-	} else {
+    } else {
         header('Content-Type: application/json');
         if (isset($song["playlist"])) {
             $playlist = array();
@@ -159,9 +159,14 @@ if (isset($_GET["id"])) {
     }
 } else {
     header('Content-Type: application/json');
-	if (isset($_GET["search"]) && $_GET["search"] !== "")
+    if (isset($_GET["search"]) && $_GET["search"] !== "") {
         $db = search_songs($_GET["search"]);
-    else {
+
+        recursive_unset($db, "fileName");
+        recursive_prepend($db, "url", "system/img/");
+
+        $db = sorting_by_category($db);
+    } else {
         recursive_unset($db, "fileName");
         recursive_prepend($db, "url", "system/img/");
         $db = sorting_by_category($db);
