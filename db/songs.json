@@ -383,5 +383,17 @@
     "length": "8:26",
     "fileName": "Pixel & Wrecked Machines - Mother Funker (FNX Rmx).mp3",
     "category": "Psytrance"
+  },
+  {
+    "id": 33,
+    "cover": {
+      "url": "Bitkit & Lexxus - Destiny.jpg",
+      "html": "img"
+    },
+    "name": "Destiny",
+    "artist": "Bitkit & Lexxus",
+    "length": "7:43",
+    "fileName": "Bitkit & Lexxus - Destiny.mp3",
+    "category": "Psytrance"
   }
 ]
