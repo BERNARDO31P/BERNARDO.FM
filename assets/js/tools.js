@@ -708,14 +708,15 @@ function play(diffSong = false) {
     if (!secondsInterval) {
         secondsInterval = setInterval(function () {
             let timeline = document.getElementById("timeline");
+            let currentPosition = getCurrentPartTime() + currentTime;
 
-            timeline.value = getCurrentPartTime() + currentTime;
+            timeline.value = currentPosition;
 
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.setPositionState({
                     duration: timeline.max,
                     playbackRate: 1,
-                    position: timeline.value
+                    position: currentPosition
                 });
             }
         }, 1000);
