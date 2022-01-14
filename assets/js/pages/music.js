@@ -330,12 +330,16 @@ window["music"] = () => {
  * onfinishedall: Sobald das Lied abgeschlossen ist, wird das nächste Lied wiedergeben
  */
 function addEvents(player) {
-    player.onplayrequest = () => {
-        downloadNextPart();
+    /*player.onplayrequest = () => {
+
+    }*/
+
+    player.onplayreal = () => {
+        playPauseButton("play");
     }
 
     player.onplay = () => {
-        playPauseButton("play");
+        downloadNextPart();
     }
 
     player.onfinishedtrack = () => {
@@ -374,7 +378,7 @@ function addEvents(player) {
                             play(true);
                         }, 1000);
                     } else {
-                        pauseSong();
+                        playPauseButton("pause");
                     }
                 }
             }
@@ -652,6 +656,8 @@ function nextSong() {
         }
 
         play(true);
+    } else {
+        playPauseButton("pause")
     }
 }
 
