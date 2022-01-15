@@ -31,6 +31,20 @@ window.addEventListener("resize", function () {
 }, true);
 
 // TODO: Comment
+window.onfocus = function () {
+    if (MSAPI.paused) playPauseButton("pause");
+}
+
+// TODO: Comment
+document.addEventListener('visibilitychange', () => {
+    setTimeout(function () {
+        if (document.visibilityState === 'visible' && MSAPI.paused) {
+            playPauseButton("pause")
+        }
+    }, 200);
+});
+
+// TODO: Comment
 document.onkeydown = function (e) {
 
     let keys = ["K", "Space", "M", "ArrowLeft", "ArrowRight", "J", "L", "R", "S", "ArrowUp", "ArrowDown"];
