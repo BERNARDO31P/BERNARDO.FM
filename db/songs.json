@@ -395,5 +395,29 @@
     "length": "7:43",
     "fileName": "Bitkit & Lexxus - Destiny.mp3",
     "category": "Psytrance"
+  },
+  {
+    "id": 34,
+    "cover": {
+      "url": "Lil Nas X - MONTERO (Call Me By Your Name).jpeg",
+      "html": "img"
+    },
+    "name": "MONTERO (Call Me By Your Name)",
+    "artist": "Lil Nas X",
+    "length": "2:51",
+    "fileName": "Lil Nas X - MONTERO (Call Me By Your Name).mp3",
+    "category": "Trap"
+  },
+  {
+    "id": 35,
+    "cover": {
+      "url": "Lil Nas X - INDUSTRY BABY.jpg",
+      "html": "img"
+    },
+    "name": "INDUSTRY BABY",
+    "artist": "Lil Nas X",
+    "length": "3:48",
+    "fileName": "Lil Nas X - INDUSTRY BABY.mp3",
+    "category": "Trap"
   }
 ]
