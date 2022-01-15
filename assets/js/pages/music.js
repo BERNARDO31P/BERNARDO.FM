@@ -209,7 +209,7 @@ window["music"] = () => {
 
         addSongToPlaylist(this);
         playPauseButton("load");
-        downloadPart(0, playIndex, partIndex);
+        downloadPart(currentTime, playIndex, partIndex);
         play(true);
     });
 
@@ -232,16 +232,13 @@ window["music"] = () => {
         currentTime = 0;
         partIndex = 0;
 
-        if (typeof playlist[playIndex]["player"] === 'undefined') {
-            downloadPart(0);
-            partlist[playIndex] = {0: 0};
-        }
+        if (typeof playlist[playIndex]["player"] === 'undefined')
+            downloadPart(currentTime, playIndex, partIndex);
 
         clearInterval(secondsInterval);
         secondsInterval = null;
 
         playPauseButton("load");
-        downloadPart(0, playIndex, partIndex);
         play(true);
     });
 
@@ -410,7 +407,7 @@ function downloadNextPart() {
     let timeline = document.getElementById("timeline"), nextTime;
 
     let interval = setInterval(function () {
-        if (typeof partlist[playIndex][partIndex] !== 'undefined') {
+        if (!downloading && typeof partlist[playIndex][partIndex] !== 'undefined') {
             nextTime = partlist[playIndex][partIndex]["till"] + 1;
             if (nextTime) {
                 clearInterval(interval);
@@ -459,13 +456,15 @@ function downloadPart(time, sIndex, pIndex) {
     downloading = true;
     playlist[sIndex]["player"].addTrack(pageURL + "system/player.php?id=" + songID + "&time=" + time);
 
+    if (typeof partlist[sIndex] === 'undefined') partlist[sIndex] = {};
+
     getPartLengthCallback(pIndex, function (length) {
-        downloading = false;
         partlist[sIndex][pIndex] = {
             "gid": playlist[sIndex]["player"].totalTracks() - 1,
             "from": time,
             "till": time + length - 1
         };
+        downloading = false;
     });
 }
 
