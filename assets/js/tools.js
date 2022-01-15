@@ -629,10 +629,12 @@ function play(diffSong = false) {
 
     gapless.setGain(volume * 65535);
     gapless.play();
-    NSAPI.play();
+    MSAPI.play();
     playing = true;
 
     if (diffSong) {
+        MSAPI.currentTime = 0;
+
         let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
         let songLength = document.getElementById("timeInfo").querySelector("#length");
         let cover = document.getElementById("queueView").querySelector("#playingCover").querySelector("img");
@@ -857,7 +859,7 @@ function pauseSong() {
     playPauseButton("pause");
 
     playlist[playIndex]["player"].pause();
-    NSAPI.pause();
+    MSAPI.pause();
 
     clearInterval(secondsInterval);
     secondsInterval = null;

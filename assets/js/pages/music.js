@@ -1,8 +1,8 @@
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
-let NSAPI = new Audio("./system/music/quiet.mp3");
-NSAPI.loop = true;
-NSAPI.volume = 0.01;
+let MSAPI = new Audio("./system/music/quiet.mp3");
+MSAPI.loop = true;
+MSAPI.volume = 0.01;
 
 window["music"] = () => {
     let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search input");
