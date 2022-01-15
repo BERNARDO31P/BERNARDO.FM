@@ -141,6 +141,28 @@ function httpGet(url) {
 
 }
 
+// TODO: Comment
+// https://stackoverflow.com/a/56017710
+function getSampleAt(t)
+{
+    return Math.sin(6000*t);
+}
+
+// TODO: Comment
+// https://stackoverflow.com/a/56017710
+function genWAVUrl(fun, DUR= 1, NCH= 1, SPS= 3000, BPS= 1) {
+    let size = DUR*NCH*SPS*BPS;
+    let put = (n,l=4) => [(n<<24),(n<<16),(n<<8),n].filter((x,i)=>i<l).map(x=> String.fromCharCode(x>>>24)).join('');
+    let p = (...a) => a.map( b=> put(...[b].flat()) ).join('');
+    let data = `RIFF${put(44+size)}WAVEfmt ${p(16,[1,2],[NCH,2],SPS,NCH*BPS*SPS,[NCH*BPS,2],[BPS*8,2])}data${put(size)}`
+
+    for (let i = 0; i < DUR*SPS; i++) {
+        let f= Math.min(Math.max(fun(i/SPS,DUR,SPS),0),1);
+        data += put(Math.floor( f * (2**(BPS*8)-1)), BPS);
+    }
+
+    return "data:Audio/WAV;base64," + btoa(data);
+}
 
 /*
  * Funktion: htmlToElement()
@@ -629,12 +651,9 @@ function play(diffSong = false) {
 
     gapless.setGain(volume * 65535);
     gapless.play();
-    MSAPI.play();
     playing = true;
 
     if (diffSong) {
-        MSAPI.currentTime = 0;
-
         let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
         let songLength = document.getElementById("timeInfo").querySelector("#length");
         let cover = document.getElementById("queueView").querySelector("#playingCover").querySelector("img");
@@ -642,6 +661,9 @@ function play(diffSong = false) {
         cover.src = song["cover"]["url"];
         songLength.textContent = song["length"];
         player.querySelector("#timeline").max = length;
+
+        MSAPI.src = genWAVUrl(getSampleAt,length);
+        MSAPI.currentTime = 0;
 
         player.querySelector("#name").innerHTML = "<div class='truncate'>" +
             "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" +

@@ -1,8 +1,7 @@
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
-let MSAPI = new Audio("./system/music/quiet.mp3");
-MSAPI.loop = true;
-MSAPI.volume = 0.01;
+let MSAPI = new Audio();
+MSAPI.volume = 0.0001;
 
 window["music"] = () => {
     let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search input");
@@ -324,6 +323,7 @@ window["music"] = () => {
 function addEvents(player) {
     player.onplayreal = () => {
         playPauseButton("play");
+        if (MSAPI.paused) MSAPI.play();
     }
 
     player.onplay = () => {
@@ -366,7 +366,7 @@ function addEvents(player) {
                             play(true);
                         }, 1000);
                     } else {
-                        playPauseButton("pause");
+                        pauseSong();
                     }
                 }
             }
@@ -649,7 +649,8 @@ function nextSong() {
 
         play(true);
     } else {
-        playPauseButton("pause")
+        pauseSong();
+        
     }
 }
 
