@@ -581,8 +581,8 @@ function hidePlaylist(body, queueView, angleIcon) {
     });
 
     queueView.animateCallback([
-        {height: 'calc(100% - 200px)'},
-        {height: '0%'}
+        {top: '60px'},
+        {top: '100%'}
     ], {
         duration: 300,
         fill: "forwards",

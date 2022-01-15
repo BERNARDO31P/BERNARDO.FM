@@ -5,6 +5,12 @@
   src: url("../fonts/Roboto/Roboto-Regular.ttf") format("truetype");
 }
 
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
 * {
   -webkit-tap-highlight-color: transparent;
 }
@@ -602,9 +608,10 @@ body {
   position: fixed;
   bottom: 100px;
   left: 0;
+  top: 100%;
 
   width: calc(100% - 40px);
-  height: 0;
+  height: calc(100% - 200px);
 
   display: none;
 
@@ -1167,8 +1174,26 @@ body {
   }
 }
 
+@media screen and (min-width: 751px) and (max-height: 560px) {
+  #queueView {
+    #queue {
+      margin: -45px 0 0 0;
+      height: calc(100vh - 185px);
+    }
+  }
+}
+
 @media screen and (max-width: 750px) {
   #queueView {
+    width: 100%;
+
+    padding: 0 0 40px;
+    top: 60px;
+
+    h3 {
+      margin: 10px 10px 10px 15px;
+    }
+
     .container {
       flex-flow: column;
     }
@@ -1189,13 +1214,18 @@ body {
 
     #queue {
       height: initial;
-      width: calc(100% - 20px);
+      width: calc(100% + 10px);
+      padding: 0;
+
+      box-shadow: -1px -1px 3px var(--shadow-light);
+      overflow: scroll;
 
       .responsive-table {
         min-width: initial !important;
         max-width: initial !important;
-        right: initial;
-        left: 20px;
+
+        width: 100%;
+        margin: 0;
       }
     }
   }

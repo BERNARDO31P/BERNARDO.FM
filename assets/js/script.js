@@ -482,6 +482,57 @@ bindEvent("click", ".volume svg", function (e) {
 });
 
 /*
+     * Funktion: Anonym
+     * Autor: Bernardo de Oliveira
+     *
+     * Öffnet die Playlist-Ansicht
+     * Generiert die Playlist-Tabelle
+     *
+     * Rotiert das Icon, damit der Benutzer erkennt, dass man das Menü wieder schliessen kann
+     */
+bindEvent("click", ".fa-angle-up", function () {
+    let queueView = document.getElementById("queueView");
+    let navbar = document.getElementById("navbar");
+    let body = document.getElementsByTagName("body")[0];
+
+    if (this.getAttribute("data-angle") === "up") {
+        hidePlaylist(body, queueView, this);
+
+        if (window.scrollY !== 0) navbar.classList.add("shadow");
+    } else {
+        navbar.classList.remove("shadow");
+        body.style.overflowY = "hidden";
+
+        this.animate([
+            {transform: 'rotate(0deg)'},
+            {transform: 'rotate(-180deg)'}
+        ], {
+            duration: 200,
+            fill: "forwards"
+        });
+
+        let queue = queueView.querySelector("#queue");
+        queue.innerHTML = "";
+        queue.appendChild(generateQueue(playlist));
+
+        queueView.classList.add("show");
+
+        queueView.animate([
+            {top: '100%'},
+            {top: '60px'}
+        ], {
+            duration: 300,
+            fill: "forwards"
+        });
+
+        this.setAttribute("data-angle", "up");
+    }
+
+    removeControls("controlsContent");
+    removeControls("controlsQueue");
+});
+
+/*
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
@@ -580,12 +631,12 @@ loadPage();
 dataIncludeReplace(document.body);
 setActiveNavbar();
 
-if ('serviceWorker' in navigator) {
+/*if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.min.js');
-}
+}*/
 
-/*navigator.serviceWorker.getRegistrations().then(function(registrations) {
+navigator.serviceWorker.getRegistrations().then(function(registrations) {
     for(let registration of registrations) {
         registration.unregister()
     }
-});*/
+});
