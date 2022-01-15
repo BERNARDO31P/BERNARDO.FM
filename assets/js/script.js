@@ -405,7 +405,7 @@ bindEvent("click", ".fa-random", function () {
         resetSong(playIndex);
 
         delete playlist[playIndex];
-        playlist.splice(0, 1);
+        playlist.splice(playIndex, 1);
         playlist = playlist.sort((a, b) => 0.5 - Math.random());
         playlist.unshift(currentSong);
 

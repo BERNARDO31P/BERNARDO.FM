@@ -5,32 +5,29 @@
         <item url="file://$PROJECT_DIR$/assets/js/lib/gapless5.min.js" />
         <item url="file://$PROJECT_DIR$/assets/js/lib/gapless5.min.min.js" />
         <item url="file://$PROJECT_DIR$/assets/js/pages/firewall.min.js" />
+        <item url="file://$PROJECT_DIR$/assets/js/pages/firewall.min.min.js" />
         <item url="file://$PROJECT_DIR$/assets/js/pages/home.min.js" />
         <item url="file://$PROJECT_DIR$/assets/js/pages/monitoring.min.js" />
         <item url="file://$PROJECT_DIR$/assets/js/pages/music.min.js" />
-        <item url="file://$PROJECT_DIR$/assets/js/pages/music.min.min.js" />
         <item url="file://$PROJECT_DIR$/assets/js/script.min.js" />
-        <item url="file://$PROJECT_DIR$/assets/js/script.min.min.js" />
         <item url="file://$PROJECT_DIR$/assets/js/tools.min.js" />
-        <item url="file://$PROJECT_DIR$/assets/js/tools.min.min.js" />
-        <item url="file://$PROJECT_DIR$/sw.min.js" />
-        <item url="file://$PROJECT_DIR$/sw.min.min.js" />
+        <item url="file://$PROJECT_DIR$/event.min.js" />
+        <item url="file://$PROJECT_DIR$/player.min.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
       <root url="file://$PROJECT_DIR$/assets/js/lib/gapless5.min.js" />
       <root url="file://$PROJECT_DIR$/assets/js/lib/gapless5.min.min.js" />
       <root url="file://$PROJECT_DIR$/assets/js/pages/firewall.min.js" />
+      <root url="file://$PROJECT_DIR$/assets/js/pages/firewall.min.min.js" />
       <root url="file://$PROJECT_DIR$/assets/js/pages/home.min.js" />
       <root url="file://$PROJECT_DIR$/assets/js/pages/monitoring.min.js" />
       <root url="file://$PROJECT_DIR$/assets/js/pages/music.min.js" />
-      <root url="file://$PROJECT_DIR$/assets/js/pages/music.min.min.js" />
       <root url="file://$PROJECT_DIR$/assets/js/script.min.js" />
-      <root url="file://$PROJECT_DIR$/assets/js/script.min.min.js" />
       <root url="file://$PROJECT_DIR$/assets/js/tools.min.js" />
-      <root url="file://$PROJECT_DIR$/assets/js/tools.min.min.js" />
+      <root url="file://$PROJECT_DIR$/event.min.js" />
+      <root url="file://$PROJECT_DIR$/player.min.js" />
       <root url="file://$PROJECT_DIR$/sw.min.js" />
-      <root url="file://$PROJECT_DIR$/sw.min.min.js" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

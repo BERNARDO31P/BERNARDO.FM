@@ -298,8 +298,8 @@ window["music"] = () => {
     bindEvent("touchend", "#timeline", (e) => onTimelineRelease(e.target.value));
     bindEvent("mouseup", "#timeline", (e) => onTimelineRelease(e.target.value));
 
-    bindEvent("click", "#player .fa-forward", () => nextSong());
-    bindEvent("click", "#player .fa-backward", () => previousSong());
+    bindEvent("click", "#player .fa-step-forward", () => nextSong());
+    bindEvent("click", "#player .fa-step-backward", () => previousSong());
 
     /*
      * Funktion: Anonym
@@ -410,24 +410,26 @@ function downloadNextPart() {
     let timeline = document.getElementById("timeline"), nextTime;
 
     let interval = setInterval(function () {
-        nextTime = partlist[playIndex][partIndex]["till"] + 1;
-        if (nextTime) {
-            clearInterval(interval);
+        if (typeof partlist[playIndex][partIndex] !== 'undefined') {
+            nextTime = partlist[playIndex][partIndex]["till"] + 1;
+            if (nextTime) {
+                clearInterval(interval);
 
-            let nextSong = false, nextIndex;
+                let nextSong = false, nextIndex;
 
-            if (!(Number(timeline.max) - nextTime > 1)) {
-                nextSong = true;
-                nextIndex = nextSongIndex();
-            }
+                if (!(Number(timeline.max) - nextTime > 1)) {
+                    nextSong = true;
+                    nextIndex = nextSongIndex();
+                }
 
-            let partInfo = getPartIndexByStartTime(nextTime);
-            nextPartIndex = partInfo[2] ?? partIndex + 1;
-            if (!nextSong && typeof partInfo[2] === 'undefined') {
-                downloadPart(nextTime, playIndex, nextPartIndex);
-            } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
-                partlist[nextIndex] = {};
-                downloadPart(0, nextIndex, 0);
+                let partInfo = getPartIndexByStartTime(nextTime);
+                nextPartIndex = partInfo[2] ?? partIndex + 1;
+                if (!nextSong && typeof partInfo[2] === 'undefined') {
+                    downloadPart(nextTime, playIndex, nextPartIndex);
+                } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
+                    partlist[nextIndex] = {};
+                    downloadPart(0, nextIndex, 0);
+                }
             }
         }
     }, 50);
