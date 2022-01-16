@@ -142,26 +142,41 @@ function httpGet(url) {
 }
 
 // TODO: Comment
-// https://stackoverflow.com/a/56017710
-function getSampleAt(t)
-{
-    return Math.sin(6000*t);
-}
+// https://gist.github.com/ktcy/1e981cfee7a309beebb33cdab1e29715
+function createSilence(seconds = 1) {
+    const sampleRate = 8000;
+    const numChannels = 1;
+    const bitsPerSample = 8;
 
-// TODO: Comment
-// https://stackoverflow.com/a/56017710
-function genWAVUrl(fun, DUR= 1, NCH= 1, SPS= 3000, BPS= 1) {
-    let size = DUR*NCH*SPS*BPS;
-    let put = (n,l=4) => [(n<<24),(n<<16),(n<<8),n].filter((x,i)=>i<l).map(x=> String.fromCharCode(x>>>24)).join('');
-    let p = (...a) => a.map( b=> put(...[b].flat()) ).join('');
-    let data = `RIFF${put(44+size)}WAVEfmt ${p(16,[1,2],[NCH,2],SPS,NCH*BPS*SPS,[NCH*BPS,2],[BPS*8,2])}data${put(size)}`
+    const blockAlign = numChannels * bitsPerSample / 8;
+    const byteRate = sampleRate * blockAlign;
+    const dataSize = Math.ceil(seconds * sampleRate) * blockAlign;
+    const chunkSize = 36 + dataSize;
+    const byteLength = 8 + chunkSize;
 
-    for (let i = 0; i < DUR*SPS; i++) {
-        let f= Math.min(Math.max(fun(i/SPS,DUR,SPS),0),1);
-        data += put(Math.floor( f * (2**(BPS*8)-1)), BPS);
+    const buffer = new ArrayBuffer(byteLength);
+    const view = new DataView(buffer);
+
+    view.setUint32(0, 0x52494646, false);    // Chunk ID 'RIFF'
+    view.setUint32(4, chunkSize, true);      // File size
+    view.setUint32(8, 0x57415645, false);    // Format 'WAVE'
+    view.setUint32(12, 0x666D7420, false);   // Sub-chunk 1 ID 'fmt '
+    view.setUint32(16, 16, true);            // Sub-chunk 1 size
+    view.setUint16(20, 1, true);             // Audio format
+    view.setUint16(22, numChannels, true);   // Number of channels
+    view.setUint32(24, sampleRate, true);    // Sample rate
+    view.setUint32(28, byteRate, true);      // Byte rate
+    view.setUint16(32, blockAlign, true);    // Block align
+    view.setUint16(34, bitsPerSample, true); // Bits per sample
+    view.setUint32(36, 0x64617461, false);   // Sub-chunk 2 ID 'data'
+    view.setUint32(40, dataSize, true);      // Sub-chunk 2 size
+
+    for (let offset = 44; offset < byteLength; offset++) {
+        view.setUint8(offset, 128);
     }
 
-    return "data:Audio/WAV;base64," + btoa(data);
+    const blob = new Blob([view], {type: 'audio/wav'});
+    return URL.createObjectURL(blob);
 }
 
 /*
@@ -662,7 +677,7 @@ function play(diffSong = false) {
         songLength.textContent = song["length"];
         player.querySelector("#timeline").max = length;
 
-        MSAPI.src = genWAVUrl(getSampleAt,length);
+        MSAPI.src = createSilence(length);
         MSAPI.currentTime = 0;
 
         player.querySelector("#name").innerHTML = "<div class='truncate'>" +
@@ -734,7 +749,6 @@ function play(diffSong = false) {
             let timeline = document.getElementById("timeline");
             let currentPosition = getCurrentPartTime() + currentTime;
 
-            MSAPI.currentTime = currentPosition;
             timeline.value = currentPosition;
 
             if ('mediaSession' in navigator) {
