@@ -32,7 +32,7 @@ window.addEventListener("resize", function () {
 
 // TODO: Comment
 window.onfocus = function () {
-    if (MSAPI.paused) playPauseButton("pause");
+    if (typeof MSAPI !== 'undefined' && MSAPI.paused) playPauseButton("pause");
 }
 
 // TODO: Comment

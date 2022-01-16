@@ -1,7 +1,23 @@
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
 let MSAPI = new Audio();
-MSAPI.volume = 0.0001;
+MSAPI.volume = 0.001;
+
+MSAPI.addEventListener("pause", function () {
+    let player = new Gapless5({});
+    if (typeof playlist[playIndex]["player"] !== 'undefined')
+        player = playlist[playIndex]["player"];
+
+    if (player.isPlaying()) pauseSong();
+});
+
+MSAPI.addEventListener("play", function () {
+    let player = new Gapless5({});
+    if (typeof playlist[playIndex]["player"] !== 'undefined')
+        player = playlist[playIndex]["player"];
+
+    if (!player.isPlaying()) play();
+});
 
 window["music"] = () => {
     let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search input");

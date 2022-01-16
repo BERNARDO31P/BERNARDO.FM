@@ -734,13 +734,14 @@ function play(diffSong = false) {
             let timeline = document.getElementById("timeline");
             let currentPosition = getCurrentPartTime() + currentTime;
 
+            MSAPI.currentTime = currentPosition;
             timeline.value = currentPosition;
 
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.setPositionState({
-                    duration: timeline.max,
-                    playbackRate: 1,
-                    position: currentPosition
+                    duration: MSAPI.duration,
+                    playbackRate: MSAPI.playbackRate,
+                    position: MSAPI.currentTime
                 });
             }
         }, 1000);
