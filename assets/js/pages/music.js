@@ -324,6 +324,10 @@ function addEvents(player) {
 
                     if (typeof playlist[nextIndex] !== 'undefined') {
                         playIndex = nextIndex;
+
+                        if (typeof playlist[playIndex]["player"] === "undefined")
+                            downloadPart(currentTime, playIndex, partIndex);
+
                         playlist[playIndex]["player"].gotoTrack(partIndex);
 
                         setTimeout(() => {
@@ -334,7 +338,7 @@ function addEvents(player) {
                     }
                 }
             }
-        }, 1);
+        }, 50);
     }
 }
 

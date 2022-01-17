@@ -762,16 +762,18 @@ function play(diffSong = false) {
     if (!secondsInterval) {
         secondsInterval = setInterval(function () {
             let timeline = document.getElementById("timeline");
-            let currentPosition = getCurrentPartTime() + currentTime;
+            let currentPosition = getCurrentPartTime();
 
-            timeline.value = currentPosition;
+            if (currentPosition) {
+                timeline.value = currentPosition + currentTime;
 
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.setPositionState({
-                    duration: MSAPI.duration,
-                    playbackRate: MSAPI.playbackRate,
-                    position: MSAPI.currentTime
-                });
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.setPositionState({
+                        duration: MSAPI.duration,
+                        playbackRate: MSAPI.playbackRate,
+                        position: MSAPI.currentTime
+                    });
+                }
             }
         }, 1000);
     }
