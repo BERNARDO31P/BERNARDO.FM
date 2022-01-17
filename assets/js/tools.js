@@ -613,7 +613,7 @@ function setVolume(volume) {
     let volumeSlider = document.getElementById("player").querySelector(".volumeSlider");
 
     previousVolume = null;
-    playlist[playIndex]["player"].setGain(volume * 65535);
+    playlist[playIndex]["player"].setVolume(volume);
     volumeSlider.value = volume * 100;
 
     let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
@@ -644,7 +644,7 @@ function muteAudio(e = null) {
         }
 
         if (typeof playlist[playIndex] !== 'undefined')
-            playlist[playIndex]["player"].setGain(volume * 65535);
+            playlist[playIndex]["player"].setVolume(volume);
 
         hideVolumeSlider();
     } else touched = true;
@@ -679,7 +679,7 @@ function play(diffSong = false) {
     let song = playlist[playIndex];
     let gapless = song["player"];
 
-    gapless.setGain(volume * 65535);
+    gapless.setVolume(volume);
     gapless.play();
     playing = true;
 

@@ -287,12 +287,10 @@ window["music"] = () => {
  * onfinishedall: Sobald das Lied abgeschlossen ist, wird das nächste Lied wiedergeben
  */
 function addEvents(player) {
-    player.onplayreal = () => {
+    player.onplay = () => {
         playPauseButton("play");
         if (MSAPI.paused) MSAPI.play();
-    }
 
-    player.onplay = () => {
         downloadNextPart();
     }
 
