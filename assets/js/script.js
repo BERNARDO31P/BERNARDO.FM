@@ -31,9 +31,20 @@ window.addEventListener("resize", function () {
 }, true);
 
 // TODO: Comment
-window.onfocus = function () {
-    if (typeof MSAPI !== 'undefined' && MSAPI.paused) playPauseButton("pause");
-}
+screen.orientation.addEventListener('change', function () {
+    let search = document.getElementById("search").querySelector("input");
+
+    if (search.style.width !== "") {
+        setTimeout(function () {
+            showSearch();
+        }, 200);
+    }
+});
+
+// TODO: Comment
+window.addEventListener("focus", function () {
+    if (MSAPI && MSAPI.paused) playPauseButton("pause");
+});
 
 // TODO: Comment
 document.addEventListener('visibilitychange', () => {
@@ -564,16 +575,7 @@ bindEvent("click", ".theme-toggler", function () {
 
 // TODO: Comment
 bindEvent("click", ".search-toggler", function () {
-    let input = this.closest(".icons").querySelector("#search input");
-    let rect = this.getBoundingClientRect();
-    let width = "0px";
-
-    if (getWidth() <= 500) width = rect.left + "px";
-    else if (getWidth() <= 1150) width = rect.left - 100 + "px";
-
-    input.style.width = width;
-    input.focus();
-    document.getElementById("menu").classList.remove("show");
+    showSearch();
 });
 
 // TODO: Comment

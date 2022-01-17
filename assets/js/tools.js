@@ -650,6 +650,21 @@ function muteAudio(e = null) {
     } else touched = true;
 }
 
+// TODO: Comment
+function showSearch() {
+    let searchToggler = document.getElementsByClassName("search-toggler")[0];
+    let input = searchToggler.closest(".icons").querySelector("#search input");
+    let width = "";
+
+    if (getWidth() <= 500) width = getWidth() - 145 + "px";
+    else if (getWidth() <= 1150) width = getWidth() - 215 + "px";
+
+    input.style.width = width;
+
+    input.focus();
+    document.getElementById("menu").classList.remove("show");
+}
+
 /*
  * Funktion: play()
  * Autor: Bernardo de Oliveira
