@@ -82,9 +82,9 @@ function search_songs($search): array
 
     foreach ($db as $song) {
         if (
-            (stripos($song["name"], $search) !== false) ||
-            (stripos($song["artist"], $search) !== false) ||
-            (stripos($song["category"], $search) !== false)
+            (stripos($song["name"] ?? "", $search) !== false) ||
+            (stripos($song["artist"] ?? "", $search) !== false) ||
+            (stripos($song["category"] ?? "", $search) !== false)
         ) {
             $songs[] = $song;
         }
@@ -171,7 +171,7 @@ if (isset($_GET["id"])) {
         recursive_prepend($db, "url", "system/img/");
 
         $db = sorting_by_category($db);
-        $db = paging($db, $_GET["page"]);
+        $db = paging($db, $_GET["page"] ?? 0);
         kshuffle($db);
     }
 
