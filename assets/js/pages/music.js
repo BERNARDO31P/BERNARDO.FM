@@ -557,32 +557,31 @@ function onTimelineRelease(value) {
     playPauseButton("load");
     resetSong(playIndex);
 
-    clearTimeout(timelineTimeout);
-    timelineTimeout = setTimeout(function () {
-        let partInfo = getPartIndexByTime(value);
-        let index = partInfo[2];
-        currentTime = partInfo[0];
+    let partInfo = getPartIndexByTime(value);
+    let index = partInfo[2];
+    currentTime = partInfo[0];
 
-        if (typeof index === "undefined") {
-            index = Object.keys(partlist[playIndex]).length;
-            downloadPart(Number(value), playIndex, index);
+    if (typeof index === "undefined") {
+        index = Object.keys(partlist[playIndex]).length;
+        downloadPart(Number(value), playIndex, index);
 
-            currentTime = Number(value);
+        currentTime = Number(value);
+    }
+
+    let interval = setInterval(function () {
+        if (typeof partlist[playIndex][index] !== 'undefined') {
+            clearInterval(interval);
+
+            let startFrom = (value - currentTime) * 1000;
+            gapless.gotoTrack(partlist[playIndex][index]["gid"]);
+            partIndex = index;
+
+            MSAPI.currentTime = value;
+
+            gapless.playlist.sources[partlist[playIndex][partIndex]["gid"]].setPosition(startFrom, false);
+            play();
         }
-
-        let interval = setInterval(function () {
-            if (typeof partlist[playIndex][index] !== 'undefined') {
-                clearInterval(interval);
-
-                let startFrom = (value - currentTime) * 1000;
-                gapless.gotoTrack(partlist[playIndex][index]["gid"]);
-                partIndex = index;
-
-                gapless.playlist.sources[partlist[playIndex][partIndex]["gid"]].setPosition(startFrom, false);
-                play();
-            }
-        }, 50);
-    }, 2000);
+    }, 50);
 }
 
 /*
@@ -616,7 +615,7 @@ function nextSong() {
         play(true);
     } else {
         pauseSong();
-        
+
     }
 }
 
