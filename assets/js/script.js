@@ -31,16 +31,11 @@ window.addEventListener("resize", function () {
 }, true);
 
 // TODO: Comment
-if ('orientation' in screen) {
-    screen.orientation.addEventListener('change', function () {
-        let search = document.getElementById("search").querySelector("input");
+window.addEventListener("orientationchange", updateSearch);
 
-        if (search.style.width !== "") {
-            setTimeout(function () {
-                showSearch();
-            }, 200);
-        }
-    });
+// TODO: Comment
+if ('orientation' in screen) {
+    screen.orientation.addEventListener('change', updateSearch);
 }
 
 // TODO: Comment

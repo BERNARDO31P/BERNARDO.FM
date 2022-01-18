@@ -138,7 +138,16 @@ function httpGet(url) {
     } catch (e) {
         return "<body>There was an error performing this request. Please try again later or reloading the page.</body>";
     }
+}
 
+function updateSearch() {
+    let search = document.getElementById("search").querySelector("input");
+
+    if (search.style.width !== "") {
+        setTimeout(function () {
+            showSearch();
+        }, 200);
+    }
 }
 
 // TODO: Comment
