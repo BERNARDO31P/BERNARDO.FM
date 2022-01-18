@@ -31,25 +31,27 @@ window.addEventListener("resize", function () {
 }, true);
 
 // TODO: Comment
-screen.orientation.addEventListener('change', function () {
-    let search = document.getElementById("search").querySelector("input");
+if ('orientation' in screen) {
+    screen.orientation.addEventListener('change', function () {
+        let search = document.getElementById("search").querySelector("input");
 
-    if (search.style.width !== "") {
-        setTimeout(function () {
-            showSearch();
-        }, 200);
-    }
-});
+        if (search.style.width !== "") {
+            setTimeout(function () {
+                showSearch();
+            }, 200);
+        }
+    });
+}
 
 // TODO: Comment
 window.addEventListener("focus", function () {
-    if (MSAPI && MSAPI.paused) playPauseButton("pause");
+    if (typeof MSAPI !== 'undefined' && MSAPI.paused) playPauseButton("pause");
 });
 
 // TODO: Comment
 document.addEventListener('visibilitychange', () => {
     setTimeout(function () {
-        if (document.visibilityState === 'visible' && MSAPI.paused) {
+        if (document.visibilityState === 'visible' && typeof MSAPI !== 'undefined' && MSAPI.paused) {
             playPauseButton("pause")
         }
     }, 200);
@@ -169,7 +171,7 @@ function loadPage() {
             window[page]();
         } else if (i > 3) {
             clearInterval(pageLoad);
-            console.log("Function not implemented.");
+            showNotification("Page not implemented yet.", 3000);
         }
         i++;
     }, 100);
