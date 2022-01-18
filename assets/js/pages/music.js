@@ -395,7 +395,7 @@ function downloadNextPart() {
             }
 
             let partInfo = getPartIndexByStartTime(nextTime);
-            nextPartIndex = partInfo[2] ?? partIndex + 1;
+            nextPartIndex = partInfo[2] ?? Object.keys(partlist[playIndex]).length;
 
             if (!nextSong && typeof partInfo[2] === 'undefined') {
                 downloadPart(nextTime, playIndex, nextPartIndex);

@@ -701,6 +701,8 @@ function play(diffSong = false) {
         songLength.textContent = song["length"];
         player.querySelector("#timeline").max = length;
 
+        MSAPI.pause();
+        MSAPI.load();
         MSAPI.src = createSilence(length);
         MSAPI.currentTime = 0;
 
