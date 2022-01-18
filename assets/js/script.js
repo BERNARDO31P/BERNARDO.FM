@@ -608,37 +608,39 @@ bindEvent("focusout", "#search", function () {
     }
 });
 
-// TODO: Comment
-let iconInterval = setInterval(function () {
-    let togglers = document.getElementsByClassName("theme-toggler");
+document.addEventListener("DOMContentLoaded", function(){
+    // TODO: Comment
+    let iconInterval = setInterval(function () {
+        let togglers = document.getElementsByClassName("theme-toggler");
 
-    if (togglers) {
-        for (let toggler of togglers) {
-            let icon = toggler.querySelector("svg");
+        if (togglers) {
+            for (let toggler of togglers) {
+                let icon = toggler.querySelector("svg");
 
-            if (icon) {
-                if (theme === "light") icon.classList.add("fa-moon");
-                else icon.classList.add("fa-sun");
+                if (icon) {
+                    if (theme === "light") icon.classList.add("fa-moon");
+                    else icon.classList.add("fa-sun");
 
-                clearInterval(iconInterval);
+                    clearInterval(iconInterval);
+                }
             }
+
         }
+    }, 50);
 
+    page = getPage();
+    window.location.href = "#!page=" + page;
+    loadPage();
+    dataIncludeReplace(document.body);
+    setActiveNavbar();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.min.js');
     }
-}, 50);
 
-page = getPage();
-window.location.href = "#!page=" + page;
-loadPage();
-dataIncludeReplace(document.body);
-setActiveNavbar();
-
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.min.js');
-}
-
-/*navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    /*navigator.serviceWorker.getRegistrations().then(function(registrations) {
     for(let registration of registrations) {
         registration.unregister()
     }
 });*/
+});

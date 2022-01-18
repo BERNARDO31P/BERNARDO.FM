@@ -563,6 +563,7 @@ function onTimelineRelease(value) {
     let index = partInfo[2];
     currentTime = partInfo[0];
 
+    // TODO: Überprüfen ob vorhanden (Wenn ja, kein Limit, wenn nein, zwei Sekunden timeout
     if (typeof index === "undefined") {
         index = Object.keys(partlist[playIndex]).length;
         downloadPart(Number(value), playIndex, index);
