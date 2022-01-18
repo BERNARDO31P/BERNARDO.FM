@@ -17,8 +17,9 @@
     }
   ],
   "require": {
-    "falahati/php-mp3": "dev-master",
     "php-ffmpeg/php-ffmpeg": "v0.18.1",
-    "ext-json": "*"
+    "ext-json": "*",
+    "bramus/router": "*",
+    "ext-fileinfo": "*"
   }
 }

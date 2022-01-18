@@ -4,5 +4,5 @@ system/composer.lock
 system/music
 system/temp
 system/img
-db/monitoring.json
-db/firewall.json
+system/db/monitoring.json
+system/db/firewall.json

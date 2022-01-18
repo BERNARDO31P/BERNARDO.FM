@@ -992,7 +992,7 @@ function generatePlaylistCover(song) {
 
     for (let i = 0; i < 4; i++) {
         let songID = song["playlist"][i];
-        let data = tryParseJSON(httpGet(pageURL + "system/player.php?id=" + songID));
+        let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
         info["cover"].innerHTML += "<img src='" + data["cover"]["url"] + "' alt='Cover'/>";
 
         info["artists"] += data["artist"] + ", ";

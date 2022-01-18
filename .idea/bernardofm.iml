@@ -11,7 +11,6 @@
       <excludeFolder url="file://$MODULE_DIR$/system/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/system/vendor/doctrine/cache" />
       <excludeFolder url="file://$MODULE_DIR$/system/vendor/psr/log" />
-      <excludeFolder url="file://$MODULE_DIR$/system/vendor/falahati/php-mp3" />
       <excludeFolder url="file://$MODULE_DIR$/system/vendor/evenement/evenement" />
       <excludeFolder url="file://$MODULE_DIR$/system/vendor/alchemy/binary-driver" />
       <excludeFolder url="file://$MODULE_DIR$/system/vendor/symfony/filesystem" />

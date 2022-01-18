@@ -254,5 +254,5 @@ while (sleep(2) !== null) {
 
     $data = structureArray($data);
 
-    file_put_contents(__DIR__ . "/../db/firewall.json", json_encode($data));
+    file_put_contents(__DIR__ . "/db/firewall.json", json_encode($data));
 }

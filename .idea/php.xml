@@ -5,7 +5,6 @@
       <path value="$PROJECT_DIR$/system/vendor/composer" />
       <path value="$PROJECT_DIR$/system/vendor/doctrine/cache" />
       <path value="$PROJECT_DIR$/system/vendor/psr/log" />
-      <path value="$PROJECT_DIR$/system/vendor/falahati/php-mp3" />
       <path value="$PROJECT_DIR$/system/vendor/evenement/evenement" />
       <path value="$PROJECT_DIR$/system/vendor/alchemy/binary-driver" />
       <path value="$PROJECT_DIR$/system/vendor/symfony/filesystem" />
@@ -15,6 +14,7 @@
       <path value="$PROJECT_DIR$/system/vendor/symfony/process" />
       <path value="$PROJECT_DIR$/system/vendor/php-ffmpeg/php-ffmpeg" />
       <path value="$PROJECT_DIR$/system/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/system/vendor/bramus/router" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />

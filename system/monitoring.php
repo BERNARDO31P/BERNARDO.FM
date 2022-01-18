@@ -1,6 +1,6 @@
 <?php
 $amount = 30;
-$dbFile = __DIR__ . "/../db/monitoring.json";
+$dbFile = __DIR__ . "/db/monitoring.json";
 
 if (!file_exists($dbFile)) touch($dbFile);
 
@@ -52,10 +52,8 @@ function get_server_network_usage(): array
 }
 
 while(true) {
-    if (count($db) == $amount * 4) {
-        reset($db);
+    if (count($db) == $amount * 4)
         unset($db[key($db)]);
-    }
 
     $network =
     $db[time()] = array(
@@ -64,5 +62,5 @@ while(true) {
         "network" => get_server_network_usage()
     );
 
-    file_put_contents(__DIR__ . "/../db/monitoring.json", json_encode($db));
+    file_put_contents($dbFile, json_encode($db));
 }

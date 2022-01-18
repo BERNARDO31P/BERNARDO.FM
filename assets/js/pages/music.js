@@ -39,7 +39,7 @@ window["music"] = () => {
     setVolumeIcon(volumeIcon, volumeSlider);
 
     for (let object of objects) {
-        let url = object.getAttribute("data-url") + "?search=" + search.value + "&width=" + getWidth();
+        let url = object.getAttribute("data-url") + "/" + search.value;
         let data = tryParseJSON(httpGet(url));
 
         if (view === "") view = "grid";
@@ -361,7 +361,7 @@ function addEvents(player) {
 function addSongToPlaylist(element) {
     let controls = element.closest(".controlsContent");
     let songID = controls.getAttribute("data-id");
-    let data = tryParseJSON(httpGet(pageURL + "system/player.php?id=" + songID));
+    let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
 
     if (typeof data.length !== 'number') {
         let id = playlist.length;
@@ -429,7 +429,7 @@ function downloadPart(time, sIndex, pIndex) {
     }
 
     downloading = true;
-    playlist[sIndex]["player"].addTrack(pageURL + "system/player.php?id=" + songID + "&time=" + time);
+    playlist[sIndex]["player"].addTrack(pageURL + "system/song/" + songID + "/" + time);
 
     if (typeof partlist[sIndex] === 'undefined') partlist[sIndex] = {};
 
