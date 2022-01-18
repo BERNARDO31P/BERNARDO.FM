@@ -133,7 +133,7 @@ function httpGet(url) {
     xmlHttp.open("GET", url, false);
 
     try {
-        xmlHttp.send(null);
+        xmlHttp.send();
         return xmlHttp.responseText;
     } catch (e) {
         return "<body>There was an error performing this request. Please try again later or reloading the page.</body>";
