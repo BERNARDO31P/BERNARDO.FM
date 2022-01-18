@@ -337,8 +337,15 @@ function addEvents(player) {
                         pauseSong();
                     }
                 }
+            } else {
+                pauseSong();
+                playPauseButton("load");
             }
         }, 50);
+    }
+
+    player.onerror = (source) => {
+        console.log("Error loading source: " + source);
     }
 }
 
@@ -376,25 +383,25 @@ function downloadNextPart() {
 
     let interval = setInterval(function () {
         if (!downloading && typeof partlist[playIndex][partIndex] !== 'undefined') {
+            clearInterval(interval);
+
             nextTime = partlist[playIndex][partIndex]["till"] + 1;
-            if (nextTime) {
-                clearInterval(interval);
 
-                let nextSong = false, nextIndex;
+            let nextSong = false, nextIndex;
 
-                if (!(Number(timeline.max) - nextTime > 1)) {
-                    nextSong = true;
-                    nextIndex = nextSongIndex();
-                }
+            if (!(Number(timeline.max) - nextTime > 1)) {
+                nextSong = true;
+                nextIndex = nextSongIndex();
+            }
 
-                let partInfo = getPartIndexByStartTime(nextTime);
-                nextPartIndex = partInfo[2] ?? partIndex + 1;
-                if (!nextSong && typeof partInfo[2] === 'undefined') {
-                    downloadPart(nextTime, playIndex, nextPartIndex);
-                } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
-                    partlist[nextIndex] = {};
-                    downloadPart(0, nextIndex, 0);
-                }
+            let partInfo = getPartIndexByStartTime(nextTime);
+            nextPartIndex = partInfo[2] ?? partIndex + 1;
+
+            if (!nextSong && typeof partInfo[2] === 'undefined') {
+                downloadPart(nextTime, playIndex, nextPartIndex);
+            } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
+                partlist[nextIndex] = {};
+                downloadPart(0, nextIndex, 0);
             }
         }
     }, 50);
@@ -563,28 +570,42 @@ function onTimelineRelease(value) {
     let index = partInfo[2];
     currentTime = partInfo[0];
 
-    // TODO: Überprüfen ob vorhanden (Wenn ja, kein Limit, wenn nein, zwei Sekunden timeout
+    clearTimeout(timelineTimeout);
     if (typeof index === "undefined") {
-        index = Object.keys(partlist[playIndex]).length;
-        downloadPart(Number(value), playIndex, index);
+        timelineTimeout = setTimeout(function () {
+            index = Object.keys(partlist[playIndex]).length;
+            downloadPart(Number(value), playIndex, index);
 
-        currentTime = Number(value);
+            let interval = setInterval(function () {
+                if (!downloading) {
+                    clearInterval(interval);
+
+                    gapless.gotoTrack(partlist[playIndex][index]["gid"]);
+                    partIndex = index;
+                    MSAPI.currentTime = value;
+                    currentTime = Number(value);
+
+                    play();
+                }
+            }, 50);
+        }, 2000);
+    } else {
+        let interval = setInterval(function () {
+            if (typeof partlist[playIndex][index] !== 'undefined') {
+                clearInterval(interval);
+
+                let startFrom = (value - currentTime) * 1000;
+
+                gapless.gotoTrack(partlist[playIndex][index]["gid"]);
+                partIndex = index;
+                MSAPI.currentTime = value;
+                currentTime = Number(value);
+
+                gapless.playlist.sources[partlist[playIndex][partIndex]["gid"]].setPosition(startFrom, false);
+                play();
+            }
+        }, 50);
     }
-
-    let interval = setInterval(function () {
-        if (typeof partlist[playIndex][index] !== 'undefined') {
-            clearInterval(interval);
-
-            let startFrom = (value - currentTime) * 1000;
-            gapless.gotoTrack(partlist[playIndex][index]["gid"]);
-            partIndex = index;
-
-            MSAPI.currentTime = value;
-
-            gapless.playlist.sources[partlist[playIndex][partIndex]["gid"]].setPosition(startFrom, false);
-            play();
-        }
-    }, 50);
 }
 
 /*

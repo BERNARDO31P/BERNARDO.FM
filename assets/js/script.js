@@ -608,7 +608,7 @@ bindEvent("focusout", "#search", function () {
     }
 });
 
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener("DOMContentLoaded", function () {
     // TODO: Comment
     let iconInterval = setInterval(function () {
         let togglers = document.getElementsByClassName("theme-toggler");
@@ -638,9 +638,9 @@ document.addEventListener("DOMContentLoaded", function(){
         navigator.serviceWorker.register('./sw.min.js');
     }
 
-    /*navigator.serviceWorker.getRegistrations().then(function(registrations) {
-    for(let registration of registrations) {
-        registration.unregister()
-    }
-});*/
+    /*navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (let registration of registrations) {
+            registration.unregister()
+        }
+    });*/
 });
