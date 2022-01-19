@@ -905,12 +905,14 @@ function clearSongs() {
  * Alle Teile werden zurücksetzt
  */
 function resetSong(index) {
-    playlist[index]["player"].stop();
-    playlist[index]["player"].gotoTrack(0);
+    let gapless = playlist[index]["player"];
+
+    if (gapless.isPlaying()) gapless.stop();
+    gapless.gotoTrack(0);
 
     for (let part of Object.values(partlist[index])) {
-        if (typeof playlist[index]["player"].playlist.sources[part["gid"]] !== 'undefined')
-            playlist[index]["player"].playlist.sources[part["gid"]].setPosition(0);
+        if (typeof gapless.playlist.sources[part["gid"]] !== 'undefined')
+            gapless.playlist.sources[part["gid"]].setPosition(0);
     }
 }
 

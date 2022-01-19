@@ -297,9 +297,7 @@ function addEvents(player) {
         playPauseButton("play");
         if (MSAPI.paused) MSAPI.play();
 
-        setTimeout(function () {
-            downloadNextPart();
-        }, 200);
+        downloadNextPart();
     }
 
     player.onfinishedtrack = () => {
