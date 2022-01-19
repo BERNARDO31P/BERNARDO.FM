@@ -845,8 +845,7 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
         if (this.loop || this.getIndex() < this.totalTracks() - 1) {
             if (this.loop) {
                 this.prev(true);
-            } else if (this.singleMode || this.totalTracks() === 1) {
-                this.currentSource().stop(true);
+            } else if (this.singleMode) {
             } else {
                 this.currentSource().stop(true);
                 this.next(true);
