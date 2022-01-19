@@ -3,6 +3,7 @@ if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde
 let MSAPI = new Audio();
 document.getElementsByTagName("body")[0].appendChild(MSAPI);
 
+// TODO: Comment
 MSAPI.addEventListener("pause", function () {
     let player = new Gapless5({});
     if (typeof playlist[playIndex]["player"] !== 'undefined')
@@ -11,6 +12,7 @@ MSAPI.addEventListener("pause", function () {
     if (player.isPlaying()) pauseSong();
 });
 
+// TODO: Comment
 MSAPI.addEventListener("play", function () {
     let player = new Gapless5({});
     if (typeof playlist[playIndex]["player"] !== 'undefined')
@@ -338,9 +340,7 @@ function addEvents(player) {
 
                         playlist[playIndex]["player"].gotoTrack(partIndex);
 
-                        setTimeout(() => {
-                            play(true);
-                        }, 1000);
+                        play(true);
                     } else {
                         pauseSong();
                     }
