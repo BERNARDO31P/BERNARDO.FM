@@ -12,15 +12,14 @@
   ],
   "repositories": [
     {
-      "url": "https://github.com/BERNARDO31P/PHP-FFMpeg.git",
+      "url": "https://github.com/BERNARDO31P/Audero-Wav-Extractor.git",
       "type": "git"
     }
   ],
   "require": {
-    "php-ffmpeg/php-ffmpeg": "v0.18.1",
     "ext-json": "*",
     "bramus/router": "*",
     "ext-fileinfo": "*",
-    "audero/audero-wav-extractor": "2.0.*"
+    "audero/audero-wav-extractor": "2.1.1"
   }
 }

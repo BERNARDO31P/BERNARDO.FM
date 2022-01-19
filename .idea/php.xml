@@ -3,17 +3,6 @@
   <component name="PhpIncludePathManager">
     <include_path>
       <path value="$PROJECT_DIR$/system/vendor/composer" />
-      <path value="$PROJECT_DIR$/system/vendor/doctrine/cache" />
-      <path value="$PROJECT_DIR$/system/vendor/psr/log" />
-      <path value="$PROJECT_DIR$/system/vendor/evenement/evenement" />
-      <path value="$PROJECT_DIR$/system/vendor/alchemy/binary-driver" />
-      <path value="$PROJECT_DIR$/system/vendor/symfony/filesystem" />
-      <path value="$PROJECT_DIR$/system/vendor/symfony/polyfill-php80" />
-      <path value="$PROJECT_DIR$/system/vendor/neutron/temporary-filesystem" />
-      <path value="$PROJECT_DIR$/system/vendor/symfony/polyfill-ctype" />
-      <path value="$PROJECT_DIR$/system/vendor/symfony/process" />
-      <path value="$PROJECT_DIR$/system/vendor/php-ffmpeg/php-ffmpeg" />
-      <path value="$PROJECT_DIR$/system/vendor/symfony/polyfill-mbstring" />
       <path value="$PROJECT_DIR$/system/vendor/bramus/router" />
       <path value="$PROJECT_DIR$/system/vendor/audero/audero-wav-extractor" />
     </include_path>
