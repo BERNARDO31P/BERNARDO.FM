@@ -20,6 +20,7 @@
     "php-ffmpeg/php-ffmpeg": "v0.18.1",
     "ext-json": "*",
     "bramus/router": "*",
-    "ext-fileinfo": "*"
+    "ext-fileinfo": "*",
+    "audero/audero-wav-extractor": "2.0.*"
   }
 }

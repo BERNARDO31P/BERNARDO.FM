@@ -15,6 +15,7 @@
       <path value="$PROJECT_DIR$/system/vendor/php-ffmpeg/php-ffmpeg" />
       <path value="$PROJECT_DIR$/system/vendor/symfony/polyfill-mbstring" />
       <path value="$PROJECT_DIR$/system/vendor/bramus/router" />
+      <path value="$PROJECT_DIR$/system/vendor/audero/audero-wav-extractor" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />

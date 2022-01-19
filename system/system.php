@@ -1,9 +1,10 @@
 <?php
 
+use Audero\WavExtractor\AuderoWavExtractor;
 use Bramus\Router\Router;
 
 include_once __DIR__ . "/vendor/autoload.php";
-ini_set('memory_limit', -1);
+ini_set('memory_limit', '256M');
 
 // TODO: Comment
 function recursive_unset(&$array, $unwanted_key)
@@ -164,21 +165,6 @@ $router->get('/song/([\d]+)', function ($id) {
 });
 
 $router->get('/song/([\d]+)/([\d]+)', function ($id, $timeGet) {
-    $db = loadDatabase();
-    $song = search_song($id, $db);
-
-    $newName = "/temp/" . bin2hex(random_bytes(22)) . ".mp3";
-
-    $ffmpeg = FFMpeg\FFMpeg::create(
-        array(
-            'ffmpeg.binaries' => "/usr/bin/ffmpeg",
-            'ffprobe.binaries' => "/usr/bin/ffprobe",
-            'timeout' => 10,
-            'ffmpeg.threads' => 4,
-        )
-    );
-    $audio = $ffmpeg->open(__DIR__ . "/music/" . $song["fileName"]);
-
     $time = 0;
     if ($timeGet < 50) {
         $time = 5;
@@ -188,16 +174,19 @@ $router->get('/song/([\d]+)/([\d]+)', function ($id, $timeGet) {
         $time = 20;
     }
 
-    $audio->filters()->clip(FFMpeg\Coordinate\TimeCode::fromSeconds($timeGet), FFMpeg\Coordinate\TimeCode::fromSeconds($time));
-    $format = new FFMpeg\Format\Audio\Mp3();
-    $audio->save($format, __DIR__ . $newName);
+    $db = loadDatabase();
+    $song = search_song($id, $db);
 
-    $song = file_get_contents(__DIR__ . $newName);
-    header('Content-Type: audio/mpeg');
-    header('Content-Length: ' . strlen($song));
-    echo $song;
+    try {
+        $extractor = new AuderoWavExtractor(__DIR__ . "/music/" . $song["fileName"]);
+        $part = $extractor->getChunk($timeGet * 1000, ($timeGet + $time) * 1000);
 
-    unlink(__DIR__ . $newName);
+        header('Content-Type: audio/wav');
+        header('Content-Length: ' . strlen($part));
+        echo $part;
+    } catch (\Exception $ex) {
+        echo 'An error has occurred: ' . $ex->getMessage();
+    }
 });
 
 $router->get('/monitoring', function () {

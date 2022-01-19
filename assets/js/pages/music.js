@@ -287,11 +287,19 @@ window["music"] = () => {
  * onfinishedall: Sobald das Lied abgeschlossen ist, wird das nächste Lied wiedergeben
  */
 function addEvents(player) {
+    player.onerror = () => {
+        setTimeout(function () {
+            downloadNextPart();
+        }, 1000);
+    }
+
     player.onplay = () => {
         playPauseButton("play");
         if (MSAPI.paused) MSAPI.play();
 
-        downloadNextPart();
+        setTimeout(function () {
+            downloadNextPart();
+        }, 200);
     }
 
     player.onfinishedtrack = () => {
@@ -303,12 +311,14 @@ function addEvents(player) {
                 clearInterval(interval);
 
                 if (typeof partlist[playIndex][nextPartIndex] !== "undefined" && partlist[playIndex][partIndex]["till"] + 1 < Number(timeline.max)) {
-                    currentTime += getPartLength(partIndex);
+                    let gidOld = partlist[playIndex][partIndex]["gid"];
+
+                    currentTime += getPartLength(gidOld);
                     partIndex = nextPartIndex;
 
-                    let gid = partlist[playIndex][partIndex]["gid"];
-                    gapless.gotoTrack(gid);
-                    gapless.playlist.sources[gid].setPosition(0);
+                    let gidNew = partlist[playIndex][partIndex]["gid"];
+                    gapless.gotoTrack(gidNew);
+                    gapless.playlist.sources[gidNew].setPosition(0);
 
                     play();
                 } else {
@@ -343,10 +353,6 @@ function addEvents(player) {
             }
         }, 50);
     }
-
-    player.onerror = (source) => {
-        console.log("Error loading source: " + source);
-    }
 }
 
 /*
@@ -373,10 +379,10 @@ function addSongToPlaylist(element) {
  * Funktion: downloadNextPart()
  * Autor: Bernardo de Oliveira
  *
- * Überprüft ob das Lied fertig ist
- * Überprüft ob ein nächstes Lied in der Witoolsedergabenliste verfügbar ist
+ * Überprüft, ob das Lied fertig ist
+ * Überprüft, ob ein nächstes Lied in der Wiedergabenliste verfügbar ist
  *
- * Lädt den nächsten Teil herunter oder pausiert die weitere Wiedergabes
+ * Lädt den nächsten Teil herunter oder pausiert die weitere Wiedergabe
  */
 function downloadNextPart() {
     let timeline = document.getElementById("timeline"), nextTime;
@@ -441,6 +447,8 @@ function downloadPart(time, sIndex, pIndex) {
         };
         downloading = false;
     });
+
+
 }
 
 /*
