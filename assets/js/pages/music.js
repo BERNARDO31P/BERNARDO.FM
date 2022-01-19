@@ -425,6 +425,8 @@ function downloadNextPart() {
 function downloadPart(time, sIndex, pIndex) {
     let songID = playlist[sIndex]["id"];
 
+    downloading = true;
+
     if (typeof playlist[sIndex]["player"] === 'undefined') {
         let gapless = new Gapless5({singleMode: true});
         addEvents(gapless);
@@ -432,7 +434,6 @@ function downloadPart(time, sIndex, pIndex) {
         playlist[sIndex]["player"] = gapless;
     }
 
-    downloading = true;
     playlist[sIndex]["player"].addTrack(pageURL + "system/song/" + songID + "/" + time);
 
     if (typeof partlist[sIndex] === 'undefined') partlist[sIndex] = {};
