@@ -1,7 +1,7 @@
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
 let MSAPI = new Audio();
-MSAPI.volume = 0.001;
+document.getElementsByTagName("body")[0].appendChild(MSAPI);
 
 MSAPI.addEventListener("pause", function () {
     let player = new Gapless5({});
@@ -399,7 +399,9 @@ function downloadNextPart() {
             }
 
             let partInfo = getPartIndexByStartTime(nextTime);
-            nextPartIndex = partInfo[2] ?? Object.keys(partlist[playIndex]).length;
+
+            if (partInfo[2]) nextPartIndex = partInfo[2];
+            else nextPartIndex = Object.keys(partlist[playIndex]).length
 
             if (!nextSong && typeof partInfo[2] === 'undefined') {
                 downloadPart(nextTime, playIndex, nextPartIndex);
@@ -446,8 +448,6 @@ function downloadPart(time, sIndex, pIndex) {
         };
         downloading = false;
     });
-
-
 }
 
 /*
