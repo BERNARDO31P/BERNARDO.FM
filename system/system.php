@@ -179,7 +179,12 @@ $router->get('/song/([\d]+)/([\d]+)', function ($id, $timeGet) {
 
     try {
         $extractor = new AuderoWavExtractor(__DIR__ . "/music/" . $song["fileName"]);
-        $part = $extractor->getChunk($timeGet * 1000, ($timeGet + $time) * 1000);
+        $duration = $extractor->getDuration() / 1000;
+
+        if ($duration <= $timeGet + $time) $till = $duration;
+        else $till = $timeGet + $time;
+
+        $part = $extractor->getChunk($timeGet * 1000, $till * 1000);
 
         header('Content-Type: audio/wav');
         header('Content-Length: ' . strlen($part));
