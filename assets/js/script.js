@@ -598,8 +598,8 @@ bindEvent("focusout", "#search", function () {
     }
 });
 
+// TODO: Comment
 document.addEventListener("DOMContentLoaded", function () {
-    // TODO: Comment
     let iconInterval = setInterval(function () {
         let togglers = document.getElementsByClassName("theme-toggler");
 
