@@ -656,6 +656,7 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
     this.initialized = false;
     this.uiDirty = true;
     this.playlist = new Gapless5FileList(options.shuffle, options.loadLimit);
+    this.nextIndex = null;
 
     // Setup up minimum logging
     switch (options.logLevel || LogLevel.Info) {
@@ -685,9 +686,11 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
     this.id = Math.floor((1 + Math.random()) * 0x10000);
     gapless5Players[this.id] = this;
 
-    let AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (window.gapless5AudioContext === undefined)
+    // There can be only one AudioContext per window, so to have multiple players we must define this outside the player scope
+    if (window.gapless5AudioContext === undefined) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
         window.gapless5AudioContext = new AudioContext();
+    }
 
     this.context = window.gapless5AudioContext;
     this.gainNode = (this.context !== undefined) ? this.context.createGain() : null;
@@ -1027,6 +1030,9 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
         let playlistIndex = this.getIndex();
         if (this.singleMode) {
             track = playlistIndex;
+        } else if (this.nextIndex !== null) {
+            track = this.nextIndex;
+            this.nextIndex = null;
         } else if (playlistIndex < this.totalTracks() - 1) {
             track = playlistIndex + 1;
         } else if (!this.loop) {
@@ -1036,6 +1042,10 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
         this.gotoTrack(track, e === true, true);
         this.onnext(lastAudioPath, this.currentSource().audioPath);
     };
+
+    this.nextTrack = (index) => {
+        this.nextIndex = index;
+    }
 
     this.play = () => {
         if (this.totalTracks() === 0) {

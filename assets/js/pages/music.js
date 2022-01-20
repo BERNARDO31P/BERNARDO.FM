@@ -403,6 +403,7 @@ function downloadNextPart() {
             if (partInfo[2]) nextPartIndex = partInfo[2];
             else nextPartIndex = Object.keys(partlist[playIndex]).length
 
+            playlist[playIndex]["player"].nextTrack(nextPartIndex);
             if (!nextSong && typeof partInfo[2] === 'undefined') {
                 downloadPart(nextTime, playIndex, nextPartIndex);
             } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
@@ -430,7 +431,7 @@ function downloadPart(time, sIndex, pIndex) {
     downloading = true;
 
     if (typeof playlist[sIndex]["player"] === 'undefined') {
-        let gapless = new Gapless5({singleMode: true});
+        let gapless = new Gapless5({});
         addEvents(gapless);
 
         playlist[sIndex]["player"] = gapless;
