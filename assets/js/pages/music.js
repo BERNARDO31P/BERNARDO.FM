@@ -289,11 +289,11 @@ window["music"] = () => {
  * onfinishedall: Sobald das Lied abgeschlossen ist, wird das nächste Lied wiedergeben
  */
 function addEvents(player) {
-    player.onerror = () => {
+    /*player.onerror = () => {
         setTimeout(function () {
             downloadNextPart();
         }, 1000);
-    }
+    }*/
 
     player.onplay = () => {
         playPauseButton("play");
@@ -304,21 +304,16 @@ function addEvents(player) {
 
     player.onfinishedtrack = () => {
         let timeline = document.getElementById("timeline");
-        let gapless = playlist[playIndex]["player"];
 
         let interval = setInterval(function () {
             if (!downloading) {
                 clearInterval(interval);
 
                 if (typeof partlist[playIndex][nextPartIndex] !== "undefined" && partlist[playIndex][partIndex]["till"] + 1 < Number(timeline.max)) {
-                    let gidOld = partlist[playIndex][partIndex]["gid"];
+                    let gid = partlist[playIndex][partIndex]["gid"];
 
-                    currentTime += getPartLength(gidOld);
+                    currentTime += getPartLength(gid);
                     partIndex = nextPartIndex;
-
-                    let gidNew = partlist[playIndex][partIndex]["gid"];
-                    gapless.gotoTrack(gidNew);
-                    gapless.playlist.sources[gidNew].setPosition(0);
 
                     play();
                 } else {
