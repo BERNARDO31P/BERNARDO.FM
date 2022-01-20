@@ -85,7 +85,7 @@
   },
   {
     "id": 8,
-    "cover":  {
+    "cover": {
       "url": "Transient Disorder - The Watchers.jpg",
       "html": "img"
     },
@@ -419,5 +419,65 @@
     "length": "3:48",
     "fileName": "Lil Nas X - INDUSTRY BABY.wav",
     "category": "Trap"
+  },
+  {
+    "id": 36,
+    "cover": {
+      "url": "Fluxsense - Divinity Plane.jpg",
+      "html": "img"
+    },
+    "name": "Divinity Plane",
+    "artist": "Fluxsense",
+    "length": "8:04",
+    "fileName": "Fluxsense - Divinity Plane.wav",
+    "category": "Psybient"
+  },
+  {
+    "id": 37,
+    "cover": {
+      "url": "Fluxsense - Medusa.jpg",
+      "html": "img"
+    },
+    "name": "Medusa",
+    "artist": "Fluxsense",
+    "length": "8:40",
+    "fileName": "Fluxsense - Medusa.wav",
+    "category": "Psybient"
+  },
+  {
+    "id": 38,
+    "cover": {
+      "url": "Fluxsense - Through Your Eyes.jfif",
+      "html": "img"
+    },
+    "name": "Through Your Eyes",
+    "artist": "Fluxsense",
+    "length": "9:46",
+    "fileName": "Fluxsense - Through Your Eyes.wav",
+    "category": "Psybient"
+  },
+  {
+    "id": 39,
+    "cover": {
+      "url": "Matt Jah - Here and Now.jpg",
+      "html": "img"
+    },
+    "name": "Here and Now",
+    "artist": "Matt Jah",
+    "length": "6:27",
+    "fileName": "Matt Jah - Here and Now.wav",
+    "category": "Psybient"
+  },
+  {
+    "id": 40,
+    "cover": {
+      "url": "Mobitex - Orin.jpg",
+      "html": "img"
+    },
+    "name": "Orin",
+    "artist": "Mobitex",
+    "length": "8:52",
+    "fileName": "Mobitex - Orin.wav",
+    "category": "Psybient"
   }
 ]

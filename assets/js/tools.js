@@ -696,6 +696,7 @@ function play(diffSong = false) {
         let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
         let songLength = document.getElementById("timeInfo").querySelector("#length");
         let cover = document.getElementById("queueView").querySelector("#playingCover").querySelector("img");
+        let title = document.querySelector("title");
 
         cover.src = song["cover"]["url"];
         songLength.textContent = song["length"];
@@ -706,6 +707,8 @@ function play(diffSong = false) {
         MSAPI.src = createSilence(length);
         MSAPI.currentTime = 0;
 
+
+        title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
         player.querySelector("#name").innerHTML = "<div class='truncate'>" +
             "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" +
             "<div class='spacer'>" + song["name"] + "</div>" +
