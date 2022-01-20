@@ -1030,9 +1030,8 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
         let playlistIndex = this.getIndex();
         if (this.singleMode) {
             track = playlistIndex;
-        } else if (this.nextIndex !== null) {
+        } else if (this.nextIndex !== playlistIndex) {
             track = this.nextIndex;
-            this.nextIndex = null;
         } else if (playlistIndex < this.totalTracks() - 1) {
             track = playlistIndex + 1;
         } else if (!this.loop) {
