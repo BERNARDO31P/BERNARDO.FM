@@ -298,7 +298,9 @@ function addEvents(player) {
     player.onplay = () => {
         playPauseButton("play");
         if (MSAPI.paused) MSAPI.play();
+    }
 
+    player.onplayrequest = () => {
         downloadNextPart();
     }
 
