@@ -398,6 +398,8 @@ body {
             max-width: 160px;
 
             border-radius: 5px;
+
+            user-select: none;
           }
         }
 
@@ -412,6 +414,8 @@ body {
             height: 80px;
 
             position: absolute;
+
+            user-select: none;
 
             &:nth-child(1) {
               border-top-left-radius: 5px;
@@ -511,6 +515,8 @@ body {
         max-width: 17.5px;
         max-height: 17.5px;
 
+        user-select: none;
+
         &:nth-child(1) {
           margin-bottom: -5px;
           border-top-left-radius: 5px;
@@ -537,6 +543,8 @@ body {
       width: 35px;
       height: 35px;
       margin: 6px 0 0 0;
+
+      user-select: none;
     }
   }
 

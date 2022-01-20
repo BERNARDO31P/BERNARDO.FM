@@ -50,28 +50,24 @@ function paging($array, $page, $count = 10): array
 }
 
 // TODO: Comment
-function kshuffle(&$array)
-{
-    $tmp = array();
-    foreach ($array as $key => $value) {
-        if (is_array($value)) kshuffle($value);
+function shuffle_assoc(&$array, $level, $current = 0) {
+	$keys = array_keys($array);
 
-        if (is_int($key)) {
-            $tmp[] = array('v' => $value);
-        } else {
-            $tmp[] = array('k' => $key, 'v' => $value);
-        }
+	shuffle($keys);
 
-    }
-    shuffle($tmp);
-    $array = array();
-    foreach ($tmp as $entry) {
-        if (isset($entry['k'])) {
-            $array[$entry['k']] = $entry['v'];
-        } else {
-            $array[] = $entry['v'];
-        }
-    }
+	$new = array();
+	foreach($keys as $key) {
+		$value = $array[$key];
+
+		if (is_array($value) && $level > $current) {
+			shuffle_assoc($value, $level, $current + 1);
+		}
+
+		$new[$key] = $value;
+	}
+	$array = $new;
+
+	return true;
 }
 
 // TODO: Comment
@@ -123,7 +119,7 @@ $router->get('/songs(/\d+)?', function ($page = 1, $search = "") {
 
     $db = sorting_by_category($db);
     $db = paging($db, $page);
-    kshuffle($db);
+    shuffle_assoc($db, 1);
 
     echo json_encode($db);
 });

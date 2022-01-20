@@ -291,7 +291,7 @@ window["music"] = () => {
 function addEvents(player) {
     /*player.onerror = () => {
         setTimeout(function () {
-            downloadNextPart();
+            prepareNextPart();
         }, 1000);
     }*/
 
@@ -301,7 +301,7 @@ function addEvents(player) {
     }
 
     player.onplayrequest = () => {
-        downloadNextPart();
+        prepareNextPart();
     }
 
     player.onfinishedtrack = () => {
@@ -371,7 +371,7 @@ function addSongToPlaylist(element) {
 }
 
 /*
- * Funktion: downloadNextPart()
+ * Funktion: prepareNextPart()
  * Autor: Bernardo de Oliveira
  *
  * Überprüft, ob das Lied fertig ist
@@ -379,7 +379,7 @@ function addSongToPlaylist(element) {
  *
  * Lädt den nächsten Teil herunter oder pausiert die weitere Wiedergabe
  */
-function downloadNextPart() {
+function prepareNextPart() {
     let timeline = document.getElementById("timeline"), nextTime;
 
     let interval = setInterval(function () {

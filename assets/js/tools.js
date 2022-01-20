@@ -1040,7 +1040,7 @@ function generateTableHead(columns) {
 function generateTableBody(data, columns, tbody = null) {
     if (!tbody) tbody = document.createElement("tbody");
 
-    for (let row of data) {
+    for (let row of Object.values(data)) {
         let tableRow = document.createElement("tr");
         if (typeof row["id"] !== 'undefined') tableRow.setAttribute("data-id", row["id"]);
         row = removeFromObject(row, ["id", "category", "player"]);
