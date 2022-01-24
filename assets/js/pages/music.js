@@ -298,10 +298,12 @@ function addEvents(player) {
     player.onplay = () => {
         playPauseButton("play");
         if (MSAPI.paused) MSAPI.play();
+
+        prepareNextPart();
     }
 
     player.onplayrequest = () => {
-        prepareNextPart();
+
     }
 
     player.onfinishedtrack = () => {
@@ -400,7 +402,7 @@ function prepareNextPart() {
             if (partInfo[2]) nextPartIndex = partInfo[2];
             else nextPartIndex = Object.keys(partlist[playIndex]).length
 
-            playlist[playIndex]["player"].nextTrack(nextPartIndex);
+            playlist[playIndex]["player"].queueTrack(nextPartIndex);
             if (!nextSong && typeof partInfo[2] === 'undefined') {
                 downloadPart(nextTime, playIndex, nextPartIndex);
             } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
