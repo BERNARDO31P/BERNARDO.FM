@@ -371,6 +371,23 @@ body {
     color: var(--text-color);
   }
 
+  .songList {
+    text-align: center;
+
+    h2 {
+      text-align: left;
+    }
+
+    .loadMore {
+      display: inline-block;
+      margin: 10px 0 0 0;
+      padding: 5px 10px;
+
+      color: var(--secondary-color);
+      cursor: pointer;
+    }
+  }
+
   .songGrid {
     & > div {
       overflow-x: auto;
@@ -506,7 +523,7 @@ body {
   }
 
   .responsive-table {
-    margin: 35px 0 0 0;
+    margin: 5px 0 0 0;
 
     .cover {
       max-width: 35px;
@@ -545,6 +562,10 @@ body {
       margin: 6px 0 0 0;
 
       user-select: none;
+    }
+
+    td:first-of-type {
+      text-align: left;
     }
   }
 

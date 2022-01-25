@@ -1,7 +1,186 @@
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
 let MSAPI = new Audio();
-document.getElementsByTagName("body")[0].appendChild(MSAPI);
+document.getElementById("player").appendChild(MSAPI);
+
+let count = 0;
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
+ */
+bindEvent("mouseover", "#content tr[data-id]", function () {
+    let controls = this.querySelector(".controlsContent");
+    if (!controls) {
+        removeControls("controlsContent");
+        if (!this.classList.contains("playlist"))
+            controls = createControls("controlsContent", ["play", "add"]);
+        else
+            controls = createControls("controlsContent", ["play"]);
+
+        let pos = this.getBoundingClientRect();
+
+        controls.style.top = "3px";
+        controls.style.right = "0";
+        controls.style.height = pos.height - 6 + "px";
+        controls.style.lineHeight = pos.height - 6 + "px";
+        controls.setAttribute("data-id", this.getAttribute("data-id"));
+
+        setTimeout(() => {
+            this.querySelector("td:last-of-type").appendChild(controls);
+            controls.classList.add("show");
+        }, 0);
+    } else clearTimeout(controlsTimeout);
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Entfernt die Liedoptionen
+ */
+bindEvent("mouseout", "#content tr[data-id]", function () {
+    let row = this;
+    controlsTimeout = setTimeout(function () {
+        if (row !== currentHover) {
+            let controls = row.querySelector(".controlsContent");
+            if (controls) controls.remove();
+        }
+    }, 0);
+});
+
+bindEvent("mouseout", ".songCard", function () {
+    removeControlsCard(this);
+});
+
+bindEvent("mouseout", ".playlistCard", function () {
+    removeControlsCard(this);
+});
+
+bindEvent("mouseover", ".songCard", function () {
+    showControlsCard(this);
+});
+bindEvent("mouseover", ".playlistCard", function () {
+    showControlsCard(this);
+});
+bindEvent("click", ".songCard", function () {
+    showControlsCard(this);
+});
+bindEvent("click", ".playlistCard", function () {
+    showControlsCard(this);
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Fügt ein Lied zur Wiedergabenliste hinzu
+ */
+bindEvent("click", "#content .listAdd", function () {
+    addSongToPlaylist(this);
+    showNotification("Song added to queue", 3000);
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Setzt die Wiedergabenliste zurück und spielt das Lied ab
+ */
+bindEvent("click", "#content .fa-play", function () {
+    clearSongs();
+
+    playIndex = 0;
+    partIndex = 0;
+    currentTime = 0;
+    playlist = [];
+    partlist[playIndex] = {0: 0};
+
+    clearInterval(secondsInterval);
+    secondsInterval = null;
+
+    addSongToPlaylist(this);
+    playPauseButton("load");
+    downloadPart(currentTime, playIndex, partIndex);
+    play(true);
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Findet heraus welches Lied abgespielt werden soll
+ * Spielt das Lied ab
+ */
+bindEvent("click", "#queueView .fa-play", function () {
+    clearSong(playIndex);
+
+    let id = Number(this.closest(".controlsQueue").getAttribute("data-id"));
+
+    for (let [key, value] of Object.entries(playlist)) {
+        if (value["id"] === id) playIndex = key;
+    }
+
+    currentTime = 0;
+    partIndex = 0;
+
+    if (typeof playlist[playIndex]["player"] === 'undefined')
+        downloadPart(currentTime, playIndex, partIndex);
+
+    clearInterval(secondsInterval);
+    secondsInterval = null;
+
+    playPauseButton("load");
+    play(true);
+});
+
+// TODO: Comment
+bindEvent("touchend", "#timeline", (e) => onTimelineRelease(e.target.value));
+bindEvent("mouseup", "#timeline", (e) => onTimelineRelease(e.target.value));
+
+bindEvent("click", "#player .fa-step-forward", () => nextSong());
+bindEvent("click", "#player .fa-step-backward", () => previousSong());
+
+// TODO: Comment
+bindEvent("click", ".songList .loadMore", function () {
+    let table = this.previousElementSibling, category = table.previousElementSibling;
+    let loadMore = Boolean(Number(table.getAttribute("data-load")));
+
+    if (loadMore) {
+        let tbody = table.querySelector("tbody");
+        let catPage = Number(table.getAttribute("data-page")) + 1;
+        let catCategory = category.textContent;
+
+        let theadColumns = table.querySelectorAll("thead tr:first-of-type th");
+
+        let columns = [];
+        for(let theadColumn of theadColumns){
+            columns.push(theadColumn.textContent.toLowerCase());
+        }
+
+        let data = tryParseJSON(httpGet(table.getAttribute("data-url") + "/" + catCategory + "/" + catPage + "/" + count));
+
+        if (data.length < count) {
+            table.setAttribute("data-load", String(0));
+            this.remove();
+        }
+        table.setAttribute("data-page", String(catPage));
+
+        generateTableBody(data, columns, tbody);
+    }
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Versteckt beim Scrollen die Liedoptionen
+ */
+window.addEventListener("scroll", () => {
+    removeControls("controlsContent");
+});
 
 // TODO: Comment
 MSAPI.addEventListener("pause", function () {
@@ -41,12 +220,14 @@ window["music"] = () => {
     setVolumeIcon(volumeIcon, volumeSlider);
 
     for (let object of objects) {
-        let url = object.getAttribute("data-url") + "/" + search.value;
-        let data = tryParseJSON(httpGet(url));
-
         if (view === "") view = "grid";
 
+        let data = {};
+        count = Math.round(getWidth() / 160) + 2;
+
         if (search.value !== "") {
+            data = tryParseJSON(httpGet(object.getAttribute("data-url") + "/search/" + search.value + "/" + count));
+
             let div = document.createElement("div");
             div.classList.add("searchterm");
 
@@ -56,13 +237,42 @@ window["music"] = () => {
             div.appendChild(h3);
 
             object.parentNode.insertBefore(div, object);
+        } else {
+            data = tryParseJSON(httpGet(object.getAttribute("data-url") + "/" + count));
         }
 
 
         if (Object.keys(data).length > 0) {
             if (view === "list") {
                 document.getElementsByClassName("fa-list")[0].classList.add("active");
-                object.parentNode.insertBefore(generateListView(data), object);
+
+                let listView = document.createElement("div");
+                listView.classList.add("songList");
+
+                for (let category in data) {
+                    let songs = data[category], title = document.createElement("h2");
+
+                    title.textContent = category;
+                    listView.appendChild(title);
+
+                    let table = generateListView(songs);
+                    table.setAttribute("data-page", "1");
+                    table.setAttribute("data-url", object.getAttribute("data-url"));
+
+                    if (songs.length === count)
+                        table.setAttribute("data-load", String(1));
+
+                    listView.appendChild(table);
+
+                    if (songs.length === count) {
+                        let loadMore = document.createElement("a");
+                        loadMore.classList.add("loadMore");
+                        loadMore.textContent = "Load more..";
+
+                        listView.appendChild(loadMore);
+                    }
+                }
+                object.parentNode.insertBefore(listView, object);
             } else {
                 document.getElementsByClassName("fa-grip-horizontal")[0].classList.add("active");
 
@@ -76,36 +286,36 @@ window["music"] = () => {
                     gridView.appendChild(title);
 
                     let div = document.createElement("div"), categoryView = document.createElement("div");
+                    div.setAttribute("data-page", "1");
+                    div.setAttribute("data-url", object.getAttribute("data-url"));
+
+                    if (songs.length === count)
+                        div.setAttribute("data-load", String(1));
+
                     categoryView.classList.add("songCategory");
 
-                    div.addEventListener("scroll", () => {
+                    div.addEventListener("scroll", (e) => {
+                        let element = e.target;
+                        let loadMore = Boolean(Number(element.getAttribute("data-load")));
+                        let scrolled = Math.round(100 * element.scrollLeft / (element.scrollWidth - element.clientWidth));
+
+                        if (scrolled >= 60 && loadMore) {
+                            let catPage = Number(element.getAttribute("data-page")) + 1;
+                            let catCategory = element.previousElementSibling.textContent;
+                            let data = tryParseJSON(httpGet(element.getAttribute("data-url") + "/" + catCategory + "/" + catPage + "/" + count));
+
+                            if (Object.keys(data).length > 0) {
+                                element.setAttribute("data-page", String(catPage));
+                                generateBlockView(data, element.querySelector(".songCategory"));
+                            } else {
+                                element.setAttribute("data-load", String(0));
+                            }
+                        }
+
                         removeControls("controlsContent");
                     });
 
-                    for (let arrayID in songs) {
-                        let song = songs[arrayID];
-
-                        let card = document.createElement("div");
-                        card.setAttribute("data-id", song["id"]);
-
-                        if (typeof song["playlist"] === 'undefined') {
-                            card.classList.add("songCard");
-                            card.innerHTML = "<img src='" + song["cover"]["url"] + "' alt='Cover'/>" +
-                                "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
-                                "<span data-title=\"" + song["artist"] + "\" class='artist'>" + song["artist"] + "</span>" +
-                                "<span class='length'>" + song["length"] + "</span>";
-                        } else {
-                            card.classList.add("playlistCard");
-
-                            let info = generatePlaylistCover(song);
-
-                            card.innerHTML += info["cover"].innerHTML;
-                            card.innerHTML += "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
-                                "<span data-title=\"" + info["artists"] + "\" class='artist'>" + info["artists"] + "</span>";
-                        }
-
-                        categoryView.appendChild(card);
-                    }
+                    generateBlockView(songs, categoryView);
 
                     div.appendChild(categoryView);
                     gridView.appendChild(div);
@@ -127,153 +337,6 @@ window["music"] = () => {
 
         object.remove();
     }
-
-    /*
-     * Funktion: Anonym
-     * Autor: Bernardo de Oliveira
-     *
-     * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
-     */
-    bindEvent("mouseover", "#content tr[data-id]", function () {
-        let controls = this.querySelector(".controlsContent");
-        if (!controls) {
-            removeControls("controlsContent");
-            if (!this.classList.contains("playlist"))
-                controls = createControls("controlsContent", ["play", "add"]);
-            else
-                controls = createControls("controlsContent", ["play"]);
-
-            let pos = this.getBoundingClientRect();
-
-            controls.style.top = "3px";
-            controls.style.right = "0";
-            controls.style.height = pos.height - 6 + "px";
-            controls.style.lineHeight = pos.height - 6 + "px";
-            controls.setAttribute("data-id", this.getAttribute("data-id"));
-
-            setTimeout(() => {
-                this.querySelector("td:last-of-type").appendChild(controls);
-                controls.classList.add("show");
-            }, 0);
-        } else clearTimeout(controlsTimeout);
-    });
-
-    /*
-     * Funktion: Anonym
-     * Autor: Bernardo de Oliveira
-     *
-     * Entfernt die Liedoptionen
-     */
-    bindEvent("mouseout", "#content tr[data-id]", function () {
-        let row = this;
-        controlsTimeout = setTimeout(function () {
-            if (row !== currentHover) {
-                let controls = row.querySelector(".controlsContent");
-                if (controls) controls.remove();
-            }
-        }, 0);
-    });
-
-    bindEvent("mouseout", ".songCard", function () {
-        removeControlsCard(this);
-    });
-
-    bindEvent("mouseout", ".playlistCard", function () {
-        removeControlsCard(this);
-    });
-
-    bindEvent("mouseover", ".songCard", function () {
-        showControlsCard(this);
-    });
-    bindEvent("mouseover", ".playlistCard", function () {
-        showControlsCard(this);
-    });
-    bindEvent("click", ".songCard", function () {
-        showControlsCard(this);
-    });
-    bindEvent("click", ".playlistCard", function () {
-        showControlsCard(this);
-    });
-
-    /*
-     * Funktion: Anonym
-     * Autor: Bernardo de Oliveira
-     *
-     * Fügt ein Lied zur Wiedergabenliste hinzu
-     */
-    bindEvent("click", "#content .listAdd", function () {
-        addSongToPlaylist(this);
-        showNotification("Song added to queue", 3000);
-    });
-
-    /*
-     * Funktion: Anonym
-     * Autor: Bernardo de Oliveira
-     *
-     * Setzt die Wiedergabenliste zurück und spielt das Lied ab
-     */
-    bindEvent("click", "#content .fa-play", function () {
-        clearSongs();
-
-        playIndex = 0;
-        partIndex = 0;
-        currentTime = 0;
-        playlist = [];
-        partlist[playIndex] = {0: 0};
-
-        clearInterval(secondsInterval);
-        secondsInterval = null;
-
-        addSongToPlaylist(this);
-        playPauseButton("load");
-        downloadPart(currentTime, playIndex, partIndex);
-        play(true);
-    });
-
-    /*
-     * Funktion: Anonym
-     * Autor: Bernardo de Oliveira
-     *
-     * Findet heraus welches Lied abgespielt werden soll
-     * Spielt das Lied ab
-     */
-    bindEvent("click", "#queueView .fa-play", function () {
-        clearSong(playIndex);
-
-        let id = Number(this.closest(".controlsQueue").getAttribute("data-id"));
-
-        for (let [key, value] of Object.entries(playlist)) {
-            if (value["id"] === id) playIndex = key;
-        }
-
-        currentTime = 0;
-        partIndex = 0;
-
-        if (typeof playlist[playIndex]["player"] === 'undefined')
-            downloadPart(currentTime, playIndex, partIndex);
-
-        clearInterval(secondsInterval);
-        secondsInterval = null;
-
-        playPauseButton("load");
-        play(true);
-    });
-
-    bindEvent("touchend", "#timeline", (e) => onTimelineRelease(e.target.value));
-    bindEvent("mouseup", "#timeline", (e) => onTimelineRelease(e.target.value));
-
-    bindEvent("click", "#player .fa-step-forward", () => nextSong());
-    bindEvent("click", "#player .fa-step-backward", () => previousSong());
-
-    /*
-     * Funktion: Anonym
-     * Autor: Bernardo de Oliveira
-     *
-     * Versteckt beim Scrollen die Liedoptionen
-     */
-    window.addEventListener("scroll", () => {
-        removeControls("controlsContent");
-    });
 }
 
 /*
@@ -469,6 +532,34 @@ function generateQueue(data) {
     return listView;
 }
 
+// TODO: Comment
+function generateBlockView(songs, categoryView) {
+    for (let arrayID in songs) {
+        let song = songs[arrayID];
+
+        let card = document.createElement("div");
+        card.setAttribute("data-id", song["id"]);
+
+        if (typeof song["playlist"] === 'undefined') {
+            card.classList.add("songCard");
+            card.innerHTML = "<img src='" + song["cover"]["url"] + "' alt='Cover'/>" +
+                "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
+                "<span data-title=\"" + song["artist"] + "\" class='artist'>" + song["artist"] + "</span>" +
+                "<span class='length'>" + song["length"] + "</span>";
+        } else {
+            card.classList.add("playlistCard");
+
+            let info = generatePlaylistCover(song);
+
+            card.innerHTML += info["cover"].innerHTML;
+            card.innerHTML += "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
+                "<span data-title=\"" + info["artists"] + "\" class='artist'>" + info["artists"] + "</span>";
+        }
+
+        categoryView.appendChild(card);
+    }
+}
+
 /*
  * Funktion: generateListView()
  * Autor: Bernardo de Oliveira
@@ -477,40 +568,31 @@ function generateQueue(data) {
  *
  * Generiert eine Tabelle aus den Daten (Table body) und Schlüssel (Table head)
  */
-function generateListView(data, categories = true) {
-    let listView = document.createElement("table");
-    listView.classList.add("responsive-table");
+function generateListView(data) {
+    let table = document.createElement("table");
+    table.classList.add("responsive-table");
 
-    let columns = [];
-    if (categories) {
-        columns = getColumns(data, 2);
-    } else {
-        columns = getColumns(data, 1);
-    }
-
+    let columns = getColumns(data, 1);
     columns = removeFromObject(columns, ["id", "category", "player"]);
 
-    listView.appendChild(generateTableHead(columns));
+    if (columns.includes("playlist")) {
+        columns.unshift("cover");
+        columns.push("artists");
+
+        columns = removeFromObject(columns, ["playlist"]);
+    }
+
+    table.appendChild(generateTableHead(columns));
 
     let tbody = document.createElement("tbody");
     tbody.onscroll = () => {
         removeControls("controlsQueue");
     };
 
-    if (categories) {
-        for (let [category, songs] of Object.entries(data)) {
-            let row = document.createElement("tr");
-            row.innerHTML = "<td colspan='4'>" + category + "</td>";
+    generateTableBody(data, columns, tbody);
 
-            tbody.appendChild(row);
-            generateTableBody(songs, columns, tbody);
-        }
-    } else {
-        generateTableBody(data, columns, tbody);
-    }
-
-    listView.appendChild(tbody);
-    return listView;
+    table.appendChild(tbody);
+    return table;
 }
 
 /*

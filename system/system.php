@@ -5,6 +5,7 @@ use Bramus\Router\Router;
 
 include_once __DIR__ . "/vendor/autoload.php";
 ini_set('memory_limit', '256M');
+session_start();
 
 // TODO: Comment
 function recursive_unset(&$array, $unwanted_key)
@@ -44,30 +45,54 @@ function sorting_by_category($array): array
 }
 
 // TODO: Comment
-function paging($array, $page, $count = 10): array
+function paging($array, $page, $count): array
 {
-    return $array;
+    $new = array();
+
+    foreach ($array as $category => $songs) {
+        $new[$category] = array_splice($songs, ($page - 1) * $count, $count);
+    }
+
+    return $new;
+}
+
+function category_paging($array, $page, $category, $count): array
+{
+    $new = array();
+
+    $array = array_change_key_case($array);
+    if (isset($array[$category])) {
+        $new = array_splice($array[$category], ($page - 1) * $count, $count);
+    }
+
+    return $new;
 }
 
 // TODO: Comment
-function shuffle_assoc(&$array, $level, $current = 0) {
-	$keys = array_keys($array);
+function shuffle_level(&$array, $level, $current = 0)
+{
+    if ($level === $current) {
+        $keys = array_keys($array);
+        shuffle($keys);
 
-	shuffle($keys);
+        $new = array();
+        foreach ($keys as $key) {
+            if (is_numeric($key))
+                $new[] = $array[$key];
+            else
+                $new[$key] = $array[$key];
+        }
 
-	$new = array();
-	foreach($keys as $key) {
-		$value = $array[$key];
+        $array = $new;
 
-		if (is_array($value) && $level > $current) {
-			shuffle_assoc($value, $level, $current + 1);
-		}
+    } else {
+        foreach ($array as $value) {
+            if (is_array($value))
+                shuffle_level($value, $level, $current + 1);
+        }
+    }
 
-		$new[$key] = $value;
-	}
-	$array = $new;
-
-	return true;
+    return true;
 }
 
 // TODO: Comment
@@ -99,8 +124,19 @@ function search_song($id, $db): array
 }
 
 // TODO: Comment
-function loadDatabase() {
-    $db = json_decode(file_get_contents(__DIR__ . "/db/songs.json"), true);
+function loadDatabase()
+{
+    if ($_SESSION["database"] !== null && file_exists($_SESSION["database"]))
+        $db = json_decode(file_get_contents($_SESSION["database"]), true);
+    else {
+        $db = json_decode(file_get_contents(__DIR__ . "/db/songs.json"), true);
+        shuffle_level($db, 0);
+
+        $tempDB = __DIR__ . "/temp/" . uniqid(rand(), true) . ".json";
+        $_SESSION["database"] = $tempDB;
+        file_put_contents($tempDB, json_encode($db));
+    }
+
     usort($db, function ($a, $b) {
         return $a['category'] <=> $b['category'];
     });
@@ -110,7 +146,8 @@ function loadDatabase() {
 
 $router = new Router();
 
-$router->get('/songs(/\d+)?', function ($page = 1, $search = "") {
+// Normale Anfrage (Seite neu geladen)
+$router->get('/songs/([\d]+)', function ($count) {
     $db = loadDatabase();
 
     header('Content-Type: application/json');
@@ -118,13 +155,31 @@ $router->get('/songs(/\d+)?', function ($page = 1, $search = "") {
     recursive_prepend($db, "url", "system/img/");
 
     $db = sorting_by_category($db);
-    $db = paging($db, $page);
-    shuffle_assoc($db, 1);
+    $db = paging($db, 1, $count);
+
+    shuffle_level($db, 0);
 
     echo json_encode($db);
 });
 
-$router->get('/songs(/.*)?', function ($search) {
+// Mehr laden (Nachdem die Seite geladen hat)
+$router->get('/songs/(.*)?/([\d]+)/([\d]+)', function ($category, $page, $count) {
+    $db = loadDatabase();
+
+    header('Content-Type: application/json');
+    recursive_unset($db, "fileName");
+    recursive_prepend($db, "url", "system/img/");
+
+    $db = sorting_by_category($db);
+    $db = category_paging($db, $page, strtolower($category), $count);
+
+    shuffle_level($db, 0);
+
+    echo json_encode($db);
+});
+
+// Suche
+$router->get('/songs/search/(.*)?/([\d]+)', function ($search, $count) {
     $db = loadDatabase();
 
     header('Content-Type: application/json');
@@ -134,9 +189,28 @@ $router->get('/songs(/.*)?', function ($search) {
     recursive_prepend($db, "url", "system/img/");
 
     $db = sorting_by_category($db);
+    $db = paging($db, 1, $count);
+
     echo json_encode($db);
 });
 
+// Suche mehr laden
+$router->get('/songs/search/(.*)?/(.*)?/([\d]+)/([\d]+)', function ($search, $category, $page, $count) {
+    $db = loadDatabase();
+
+    header('Content-Type: application/json');
+    $db = search_songs($search, $db);
+
+    recursive_unset($db, "fileName");
+    recursive_prepend($db, "url", "system/img/");
+
+    $db = sorting_by_category($db);
+    $db = category_paging($db, $page, strtolower($category), $count);
+
+    echo json_encode($db);
+});
+
+// Song Informationen (Bei Playlists)
 $router->get('/song/([\d]+)', function ($id) {
     $db = loadDatabase();
     $song = search_song($id, $db);
@@ -160,6 +234,7 @@ $router->get('/song/([\d]+)', function ($id) {
     }
 });
 
+// Wenn ein Lied abgespielt wird, neue Teile laden
 $router->get('/song/([\d]+)/([\d]+)', function ($id, $timeGet) {
     $time = 0;
     if ($timeGet < 50) {

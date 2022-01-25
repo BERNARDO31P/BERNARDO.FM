@@ -213,7 +213,7 @@ function getPage() {
  *
  * Sobald eine neue Unterseite angedrückt wird, wird diese in die URL eingefügt
  */
-bindEvent("click", "[data-page]", function (e) {
+bindEvent("click", "#navbar [data-page]", function (e) {
     e.preventDefault();
 
     let navigation = document.querySelector("#navigation");
@@ -432,7 +432,7 @@ bindEvent("click", ".fa-random", function () {
         let queue = queueView.querySelector("#queue");
 
         queue.innerHTML = "";
-        queue.appendChild(generateListView(playlist, false));
+        queue.appendChild(generateListView(playlist));
 
         play();
     }
