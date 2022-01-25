@@ -161,7 +161,7 @@ bindEvent("click", ".songList .loadMore", function () {
             columns.push(theadColumn.textContent.toLowerCase());
         }
 
-        let data = {};
+        let data;
         if (search.value !== "") {
             data = tryParseJSON(httpGet(table.getAttribute("data-url") + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
         } else {
@@ -292,13 +292,13 @@ window["music"] = () => {
                     gridView.appendChild(title);
 
                     let div = document.createElement("div"), categoryView = document.createElement("div");
+                    categoryView.classList.add("songCategory");
+
                     div.setAttribute("data-page", "1");
                     div.setAttribute("data-url", object.getAttribute("data-url"));
 
                     if (songs.length === count)
                         div.setAttribute("data-load", String(1));
-
-                    categoryView.classList.add("songCategory");
 
                     div.addEventListener("scroll", (e) => {
                         let element = e.target;
@@ -309,8 +309,8 @@ window["music"] = () => {
                             let search = document.querySelector("#search input");
                             let catPage = Number(element.getAttribute("data-page")) + 1;
                             let catCategory = element.previousElementSibling.textContent;
-                            let data = {};
 
+                            let data;
                             if (search.value !== "") {
                                 data = tryParseJSON(httpGet(element.getAttribute("data-url") + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
                             } else {
