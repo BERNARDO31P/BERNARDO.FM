@@ -149,6 +149,7 @@ bindEvent("click", ".songList .loadMore", function () {
     let loadMore = Boolean(Number(table.getAttribute("data-load")));
 
     if (loadMore) {
+        let search = document.querySelector("#search input");
         let tbody = table.querySelector("tbody");
         let catPage = Number(table.getAttribute("data-page")) + 1;
         let catCategory = category.textContent;
@@ -160,7 +161,12 @@ bindEvent("click", ".songList .loadMore", function () {
             columns.push(theadColumn.textContent.toLowerCase());
         }
 
-        let data = tryParseJSON(httpGet(table.getAttribute("data-url") + "/" + catCategory + "/" + catPage + "/" + count));
+        let data = {};
+        if (search.value !== "") {
+            data = tryParseJSON(httpGet(table.getAttribute("data-url") + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
+        } else {
+            data = tryParseJSON(httpGet(table.getAttribute("data-url") + "/" + catCategory + "/" + catPage + "/" + count));
+        }
 
         if (data.length < count) {
             table.setAttribute("data-load", String(0));
@@ -226,7 +232,7 @@ window["music"] = () => {
         count = Math.round(getWidth() / 160) + 2;
 
         if (search.value !== "") {
-            data = tryParseJSON(httpGet(object.getAttribute("data-url") + "/search/" + search.value + "/" + count));
+            data = tryParseJSON(httpGet(object.getAttribute("data-url") + "/" + search.value + "/" + count));
 
             let div = document.createElement("div");
             div.classList.add("searchterm");
@@ -300,9 +306,18 @@ window["music"] = () => {
                         let scrolled = Math.round(100 * element.scrollLeft / (element.scrollWidth - element.clientWidth));
 
                         if (scrolled >= 60 && loadMore) {
+                            let search = document.querySelector("#search input");
                             let catPage = Number(element.getAttribute("data-page")) + 1;
                             let catCategory = element.previousElementSibling.textContent;
-                            let data = tryParseJSON(httpGet(element.getAttribute("data-url") + "/" + catCategory + "/" + catPage + "/" + count));
+                            let data = {};
+
+                            if (search.value !== "") {
+                                data = tryParseJSON(httpGet(element.getAttribute("data-url") + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
+                            } else {
+                                data = tryParseJSON(httpGet(element.getAttribute("data-url") + "/" + catCategory + "/" + catPage + "/" + count));
+                            }
+
+                            console.log(data);
 
                             if (Object.keys(data).length > 0) {
                                 element.setAttribute("data-page", String(catPage));

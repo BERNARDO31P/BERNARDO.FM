@@ -163,7 +163,7 @@ $router->get('/songs/([\d]+)', function ($count) {
 });
 
 // Mehr laden (Nachdem die Seite geladen hat)
-$router->get('/songs/(.*)?/([\d]+)/([\d]+)', function ($category, $page, $count) {
+$router->get('/songs/([^\/]*)/([\d]+)/([\d]+)', function ($category, $page, $count) {
     $db = loadDatabase();
 
     header('Content-Type: application/json');
@@ -179,7 +179,7 @@ $router->get('/songs/(.*)?/([\d]+)/([\d]+)', function ($category, $page, $count)
 });
 
 // Suche
-$router->get('/songs/search/(.*)?/([\d]+)', function ($search, $count) {
+$router->get('/songs/([^\/]*)/([\d]+)', function ($search, $count) {
     $db = loadDatabase();
 
     header('Content-Type: application/json');
@@ -195,7 +195,7 @@ $router->get('/songs/search/(.*)?/([\d]+)', function ($search, $count) {
 });
 
 // Suche mehr laden
-$router->get('/songs/search/(.*)?/(.*)?/([\d]+)/([\d]+)', function ($search, $category, $page, $count) {
+$router->get('/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)', function ($search, $category, $page, $count) {
     $db = loadDatabase();
 
     header('Content-Type: application/json');
