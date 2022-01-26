@@ -317,8 +317,6 @@ window["music"] = () => {
                                 data = tryParseJSON(httpGet(element.getAttribute("data-url") + "/" + catCategory + "/" + catPage + "/" + count));
                             }
 
-                            console.log(data);
-
                             if (Object.keys(data).length > 0) {
                                 element.setAttribute("data-page", String(catPage));
                                 generateBlockView(data, element.querySelector(".songCategory"));
@@ -377,11 +375,9 @@ function addEvents(player) {
         playPauseButton("play");
         if (MSAPI.paused) MSAPI.play();
 
+        console.log("play");
+
         prepareNextPart();
-    }
-
-    player.onplayrequest = () => {
-
     }
 
     player.onfinishedtrack = () => {
@@ -392,13 +388,13 @@ function addEvents(player) {
                 clearInterval(interval);
 
                 if (typeof partlist[playIndex][nextPartIndex] !== "undefined" && partlist[playIndex][partIndex]["till"] + 1 < Number(timeline.max)) {
+                    console.log("next part");
                     let gid = partlist[playIndex][partIndex]["gid"];
 
                     currentTime += getPartLength(gid);
                     partIndex = nextPartIndex;
-
-                    play();
                 } else {
+                    console.log("next song");
                     let nextIndex = nextSongIndex();
 
                     playPauseButton("load");
@@ -480,13 +476,14 @@ function prepareNextPart() {
             if (partInfo[2]) nextPartIndex = partInfo[2];
             else nextPartIndex = Object.keys(partlist[playIndex]).length
 
-            playlist[playIndex]["player"].queueTrack(nextPartIndex);
             if (!nextSong && typeof partInfo[2] === 'undefined') {
                 downloadPart(nextTime, playIndex, nextPartIndex);
             } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
                 partlist[nextIndex] = {};
                 downloadPart(0, nextIndex, 0);
             }
+
+            playlist[playIndex]["player"].queueTrack(nextPartIndex);
         }
     }, 50);
 }
@@ -508,7 +505,7 @@ function downloadPart(time, sIndex, pIndex) {
     downloading = true;
 
     if (typeof playlist[sIndex]["player"] === 'undefined') {
-        let gapless = new Gapless5({});
+        let gapless = new Gapless5({logLevel: LogLevel.Debug});
         addEvents(gapless);
 
         playlist[sIndex]["player"] = gapless;
