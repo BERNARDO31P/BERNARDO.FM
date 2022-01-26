@@ -3,7 +3,7 @@ if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde
 let MSAPI = new Audio();
 document.getElementById("player").appendChild(MSAPI);
 
-let count = 0;
+let count = 0, resizeTimeout = null;
 
 /*
  * Funktion: Anonym
@@ -188,6 +188,21 @@ window.addEventListener("scroll", () => {
     removeControls("controlsContent");
 });
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Bei einer Veränderung der Grösse wird die Seite neu generiert
+ * Dazu da damit genug viele Lieder angezeigt werden
+ */
+window.addEventListener("resize", function () {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function () {
+        if (getPage() === "music") loadPage();
+    }, 200);
+
+});
+
 // TODO: Comment
 MSAPI.addEventListener("pause", function () {
     let player = new Gapless5({});
@@ -285,6 +300,12 @@ window["music"] = () => {
                 let gridView = document.createElement("div");
                 gridView.classList.add("songGrid");
 
+                let cover = "";
+                if (typeof data["cover"] !== 'undefined') {
+                    cover = data["cover"];
+                    data = removeFromObject(data, "cover", false);
+                }
+
                 for (let category in data) {
                     let songs = data[category], title = document.createElement("h2");
 
@@ -317,9 +338,15 @@ window["music"] = () => {
                                 data = tryParseJSON(httpGet(element.getAttribute("data-url") + "/" + catCategory + "/" + catPage + "/" + count));
                             }
 
+                            let cover = "";
+                            if (typeof data["cover"] !== 'undefined') {
+                                cover = data["cover"];
+                                data = removeFromObject(data, "cover", false);
+                            }
+
                             if (Object.keys(data).length > 0) {
                                 element.setAttribute("data-page", String(catPage));
-                                generateBlockView(data, element.querySelector(".songCategory"));
+                                generateBlockView(data, element.querySelector(".songCategory"), cover);
                             } else {
                                 element.setAttribute("data-load", String(0));
                             }
@@ -328,7 +355,7 @@ window["music"] = () => {
                         removeControls("controlsContent");
                     });
 
-                    generateBlockView(songs, categoryView);
+                    generateBlockView(songs, categoryView, cover);
 
                     div.appendChild(categoryView);
                     gridView.appendChild(div);
@@ -537,7 +564,7 @@ function generateQueue(data) {
     let listView = document.createElement("table");
     listView.classList.add("responsive-table");
 
-    let columns = Object.keys(removeFromObject(data[0], ["id", "category", "player"]));
+    let columns = Object.keys(removeFromObject(data[0], ["id", "category", "player", "coverPos"]));
     listView.appendChild(generateTableHead(columns));
     listView.appendChild(generateTableBody(data, columns));
 
@@ -545,7 +572,7 @@ function generateQueue(data) {
 }
 
 // TODO: Comment
-function generateBlockView(songs, categoryView) {
+function generateBlockView(songs, categoryView, cover) {
     for (let arrayID in songs) {
         let song = songs[arrayID];
 
@@ -554,7 +581,7 @@ function generateBlockView(songs, categoryView) {
 
         if (typeof song["playlist"] === 'undefined') {
             card.classList.add("songCard");
-            card.innerHTML = "<img src='" + song["cover"]["url"] + "' alt='Cover'/>" +
+            card.innerHTML = "<div class=\"cover\" style=\"background-image: url('" + cover + "'); background-position-x: -" + song["coverPos"] / 200 * 160 + "px\"></div>" +
                 "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
                 "<span data-title=\"" + song["artist"] + "\" class='artist'>" + song["artist"] + "</span>" +
                 "<span class='length'>" + song["length"] + "</span>";
@@ -585,7 +612,7 @@ function generateListView(data) {
     table.classList.add("responsive-table");
 
     let columns = getColumns(data, 1);
-    columns = removeFromObject(columns, ["id", "category", "player"]);
+    columns = removeFromObject(columns, ["id", "category", "player", "coverPos"]);
 
     if (columns.includes("playlist")) {
         columns.unshift("cover");

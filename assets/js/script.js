@@ -28,7 +28,7 @@ window.addEventListener("resize", function () {
     removeControls("controlsQueue");
 
     if (!isTouchScreen()) document.querySelector("#search").querySelector("input").style.width = "";
-}, true);
+});
 
 // TODO: Comment
 window.addEventListener("orientationchange", updateSearch);

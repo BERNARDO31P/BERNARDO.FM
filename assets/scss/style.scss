@@ -410,13 +410,16 @@ body {
             }
           }
 
-          img {
+          .cover {
             transition: 0.2s;
-            max-width: 160px;
+
+            height: 160px;
+            width: 160px;
 
             border-radius: 5px;
-
             user-select: none;
+
+            background-size: auto 160px;
           }
         }
 
@@ -564,7 +567,7 @@ body {
       user-select: none;
     }
 
-    td:first-of-type {
+    td {
       text-align: left;
     }
   }

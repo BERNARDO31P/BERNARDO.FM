@@ -144,6 +144,65 @@ function loadDatabase()
     return $db;
 }
 
+// TODO: Comment
+function generatePictures(&$db): string
+{
+    $i = 0;
+    $imagick = new Imagick();
+    foreach ($db as &$categories) {
+        foreach ($categories as &$song) {
+            if (isset($song["cover"])) {
+                $resizer = new Imagick();
+                $resizer->readImage("img/" . $song["cover"]);
+                $resizer->scaleImage(200, 200);
+                $imagick->addImage($resizer);
+
+                $song["coverPos"] = $i * 200;
+                $i++;
+            }
+        }
+    }
+
+    $imagick->resetIterator();
+    $out = $imagick->appendImages(false);
+    $out->setImageFormat("jpg");
+
+    $newImage = "temp/" . uniqid(rand(), true) . ".jpg";
+    $out->writeimage($newImage);
+
+    return $newImage;
+}
+
+// TODO: Comment
+function category_generatePictures(&$db): string
+{
+    $i = 0;
+    $imagick = new Imagick();
+    foreach ($db as &$song) {
+        if (isset($song["cover"])) {
+            $resizer = new Imagick();
+            $resizer->readImage("img/" . $song["cover"]);
+            $resizer->scaleImage(200, 200);
+            $imagick->addImage($resizer);
+
+            $song["coverPos"] = $i * 200;
+            $i++;
+        }
+    }
+
+    $newImage = "";
+    try {
+        $imagick->resetIterator();
+        $out = $imagick->appendImages(false);
+        $out->setImageFormat("jpg");
+
+        $newImage = "temp/" . uniqid(rand(), true) . ".jpg";
+        $out->writeimage($newImage);
+    } catch (Exception $ignored) { }
+
+    return $newImage;
+}
+
 $router = new Router();
 
 // Normale Anfrage (Seite neu geladen)
@@ -151,11 +210,14 @@ $router->get('/songs/([\d]+)', function ($count) {
     $db = loadDatabase();
 
     header('Content-Type: application/json');
-    recursive_unset($db, "fileName");
-    recursive_prepend($db, "url", "system/img/");
 
     $db = sorting_by_category($db);
     $db = paging($db, 1, $count);
+
+    recursive_unset($db, "fileName");
+
+    $url = generatePictures($db);
+    $db["cover"] = "system/" . $url;
 
     shuffle_level($db, 0);
 
@@ -167,11 +229,14 @@ $router->get('/songs/([^\/]*)/([\d]+)/([\d]+)', function ($category, $page, $cou
     $db = loadDatabase();
 
     header('Content-Type: application/json');
-    recursive_unset($db, "fileName");
-    recursive_prepend($db, "url", "system/img/");
 
     $db = sorting_by_category($db);
     $db = category_paging($db, $page, strtolower($category), $count);
+
+    recursive_unset($db, "fileName");
+
+    $url = category_generatePictures($db);
+    $db["cover"] = "system/" . $url;
 
     shuffle_level($db, 0);
 
@@ -185,11 +250,13 @@ $router->get('/songs/([^\/]*)/([\d]+)', function ($search, $count) {
     header('Content-Type: application/json');
     $db = search_songs($search, $db);
 
-    recursive_unset($db, "fileName");
-    recursive_prepend($db, "url", "system/img/");
-
     $db = sorting_by_category($db);
     $db = paging($db, 1, $count);
+
+    recursive_unset($db, "fileName");
+
+    $url = generatePictures($db);
+    $db["cover"] = "system/" . $url;
 
     echo json_encode($db);
 });
@@ -201,11 +268,13 @@ $router->get('/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)', function ($search, $cat
     header('Content-Type: application/json');
     $db = search_songs($search, $db);
 
-    recursive_unset($db, "fileName");
-    recursive_prepend($db, "url", "system/img/");
-
     $db = sorting_by_category($db);
     $db = category_paging($db, $page, strtolower($category), $count);
+
+    recursive_unset($db, "fileName");
+
+    $url = category_generatePictures($db);
+    $db["cover"] = "system/" . $url;
 
     echo json_encode($db);
 });
@@ -222,13 +291,13 @@ $router->get('/song/([\d]+)', function ($id) {
             $playlist[] = search_song($songID, $db);
         }
         recursive_unset($playlist, "fileName");
-        recursive_prepend($playlist, "url", "system/img/");
+        recursive_prepend($playlist, "cover", "system/img/");
 
         shuffle($playlist);
         echo json_encode($playlist);
     } else {
         recursive_unset($song, "fileName");
-        recursive_prepend($song, "url", "system/img/");
+        recursive_prepend($song, "cover", "system/img/");
 
         echo json_encode($song);
     }
@@ -286,6 +355,14 @@ $router->get('/img/(.*)', function ($image) {
 
     header('Content-Type: ' . $contentType);
     echo file_get_contents(__DIR__ . "/img/" . $image);
+});
+
+$router->get('/temp/(.*)', function ($image) {
+    $imageUrl = __DIR__ . "/temp/" . $image;
+    $contentType = mime_content_type($imageUrl);
+
+    header('Content-Type: ' . $contentType);
+    echo file_get_contents(__DIR__ . "/temp/" . $image);
 });
 
 $router->run();

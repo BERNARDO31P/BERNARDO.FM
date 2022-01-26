@@ -20,6 +20,8 @@
     "ext-json": "*",
     "bramus/router": "*",
     "ext-fileinfo": "*",
-    "audero/audero-wav-extractor": "2.1.1"
+    "audero/audero-wav-extractor": "2.1.1",
+    "ext-gd": "*",
+    "ext-imagick": "*"
   }
 }

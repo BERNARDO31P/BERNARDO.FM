@@ -1,10 +1,7 @@
 [
   {
     "id": 1,
-    "cover": {
-      "url": "Altered State _ Xenoben - Perception.jpg",
-      "html": "img"
-    },
+    "cover": "Altered State _ Xenoben - Perception.jpg",
     "name": "Perception",
     "artist": "Altered State & Xenoben",
     "length": "6:51",
@@ -13,10 +10,7 @@
   },
   {
     "id": 2,
-    "cover": {
-      "url": "Infected Mushroom - Groove Attack.jpg",
-      "html": "img"
-    },
+    "cover": "Infected Mushroom - Groove Attack.jpg",
     "name": "Groove Attack",
     "artist": "Infected Mushroom",
     "length": "6:49",
@@ -25,10 +19,7 @@
   },
   {
     "id": 3,
-    "cover": {
-      "url": "Mobb Deep - Hell on Earth.jpg",
-      "html": "img"
-    },
+    "cover": "Mobb Deep - Hell on Earth.jpg",
     "name": "Hell on Earth",
     "artist": "Mobb Deep",
     "length": "4:37",
@@ -37,10 +28,7 @@
   },
   {
     "id": 4,
-    "cover": {
-      "url": "Atacama _ Jakaan - KMOS.jpg",
-      "html": "img"
-    },
+    "cover": "Atacama _ Jakaan - KMOS.jpg",
     "name": "KMOS",
     "artist": "Atacama & Jakaan",
     "length": "8:39",
@@ -49,10 +37,7 @@
   },
   {
     "id": 5,
-    "cover": {
-      "url": "Reborn - Deep Future.jpg",
-      "html": "img"
-    },
+    "cover": "Reborn - Deep Future.jpg",
     "name": "Deep Future",
     "artist": "Reborn",
     "length": "7:42",
@@ -61,10 +46,7 @@
   },
   {
     "id": 6,
-    "cover": {
-      "url": "J Dilla - Dont Cry.jpg",
-      "html": "img"
-    },
+    "cover": "J Dilla - Dont Cry.jpg",
     "name": "Don't Cry",
     "artist": "J Dilla",
     "length": "2:00",
@@ -73,10 +55,7 @@
   },
   {
     "id": 7,
-    "cover": {
-      "url": "Astrix - Sahara (Tristan Remix).jpg",
-      "html": "img"
-    },
+    "cover": "Astrix - Sahara (Tristan Remix).jpg",
     "name": "Sahara (Tristan Remix)",
     "artist": "Astrix",
     "length": "7:50",
@@ -85,10 +64,7 @@
   },
   {
     "id": 8,
-    "cover": {
-      "url": "Transient Disorder - The Watchers.jpg",
-      "html": "img"
-    },
+    "cover": "Transient Disorder - The Watchers.jpg",
     "name": "The Watchers",
     "artist": "Transient Disorder",
     "length": "8:23",
@@ -97,10 +73,7 @@
   },
   {
     "id": 9,
-    "cover": {
-      "url": "Tropical Bleyage - My Thoughts.jpg",
-      "html": "img"
-    },
+    "cover": "Tropical Bleyage - My Thoughts.jpg",
     "name": "My Thoughts",
     "artist": "Tropical Bleyage",
     "length": "7:23",
@@ -109,10 +82,7 @@
   },
   {
     "id": 10,
-    "cover": {
-      "url": "Mad Tribe - Alien Hoax.jpg",
-      "html": "img"
-    },
+    "cover": "Mad Tribe - Alien Hoax.jpg",
     "name": "Alien Hoax",
     "artist": "Mad Tribe",
     "length": "7:43",
@@ -121,10 +91,7 @@
   },
   {
     "id": 11,
-    "cover": {
-      "url": "Dillon Cooper - Knuckle Up.jpg",
-      "html": "img"
-    },
+    "cover": "Dillon Cooper - Knuckle Up.jpg",
     "name": "Knuckle Up",
     "artist": "Dillon Cooper",
     "length": "3:01",
@@ -133,10 +100,7 @@
   },
   {
     "id": 12,
-    "cover": {
-      "url": "Soulchef - Write This Down x Ice Cube x Dr Dre x MC Ren.jpg",
-      "html": "img"
-    },
+    "cover": "Soulchef - Write This Down x Ice Cube x Dr Dre x MC Ren.jpg",
     "name": "Write This Down",
     "artist": "Soulchef feat. Ice Cube, Dr. Dre and MC Ren",
     "length": "3:12",
@@ -145,10 +109,7 @@
   },
   {
     "id": 13,
-    "cover": {
-      "url": "Dr. Dre - The Message.jpg",
-      "html": "img"
-    },
+    "cover": "Dr. Dre - The Message.jpg",
     "name": "The Message",
     "artist": "Dr. Dre",
     "length": "5:29",
@@ -157,10 +118,7 @@
   },
   {
     "id": 14,
-    "cover": {
-      "url": "2Pac - They Dont Give A Fuck About Us.jpg",
-      "html": "img"
-    },
+    "cover": "2Pac - They Dont Give A Fuck About Us.jpg",
     "name": "They Don't Give A F*** About Us",
     "artist": "2Pac",
     "length": "5:06",
@@ -169,10 +127,7 @@
   },
   {
     "id": 15,
-    "cover": {
-      "url": "Dillon Cooper - State of Elevation.jpg",
-      "html": "img"
-    },
+    "cover": "Dillon Cooper - State of Elevation.jpg",
     "name": "State of Elevation",
     "artist": "Dillon Cooper",
     "length": "3:39",
@@ -181,10 +136,7 @@
   },
   {
     "id": 16,
-    "cover": {
-      "url": "Mr. Hyde feat. Ill Bill, Q-Unique & DJ Eclipse - Killer Collage.jpg",
-      "html": "img"
-    },
+    "cover": "Mr. Hyde feat. Ill Bill, Q-Unique & DJ Eclipse - Killer Collage.jpg",
     "name": "Killer Collage",
     "artist": "Mr. Hyde feat. Ill Bill, Q-Unique & DJ Eclipse",
     "length": "3:14",
@@ -193,10 +145,7 @@
   },
   {
     "id": 17,
-    "cover": {
-      "url": "Artifacts - The Interview.png",
-      "html": "img"
-    },
+    "cover": "Artifacts - The Interview.png",
     "name": "The Interview",
     "artist": "Artifacts",
     "length": "3:39",
@@ -205,10 +154,7 @@
   },
   {
     "id": 18,
-    "cover": {
-      "url": "Dillon Cooper - Charge It To The Game.jpg",
-      "html": "img"
-    },
+    "cover": "Dillon Cooper - Charge It To The Game.jpg",
     "name": "Charge It To The Game",
     "artist": "Dillon Cooper",
     "length": "3:32",
@@ -217,10 +163,7 @@
   },
   {
     "id": 19,
-    "cover": {
-      "url": "A-Tech - Frequencies.jpg",
-      "html": "img"
-    },
+    "cover": "A-Tech - Frequencies.jpg",
     "name": "Frequencies",
     "artist": "A-Tech",
     "length": "7:56",
@@ -229,10 +172,7 @@
   },
   {
     "id": 20,
-    "cover": {
-      "url": "Ours Samplus - Canopée.jpg",
-      "html": "img"
-    },
+    "cover": "Ours Samplus - Canopée.jpg",
     "name": "Canopée",
     "artist": "Ours Samplus",
     "length": "8:15",
@@ -241,10 +181,7 @@
   },
   {
     "id": 21,
-    "cover": {
-      "url": "Gramatik - Indigo Child.jpg",
-      "html": "img"
-    },
+    "cover": "Gramatik - Indigo Child.jpg",
     "name": "Indigo Child",
     "artist": "Gramatik",
     "length": "3:56",
@@ -253,10 +190,7 @@
   },
   {
     "id": 22,
-    "cover": {
-      "url": "Ours Samplus - Memento.jpg",
-      "html": "img"
-    },
+    "cover": "Ours Samplus - Memento.jpg",
     "name": "Memento",
     "artist": "Ours Samplus",
     "length": "2:39",
@@ -265,10 +199,7 @@
   },
   {
     "id": 23,
-    "cover": {
-      "url": "Bent - An Ordinary Day.jpg",
-      "html": "img"
-    },
+    "cover": "Bent - An Ordinary Day.jpg",
     "name": "An Ordinary Day",
     "artist": "Bent",
     "length": "4:46",
@@ -277,10 +208,7 @@
   },
   {
     "id": 24,
-    "cover": {
-      "url": "Ours Samplus - Over.jpg",
-      "html": "img"
-    },
+    "cover": "Ours Samplus - Over.jpg",
     "name": "Over",
     "artist": "Ours Samplus",
     "length": "4:05",
@@ -289,10 +217,7 @@
   },
   {
     "id": 25,
-    "cover": {
-      "url": "Shamanizm Parallelii - Mountains Snow.jpg",
-      "html": "img"
-    },
+    "cover": "Shamanizm Parallelii - Mountains Snow.jpg",
     "name": "Mountain's Snow",
     "artist": "Shamanizm Parallelii",
     "length": "7:08",
@@ -326,10 +251,7 @@
   },
   {
     "id": 28,
-    "cover": {
-      "url": "Alienatic - War of the World.jpg",
-      "html": "img"
-    },
+    "cover": "Alienatic - War of the World.jpg",
     "name": "War of the World",
     "artist": "Alienatic",
     "length": "7:08",
@@ -338,10 +260,7 @@
   },
   {
     "id": 29,
-    "cover": {
-      "url": "Bellatrix - Higher Dimensions.jpg",
-      "html": "img"
-    },
+    "cover": "Bellatrix - Higher Dimensions.jpg",
     "name": "Higher Dimensions",
     "artist": "Bellatrix",
     "length": "9:02",
@@ -350,10 +269,7 @@
   },
   {
     "id": 30,
-    "cover": {
-      "url": "Sybarite - Sonic Staircase.jpg",
-      "html": "img"
-    },
+    "cover": "Sybarite - Sonic Staircase.jpg",
     "name": "Sonic Staircase",
     "artist": "Sybarite",
     "length": "8:39",
@@ -362,10 +278,7 @@
   },
   {
     "id": 31,
-    "cover": {
-      "url": "Ashtar Command & Razzle Dazzle - Rebirth.jpg",
-      "html": "img"
-    },
+    "cover": "Ashtar Command & Razzle Dazzle - Rebirth.jpg",
     "name": "Rebirth",
     "artist": "Ashtar Command & Razzle Dazzle",
     "length": "8:37",
@@ -374,10 +287,7 @@
   },
   {
     "id": 32,
-    "cover": {
-      "url": "Pixel & Wrecked Machines - Mother Funker (FNX Rmx).jpg",
-      "html": "img"
-    },
+    "cover": "Pixel & Wrecked Machines - Mother Funker (FNX Rmx).jpg",
     "name": "Mother Funker (FNX Rmx)",
     "artist": "Pixel & Wrecked Machines",
     "length": "8:26",
@@ -386,10 +296,7 @@
   },
   {
     "id": 33,
-    "cover": {
-      "url": "Bitkit & Lexxus - Destiny.jpg",
-      "html": "img"
-    },
+    "cover": "Bitkit & Lexxus - Destiny.jpg",
     "name": "Destiny",
     "artist": "Bitkit & Lexxus",
     "length": "7:43",
@@ -398,10 +305,7 @@
   },
   {
     "id": 34,
-    "cover": {
-      "url": "Lil Nas X - MONTERO (Call Me By Your Name).jpeg",
-      "html": "img"
-    },
+    "cover": "Lil Nas X - MONTERO (Call Me By Your Name).jpeg",
     "name": "MONTERO (Call Me By Your Name)",
     "artist": "Lil Nas X",
     "length": "2:51",
@@ -410,10 +314,7 @@
   },
   {
     "id": 35,
-    "cover": {
-      "url": "Lil Nas X - INDUSTRY BABY.jpg",
-      "html": "img"
-    },
+    "cover": "Lil Nas X - INDUSTRY BABY.jpg",
     "name": "INDUSTRY BABY",
     "artist": "Lil Nas X",
     "length": "3:48",
@@ -422,10 +323,7 @@
   },
   {
     "id": 36,
-    "cover": {
-      "url": "Fluxsense - Divinity Plane.jpg",
-      "html": "img"
-    },
+    "cover": "Fluxsense - Divinity Plane.jpg",
     "name": "Divinity Plane",
     "artist": "Fluxsense",
     "length": "8:04",
@@ -434,10 +332,7 @@
   },
   {
     "id": 37,
-    "cover": {
-      "url": "Fluxsense - Medusa.jpg",
-      "html": "img"
-    },
+    "cover": "Fluxsense - Medusa.jpg",
     "name": "Medusa",
     "artist": "Fluxsense",
     "length": "8:40",
@@ -446,10 +341,7 @@
   },
   {
     "id": 38,
-    "cover": {
-      "url": "Fluxsense - Through Your Eyes.jfif",
-      "html": "img"
-    },
+    "cover": "Fluxsense - Through Your Eyes.jfif",
     "name": "Through Your Eyes",
     "artist": "Fluxsense",
     "length": "9:46",
@@ -458,10 +350,7 @@
   },
   {
     "id": 39,
-    "cover": {
-      "url": "Matt Jah - Here and Now.jpg",
-      "html": "img"
-    },
+    "cover": "Matt Jah - Here and Now.jpg",
     "name": "Here and Now",
     "artist": "Matt Jah",
     "length": "6:27",
@@ -470,10 +359,7 @@
   },
   {
     "id": 40,
-    "cover": {
-      "url": "Mobitex - Orin.jpg",
-      "html": "img"
-    },
+    "cover": "Mobitex - Orin.jpg",
     "name": "Orin",
     "artist": "Mobitex",
     "length": "8:52",

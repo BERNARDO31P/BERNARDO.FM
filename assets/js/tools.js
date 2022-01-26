@@ -698,7 +698,7 @@ function play(diffSong = false) {
         let cover = document.getElementById("queueView").querySelector("#playingCover").querySelector("img");
         let title = document.querySelector("title");
 
-        cover.src = song["cover"]["url"];
+        cover.src = song["cover"]
         songLength.textContent = song["length"];
         player.querySelector("#timeline").max = length;
 
@@ -734,7 +734,7 @@ function play(diffSong = false) {
                 title: song["name"],
                 artist: song["artist"],
                 artwork: [
-                    {src: song["cover"]["url"], type: 'image/png'},
+                    {src: song["cover"], type: 'image/png'},
                 ]
             });
 
@@ -998,7 +998,7 @@ function generatePlaylistCover(song) {
     for (let i = 0; i < 4; i++) {
         let songID = song["playlist"][i];
         let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
-        info["cover"].innerHTML += "<img src='" + data["cover"]["url"] + "' alt='Cover'/>";
+        info["cover"].innerHTML += "<img src='" + data["cover"] + "' alt='Cover'/>";
 
         info["artists"] += data["artist"] + ", ";
     }
@@ -1064,8 +1064,8 @@ function generateTableRow(rowData, tableRow, columns) {
 
             let element = rowData[column];
             if (typeof element !== 'undefined') {
-                if (typeof element === 'object' && element["html"] === "img") {
-                    tableRow.innerHTML += "<td><img src='" + element["url"] + "' alt='Cover'/></td>";
+                if (column === "cover") {
+                    tableRow.innerHTML += "<td><img src='" + element + "' alt='Cover'/></td>";
                     delete rowData["cover"];
                 } else {
                     let truncate = document.createElement("div");
@@ -1129,7 +1129,7 @@ function generateTableRow(rowData, tableRow, columns) {
  *
  * Entfernt ein oder mehrere Schlüssel in einem Objekt, rekursiv
  */
-function removeFromObject(object, toRemove = "") {
+function removeFromObject(object, toRemove = "", recursive = true) {
     let cleaned;
 
     if (object instanceof Object && object instanceof Array) {
@@ -1144,7 +1144,7 @@ function removeFromObject(object, toRemove = "") {
         for (let [key, value] of Object.entries(object)) {
 
             if (key !== toRemove && !toRemove.includes(key)) {
-                if (typeof value === 'object') {
+                if (typeof value === 'object' && recursive) {
                     cleaned[key] = removeFromObject(Object.assign({}, value), toRemove);
                 } else {
                     if (!isNum(key)) cleaned[key] = value;
