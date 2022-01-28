@@ -157,7 +157,7 @@ bindEvent("click", ".songList .loadMore", function () {
         let theadColumns = table.querySelectorAll("thead tr:first-of-type th");
 
         let columns = [];
-        for(let theadColumn of theadColumns){
+        for (let theadColumn of theadColumns) {
             columns.push(theadColumn.textContent.toLowerCase());
         }
 
@@ -182,6 +182,32 @@ bindEvent("click", ".songList .loadMore", function () {
 
         generateTableBody(data, columns, tbody, cover);
     }
+});
+
+// TODO: Comment
+bindEvent("click", ".scrollForward", function () {
+    let element = this, categoryView = element.nextElementSibling;
+
+    element.previousElementSibling.style.display = "flex";
+    categoryView.scrollBy({left: 400, top: 0, behavior: 'smooth'});
+
+    setTimeout(function () {
+        let scrolled = Math.round(100 * categoryView.scrollLeft / (categoryView.scrollWidth - categoryView.clientWidth));
+        if (scrolled === 100) element.style.display = "none";
+    }, 500);
+});
+
+// TODO: Comment
+bindEvent("click", ".scrollBack", function () {
+    let element = this, categoryView = element.nextElementSibling.nextElementSibling;
+
+    element.nextElementSibling.style.display = "flex";
+    categoryView.scrollBy({left: -400, top: 0, behavior: 'smooth'});
+
+    setTimeout(function () {
+        let scrolled = Math.round(100 * categoryView.scrollLeft / (categoryView.scrollWidth - categoryView.clientWidth));
+        if (scrolled === 0) element.style.display = "none";
+    }, 500);
 });
 
 /*
@@ -335,7 +361,7 @@ window["music"] = () => {
                         if (scrolled >= 60 && loadMore) {
                             let search = document.querySelector("#search input");
                             let catPage = Number(element.getAttribute("data-page")) + 1;
-                            let catCategory = element.previousElementSibling.textContent;
+                            let catCategory = element.parentElement.previousElementSibling.textContent;
 
                             let data;
                             if (search.value !== "") {
@@ -363,8 +389,28 @@ window["music"] = () => {
 
                     generateBlockView(songs, categoryView, cover);
 
+                    let parent = document.createElement("div");
+
                     div.appendChild(categoryView);
-                    gridView.appendChild(div);
+
+                    if (!isTouchScreen()) {
+                        let scrollBack = document.createElement("div");
+                        scrollBack.classList.add("scrollBack");
+                        scrollBack.innerHTML = "<i class='fas fa-arrow-left'></i>";
+                        parent.appendChild(scrollBack);
+
+                        let scrollForward = document.createElement("div");
+                        scrollForward.classList.add("scrollForward");
+                        scrollForward.innerHTML = "<i class='fas fa-arrow-right'></i>";
+                        parent.appendChild(scrollForward);
+
+                        if (Object.keys(songs).length > count - 3) {
+                            scrollForward.style.display = "flex";
+                        }
+                    }
+
+                    parent.appendChild(div);
+                    gridView.appendChild(parent);
                 }
 
                 object.parentNode.insertBefore(gridView, object);

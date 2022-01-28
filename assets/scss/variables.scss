@@ -14,7 +14,7 @@
   --text-color-artist: #797979;
   --view-active: #e2e2e2;
   --range-background: #ddd;
-  --volume-border: #c7c7c7;
+  --contrast-border: #c7c7c7;
 }
 
 :root[data-theme='dark'] {
@@ -33,5 +33,5 @@
   --text-color-artist: var(--text-color-author);
   --view-active: #161616;
   --range-background: #323232;
-  --volume-border: #565656;
+  --contrast-border: #424242;
 }
