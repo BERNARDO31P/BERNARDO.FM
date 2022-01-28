@@ -365,5 +365,95 @@
     "length": "8:52",
     "fileName": "Mobitex - Orin.wav",
     "category": "Psybient"
+  },
+  {
+    "id": 41,
+    "cover": "Deltron 3030 - 3030.jpg",
+    "name": "3030",
+    "artist": "Deltron 3030",
+    "length": "7:30",
+    "fileName": "Deltron 3030 - 3030.wav",
+    "category": "Hip-Hop"
+  },
+  {
+    "id": 42,
+    "cover": "NECRO - Our Life.jpg",
+    "name": "Our Life",
+    "artist": "NECRO",
+    "length": "3:22",
+    "fileName": "NECRO - Our Life.wav",
+    "category": "Hip-Hop"
+  },
+  {
+    "id": 43,
+    "cover": "NECRO - Push It to the Limit.jpg",
+    "name": "Push It to the Limit",
+    "artist": "NECRO",
+    "length": "3:33",
+    "fileName": "NECRO - Push It to the Limit.wav",
+    "category": "Hip-Hop"
+  },
+  {
+    "id": 44,
+    "cover": "NECRO - Thugcore Cowboy.jfif",
+    "name": "Thugcore Cowboy",
+    "artist": "NECRO",
+    "length": "2:47",
+    "fileName": "NECRO - Thugcore Cowboy.wav",
+    "category": "Hip-Hop"
+  },
+  {
+    "id": 45,
+    "cover": "Lauge - Wider Horizons.jpg",
+    "name": "Wider Horizons",
+    "artist": "Lauge",
+    "length": "10:42",
+    "fileName": "Lauge - Wider Horizons.wav",
+    "category": "Psybient"
+  },
+  {
+    "id": 46,
+    "cover": "PSYBORT - Galactic Balance.jpg",
+    "name": "Galactic Balance",
+    "artist": "PSYBORT",
+    "length": "10:30",
+    "fileName": "PSYBORT - Galactic Balance.wav",
+    "category": "Psybient"
+  },
+  {
+    "id": 47,
+    "cover": "Suduaya - Patience.jpg",
+    "name": "Patience",
+    "artist": "Suduaya",
+    "length": "8:16",
+    "fileName": "Suduaya - Patience.wav",
+    "category": "Psybient"
+  },
+  {
+    "id": 48,
+    "cover": "Travis Scott - BUTTERFLY EFFECT.jpg",
+    "name": "BUTTERFLY EFFECT",
+    "artist": "Travis Scott",
+    "length": "3:10",
+    "fileName": "Travis Scott - BUTTERFLY EFFECT.wav",
+    "category": "Trap"
+  },
+  {
+    "id": 49,
+    "cover": "Pop Smoke - Dior.jpg",
+    "name": "Dior",
+    "artist": "Pop Smoke",
+    "length": "3:36",
+    "fileName": "Pop Smoke - Dior.wav",
+    "category": "Trap"
+  },
+  {
+    "id": 50,
+    "cover": "Travis Scott feat. Kendrick Lamar - Goosebumps.jpg",
+    "name": "Goosebumps",
+    "artist": "Travis Scott feat. Kendrick Lamar",
+    "length": "4:04",
+    "fileName": "Travis Scott feat. Kendrick Lamar - Goosebumps.wav",
+    "category": "Trap"
   }
 ]
