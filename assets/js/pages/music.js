@@ -402,26 +402,27 @@ function addEvents(player) {
         playPauseButton("play");
         if (MSAPI.paused) MSAPI.play();
 
-        console.log("play");
-
-        prepareNextPart();
+        setTimeout(function () {
+            prepareNextPart();
+        })
     }
 
     player.onfinishedtrack = () => {
         let timeline = document.getElementById("timeline");
 
+        let waited = false;
         let interval = setInterval(function () {
             if (!downloading) {
                 clearInterval(interval);
 
                 if (typeof partlist[playIndex][nextPartIndex] !== "undefined" && partlist[playIndex][partIndex]["till"] + 1 < Number(timeline.max)) {
-                    console.log("next part");
                     let gid = partlist[playIndex][partIndex]["gid"];
 
                     currentTime += getPartLength(gid);
                     partIndex = nextPartIndex;
+
+                    if (waited) play();
                 } else {
-                    console.log("next song");
                     let nextIndex = nextSongIndex();
 
                     playPauseButton("load");
@@ -448,6 +449,8 @@ function addEvents(player) {
             } else {
                 pauseSong();
                 playPauseButton("load");
+
+                waited = true;
             }
         }, 50);
     }
