@@ -168,13 +168,19 @@ bindEvent("click", ".songList .loadMore", function () {
             data = tryParseJSON(httpGet(table.getAttribute("data-url") + "/" + catCategory + "/" + catPage + "/" + count));
         }
 
-        if (data.length < count) {
+        if (Object.keys(data).length < count) {
             table.setAttribute("data-load", String(0));
             this.remove();
         }
         table.setAttribute("data-page", String(catPage));
 
-        generateTableBody(data, columns, tbody);
+        let cover = "";
+        if (typeof data["cover"] !== 'undefined') {
+            cover = data["cover"];
+            data = removeFromObject(data, "cover", false);
+        }
+
+        generateTableBody(data, columns, tbody, cover);
     }
 });
 
@@ -264,6 +270,12 @@ window["music"] = () => {
 
 
         if (Object.keys(data).length > 0) {
+            let cover = "";
+            if (typeof data["cover"] !== 'undefined') {
+                cover = data["cover"];
+                data = removeFromObject(data, "cover", false);
+            }
+
             if (view === "list") {
                 document.getElementsByClassName("fa-list")[0].classList.add("active");
 
@@ -276,7 +288,7 @@ window["music"] = () => {
                     title.textContent = category;
                     listView.appendChild(title);
 
-                    let table = generateListView(songs);
+                    let table = generateListView(songs, cover);
                     table.setAttribute("data-page", "1");
                     table.setAttribute("data-url", object.getAttribute("data-url"));
 
@@ -299,12 +311,6 @@ window["music"] = () => {
 
                 let gridView = document.createElement("div");
                 gridView.classList.add("songGrid");
-
-                let cover = "";
-                if (typeof data["cover"] !== 'undefined') {
-                    cover = data["cover"];
-                    data = removeFromObject(data, "cover", false);
-                }
 
                 for (let category in data) {
                     let songs = data[category], title = document.createElement("h2");
@@ -610,7 +616,7 @@ function generateBlockView(songs, categoryView, cover) {
  *
  * Generiert eine Tabelle aus den Daten (Table body) und Schlüssel (Table head)
  */
-function generateListView(data) {
+function generateListView(data, cover) {
     let table = document.createElement("table");
     table.classList.add("responsive-table");
 
@@ -631,7 +637,7 @@ function generateListView(data) {
         removeControls("controlsQueue");
     };
 
-    generateTableBody(data, columns, tbody);
+    generateTableBody(data, columns, tbody, cover);
 
     table.appendChild(tbody);
     return table;

@@ -152,10 +152,8 @@ function generatePictures(&$db): string
     foreach ($db as &$categories) {
         foreach ($categories as &$song) {
             if (isset($song["cover"])) {
-                $resizer = new Imagick();
-                $resizer->readImage("img/" . $song["cover"]);
-                $resizer->scaleImage(200, 200);
-                $imagick->addImage($resizer);
+                $imagick->readImage("img/" . $song["cover"]);
+                $imagick->scaleImage(200, 200);
 
                 $song["coverPos"] = $i * 200;
                 $i++;
@@ -180,10 +178,8 @@ function category_generatePictures(&$db): string
     $imagick = new Imagick();
     foreach ($db as &$song) {
         if (isset($song["cover"])) {
-            $resizer = new Imagick();
-            $resizer->readImage("img/" . $song["cover"]);
-            $resizer->scaleImage(200, 200);
-            $imagick->addImage($resizer);
+            $imagick->readImage("img/" . $song["cover"]);
+            $imagick->scaleImage(200, 200);
 
             $song["coverPos"] = $i * 200;
             $i++;
@@ -216,8 +212,10 @@ $router->get('/songs/([\d]+)', function ($count) {
 
     recursive_unset($db, "fileName");
 
-    $url = generatePictures($db);
-    $db["cover"] = "system/" . $url;
+    if (count($db)) {
+        $url = generatePictures($db);
+        $db["cover"] = "system/" . $url;
+    }
 
     shuffle_level($db, 0);
 
@@ -235,8 +233,10 @@ $router->get('/songs/([^\/]*)/([\d]+)/([\d]+)', function ($category, $page, $cou
 
     recursive_unset($db, "fileName");
 
-    $url = category_generatePictures($db);
-    $db["cover"] = "system/" . $url;
+    if (count($db)) {
+        $url = category_generatePictures($db);
+        $db["cover"] = "system/" . $url;
+    }
 
     shuffle_level($db, 0);
 
@@ -255,8 +255,10 @@ $router->get('/songs/([^\/]*)/([\d]+)', function ($search, $count) {
 
     recursive_unset($db, "fileName");
 
-    $url = generatePictures($db);
-    $db["cover"] = "system/" . $url;
+    if (count($db)) {
+        $url = generatePictures($db);
+        $db["cover"] = "system/" . $url;
+    }
 
     echo json_encode($db);
 });
@@ -273,8 +275,10 @@ $router->get('/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)', function ($search, $cat
 
     recursive_unset($db, "fileName");
 
-    $url = category_generatePictures($db);
-    $db["cover"] = "system/" . $url;
+    if (count($db)) {
+        $url = category_generatePictures($db);
+        $db["cover"] = "system/" . $url;
+    }
 
     echo json_encode($db);
 });

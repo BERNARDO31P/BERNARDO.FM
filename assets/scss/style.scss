@@ -386,6 +386,19 @@ body {
       color: var(--secondary-color);
       cursor: pointer;
     }
+
+    .cover {
+      transition: 0.2s;
+
+      height: 160px;
+      width: 160px;
+
+      border-radius: 5px;
+      user-select: none;
+
+      background-size: auto 160px;
+      background-color: black;
+    }
   }
 
   .songGrid {
@@ -558,14 +571,17 @@ body {
       }
     }
 
-    td > img {
-
+    td > .cover {
       border-radius: 5px;
       width: 35px;
       height: 35px;
-      margin: 6px 0 0 0;
 
       user-select: none;
+
+      transition: 0.2s;
+
+      background-size: auto 35px;
+      background-color: black;
     }
 
     td {

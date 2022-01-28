@@ -1040,7 +1040,7 @@ function generateTableHead(columns) {
  * Erstellt einen Table Body, wenn keiner mitgesendet wird
  * Generiert die Tabellenzeilen aus den Daten
  */
-function generateTableBody(data, columns, tbody = null) {
+function generateTableBody(data, columns, tbody = null, cover = null) {
     if (!tbody) tbody = document.createElement("tbody");
 
     for (let row of Object.values(data)) {
@@ -1048,7 +1048,7 @@ function generateTableBody(data, columns, tbody = null) {
         if (typeof row["id"] !== 'undefined') tableRow.setAttribute("data-id", row["id"]);
         row = removeFromObject(row, ["id", "category", "player"]);
 
-        generateTableRow(row, tableRow, columns);
+        generateTableRow(row, tableRow, columns, cover);
 
         tbody.appendChild(tableRow);
     }
@@ -1057,50 +1057,48 @@ function generateTableBody(data, columns, tbody = null) {
 }
 
 // TODO: Comment
-function generateTableRow(rowData, tableRow, columns) {
+function generateTableRow(rowData, tableRow, columns, cover = null) {
     if (typeof rowData["playlist"] === 'undefined') {
         for (let column of columns) {
             column = column.toLowerCase();
 
-            let element = rowData[column];
-            if (typeof element !== 'undefined') {
-                if (column === "cover") {
-                    tableRow.innerHTML += "<td><img src='" + element + "' alt='Cover'/></td>";
-                    delete rowData["cover"];
-                } else {
-                    let truncate = document.createElement("div");
-                    truncate.classList.add("truncate");
+            let element = (typeof rowData[column] !== 'undefined') ? rowData[column] : "";
 
-                    let content = document.createElement("div");
-                    content.setAttribute("data-title", element);
-                    content.classList.add("content");
-                    content.textContent = element;
+            if (column === "cover") {
+                tableRow.innerHTML += "<td><div class=\"cover\" style=\"background-image: url('" + cover + "'); background-position-x: -" + rowData["coverPos"] / 200 * 35 + "px\"></div></td>";
+            } else {
+                let truncate = document.createElement("div");
+                truncate.classList.add("truncate");
 
-                    switch (element) {
-                        case "ACCEPT":
-                            content.classList.add("green");
-                            break;
-                        case "DROP":
-                            content.classList.add("red");
-                            break;
-                    }
+                let content = document.createElement("div");
+                content.setAttribute("data-title", element);
+                content.classList.add("content");
+                content.textContent = element;
 
-                    let spacer = document.createElement("div");
-                    spacer.classList.add("spacer");
-                    spacer.textContent = element;
-
-                    let span = document.createElement("span");
-                    span.innerHTML = "&nbsp;";
-
-                    truncate.appendChild(content);
-                    truncate.appendChild(spacer);
-                    truncate.appendChild(span);
-
-                    let tableData = document.createElement("td");
-                    tableData.appendChild(truncate);
-                    tableRow.appendChild(tableData);
+                switch (element) {
+                    case "ACCEPT":
+                        content.classList.add("green");
+                        break;
+                    case "DROP":
+                        content.classList.add("red");
+                        break;
                 }
-            } else tableRow.innerHTML += "<td></td>";
+
+                let spacer = document.createElement("div");
+                spacer.classList.add("spacer");
+                spacer.textContent = element;
+
+                let span = document.createElement("span");
+                span.innerHTML = "&nbsp;";
+
+                truncate.appendChild(content);
+                truncate.appendChild(spacer);
+                truncate.appendChild(span);
+
+                let tableData = document.createElement("td");
+                tableData.appendChild(truncate);
+                tableRow.appendChild(tableData);
+            }
         }
     } else {
         let info = generatePlaylistCover(rowData);
