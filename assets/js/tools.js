@@ -779,7 +779,9 @@ function play(diffSong = false) {
             let currentPosition = getCurrentPartTime();
 
             if (currentPosition) {
-                timeline.value = currentPosition + currentTime;
+                let position = currentPosition + currentTime;
+                timeline.value = position;
+                MSAPI.currentTime = position;
 
                 if ('mediaSession' in navigator) {
                     navigator.mediaSession.setPositionState({
