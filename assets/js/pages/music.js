@@ -3,7 +3,7 @@ if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde
 let MSAPI = new Audio();
 document.getElementById("player").appendChild(MSAPI);
 
-let count = 0, resizeTimeout = null;
+let count = 0, resizeTimeout = null, width = getWidth();
 
 /*
  * Funktion: Anonym
@@ -228,11 +228,14 @@ window.addEventListener("scroll", () => {
  * Dazu da damit genug viele Lieder angezeigt werden
  */
 window.addEventListener("resize", function () {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(function () {
-        if (getPage() === "music") loadPage();
-    }, 200);
-
+    let newWidth = getWidth();
+    if (width !== newWidth) {
+        width = newWidth;
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function () {
+            if (getPage() === "music") loadPage();
+        }, 200);
+    }
 });
 
 // TODO: Comment
