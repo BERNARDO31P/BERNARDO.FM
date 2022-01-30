@@ -3,7 +3,7 @@ if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde
 let MSAPI = new Audio();
 document.getElementById("player").appendChild(MSAPI);
 
-let count = 0, resizeTimeout = null, width = getWidth();
+let count = 0, resizeTimeout = null, width = null;
 
 /*
  * Funktion: Anonym
@@ -260,6 +260,8 @@ window["music"] = () => {
     let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search input");
     let view = getCookie("view");
 
+    width = getWidth();
+
     /*
      * Author: Bernardo de Oliveira
      *
@@ -279,7 +281,7 @@ window["music"] = () => {
         if (view === "") view = "grid";
 
         let data = {};
-        count = Math.round(getWidth() / 160) + 2;
+        count = Math.round(width / 160) + 2;
 
         if (search.value !== "") {
             data = tryParseJSON(httpGet(object.getAttribute("data-url") + "/" + search.value + "/" + count));

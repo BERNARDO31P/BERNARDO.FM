@@ -455,5 +455,14 @@
     "length": "4:04",
     "fileName": "Travis Scott feat. Kendrick Lamar - Goosebumps.wav",
     "category": "Trap"
+  },
+  {
+    "id": 51,
+    "cover": "Hucci - Wings.jpg",
+    "name": "Wings",
+    "artist": "Hucci",
+    "length": "3:34",
+    "fileName": "Hucci - Wings.wav",
+    "category": "Trap"
   }
 ]
