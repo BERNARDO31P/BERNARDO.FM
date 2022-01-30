@@ -463,11 +463,15 @@ body {
           align-items: center;
 
           &:hover {
-            img {
+            .cover {
               filter: brightness(50%);
             }
 
             .length {
+              padding: 2px 5px;
+              border-radius: 4px;
+
+              background-color: black;
               opacity: 1;
             }
           }
