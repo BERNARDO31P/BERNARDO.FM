@@ -3,7 +3,7 @@ if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde
 let MSAPI = new Audio();
 document.getElementById("player").appendChild(MSAPI);
 
-let count = 0, resizeTimeout = null, width = null;
+let count = 0, resizeTimeout = null, width = getWidth(), error = false;
 
 /*
  * Funktion: Anonym
@@ -238,6 +238,10 @@ window.addEventListener("resize", function () {
     }
 });
 
+MSAPI.addEventListener("ended", function () {
+    playlist[playIndex]["player"].onfinishedall();
+});
+
 // TODO: Comment
 MSAPI.addEventListener("pause", function () {
     let player = new Gapless5({});
@@ -260,8 +264,6 @@ window["music"] = () => {
     let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search input");
     let view = getCookie("view");
 
-    width = getWidth();
-
     /*
      * Author: Bernardo de Oliveira
      *
@@ -281,7 +283,7 @@ window["music"] = () => {
         if (view === "") view = "grid";
 
         let data = {};
-        count = Math.round(width / 160) + 2;
+        count = Math.round(getWidth() / 160) + 2;
 
         if (search.value !== "") {
             data = tryParseJSON(httpGet(object.getAttribute("data-url") + "/" + search.value + "/" + count));
@@ -449,11 +451,14 @@ window["music"] = () => {
  * onfinishedall: Sobald das Lied abgeschlossen ist, wird das nächste Lied wiedergeben
  */
 function addEvents(player) {
-    /*player.onerror = () => {
+    player.onerror = () => {
+        error = true;
+        downloading = false;
         setTimeout(function () {
             prepareNextPart();
-        }, 1000);
-    }*/
+            play();
+        }, 5000);
+    }
 
     player.onplay = () => {
         playPauseButton("play");
@@ -479,29 +484,6 @@ function addEvents(player) {
                     partIndex = nextPartIndex;
 
                     if (waited) play();
-                } else {
-                    let nextIndex = nextSongIndex();
-
-                    playPauseButton("load");
-                    resetSong(playIndex);
-                    clearInterval(secondsInterval);
-                    secondsInterval = null;
-
-                    currentTime = 0;
-                    partIndex = 0;
-
-                    if (typeof playlist[nextIndex] !== 'undefined') {
-                        playIndex = nextIndex;
-
-                        if (typeof playlist[playIndex]["player"] === "undefined")
-                            downloadPart(currentTime, playIndex, partIndex);
-
-                        playlist[playIndex]["player"].gotoTrack(partIndex);
-
-                        play(true);
-                    } else {
-                        pauseSong();
-                    }
                 }
             } else {
                 pauseSong();
@@ -510,6 +492,31 @@ function addEvents(player) {
                 waited = true;
             }
         }, 50);
+    }
+
+    player.onfinishedall = () => {
+        let nextIndex = nextSongIndex();
+
+        playPauseButton("load");
+        resetSong(playIndex);
+        clearInterval(secondsInterval);
+        secondsInterval = null;
+
+        currentTime = 0;
+        partIndex = 0;
+
+        if (typeof playlist[nextIndex] !== 'undefined') {
+            playIndex = nextIndex;
+
+            if (typeof playlist[playIndex]["player"] === "undefined")
+                downloadPart(currentTime, playIndex, partIndex);
+
+            playlist[playIndex]["player"].gotoTrack(partIndex);
+
+            play(true);
+        } else {
+            pauseSong();
+        }
     }
 }
 
@@ -565,12 +572,11 @@ function prepareNextPart() {
 
             if (!nextSong && typeof partInfo[2] === 'undefined') {
                 downloadPart(nextTime, playIndex, nextPartIndex);
+                playlist[playIndex]["player"].queueTrack(nextPartIndex);
             } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
                 partlist[nextIndex] = {};
                 downloadPart(0, nextIndex, 0);
             }
-
-            playlist[playIndex]["player"].queueTrack(nextPartIndex);
         }
     }, 50);
 }
@@ -641,7 +647,7 @@ function generateBlockView(songs, categoryView, cover) {
 
         if (typeof song["playlist"] === 'undefined') {
             card.classList.add("songCard");
-            card.innerHTML = "<div class=\"darker\"></div><div class=\"cover\" style=\"background-image: url('" + cover + "'); background-position-x: -" + song["coverPos"] / 200 * 160 + "px\"></div>" +
+            card.innerHTML = "<div class=\"cover\" style=\"background-image: url('" + cover + "'); background-position-x: -" + song["coverPos"] / 200 * 160 + "px\"></div>" +
                 "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
                 "<span data-title=\"" + song["artist"] + "\" class='artist'>" + song["artist"] + "</span>" +
                 "<span class='length'>" + song["length"] + "</span>";
