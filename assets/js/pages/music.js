@@ -464,8 +464,6 @@ function addEvents(player) {
         playPauseButton("play");
         if (MSAPI.paused) MSAPI.play();
 
-        console.log("play");
-
         setTimeout(function () {
             prepareNextPart();
         })
