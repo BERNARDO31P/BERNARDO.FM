@@ -1067,7 +1067,7 @@ function generateTableRow(rowData, tableRow, columns, cover = null) {
             let element = (typeof rowData[column] !== 'undefined') ? rowData[column] : "";
 
             if (column === "cover") {
-                if (cover) {
+                if (cover !== null) {
                     tableRow.innerHTML += "<td><div class=\"cover\" style=\"background-image: url('" + cover + "'); background-position-x: -" + rowData["coverPos"] / 200 * 35 + "px\"></div></td>";
                 } else {
                     tableRow.innerHTML += "<td><img src='" + rowData["cover"] + "' alt='cover' /></td>";

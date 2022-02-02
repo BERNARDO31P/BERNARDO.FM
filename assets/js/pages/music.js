@@ -658,7 +658,8 @@ function generateBlockView(songs, categoryView, cover) {
 
         if (typeof song["playlist"] === 'undefined') {
             card.classList.add("songCard");
-            card.innerHTML = "<div class=\"cover\" style=\"background-image: url('" + cover + "'); background-position-x: -" + song["coverPos"] / 200 * 160 + "px\"></div>" +
+            card.innerHTML = "<div class=\"darker\"></div>" +
+                "<div class=\"cover\" style=\"background-image: url('" + cover + "'); background-position-x: -" + song["coverPos"] / 200 * 160 + "px\"></div>" +
                 "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
                 "<span data-title=\"" + song["artist"] + "\" class='artist'>" + song["artist"] + "</span>" +
                 "<span class='length'>" + song["length"] + "</span>";
