@@ -6,3 +6,4 @@ system/temp
 system/img
 system/db/monitoring.json
 system/db/firewall.json
+system/db/hashes.json
