@@ -358,7 +358,7 @@ $router->get('/img/(.*)', function ($image) {
     $contentType = mime_content_type($imageUrl);
 
     header('Content-Type: ' . $contentType);
-    echo file_get_contents(__DIR__ . "/img/" . $image);
+    echo file_get_contents($imageUrl);
 });
 
 $router->get('/temp/(.*)', function ($image) {
@@ -366,7 +366,9 @@ $router->get('/temp/(.*)', function ($image) {
     $contentType = mime_content_type($imageUrl);
 
     header('Content-Type: ' . $contentType);
-    echo file_get_contents(__DIR__ . "/temp/" . $image);
+    echo file_get_contents($imageUrl);
+
+	unlink($imageUrl);
 });
 
 $router->run();

@@ -464,5 +464,23 @@
     "length": "3:34",
     "fileName": "Hucci - Wings.wav",
     "category": "Trap"
+  },
+  {
+    "id": 52,
+    "cover": "DJ Krush - Kemuri.jpg",
+    "name": "Kemuri",
+    "artist": "DJ Krush",
+    "length": "5:25",
+    "fileName": "DJ Krush - Kemuri.wav",
+    "category": "Trip-Hop"
+  },
+  {
+    "id": 53,
+    "cover": "DJ Shadow - Midnight In A Perfect World.jpg",
+    "name": "Midnight In A Perfect World",
+    "artist": "DJ Shadow",
+    "length": "4:49",
+    "fileName": "DJ Shadow - Midnight In A Perfect World.wav",
+    "category": "Trip-Hop"
   }
 ]
