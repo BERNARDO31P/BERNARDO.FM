@@ -11,7 +11,8 @@ let currentHover = null,
     previousVolume = null,
     repeatMode = 0,
     touched = false,
-    touchedElement = null;
+    touchedElement = null,
+    currentButton = null;
 
 let backgroundProcesses = [];
 let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null;
@@ -844,18 +845,17 @@ function previousSongIndex() {
  */
 function playPauseButton(option = "pause") {
     let player = document.getElementById("player");
-    let button = player.querySelector(".fa-play, .fa-pause, .fa-circle-notch");
+    let button = player.querySelector("#dynamicButton");
 
-    button.classList.remove("fa-play");
-    button.classList.remove("fa-pause");
-    button.classList.remove("fa-circle-notch");
-
-    if (option === "play") {
-        button.classList.add("fa-pause");
-    } else if (option === "pause") {
-        button.classList.add("fa-play");
-    } else if (option === "load") {
-        button.classList.add("fa-circle-notch");
+    if (currentButton !== option) {
+        if (option === "play") {
+            button.innerHTML = "<i class=\"fas fa-pause\"></i>";
+        } else if (option === "pause") {
+            button.innerHTML = "<i class=\"fa fa-play\"></i>";
+        } else if (option === "load") {
+            button.innerHTML = "<div class=\"lds-ring\"><div></div><div></div><div></div><div></div></div>";
+        }
+        currentButton = option;
     }
 }
 
@@ -928,15 +928,17 @@ function resetSong(index) {
  * Pausiert die Wiedergabe
  */
 function pauseSong() {
-    playPauseButton("pause");
+    if (playing) {
+        playPauseButton("pause");
 
-    playlist[playIndex]["player"].pause();
-    MSAPI.pause();
+        playlist[playIndex]["player"].pause();
+        MSAPI.pause();
 
-    clearInterval(secondsInterval);
-    secondsInterval = null;
+        clearInterval(secondsInterval);
+        secondsInterval = null;
 
-    playing = false;
+        playing = false;
+    }
 }
 
 /*
