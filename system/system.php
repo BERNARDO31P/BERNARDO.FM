@@ -155,7 +155,7 @@ function loadHashDatabase()
 }
 
 // TODO: Comment
-function generatePictures(&$db, $length = 200): string
+function generatePictures(&$db, $hashDB, $length = 200): string
 {
 	$i = 0;
 	$imagick = new Imagick();
@@ -183,7 +183,7 @@ function generatePictures(&$db, $length = 200): string
 	$data["image"] = "system/" . $newImage;
 
 	$out->writeimage($newImage);
-	add_hash($hash, $data);
+	add_hash($hash, $data, $hashDB);
 
 	return $data["image"];
 }
