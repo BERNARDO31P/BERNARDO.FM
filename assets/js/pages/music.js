@@ -3,7 +3,7 @@ if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde
 let MSAPI = new Audio();
 document.getElementById("player").appendChild(MSAPI);
 
-let count = 0, resizeTimeout = null, width = getWidth(), error = false;
+let count = 0, resizeTimeout = null, errorTimeout = null, errorTimeout2 = null, width = getWidth(), error = false;
 
 /*
  * Funktion: Anonym
@@ -239,6 +239,7 @@ window.addEventListener("resize", function () {
 });
 
 MSAPI.addEventListener("ended", function () {
+    playlist[playIndex]["player"].stop();
     playlist[playIndex]["player"].onfinishedall();
 });
 
@@ -452,12 +453,21 @@ window["music"] = () => {
  */
 function addEvents(player) {
     player.onerror = () => {
+        let gapless = playlist[playIndex]["player"];
+
+        clearTimeout(errorTimeout);
+        clearTimeout(errorTimeout2);
+
         error = true;
-        downloading = false;
-        setTimeout(function () {
+        errorTimeout2 = setTimeout(function () {
+            downloading = false;
+            gapless.removeTrack(nextPartIndex);
+
             prepareNextPart();
-            play();
-        }, 5000);
+            errorTimeout = setTimeout(function () {
+                error = false;
+            }, 3000);
+        }, 2000);
     }
 
     player.onplay = () => {
@@ -472,44 +482,62 @@ function addEvents(player) {
     player.onfinishedtrack = () => {
         let timeline = document.getElementById("timeline");
 
-        let waited = false;
+        let waited = false, hadError = false;
         let interval = setInterval(function () {
-            if (!downloading) {
-                clearInterval(interval);
-
-                if (typeof partlist[playIndex][nextPartIndex] !== "undefined" && partlist[playIndex][partIndex]["till"] + 1 < Number(timeline.max)) {
-                    let gid = partlist[playIndex][partIndex]["gid"];
-
-                    currentTime += getPartLength(gid);
-                    partIndex = nextPartIndex;
-
-                    if (waited) play();
-                }
-            } else {
+            if (error) {
                 pauseSong();
                 playPauseButton("load");
+                clearInterval(secondsInterval);
 
-                waited = true;
+                hadError = true;
+            } else {
+                if (!downloading) {
+                    clearInterval(interval);
+
+                    if (typeof partlist[playIndex][nextPartIndex] !== "undefined" && partlist[playIndex][partIndex]["till"] + 1 < Number(timeline.max)) {
+                        let gid = partlist[playIndex][partIndex]["gid"];
+
+                        currentTime += getPartLength(gid);
+                        partIndex = nextPartIndex;
+
+                        if (waited || hadError) play();
+                    }
+                } else {
+                    pauseSong();
+                    playPauseButton("load");
+                    clearInterval(secondsInterval);
+
+                    waited = true;
+                }
             }
         }, 50);
     }
 
     player.onfinishedall = () => {
+        let nextIndex = nextSongIndex();
+        if (typeof playlist[nextIndex] !== 'undefined')
+            playIndex = nextIndex;
+        else {
+            pauseSong();
+            return;
+        }
+
+        currentTime = 0;
+        partIndex = 0;
+        resetSong(playIndex);
+        playPauseButton("load");
+
+        clearInterval(secondsInterval);
+        secondsInterval = null;
+
         let interval = setInterval(function () {
-            if (!downloading) {
+            if (error) {
                 clearInterval(interval);
-
-                let nextIndex = nextSongIndex();
-
+                pauseSong();
                 playPauseButton("load");
-                resetSong(playIndex);
-                clearInterval(secondsInterval);
-                secondsInterval = null;
-
-                currentTime = 0;
-                partIndex = 0;
-
-                if (typeof playlist[nextIndex] !== 'undefined') {
+            } else {
+                if (!downloading) {
+                    clearInterval(interval);
                     playIndex = nextIndex;
 
                     if (typeof playlist[playIndex]["player"] === "undefined")
@@ -518,12 +546,7 @@ function addEvents(player) {
                     playlist[playIndex]["player"].gotoTrack(partIndex);
 
                     play(true);
-                } else {
-                    pauseSong();
                 }
-            } else {
-                pauseSong();
-                playPauseButton("load");
             }
         }, 50);
     }
