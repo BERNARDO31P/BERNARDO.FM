@@ -464,6 +464,8 @@ function addEvents(player) {
         playPauseButton("play");
         if (MSAPI.paused) MSAPI.play();
 
+        console.log("play");
+
         setTimeout(function () {
             prepareNextPart();
         })
@@ -495,28 +497,37 @@ function addEvents(player) {
     }
 
     player.onfinishedall = () => {
-        let nextIndex = nextSongIndex();
+        let interval = setInterval(function () {
+            if (!downloading) {
+                clearInterval(interval);
 
-        playPauseButton("load");
-        resetSong(playIndex);
-        clearInterval(secondsInterval);
-        secondsInterval = null;
+                let nextIndex = nextSongIndex();
 
-        currentTime = 0;
-        partIndex = 0;
+                playPauseButton("load");
+                resetSong(playIndex);
+                clearInterval(secondsInterval);
+                secondsInterval = null;
 
-        if (typeof playlist[nextIndex] !== 'undefined') {
-            playIndex = nextIndex;
+                currentTime = 0;
+                partIndex = 0;
 
-            if (typeof playlist[playIndex]["player"] === "undefined")
-                downloadPart(currentTime, playIndex, partIndex);
+                if (typeof playlist[nextIndex] !== 'undefined') {
+                    playIndex = nextIndex;
 
-            playlist[playIndex]["player"].gotoTrack(partIndex);
+                    if (typeof playlist[playIndex]["player"] === "undefined")
+                        downloadPart(currentTime, playIndex, partIndex);
 
-            play(true);
-        } else {
-            pauseSong();
-        }
+                    playlist[playIndex]["player"].gotoTrack(partIndex);
+
+                    play(true);
+                } else {
+                    pauseSong();
+                }
+            } else {
+                pauseSong();
+                playPauseButton("load");
+            }
+        }, 50);
     }
 }
 

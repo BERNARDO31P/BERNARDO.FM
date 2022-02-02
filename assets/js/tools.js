@@ -1067,7 +1067,11 @@ function generateTableRow(rowData, tableRow, columns, cover = null) {
             let element = (typeof rowData[column] !== 'undefined') ? rowData[column] : "";
 
             if (column === "cover") {
-                tableRow.innerHTML += "<td><div class=\"cover\" style=\"background-image: url('" + cover + "'); background-position-x: -" + rowData["coverPos"] / 200 * 35 + "px\"></div></td>";
+                if (cover) {
+                    tableRow.innerHTML += "<td><div class=\"cover\" style=\"background-image: url('" + cover + "'); background-position-x: -" + rowData["coverPos"] / 200 * 35 + "px\"></div></td>";
+                } else {
+                    tableRow.innerHTML += "<td><img src='" + rowData["cover"] + "' alt='cover' /></td>";
+                }
             } else {
                 let truncate = document.createElement("div");
                 truncate.classList.add("truncate");
