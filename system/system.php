@@ -56,6 +56,7 @@ function paging($array, $page, $count): array
 	return $new;
 }
 
+// TODO: Comment
 function category_paging($array, $page, $category, $count): array
 {
 	$new = array();
@@ -144,6 +145,7 @@ function loadDatabase()
 	return $db;
 }
 
+// TODO: Comment
 function loadHashDatabase()
 {
 	$dbFile = __DIR__ . "/db/hashes.json";
@@ -218,6 +220,7 @@ function category_generatePictures(&$db, $hashDB, $length = 200): string
 	return $data["image"];
 }
 
+// TODO: Comment
 function add_hash($hash, $value, $hashDB)
 {
 	$dbFile = __DIR__ . "/db/hashes.json";
@@ -237,6 +240,7 @@ function check_hash($db, $hashDB)
 	return null;
 }
 
+// TODO: Comment
 function apply_hash(&$db, $hashDB)
 {
 	$hash = md5(http_build_query($db));
@@ -247,6 +251,7 @@ function apply_hash(&$db, $hashDB)
 	}
 }
 
+// TODO: Comment
 function category_apply_hash(&$db, $hashDB)
 {
 	$hash = md5(http_build_query($db));
