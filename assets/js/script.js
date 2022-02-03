@@ -426,7 +426,6 @@ bindEvent("click", ".fa-random", function () {
 
         playIndex = 0;
         partIndex = 0;
-        currentTime = 0;
 
         let queueView = document.getElementById("queueView");
         let queue = queueView.querySelector("#queue");

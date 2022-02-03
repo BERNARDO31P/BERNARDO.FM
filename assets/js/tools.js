@@ -1,5 +1,4 @@
 let currentHover = null,
-    currentTime = 0,
     playIndex = 0,
     partIndex = 0,
     nextPartIndex = 0,
@@ -780,7 +779,7 @@ function play(diffSong = false) {
             let currentPosition = getCurrentPartTime();
 
             if (currentPosition) {
-                let position = currentPosition + currentTime;
+                let position = currentPosition + partlist[playIndex][partIndex]["from"];
                 timeline.value = position;
                 MSAPI.currentTime = position;
 
@@ -982,8 +981,8 @@ function onTimelineMove(rangeEvent) {
     timeInfo.style.top = (measurementRange["top"] - measurementTimeInfo["height"] - 10) + "px";
     timeInfo.style.left = leftPos + "px";
 
-    let currentTimestamp = timeInfo.querySelector("#current");
-    currentTimestamp.textContent = getMinutesAndSeconds(rangeEvent.target.value);
+    let currentTime = timeInfo.querySelector("#current");
+    currentTime.textContent = getMinutesAndSeconds(rangeEvent.target.value);
 }
 
 /*

@@ -94,7 +94,6 @@ bindEvent("click", "#content .fa-play", function () {
 
     playIndex = 0;
     partIndex = 0;
-    currentTime = 0;
     playlist = [];
     partlist[playIndex] = {0: 0};
 
@@ -103,7 +102,7 @@ bindEvent("click", "#content .fa-play", function () {
 
     addSongToPlaylist(this);
     playPauseButton("load");
-    downloadPart(currentTime, playIndex, partIndex);
+    downloadPart(0, playIndex, partIndex);
     play(true);
 });
 
@@ -123,11 +122,10 @@ bindEvent("click", "#queueView .fa-play", function () {
         if (value["id"] === id) playIndex = key;
     }
 
-    currentTime = 0;
     partIndex = 0;
 
     if (typeof playlist[playIndex]["player"] === 'undefined')
-        downloadPart(currentTime, playIndex, partIndex);
+        downloadPart(0, playIndex, partIndex);
 
     clearInterval(secondsInterval);
     secondsInterval = null;
@@ -452,19 +450,19 @@ window["music"] = () => {
  * onfinishedall: Sobald das Lied abgeschlossen ist, wird das nächste Lied wiedergeben
  */
 function addEvents(player) {
-    player.onerror = () => {
+    player.onerror = (track) => {
         let gapless = playlist[playIndex]["player"];
 
         clearTimeout(errorTimeout);
         clearTimeout(errorTimeout2);
 
         error = true;
-        errorTimeout2 = setTimeout(function () {
+        errorTimeout = setTimeout(function () {
             downloading = false;
-            gapless.removeTrack(nextPartIndex);
+            gapless.removeTrack(track);
 
             prepareNextPart();
-            errorTimeout = setTimeout(function () {
+            errorTimeout2 = setTimeout(function () {
                 error = false;
             }, 3000);
         }, 2000);
@@ -488,6 +486,7 @@ function addEvents(player) {
                 pauseSong();
                 playPauseButton("load");
                 clearInterval(secondsInterval);
+                secondsInterval = null;
 
                 hadError = true;
             } else {
@@ -495,9 +494,6 @@ function addEvents(player) {
                     clearInterval(interval);
 
                     if (typeof partlist[playIndex][nextPartIndex] !== "undefined" && partlist[playIndex][partIndex]["till"] + 1 < Number(timeline.max)) {
-                        let gid = partlist[playIndex][partIndex]["gid"];
-
-                        currentTime += getPartLength(gid);
                         partIndex = nextPartIndex;
 
                         if (waited || hadError) play();
@@ -506,6 +502,7 @@ function addEvents(player) {
                     pauseSong();
                     playPauseButton("load");
                     clearInterval(secondsInterval);
+                    secondsInterval = null;
 
                     waited = true;
                 }
@@ -522,7 +519,6 @@ function addEvents(player) {
             return;
         }
 
-        currentTime = 0;
         partIndex = 0;
         resetSong(playIndex);
         playPauseButton("load");
@@ -541,7 +537,7 @@ function addEvents(player) {
                     playIndex = nextIndex;
 
                     if (typeof playlist[playIndex]["player"] === "undefined")
-                        downloadPart(currentTime, playIndex, partIndex);
+                        downloadPart(0, playIndex, partIndex);
 
                     playlist[playIndex]["player"].gotoTrack(partIndex);
 
@@ -795,7 +791,6 @@ function onTimelineRelease(value) {
 
     let partInfo = getPartIndexByTime(value);
     let index = partInfo[2];
-    currentTime = partInfo[0];
 
     clearTimeout(timelineTimeout);
     if (typeof index === "undefined") {
@@ -810,7 +805,6 @@ function onTimelineRelease(value) {
                     gapless.gotoTrack(partlist[playIndex][index]["gid"]);
                     partIndex = index;
                     MSAPI.currentTime = value;
-                    currentTime = Number(value);
 
                     play();
                 }
@@ -821,12 +815,11 @@ function onTimelineRelease(value) {
             if (typeof partlist[playIndex][index] !== 'undefined') {
                 clearInterval(interval);
 
-                let startFrom = (value - currentTime) * 1000;
+                let startFrom = (value - partlist[playIndex][index]["from"]) * 1000;
 
                 gapless.gotoTrack(partlist[playIndex][index]["gid"]);
                 partIndex = index;
                 MSAPI.currentTime = value;
-                currentTime = Number(value);
 
                 gapless.playlist.sources[partlist[playIndex][partIndex]["gid"]].setPosition(startFrom, false);
                 play();
@@ -847,7 +840,6 @@ function onTimelineRelease(value) {
 function nextSong() {
     resetSong(playIndex);
 
-    currentTime = 0;
     partIndex = 0;
 
     playPauseButton("load");
@@ -882,7 +874,6 @@ function nextSong() {
 function previousSong() {
     resetSong(playIndex);
 
-    currentTime = 0;
     partIndex = 0;
 
     playPauseButton("load");
