@@ -482,5 +482,212 @@
     "length": "5:00",
     "fileName": "DJ Shadow - Midnight In A Perfect World.wav",
     "category": "Trip-Hop"
+  },
+  {
+    "id": 54,
+    "cover": "Aion - Knowledge.jpg",
+    "name": "Knowledge",
+    "artist": "Aion",
+    "length": "8:06",
+    "fileName": "Aion - Knowledge.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 55,
+    "cover": "Altered State - Genetics.jpg",
+    "name": "Genetics",
+    "artist": "Altered State",
+    "length": "7:24",
+    "fileName": "Altered State - Genetics.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 56,
+    "cover": "Atma - Everything Is Nothing.jpg",
+    "name": "Everything Is Nothing",
+    "artist": "Atma",
+    "length": "7:48",
+    "fileName": "Atma - Everything Is Nothing.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 57,
+    "cover": "Chronosphere - High Voltage.jpg",
+    "name": "High Voltage",
+    "artist": "Chronosphere",
+    "length": "6:10",
+    "fileName": "Chronosphere - High Voltage.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 58,
+    "cover": "Cloud6 - Scouting.jpg",
+    "name": "Scouting",
+    "artist": "Cloud6",
+    "length": "7:35",
+    "fileName": "Cloud6 - Scouting.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 59,
+    "cover": "Disconnect & Second Life - Super Rare.jpg",
+    "name": "Super Rare",
+    "artist": "Disconnect & Second Life",
+    "length": "7:27",
+    "fileName": "Disconnect & Second Life - Super Rare.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 60,
+    "cover": "Hypnoise - The Outside.jpg",
+    "name": "The Outside",
+    "artist": "Hypnoise",
+    "length": "7:00",
+    "fileName": "Hypnoise - The Outside.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 61,
+    "cover": "Inner Sphere - Velorum.jpg",
+    "name": "Velorum",
+    "artist": "Inner Sphere",
+    "length": "6:30",
+    "fileName": "Inner Sphere - Velorum.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 62,
+    "cover": "Inner State - Computer Simulation (Genesia Remix).jpg",
+    "name": "Computer Simulation (Genesia Remix)",
+    "artist": "Inner State",
+    "length": "8:31",
+    "fileName": "Inner State - Computer Simulation (Genesia Remix).wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 63,
+    "cover": "Inside Mind - Beyond Matter.jpg",
+    "name": "Beyond Matter",
+    "artist": "Inside Mind",
+    "length": "8:26",
+    "fileName": "Inside Mind - Beyond Matter.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 64,
+    "cover": "Introspective - Deja Vu.jpg",
+    "name": "Deja Vu",
+    "artist": "Introspective",
+    "length": "8:00",
+    "fileName": "Introspective - Deja Vu.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 65,
+    "cover": "Knock Out - Mixctli (XoXo Remix).jpg",
+    "name": "Mixctli (XoXo Remix)",
+    "artist": "Knock Out",
+    "length": "8:06",
+    "fileName": "Knock Out - Mixctli (XoXo Remix).wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 66,
+    "cover": "Logic Bomb - Marauder (XoXo Remix).jpg",
+    "name": "Marauder (XoXo Remix)",
+    "artist": "Logic Bomb",
+    "length": "7:43",
+    "fileName": "Logic Bomb - Marauder (XoXo Remix).wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 67,
+    "cover": "Mystika - Whispering.jpg",
+    "name": "Whispering",
+    "artist": "Mystika",
+    "length": "7:03",
+    "fileName": "Mystika - Whispering.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 68,
+    "cover": "Neuroplasm, Escape - Ecliptic Shift.jpg",
+    "name": "Ecliptic Shift",
+    "artist": "Neuroplasm, Escape",
+    "length": "8:25",
+    "fileName": "Neuroplasm, Escape - Ecliptic Shift.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 69,
+    "cover": "Solitary Shell - Afterglow (Eve Mix).jpg",
+    "name": "Afterglow (Eve Mix)",
+    "artist": "Solitary Shell",
+    "length": "7:17",
+    "fileName": "Solitary Shell - Afterglow (Eve Mix).wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 70,
+    "cover": "Sungirl - Focus (XOXO Remix).jpg",
+    "name": "Focus (XOXO Remix)",
+    "artist": "Sungirl",
+    "length": "7:46",
+    "fileName": "Sungirl - Focus (XOXO Remix).wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 71,
+    "cover": "U-Recken - Aces High.jfif",
+    "name": "Aces High",
+    "artist": "U-Recken",
+    "length": "8:15",
+    "fileName": "U-Recken - Aces High.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 72,
+    "cover": "Vibe Tribe, Spade & Faders - Story Of D.M.T.jfif",
+    "name": "Story Of D.M.T",
+    "artist": "Vibe Tribe, Spade & Faders",
+    "length": "7:31",
+    "fileName": "Vibe Tribe, Spade & Faders - Story Of D.M.T.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 73,
+    "cover": "Xamanist - Ananda.jpg",
+    "name": "Ananda",
+    "artist": "Xamanist",
+    "length": "7:13",
+    "fileName": "Xamanist - Ananda.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 74,
+    "cover": "X-Side, Amplify - Arabian Nights.jpg",
+    "name": "Arabian Nights",
+    "artist": "X-Side, Amplify",
+    "length": "7:30",
+    "fileName": "X-Side, Amplify - Arabian Nights.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 75,
+    "cover": "Zone Tempest - Everything Is Different.jpg",
+    "name": "Everything Is Different",
+    "artist": "Zone Tempest",
+    "length": "8:14",
+    "fileName": "Zone Tempest - Everything Is Different.wav",
+    "category": "Psytrance"
+  },
+  {
+    "id": 76,
+    "cover": "Zone Tempest - Space Time.jpg",
+    "name": "Space Time",
+    "artist": "Zone Tempest",
+    "length": "6:14",
+    "fileName": "Zone Tempest - Space Time.wav",
+    "category": "Psytrance"
   }
 ]

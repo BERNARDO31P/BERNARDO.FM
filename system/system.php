@@ -246,7 +246,8 @@ function apply_hash(&$db, $hashDB)
 	$hash = md5(http_build_query($db));
 	foreach ($db as &$category) {
 		foreach ($category as &$song) {
-			$song["coverPos"] = $hashDB[$hash]["coverPos"][$song["id"]];
+			if (isset($hashDB[$hash]["coverPos"][$song["id"]]))
+				$song["coverPos"] = $hashDB[$hash]["coverPos"][$song["id"]];
 		}
 	}
 }
