@@ -474,7 +474,7 @@ function addEvents(player) {
             prepareNextPart();
             errorTimeout2 = setTimeout(function () {
                 error = false;
-            }, 3000);
+            }, 1000);
         }, 2000);
     }
 
