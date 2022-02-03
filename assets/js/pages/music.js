@@ -360,7 +360,6 @@ window["music"] = () => {
                         div.setAttribute("data-load", String(1));
 
                     div.addEventListener("scroll", (e) => {
-                        console.log("what");
                         let element = e.target;
                         let loadMore = Boolean(Number(element.getAttribute("data-load")));
                         let scrolled = Math.round(100 * element.scrollLeft / (element.scrollWidth - element.clientWidth));

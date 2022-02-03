@@ -252,7 +252,23 @@ bindEvent("click", "#navbar-toggler", function () {
 
 bindEvent("click", "#player .fa-pause", () => pauseSong());
 
-bindEvent("click", "#player .fa-play", () => play());
+bindEvent("click", "#player .fa-play", () => {
+    let timeline = document.getElementById("timeline");
+    if (timeline.max === timeline.value) {
+        let nextIndex = nextSongIndex();
+        partIndex = 0;
+
+        if (typeof playlist[nextIndex] === 'undefined') {
+            resetSong(playIndex);
+        } else {
+            if (typeof playlist[nextIndex]["player"] === 'undefined')
+                downloadPart(0, nextIndex, partIndex);
+
+            playIndex = nextIndex;
+        }
+    }
+    play(true);
+});
 
 bindEvent("touchstart", "#timeline", () => onTimelinePress());
 
