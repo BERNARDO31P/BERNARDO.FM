@@ -3,7 +3,7 @@ if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde
 let MSAPI = new Audio();
 document.getElementById("player").appendChild(MSAPI);
 
-let count = 0, resizeTimeout = null, errorTimeout = null, errorTimeout2 = null, width = getWidth(), error = false;
+let count = 0, resizeTimeout = null, errorTimeout = null, errorTimeout2 = null, width = getWidth(), error = false, hadError = false;
 
 /*
  * Funktion: Anonym
@@ -473,6 +473,7 @@ function addEvents(player) {
 
             prepareNextPart();
             errorTimeout2 = setTimeout(function () {
+                hadError = true;
                 error = false;
             }, 1000);
         }, 2000);
@@ -482,6 +483,8 @@ function addEvents(player) {
         playPauseButton("play");
         if (MSAPI.paused) MSAPI.play();
 
+        hadError = false;
+
         setTimeout(function () {
             prepareNextPart();
         })
@@ -490,7 +493,7 @@ function addEvents(player) {
     player.onfinishedtrack = () => {
         let timeline = document.getElementById("timeline");
 
-        let waited = false, hadError = false;
+        let waited = false;
         let interval = setInterval(function () {
             if (error) {
                 pauseSong();
