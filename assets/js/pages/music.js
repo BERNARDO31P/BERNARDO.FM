@@ -611,10 +611,13 @@ function prepareNextPart() {
 
             if (!nextSong && typeof partInfo[2] === 'undefined') {
                 downloadPart(nextTime, playIndex, nextPartIndex);
-                playlist[playIndex]["player"].queueTrack(nextPartIndex);
             } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
                 partlist[nextIndex] = {};
                 downloadPart(0, nextIndex, 0);
+            }
+
+            if (!nextSong) {
+                playlist[playIndex]["player"].queueTrack(nextPartIndex);
             }
         }
     }, 50);
