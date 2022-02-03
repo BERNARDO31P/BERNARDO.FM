@@ -391,15 +391,13 @@ window["music"] = () => {
                             }
                         }
 
-                        if (scrolled === 0) {
-                            let scrollBack = div.parentElement.querySelector(".scrollBack");
-                            scrollBack.style.display = "none";
-                        }
+                        let scrollBack = div.parentElement.querySelector(".scrollBack");
+                        if (scrolled === 0) scrollBack.style.display = "none";
+                        else scrollBack.style.display = "flex";
 
-                        if (scrolled === 100) {
-                            let scrollForward = div.parentElement.querySelector(".scrollForward");
-                            scrollForward.style.display = "none";
-                        }
+                        let scrollForward = div.parentElement.querySelector(".scrollForward");
+                        if (scrolled === 100) scrollForward.style.display = "none";
+                        else scrollForward.style.display = "flex";
 
                         removeControls("controlsContent");
                     });
