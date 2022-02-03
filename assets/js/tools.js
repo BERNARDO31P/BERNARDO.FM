@@ -802,7 +802,7 @@ function play(diffSong = false) {
  * Holt sich die Array ID des nächsten Liedes
  */
 function nextSongIndex() {
-    let nextIndex = playIndex + 1;
+    let nextIndex = Number(playIndex) + 1;
     switch (repeatMode) {
         case 1:
             if (typeof playlist[nextIndex] === 'undefined')
@@ -821,7 +821,7 @@ function nextSongIndex() {
  * Holt sich die Array ID des vorherigen Liedes
  */
 function previousSongIndex() {
-    let previousIndex = playIndex - 1;
+    let previousIndex = Number(playIndex) - 1;
     switch (repeatMode) {
         case 0:
         case 1:

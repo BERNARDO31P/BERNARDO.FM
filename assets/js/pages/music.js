@@ -872,7 +872,6 @@ function nextSong() {
         play(true);
     } else {
         pauseSong();
-
     }
 }
 
