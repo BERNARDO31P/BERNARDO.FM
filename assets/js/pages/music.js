@@ -521,6 +521,12 @@ function addEvents(player) {
     }
 
     player.onfinishedall = () => {
+        partIndex = 0;
+        resetSong(playIndex);
+
+        clearInterval(secondsInterval);
+        secondsInterval = null;
+
         let nextIndex = nextSongIndex();
         if (typeof playlist[nextIndex] !== 'undefined')
             playIndex = nextIndex;
@@ -529,12 +535,7 @@ function addEvents(player) {
             return;
         }
 
-        partIndex = 0;
-        resetSong(playIndex);
         playPauseButton("load");
-
-        clearInterval(secondsInterval);
-        secondsInterval = null;
 
         let interval = setInterval(function () {
             if (error) {

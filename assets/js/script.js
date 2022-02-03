@@ -256,18 +256,16 @@ bindEvent("click", "#player .fa-play", () => {
     let timeline = document.getElementById("timeline");
     if (timeline.max === timeline.value) {
         let nextIndex = nextSongIndex();
-        partIndex = 0;
 
-        if (typeof playlist[nextIndex] === 'undefined') {
-            resetSong(playIndex);
-        } else {
+        if (typeof playlist[nextIndex] !== 'undefined') {
             if (typeof playlist[nextIndex]["player"] === 'undefined')
                 downloadPart(0, nextIndex, partIndex);
 
             playIndex = nextIndex;
         }
-    }
-    play(true);
+
+        play(true);
+    } else play();
 });
 
 bindEvent("touchstart", "#timeline", () => onTimelinePress());
