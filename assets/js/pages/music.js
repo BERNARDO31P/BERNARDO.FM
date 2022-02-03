@@ -391,13 +391,15 @@ window["music"] = () => {
                             }
                         }
 
-                        let scrollBack = div.parentElement.querySelector(".scrollBack");
-                        if (scrolled === 0) scrollBack.style.display = "none";
-                        else scrollBack.style.display = "flex";
+                        if (!isTouchScreen()) {
+                            let scrollBack = div.parentElement.querySelector(".scrollBack");
+                            if (scrolled === 0) scrollBack.style.display = "none";
+                            else scrollBack.style.display = "flex";
 
-                        let scrollForward = div.parentElement.querySelector(".scrollForward");
-                        if (scrolled === 100) scrollForward.style.display = "none";
-                        else scrollForward.style.display = "flex";
+                            let scrollForward = div.parentElement.querySelector(".scrollForward");
+                            if (scrolled === 100) scrollForward.style.display = "none";
+                            else scrollForward.style.display = "flex";
+                        }
 
                         removeControls("controlsContent");
                     });
