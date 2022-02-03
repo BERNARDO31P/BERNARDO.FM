@@ -545,12 +545,9 @@ function addEvents(player) {
             } else {
                 if (!downloading) {
                     clearInterval(interval);
-                    playIndex = nextIndex;
 
                     if (typeof playlist[playIndex]["player"] === "undefined")
                         downloadPart(0, playIndex, partIndex);
-
-                    playlist[playIndex]["player"].gotoTrack(partIndex);
 
                     play(true);
                 }
@@ -816,10 +813,13 @@ function onTimelineRelease(value) {
                 if (!downloading) {
                     clearInterval(interval);
 
+                    let startFrom = (value - partlist[playIndex][index]["from"]) * 1000;
+
                     gapless.gotoTrack(partlist[playIndex][index]["gid"]);
                     partIndex = index;
                     MSAPI.currentTime = value;
 
+                    gapless.playlist.sources[partlist[playIndex][partIndex]["gid"]].setPosition(startFrom, false);
                     play();
                 }
             }, 50);
