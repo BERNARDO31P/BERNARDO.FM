@@ -360,6 +360,7 @@ window["music"] = () => {
                         div.setAttribute("data-load", String(1));
 
                     div.addEventListener("scroll", (e) => {
+                        console.log("what");
                         let element = e.target;
                         let loadMore = Boolean(Number(element.getAttribute("data-load")));
                         let scrolled = Math.round(100 * element.scrollLeft / (element.scrollWidth - element.clientWidth));
@@ -388,6 +389,16 @@ window["music"] = () => {
                             } else {
                                 element.setAttribute("data-load", String(0));
                             }
+                        }
+
+                        if (scrolled === 0) {
+                            let scrollBack = div.parentElement.querySelector(".scrollBack");
+                            scrollBack.style.display = "none";
+                        }
+
+                        if (scrolled === 100) {
+                            let scrollForward = div.parentElement.querySelector(".scrollForward");
+                            scrollForward.style.display = "none";
                         }
 
                         removeControls("controlsContent");
