@@ -204,7 +204,7 @@ body {
     }
 
     &:hover {
-      box-shadow: -2px -2px 5px var(--shadow-light), 2px 2px 5px var(--shadow-dark);
+      box-shadow: -1px -1px 2px var(--shadow-light), 1px 1px 2px var(--shadow-dark);
     }
 
     &:active {
@@ -407,6 +407,7 @@ body {
 
       .scrollBack, .scrollForward {
         position: absolute;
+        transition: 0.2s;
 
         top: 50px;
 
@@ -425,6 +426,10 @@ body {
         cursor: pointer;
 
         z-index: 1;
+
+        &:hover {
+          background-color: var(--hover-background);
+        }
 
         svg {
           margin: auto;
