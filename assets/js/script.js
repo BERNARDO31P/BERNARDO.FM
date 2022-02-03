@@ -47,7 +47,7 @@ window.addEventListener("focus", function () {
 document.addEventListener('visibilitychange', () => {
     setTimeout(function () {
         if (document.visibilityState === 'visible' && typeof MSAPI !== 'undefined' && MSAPI.paused) {
-            playPauseButton("pause")
+            playPauseButton("pause");
         }
     }, 200);
 });
@@ -321,6 +321,16 @@ bindEvent("mouseover", "#queueView tr[data-id]", function () {
             controls.classList.add("show");
         }, 50);
     } else clearTimeout(controlsTimeout);
+});
+
+// TODO: Comment
+bindEvent("mouseout", "#queue", function() {
+    setTimeout(function() {
+        if (currentHover.closest("#queue") === null) {
+            removeControls("controlsQueue");
+        }
+    }, 50);
+
 });
 
 /*
