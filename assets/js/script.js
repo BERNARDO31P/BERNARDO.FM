@@ -622,6 +622,28 @@ bindEvent("focusout", "#search", function () {
 });
 
 // TODO: Comment
+bindEvent("click", "#queueInfo .queue:not(.active)", function () {
+    let queueInfo = document.getElementById("queueInfo");
+
+    queueInfo.querySelector("#info").style.display = "none";
+    queueInfo.querySelector("#queue").style.display = "initial";
+
+    queueInfo.querySelector(".info").classList.remove("active");
+    this.classList.add("active");
+});
+
+// TODO: Comment
+bindEvent("click", "#queueInfo .info:not(.active)", function () {
+    let queueInfo = document.getElementById("queueInfo");
+
+    queueInfo.querySelector("#queue").style.display = "none";
+    queueInfo.querySelector("#info").style.display = "initial";
+
+    queueInfo.querySelector(".queue").classList.remove("active");
+    this.classList.add("active");
+});
+
+// TODO: Comment
 document.addEventListener("DOMContentLoaded", function () {
     let iconInterval = setInterval(function () {
         let togglers = document.getElementsByClassName("theme-toggler");
