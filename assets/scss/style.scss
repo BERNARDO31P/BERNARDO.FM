@@ -1048,7 +1048,6 @@ body {
 
   thead {
     text-align: left;
-    box-shadow: -1px -1px 3px var(--shadow-light), 1px 1px 3px var(--shadow-dark);
     color: var(--text-color-title);
 
     border-top-left-radius: 10px;
@@ -1060,6 +1059,8 @@ body {
 
       height: 50px;
       padding: 0 10px;
+
+      border-bottom: 1px solid var(--border-color);
     }
   }
 
@@ -1427,6 +1428,9 @@ body {
     }
 
     #queueInfo {
+      padding: 0;
+      margin: 15px 0 0 0;
+
       width: 100%;
     }
 
@@ -1435,7 +1439,6 @@ body {
       width: calc(100% + 10px);
       overflow-y: scroll;
 
-      padding: 0;
       box-shadow: -1px -1px 3px var(--shadow-light);
     }
 
