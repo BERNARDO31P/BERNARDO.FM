@@ -695,7 +695,8 @@ function play(diffSong = false) {
     if (diffSong) {
         let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
         let songLength = document.getElementById("timeInfo").querySelector("#length");
-        let cover = document.getElementById("queueView").querySelector("#playingCover").querySelector("img");
+        let queueView = document.getElementById("queueView");
+        let cover = queueView.querySelector("#playingCover").querySelector("img");
         let title = document.querySelector("title");
 
         cover.src = song["cover"]
@@ -768,6 +769,21 @@ function play(diffSong = false) {
             navigator.mediaSession.setActionHandler('seekto', function (details) {
                 onTimelineRelease(details.seekTime);
             })
+        }
+
+        let data = tryParseJSON(httpGet(pageURL + "system/info/" + song["id"]));
+        let infoBox = queueView.querySelector("#info");
+        if (Object.keys(data).length === 1) {
+            infoBox.innerHTML = "<h3>" + data["name"] + "</h3>" +
+                "<p>" + data["description"] + "</p>";
+        } else if (Object.keys(data).length) {
+            infoBox.innerHTML = "";
+            for (let info of data) {
+                infoBox.innerHTML += "<h3>" + info["name"] + "</h3>" +
+                    "<p>" + info["description"] + "</p>";
+            }
+        } else {
+            infoBox.innerHTML = "<h3>No description found.</h3>";
         }
     }
 

@@ -738,8 +738,6 @@ body {
   width: calc(100% - 40px);
   height: calc(100% - 200px);
 
-  display: none;
-
   overflow: hidden;
 
   background-color: var(--primary-color);
@@ -775,16 +773,32 @@ body {
 
   #queueInfo {
     width: 50%;
-    padding: 0 10px 10px 10px;
+    padding: 0 0 10px 10px;
+
+    position: relative;
+    overflow: hidden;
   }
 
   #info {
     display: none;
+    color: var(--text-color);
+
+    h3 {
+      margin: 5px 0 0 10px;
+      color: var(--text-color-title);
+    }
+
+    p {
+      margin: 5px 10px 0 10px;
+    }
   }
 
   #queue, #info {
     overflow: auto;
-    height: calc(100vh - 320px);
+    height: calc(100vh - 240px);
+
+    position: absolute;
+    left: 10px;
   }
 
   #queue {
@@ -838,11 +852,6 @@ body {
       }
     }
   }
-
-  &.show {
-    display: initial;
-  }
-
 }
 
 #player {
@@ -1401,21 +1410,12 @@ body {
   }
 }
 
-@media screen and (min-width: 751px) and (max-height: 560px) {
-  #queueView {
-    #queue, #info {
-      margin: -45px 0 0 0;
-      height: calc(100vh - 185px);
-    }
-  }
-}
-
 @media screen and (max-width: 750px) {
   #queueView {
     width: 100%;
+    height: calc(100% - 175px);
 
     padding: 0 0 40px;
-    top: 60px;
 
     h3 {
       margin: 10px 10px 10px 15px;
@@ -1446,15 +1446,22 @@ body {
       width: 100%;
     }
 
+    #info {
+      height: 80%;
+    }
+
     #queue, #info {
-      height: initial;
       width: calc(100% + 10px);
       overflow-y: scroll;
 
       box-shadow: -1px -1px 3px var(--shadow-light);
+
+      position: initial;
     }
 
     #queue {
+      height: calc(100vw - 66%);
+
       .responsive-table {
         min-width: initial !important;
         max-width: initial !important;

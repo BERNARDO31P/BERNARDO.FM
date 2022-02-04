@@ -673,7 +673,7 @@ function generateQueue(data) {
     let listView = document.createElement("table");
     listView.classList.add("responsive-table");
 
-    let columns = Object.keys(removeFromObject(data[0], ["id", "category", "player", "coverPos"]));
+    let columns = Object.keys(removeFromObject(data[0], ["id", "category", "player", "coverPos", "info"]));
     listView.appendChild(generateTableHead(columns));
     listView.appendChild(generateTableBody(data, columns));
 
@@ -722,7 +722,7 @@ function generateListView(data, cover) {
     table.classList.add("responsive-table");
 
     let columns = getColumns(data, 1);
-    columns = removeFromObject(columns, ["id", "category", "player", "coverPos"]);
+    columns = removeFromObject(columns, ["id", "category", "player", "coverPos", "info"]);
 
     if (columns.includes("playlist")) {
         columns.unshift("cover");

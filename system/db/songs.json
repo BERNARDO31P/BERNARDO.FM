@@ -1,12 +1,13 @@
 [
   {
     "id": 1,
-    "cover": "Altered State _ Xenoben - Perception.jpg",
+    "cover": "Altered State & Xenoben - Perception.jpg",
     "name": "Perception",
     "artist": "Altered State & Xenoben",
     "length": "6:51",
-    "fileName": "Altered State _ Xenoben - Perception.wav",
-    "category": "Psytrance"
+    "fileName": "Altered State & Xenoben - Perception.wav",
+    "category": "Psytrance",
+    "info": [1, 2]
   },
   {
     "id": 2,
@@ -333,7 +334,8 @@
     "artist": "Lil Nas X",
     "length": "2:51",
     "fileName": "Lil Nas X - MONTERO (Call Me By Your Name).wav",
-    "category": "Trap"
+    "category": "Trap",
+    "info": 0
   },
   {
     "id": 35,
@@ -342,7 +344,8 @@
     "artist": "Lil Nas X",
     "length": "3:48",
     "fileName": "Lil Nas X - INDUSTRY BABY.wav",
-    "category": "Trap"
+    "category": "Trap",
+    "info": 0
   },
   {
     "id": 36,

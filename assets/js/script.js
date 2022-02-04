@@ -324,8 +324,8 @@ bindEvent("mouseover", "#queueView tr[data-id]", function () {
 });
 
 // TODO: Comment
-bindEvent("mouseout", "#queue", function() {
-    setTimeout(function() {
+bindEvent("mouseout", "#queue", function () {
+    setTimeout(function () {
         if (currentHover.closest("#queue") === null) {
             removeControls("controlsQueue");
         }
@@ -539,7 +539,8 @@ bindEvent("click", ".fa-angle-up", function () {
         queue.innerHTML = "";
         queue.appendChild(generateQueue(playlist));
 
-        queueView.classList.add("show");
+        if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
+        else queue.style.right = "0";
 
         queueView.animate([
             {top: '100%'},
@@ -626,7 +627,7 @@ bindEvent("click", "#queueInfo .queue:not(.active)", function () {
     let queueInfo = document.getElementById("queueInfo");
 
     queueInfo.querySelector("#info").style.display = "none";
-    queueInfo.querySelector("#queue").style.display = "initial";
+    queueInfo.querySelector("#queue").style.display = "block";
 
     queueInfo.querySelector(".info").classList.remove("active");
     this.classList.add("active");
@@ -637,7 +638,7 @@ bindEvent("click", "#queueInfo .info:not(.active)", function () {
     let queueInfo = document.getElementById("queueInfo");
 
     queueInfo.querySelector("#queue").style.display = "none";
-    queueInfo.querySelector("#info").style.display = "initial";
+    queueInfo.querySelector("#info").style.display = "block";
 
     queueInfo.querySelector(".queue").classList.remove("active");
     this.classList.add("active");
