@@ -31,12 +31,13 @@
   },
   {
     "id": 4,
-    "cover": "Atacama _ Jakaan - KMOS.jpg",
+    "cover": "Atacama & Jakaan - KMOS.jpg",
     "name": "KMOS",
     "artist": "Atacama & Jakaan",
     "length": "8:39",
-    "fileName": "Atacama _ Jakaan - KMOS.wav",
-    "category": "Psytrance"
+    "fileName": "Atacama & Jakaan - KMOS.wav",
+    "category": "Psytrance",
+    "info": [5, 6]
   },
   {
     "id": 5,
@@ -45,7 +46,8 @@
     "artist": "Reborn",
     "length": "7:42",
     "fileName": "Reborn - Deep Future.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 7
   },
   {
     "id": 6,
@@ -54,7 +56,8 @@
     "artist": "J Dilla",
     "length": "2:00",
     "fileName": "J Dilla - Don't Cry.wav",
-    "category": "Trip-Hop"
+    "category": "Trip-Hop",
+    "info": 8
   },
   {
     "id": 7,
@@ -63,7 +66,8 @@
     "artist": "Astrix",
     "length": "7:50",
     "fileName": "Astrix - Sahara (Tristan Remix).wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 9
   },
   {
     "id": 8,
@@ -72,7 +76,8 @@
     "artist": "Transient Disorder",
     "length": "8:23",
     "fileName": "Transient Disorder - The Watchers.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 10
   },
   {
     "id": 9,
