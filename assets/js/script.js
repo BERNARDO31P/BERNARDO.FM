@@ -357,13 +357,16 @@ bindEvent("mouseout", "#queueView tr[data-id]", function () {
  * Ändert die Unterseite zu "music" und speichert sich die vorherige Seite
  */
 bindEvent("input", "#search input", function () {
-    if (page !== "music") prevPage = getPage();
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(function () {
+        if (page !== "music") prevPage = getPage();
 
-    if (this.value || typeof prevPage === 'undefined') page = "music";
-    else page = prevPage;
+        if (this.value || typeof prevPage === 'undefined') page = "music";
+        else page = prevPage;
 
-    window.location.href = "#!page=" + page;
-    loadPage();
+        window.location.href = "#!page=" + page;
+        loadPage();
+    }, 500);
 });
 
 /*

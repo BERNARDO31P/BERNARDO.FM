@@ -16,7 +16,8 @@
     "artist": "Infected Mushroom",
     "length": "6:49",
     "fileName": "Infected Mushroom - Groove Attack.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 3
   },
   {
     "id": 3,
@@ -25,7 +26,8 @@
     "artist": "Mobb Deep",
     "length": "4:37",
     "fileName": "Mobb Deep - Hell on Earth.wav",
-    "category": "Hip-Hop"
+    "category": "Hip-Hop",
+    "info": 4
   },
   {
     "id": 4,

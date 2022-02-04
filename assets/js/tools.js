@@ -14,7 +14,7 @@ let currentHover = null,
     currentButton = null;
 
 let backgroundProcesses = [];
-let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null;
+let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, searchTimeout = null;
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 
@@ -773,12 +773,9 @@ function play(diffSong = false) {
 
         let data = tryParseJSON(httpGet(pageURL + "system/info/" + song["id"]));
         let infoBox = queueView.querySelector("#info");
-        if (Object.keys(data).length === 1) {
-            infoBox.innerHTML = "<h3>" + data["name"] + "</h3>" +
-                "<p>" + data["description"] + "</p>";
-        } else if (Object.keys(data).length) {
+        if (Object.keys(data).length) {
             infoBox.innerHTML = "";
-            for (let info of data) {
+            for (let info of Object.values(data)) {
                 infoBox.innerHTML += "<h3>" + info["name"] + "</h3>" +
                     "<p>" + info["description"] + "</p>";
             }

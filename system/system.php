@@ -417,7 +417,7 @@ $router->get('/info/([\d]+)', function ($id) {
 
             echo json_encode($infos);
 
-        } else echo json_encode($infoDB[$song["info"]]);
+        } else echo json_encode(array("0" => $infoDB[$song["info"]]));
     } else echo null;
 });
 
