@@ -532,9 +532,12 @@ function addEvents(player) {
         secondsInterval = null;
 
         let nextIndex = nextSongIndex();
-        if (typeof playlist[nextIndex] !== 'undefined')
+        if (typeof playlist[nextIndex] !== 'undefined') {
             playIndex = nextIndex;
-        else {
+
+            if (typeof playlist[playIndex]["player"] === "undefined")
+                downloadPart(0, playIndex, partIndex);
+        } else {
             pauseSong();
             return;
         }
@@ -549,9 +552,6 @@ function addEvents(player) {
             } else {
                 if (!downloading) {
                     clearInterval(interval);
-
-                    if (typeof playlist[playIndex]["player"] === "undefined")
-                        downloadPart(0, playIndex, partIndex);
 
                     play(true);
                 }
