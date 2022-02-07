@@ -645,11 +645,13 @@ function muteAudio(e = null) {
             setVolumeIcon(volumeIcon, volumeSlider);
             volume = previousVolume;
             previousVolume = null;
+            setCookie("muted", false);
         } else {
             volumeIcon.classList.remove("fa-volume-*");
             volumeIcon.classList.add("fa-volume-mute");
             previousVolume = volume;
             volumeSlider.value = volume = 0;
+            setCookie("muted", true);
         }
 
         if (typeof playlist[playIndex] !== 'undefined')
@@ -697,7 +699,6 @@ function play(diffSong = false) {
         let songLength = document.getElementById("timeInfo").querySelector("#length");
         let queueView = document.getElementById("queueView");
         let cover = queueView.querySelector("#playingCover").querySelector("img");
-        let title = document.querySelector("title");
 
         cover.src = song["cover"]
         songLength.textContent = song["length"];
@@ -708,8 +709,6 @@ function play(diffSong = false) {
         MSAPI.src = createSilence(length);
         MSAPI.currentTime = 0;
 
-
-        title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
         player.querySelector("#name").innerHTML = "<div class='truncate'>" +
             "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" +
             "<div class='spacer'>" + song["name"] + "</div>" +
@@ -785,6 +784,9 @@ function play(diffSong = false) {
     }
 
     player.style.display = "initial";
+
+    let title = document.querySelector("title");
+    title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
 
     if (!secondsInterval) {
         secondsInterval = setInterval(function () {

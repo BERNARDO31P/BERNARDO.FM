@@ -142,8 +142,10 @@ function loadPage() {
 
     content.innerHTML = data.body.innerHTML;
 
-    let subpage = (data.querySelector("title")) ? data.querySelector("title").textContent : "error";
-    title.textContent = subpage + " - " + title.textContent.split(" - ")[1];
+    if (!playing) {
+        let subpage = (data.querySelector("title")) ? data.querySelector("title").textContent : "error";
+        title.textContent = subpage + " - " + title.textContent.split(" - ")[1];
+    }
 
     if (backgroundProcesses.length) {
         for (let backgroundProcess of backgroundProcesses) {

@@ -275,9 +275,11 @@ window["music"] = () => {
      * Die Lautstärke wird in einem Cookie gespeichert
      * Hier wird dieser ausgelesen und gesetzt
      */
-    let vol = getCookie("volume");
-    if (vol === "") vol = 0.5;
-    volume = Number(vol);
+    if (getCookie("muted") !== "true") {
+        let vol = getCookie("volume");
+        if (vol === "") vol = 0.5;
+        volume = Number(vol);
+    }
 
     let volumeSlider = document.getElementsByClassName("volume")[0].querySelector(".volumeSlider");
     let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
@@ -590,7 +592,8 @@ function addSongToPlaylist(element) {
  *
  * Lädt den nächsten Teil herunter oder pausiert die weitere Wiedergabe
  */
-function prepareNextPart(callback = function(){}) {
+function prepareNextPart(callback = function () {
+}) {
     let timeline = document.getElementById("timeline"), nextTime;
 
     let interval = setInterval(function () {
