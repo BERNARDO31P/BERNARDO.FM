@@ -857,10 +857,6 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
         }
     };
 
-    this.setHTML5Audio = (bool) => {
-        this.useWebAudio = bool;
-    }
-
     this.setGain = (uiPos) => {
         log.warn('Using deprecated API.  Use setVolume() with value between 0 and 1 instead.');
         this.setVolume(uiPos / scrubSize);
