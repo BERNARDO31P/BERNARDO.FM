@@ -1,22 +1,22 @@
 {
   "greeting": {
     "title": "GREETINGS",
-    "message": "I welcome you to my personal homepage! <br/> Please note that this website is for proof of concept only. I want to prove that even a single person can build a streaming service. <br/> In addition, it also serves to promote unknown, good artists. I hope you enjoy the music and your stay! <br/> If there is any copyright infringement, please contact me <a class='mail' href=\"mailto:contact@bernardo.fm?subject=Copyright, BERNARDO.FM\">through this email</a>. <br/> If you have found any errors, please tell me about them <a class='mail' href=\"mailto:contact@bernardo.fm?subject=Bugs, BERNARDO.FM\">through this email</a>. <br/> <b>IMPORTANT!</b> Please do <b>not</b> rename or use a different subject in the email.",
+    "message": "I welcome you to my personal homepage! <br/> Please note that this website is for proof of concept only. I want to prove that even a single person can build a streaming service. <br/> In addition, it also serves to promote unknown, good artists. I hope you enjoy the music and your stay! <br/> If there is any copyright infringement, please contact me <a class='mail' href=\"mailto:contact@bernardo.fm?subject=Copyright, BERNARDO.FM\">through this email</a>. <br/> If you have found any errors, please tell me about them <a class='mail' href=\"mailto:contact@bernardo.fm?subject=Bugs, BERNARDO.FM\">through this email</a>. <br/><br><br/> <b>IMPORTANT!</b> Please do <b>not</b> rename or use a different subject in the email.",
     "author": "Bernardo de Oliveira",
     "date": "07. Feb. 2022"
   },
   "changelog": [
     {
       "title": "Version 1.0",
-      "message": "As I promised, here is the new website. Everything's got a full rewrite. Nothing is the same as it was. :)<br>I'm adding more than just Psy-Trance. Have fun!",
+      "message": "As I promised, here is the new website. Everything's got a full rewrite. Nothing is the same as it was. :)<br/>I'm adding more than just Psy-Trance. Have fun!",
       "details": "+Full rewrite of the webpage<br/> +Projects tab added<br/> +Monitoring is now accessible again",
       "author": "Bernardo de Oliveira",
       "date": "30. Aug. 2021"
     },
     {
       "title": "Version pre-1.0",
-      "message": "There will be completely new music on my website.<br>I already uploaded a few songs so you can get the taste.<br>A completely new website is coming soon. Stay tuned. Stay safe.",
-      "details": "I'll be uploading completely new songs to my website.<br>It's going to be only Psy-Trance.<br>There will be a complete renewal of my website. Soon.",
+      "message": "There will be completely new music on my website.<br/>I already uploaded a few songs so you can get the taste.<br/>A completely new website is coming soon. Stay tuned. Stay safe.",
+      "details": "I'll be uploading completely new songs to my website.<br/>It's going to be only Psy-Trance.<br/>There will be a complete renewal of my website. Soon.",
       "author": "Bernardo de Oliveira",
       "date": "25. Dec. 2020"
     },
