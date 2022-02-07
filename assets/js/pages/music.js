@@ -644,7 +644,7 @@ function downloadPart(time, sIndex, pIndex) {
     downloading = true;
 
     if (typeof playlist[sIndex]["player"] === 'undefined') {
-        let gapless = new Gapless5({logLevel: LogLevel.Debug});
+        let gapless = new Gapless5({useHTML5Audio: false});
         addEvents(gapless);
 
         playlist[sIndex]["player"] = gapless;
