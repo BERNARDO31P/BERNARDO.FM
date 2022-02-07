@@ -1447,7 +1447,7 @@ body {
     }
 
     #info {
-      height: 80%;
+      height: calc(100% - 35px);
     }
 
     #queue, #info {
