@@ -468,10 +468,10 @@ function addEvents(player) {
         clearTimeout(errorTimeout2);
 
         error = true;
-        errorTimeout = setTimeout(function () {
-            downloading = false;
-            gapless.removeTrack(track);
+        downloading = false;
+        gapless.removeTrack(track);
 
+        errorTimeout = setTimeout(function () {
             prepareNextPart();
             errorTimeout2 = setTimeout(function () {
                 hadError = true;
