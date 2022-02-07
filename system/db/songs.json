@@ -156,7 +156,8 @@
     "artist": "Mr. Hyde feat. Ill Bill, Q-Unique & DJ Eclipse",
     "length": "3:14",
     "fileName": "Mr. Hyde feat. Ill Bill, Q-Unique & DJ Eclipse - Killer Collage.wav",
-    "category": "Hip-Hop"
+    "category": "Hip-Hop",
+    "info": [19, 20, 21, 22]
   },
   {
     "id": 17,
@@ -165,7 +166,8 @@
     "artist": "Artifacts",
     "length": "3:39",
     "fileName": "Artifacts - The Interview.wav",
-    "category": "Hip-Hop"
+    "category": "Hip-Hop",
+    "info": 23
   },
   {
     "id": 18,
@@ -184,7 +186,8 @@
     "artist": "A-Tech",
     "length": "7:56",
     "fileName": "A-Tech - Frequencies.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 24
   },
   {
     "id": 20,
@@ -193,7 +196,8 @@
     "artist": "Ours Samplus",
     "length": "8:15",
     "fileName": "Ours Samplus - Canopée.wav",
-    "category": "Trip-Hop"
+    "category": "Trip-Hop",
+    "info": 25
   },
   {
     "id": 21,
@@ -202,7 +206,8 @@
     "artist": "Gramatik",
     "length": "3:56",
     "fileName": "Gramatik - Indigo Child.wav",
-    "category": "Trip-Hop"
+    "category": "Trip-Hop",
+    "info": 26
   },
   {
     "id": 22,
@@ -211,7 +216,8 @@
     "artist": "Ours Samplus",
     "length": "2:39",
     "fileName": "Ours Samplus - Memento.wav",
-    "category": "Trip-Hop"
+    "category": "Trip-Hop",
+    "info": 25
   },
   {
     "id": 23,
@@ -220,7 +226,8 @@
     "artist": "Bent",
     "length": "4:46",
     "fileName": "Bent - An Ordinary Day.wav",
-    "category": "Trip-Hop"
+    "category": "Trip-Hop",
+    "info": 27
   },
   {
     "id": 24,
@@ -229,7 +236,8 @@
     "artist": "Ours Samplus",
     "length": "4:05",
     "fileName": "Ours Samplus - Over.wav",
-    "category": "Trip-Hop"
+    "category": "Trip-Hop",
+    "info": 25
   },
   {
     "id": 25,
@@ -238,7 +246,8 @@
     "artist": "Shamanizm Parallelii",
     "length": "7:08",
     "fileName": "Shamanizm Parallelii - Mountains Snow.wav",
-    "category": "Psybient"
+    "category": "Psybient",
+    "info": 28
   },
   {
     "id": 26,
@@ -295,7 +304,8 @@
     "artist": "Alienatic",
     "length": "7:08",
     "fileName": "Alienatic - War of the World.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 29
   },
   {
     "id": 29,
@@ -304,7 +314,8 @@
     "artist": "Bellatrix",
     "length": "9:02",
     "fileName": "Bellatrix - Higher Dimensions.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 30
   },
   {
     "id": 30,
@@ -313,7 +324,8 @@
     "artist": "Sybarite",
     "length": "8:39",
     "fileName": "Sybarite - Sonic Staircase.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 31
   },
   {
     "id": 31,
@@ -322,7 +334,8 @@
     "artist": "Ashtar Command & Razzle Dazzle",
     "length": "8:37",
     "fileName": "Ashtar Command & Razzle Dazzle - Rebirth.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": [32, 33]
   },
   {
     "id": 32,
@@ -331,7 +344,8 @@
     "artist": "Pixel & Wrecked Machines",
     "length": "8:26",
     "fileName": "Pixel & Wrecked Machines - Mother Funker (FNX Rmx).wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": [34, 35, 36]
   },
   {
     "id": 33,
@@ -340,7 +354,8 @@
     "artist": "Bitkit & Lexxus",
     "length": "7:43",
     "fileName": "Bitkit & Lexxus - Destiny.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": [37, 38]
   },
   {
     "id": 34,
@@ -369,7 +384,8 @@
     "artist": "Fluxsense",
     "length": "8:04",
     "fileName": "Fluxsense - Divinity Plane.wav",
-    "category": "Psybient"
+    "category": "Psybient",
+    "info": 39
   },
   {
     "id": 37,
@@ -378,7 +394,8 @@
     "artist": "Fluxsense",
     "length": "8:40",
     "fileName": "Fluxsense - Medusa.wav",
-    "category": "Psybient"
+    "category": "Psybient",
+    "info": 39
   },
   {
     "id": 38,
@@ -387,7 +404,8 @@
     "artist": "Fluxsense",
     "length": "9:46",
     "fileName": "Fluxsense - Through Your Eyes.wav",
-    "category": "Psybient"
+    "category": "Psybient",
+    "info": 39
   },
   {
     "id": 39,
@@ -396,7 +414,8 @@
     "artist": "Matt Jah",
     "length": "6:27",
     "fileName": "Matt Jah - Here and Now.wav",
-    "category": "Psybient"
+    "category": "Psybient",
+    "info": 40
   },
   {
     "id": 40,
@@ -405,7 +424,8 @@
     "artist": "Mobitex",
     "length": "8:52",
     "fileName": "Mobitex - Orin.wav",
-    "category": "Psybient"
+    "category": "Psybient",
+    "info": 41
   },
   {
     "id": 41,
@@ -414,7 +434,8 @@
     "artist": "Deltron 3030",
     "length": "7:30",
     "fileName": "Deltron 3030 - 3030.wav",
-    "category": "Hip-Hop"
+    "category": "Hip-Hop",
+    "info": 42
   },
   {
     "id": 42,
@@ -423,7 +444,8 @@
     "artist": "NECRO",
     "length": "3:22",
     "fileName": "NECRO - Our Life.wav",
-    "category": "Hip-Hop"
+    "category": "Hip-Hop",
+    "info": 43
   },
   {
     "id": 43,
@@ -432,7 +454,8 @@
     "artist": "NECRO",
     "length": "3:33",
     "fileName": "NECRO - Push It to the Limit.wav",
-    "category": "Hip-Hop"
+    "category": "Hip-Hop",
+    "info": 43
   },
   {
     "id": 44,
@@ -441,7 +464,8 @@
     "artist": "NECRO",
     "length": "2:47",
     "fileName": "NECRO - Thugcore Cowboy.wav",
-    "category": "Hip-Hop"
+    "category": "Hip-Hop",
+    "info": 43
   },
   {
     "id": 45,
@@ -450,7 +474,8 @@
     "artist": "Lauge",
     "length": "10:42",
     "fileName": "Lauge - Wider Horizons.wav",
-    "category": "Psybient"
+    "category": "Psybient",
+    "info": 44
   },
   {
     "id": 46,
@@ -459,7 +484,8 @@
     "artist": "PSYBORT",
     "length": "10:30",
     "fileName": "PSYBORT - Galactic Balance.wav",
-    "category": "Psybient"
+    "category": "Psybient",
+    "info": 45
   },
   {
     "id": 47,
@@ -468,7 +494,8 @@
     "artist": "Suduaya",
     "length": "8:16",
     "fileName": "Suduaya - Patience.wav",
-    "category": "Psybient"
+    "category": "Psybient",
+    "info": 46
   },
   {
     "id": 48,
