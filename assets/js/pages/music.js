@@ -474,6 +474,7 @@ function addEvents(player) {
         error = true;
         downloading = false;
         gapless.removeTrack(track);
+        gapless.setHTML5Audio(true);
 
         errorTimeout = setTimeout(function () {
             prepareNextPart(function () {
@@ -662,6 +663,8 @@ function downloadPart(time, sIndex, pIndex) {
         };
         downloading = false;
     });
+
+    playlist[sIndex]["player"].setHTML5Audio(false);
 }
 
 /*
