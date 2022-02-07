@@ -1,9 +1,9 @@
 {
   "greeting": {
     "title": "GREETINGS",
-    "message": "Hello and welcome to my personal homepage! I hope you enjoy the music and your stay!<br/>If there is any copyright infringement, please contact me <a class='mail' href=\"mailto:contact@bernardo.fm?subject=Copyright, BERNARDO.FM\">through this email</a>.<br/>If you have found any errors, please tell me about them <a class='mail' href=\"mailto:contact@bernardo.fm?subject=Bugs, BERNARDO.FM\">through this email</a>.<br/>Please do <b>not</b> rename or use a different subject in the email.",
+    "message": "I welcome you to my personal homepage! <br/> Please note that this website is for proof of concept only. I want to prove that even a single person can build a streaming service. <br/> In addition, it also serves to promote unknown, good artists. I hope you enjoy the music and your stay! <br/> If there is any copyright infringement, please contact me <a class='mail' href=\"mailto:contact@bernardo.fm?subject=Copyright, BERNARDO.FM\">through this email</a>. <br/> If you have found any errors, please tell me about them <a class='mail' href=\"mailto:contact@bernardo.fm?subject=Bugs, BERNARDO.FM\">through this email</a>. <br/> <b>IMPORTANT!</b> Please do <b>not</b> rename or use a different subject in the email.",
     "author": "Bernardo de Oliveira",
-    "date": "19. Mar. 2017"
+    "date": "07. Feb. 2022"
   },
   "changelog": [
     {
