@@ -327,13 +327,20 @@ body {
 
     padding: 2px 2px 0 2px;
 
-    * {
+    & > * {
       cursor: pointer;
       padding: 5px 15px;
     }
 
-    *.active {
-      background-color: var(--view-active);
+    & > *.active {
+      background-color: var(--active-background);
+      border-radius: 2px;
+
+      cursor: default !important;
+    }
+
+    & > *:hover:not(.active) {
+      background-color: var(--hover-background);
       border-radius: 2px;
     }
   }

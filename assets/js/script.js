@@ -391,28 +391,6 @@ bindEvent("keyup", "#search", function (e) {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * Ändert die Ansicht auf Listenansicht
- */
-bindEvent("click", "#view .fa-list", function () {
-    setCookie("view", "list");
-    loadPage();
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Ändert die Ansicht auf Gitteransicht
- */
-bindEvent("click", "#view .fa-grip-horizontal", function () {
-    setCookie("view", "grid");
-    loadPage();
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
  * Änder je nach Wiederholungsmodus die Farbe des Symbols
  * Zeigt an, dass entweder die Playlist oder auch nur ein Lied wiederholt wird
  * Setzt den Wiederholungsmodus

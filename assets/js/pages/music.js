@@ -44,6 +44,28 @@ bindEvent("mouseover", "#content tr[data-id]", function () {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
+ * Ändert die Ansicht auf Listenansicht
+ */
+bindEvent("click", "#view .fa-list:not(.active)", function () {
+    setCookie("view", "list");
+    loadPage();
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Ändert die Ansicht auf Gitteransicht
+ */
+bindEvent("click", "#view .fa-grip-horizontal:not(.active)", function () {
+    setCookie("view", "grid");
+    loadPage();
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
  * Entfernt die Liedoptionen
  */
 bindEvent("mouseout", "#content tr[data-id]", function () {
