@@ -119,7 +119,7 @@ bindEvent("click", "#content .fa-play", function () {
  * Spielt das Lied ab
  */
 bindEvent("click", "#queueView .fa-play", function () {
-    clearSong(playIndex);
+    resetSong(playIndex);
 
     let id = Number(this.closest(".controlsQueue").getAttribute("data-id"));
 
