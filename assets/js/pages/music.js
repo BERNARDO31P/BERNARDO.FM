@@ -504,8 +504,6 @@ function addEvents(player) {
                 playPauseButton("load");
                 clearInterval(secondsInterval);
                 secondsInterval = null;
-
-                hadError = true;
             } else {
                 if (!downloading) {
                     clearInterval(interval);
