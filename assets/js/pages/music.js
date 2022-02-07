@@ -3,7 +3,12 @@ if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde
 let MSAPI = new Audio();
 document.getElementById("player").appendChild(MSAPI);
 
-let count = 0, resizeTimeout = null, errorTimeout = null, errorTimeout2 = null, width = getWidth(), error = false, hadError = false;
+let count = 0,
+    resizeTimeout = null,
+    errorTimeout = null,
+    width = getWidth(),
+    error = false,
+    hadError = false;
 
 /*
  * Funktion: Anonym
@@ -465,18 +470,16 @@ function addEvents(player) {
         let gapless = playlist[playIndex]["player"];
 
         clearTimeout(errorTimeout);
-        clearTimeout(errorTimeout2);
 
         error = true;
         downloading = false;
         gapless.removeTrack(track);
 
         errorTimeout = setTimeout(function () {
-            prepareNextPart();
-            errorTimeout2 = setTimeout(function () {
+            prepareNextPart(function () {
                 hadError = true;
                 error = false;
-            }, 1000);
+            });
         }, 2000);
     }
 
@@ -589,7 +592,7 @@ function addSongToPlaylist(element) {
  *
  * Lädt den nächsten Teil herunter oder pausiert die weitere Wiedergabe
  */
-function prepareNextPart() {
+function prepareNextPart(callback = function(){}) {
     let timeline = document.getElementById("timeline"), nextTime;
 
     let interval = setInterval(function () {
@@ -620,6 +623,8 @@ function prepareNextPart() {
             if (!nextSong) {
                 playlist[playIndex]["player"].queueTrack(nextPartIndex);
             }
+
+            callback();
         }
     }, 50);
 }
