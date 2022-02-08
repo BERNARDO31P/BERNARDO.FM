@@ -634,7 +634,8 @@
     "artist": "Inner Sphere",
     "length": "6:30",
     "fileName": "Inner Sphere - Velorum.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 60
   },
   {
     "id": 62,
@@ -643,7 +644,8 @@
     "artist": "Inner State",
     "length": "8:31",
     "fileName": "Inner State - Computer Simulation (Genesia Remix).wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": [61, 62]
   },
   {
     "id": 63,
@@ -652,7 +654,8 @@
     "artist": "Inside Mind",
     "length": "8:26",
     "fileName": "Inside Mind - Beyond Matter.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 63
   },
   {
     "id": 64,
@@ -661,7 +664,8 @@
     "artist": "Introspective",
     "length": "8:00",
     "fileName": "Introspective - Deja Vu.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 64
   },
   {
     "id": 65,
@@ -670,7 +674,8 @@
     "artist": "Knock Out",
     "length": "8:06",
     "fileName": "Knock Out - Mixctli (XoXo Remix).wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": [65, 66]
   },
   {
     "id": 66,
@@ -679,7 +684,8 @@
     "artist": "Logic Bomb",
     "length": "7:43",
     "fileName": "Logic Bomb - Marauder (XoXo Remix).wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": [67, 66]
   },
   {
     "id": 67,
@@ -688,7 +694,8 @@
     "artist": "Mystika",
     "length": "7:03",
     "fileName": "Mystika - Whispering.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 68
   },
   {
     "id": 68,
@@ -697,7 +704,8 @@
     "artist": "Neuroplasm, Escape",
     "length": "8:25",
     "fileName": "Neuroplasm, Escape - Ecliptic Shift.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": [69, 70]
   },
   {
     "id": 69,
@@ -706,16 +714,18 @@
     "artist": "Solitary Shell",
     "length": "7:17",
     "fileName": "Solitary Shell - Afterglow (Eve Mix).wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 71
   },
   {
     "id": 70,
     "cover": "Sungirl - Focus (XOXO Remix).jpg",
-    "name": "Focus (XOXO Remix)",
+    "name": "Focus (XoXo Remix)",
     "artist": "Sungirl",
     "length": "7:46",
     "fileName": "Sungirl - Focus (XOXO Remix).wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": [72, 66]
   },
   {
     "id": 71,
@@ -724,7 +734,8 @@
     "artist": "U-Recken",
     "length": "8:15",
     "fileName": "U-Recken - Aces High.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 73
   },
   {
     "id": 72,
@@ -733,7 +744,8 @@
     "artist": "Vibe Tribe, Spade & Faders",
     "length": "7:31",
     "fileName": "Vibe Tribe, Spade & Faders - Story Of D.M.T.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": [74, 75, 76]
   },
   {
     "id": 73,
@@ -742,7 +754,8 @@
     "artist": "Xamanist",
     "length": "7:13",
     "fileName": "Xamanist - Ananda.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 77
   },
   {
     "id": 74,
@@ -751,7 +764,8 @@
     "artist": "X-Side, Amplify",
     "length": "7:30",
     "fileName": "X-Side, Amplify - Arabian Nights.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": [78, 79]
   },
   {
     "id": 75,
@@ -760,7 +774,8 @@
     "artist": "Zone Tempest",
     "length": "8:14",
     "fileName": "Zone Tempest - Everything Is Different.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 80
   },
   {
     "id": 76,
@@ -769,6 +784,7 @@
     "artist": "Zone Tempest",
     "length": "6:14",
     "fileName": "Zone Tempest - Space Time.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 80
   }
 ]
