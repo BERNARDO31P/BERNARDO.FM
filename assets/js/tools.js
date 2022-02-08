@@ -410,7 +410,9 @@ function hideNotification(notification) {
  * Überprüft ob der Benutzer irgendwo momentan mit der Maus ist, wenn nicht ist es ein Touchgerät
  */
 function isTouchScreen() {
-    return window.matchMedia('(hover: none)').matches;
+    return (('ontouchstart' in window) ||
+        (navigator.maxTouchPoints > 0) ||
+        (navigator.msMaxTouchPoints > 0));
 }
 
 /*
