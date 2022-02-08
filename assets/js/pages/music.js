@@ -624,21 +624,22 @@ function prepareNextPart(callback = null) {
             nextTime = partlist[playIndex][partIndex]["till"] + 1;
 
             let nextSong = false, nextIndex;
-
             if (!(Number(timeline.max) - nextTime > 1)) {
                 nextSong = true;
                 nextIndex = nextSongIndex();
             }
 
-            let partInfo = getPartIndexByStartTime(nextTime);
+            if (!nextSong) {
+                let partInfo = getPartIndexByStartTime(nextTime);
 
-            if (partInfo[2]) nextPartIndex = partInfo[2];
-            else nextPartIndex = Object.keys(partlist[playIndex]).length
+                if (partInfo[2]) nextPartIndex = partInfo[2];
+                else nextPartIndex = Object.keys(partlist[playIndex]).length
 
-            if (!nextSong && typeof partInfo[2] === 'undefined') {
-                let missingLength = findMissingLengthByCurrentPart()
+                if (typeof partInfo[2] === 'undefined') {
+                    let missingLength = findMissingLengthByCurrentPart()
 
-                downloadPart(nextTime, playIndex, nextPartIndex, missingLength);
+                    downloadPart(nextTime, playIndex, nextPartIndex, missingLength);
+                }
             } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
                 partlist[nextIndex] = {};
                 downloadPart(0, nextIndex, 0);
