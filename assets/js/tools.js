@@ -1248,7 +1248,8 @@ function getPartLengthCallback(index, callback) {
 // TODO: Comment
 function getPartIndexByTime(time) {
     for (let [index, part] of Object.entries(partlist[playIndex])) {
-        if (part["from"] <= time && part["till"] >= time) return [part["from"], part["till"], Number(index)];
+        if (part["from"] <= time && part["till"] >= time)
+            return [part["from"], part["till"], Number(index)];
     }
 
     return [undefined, undefined, undefined];
@@ -1257,7 +1258,8 @@ function getPartIndexByTime(time) {
 // TODO: Comment
 function getPartIndexByStartTime(time) {
     for (let [index, part] of Object.entries(partlist[playIndex])) {
-        if (part["from"] === time) return [part["from"], part["till"], Number(index)];
+        if (part["from"] === time)
+            return [part["from"], part["till"], Number(index)];
     }
 
     return [undefined, undefined, undefined];
@@ -1271,9 +1273,8 @@ function findMissingLengthByCurrentPart() {
     for (let part of Object.values(partlist[playIndex])) {
         let missingLength = part["from"] - currentEnding - 1;
 
-        if (missingLength <= currentLength && missingLength > 0) {
+        if (missingLength <= currentLength && missingLength > 0)
             return missingLength;
-        }
     }
     return null;
 }
