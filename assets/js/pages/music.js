@@ -212,9 +212,11 @@ bindEvent("click", ".songList .loadMore", function () {
 // TODO: Comment
 bindEvent("click", ".scrollForward", function () {
     let element = this, categoryView = element.nextElementSibling;
+    let parentDiv = element.parentElement;
+
 
     element.previousElementSibling.style.display = "flex";
-    categoryView.scrollBy({left: 400, top: 0, behavior: 'smooth'});
+    categoryView.scrollBy({left: parentDiv.getBoundingClientRect().width - 200, top: 0, behavior: 'smooth'});
 
     setTimeout(function () {
         let scrolled = Math.round(100 * categoryView.scrollLeft / (categoryView.scrollWidth - categoryView.clientWidth));
@@ -225,9 +227,10 @@ bindEvent("click", ".scrollForward", function () {
 // TODO: Comment
 bindEvent("click", ".scrollBack", function () {
     let element = this, categoryView = element.nextElementSibling.nextElementSibling;
+    let parentDiv = element.parentElement;
 
     element.nextElementSibling.style.display = "flex";
-    categoryView.scrollBy({left: -400, top: 0, behavior: 'smooth'});
+    categoryView.scrollBy({left: -(parentDiv.getBoundingClientRect().width - 200), top: 0, behavior: 'smooth'});
 
     setTimeout(function () {
         let scrolled = Math.round(100 * categoryView.scrollLeft / (categoryView.scrollWidth - categoryView.clientWidth));
