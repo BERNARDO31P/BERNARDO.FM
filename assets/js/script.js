@@ -223,16 +223,18 @@ bindEvent("click", "#navbar [data-page]", function (e) {
         navigation.classList.remove("show");
 
     let queueView = document.querySelector("#queueView");
-    if (queueView.classList.contains("show")) {
+    let clientRect = queueView.getBoundingClientRect();
+    if (clientRect.top === 60) {
         let body = document.getElementsByTagName("body")[0];
         let angleIcon = document.getElementsByClassName("fa-angle-up")[0];
 
         hidePlaylist(body, queueView, angleIcon);
     }
 
-    page = e.target.dataset.page;
+    page = this.getAttribute("data-page");
     prevPage = undefined;
     window.location.href = "#!page=" + page;
+
     loadPage();
     setActiveNavbar();
 });
