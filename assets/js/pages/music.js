@@ -631,17 +631,34 @@ function prepareNextPart(callback = function () {
                 nextIndex = nextSongIndex();
             }
 
+            /*
+             * TODO: Check if next part is far away (max. length of current part (ex: 5 sec. or 20sec.)
+             *  If next part is not far away, download it
+             */
             let partInfo = getPartIndexByStartTime(nextTime);
 
             if (partInfo[2]) nextPartIndex = partInfo[2];
             else nextPartIndex = Object.keys(partlist[playIndex]).length
 
             if (!nextSong && typeof partInfo[2] === 'undefined') {
-                downloadPart(nextTime, playIndex, nextPartIndex);
+                let missingLength = findMissingLengthByCurrentPart()
+
+                if (missingLength) {
+                    downloadPart(nextTime, playIndex, nextPartIndex, missingLength);
+                } else {
+                    downloadPart(nextTime, playIndex, nextPartIndex);
+                }
             } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
                 partlist[nextIndex] = {};
                 downloadPart(0, nextIndex, 0);
             }
+
+            /*if (!nextSong && typeof partInfo[2] === 'undefined') {
+                downloadPart(nextTime, playIndex, nextPartIndex);
+            } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
+                partlist[nextIndex] = {};
+                downloadPart(0, nextIndex, 0);
+            }*/
 
             if (!nextSong) {
                 playlist[playIndex]["player"].queueTrack(nextPartIndex);
@@ -663,7 +680,7 @@ function prepareNextPart(callback = function () {
  * Lädt ein Teilstück von einem Lied herunter, ab einer bestimmten Zeit
  * Fügt die Informationen zur partlist hinzu
  */
-function downloadPart(time, sIndex, pIndex) {
+function downloadPart(time, sIndex, pIndex, till = null) {
     let songID = playlist[sIndex]["id"];
 
     downloading = true;
@@ -675,7 +692,11 @@ function downloadPart(time, sIndex, pIndex) {
         playlist[sIndex]["player"] = gapless;
     }
 
-    playlist[sIndex]["player"].addTrack(pageURL + "system/song/" + songID + "/" + time);
+    if (till) {
+        playlist[sIndex]["player"].addTrack(pageURL + "system/song/" + songID + "/" + time + "/" + till);
+    } else {
+        playlist[sIndex]["player"].addTrack(pageURL + "system/song/" + songID + "/" + time);
+    }
 
     if (typeof partlist[sIndex] === 'undefined') partlist[sIndex] = {};
 

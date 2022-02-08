@@ -1262,3 +1262,18 @@ function getPartIndexByStartTime(time) {
 
     return [undefined, undefined, undefined];
 }
+
+// TODO: Comment
+function findMissingLengthByCurrentPart() {
+    let currentLength = getPartLength(partIndex);
+    let currentEnding = partlist[playIndex][partIndex]["till"];
+
+    for (let part of Object.values(partlist[playIndex])) {
+        let missingLength = part["from"] - currentEnding - 1;
+
+        if (missingLength <= currentLength && missingLength > 0) {
+            return missingLength;
+        }
+    }
+    return null;
+}

@@ -422,14 +422,19 @@ $router->get('/info/([\d]+)', function ($id) {
 });
 
 // Wenn ein Lied abgespielt wird, neue Teile laden
-$router->get('/song/([\d]+)/([\d]+)', function ($id, $timeGet) {
+$router->get('/song/([\d]+)/([\d]+)(/[\d]+)?', function ($id, $timeFrom, $timeTill = null) {
     $time = 0;
-    if ($timeGet < 50) {
-        $time = 5;
-    } elseif ($timeGet < 75) {
-        $time = 10;
-    } else {
-        $time = 20;
+
+    if (!$timeTill) {
+        if ($timeFrom < 50) {
+            $time = 5;
+        } elseif ($timeFrom < 75) {
+            $time = 10;
+        } else {
+            $time = 20;
+        }
+    } elseif ($timeTill <= 20) {
+        $time = $timeTill;
     }
 
     $db = loadDatabase();
@@ -439,10 +444,10 @@ $router->get('/song/([\d]+)/([\d]+)', function ($id, $timeGet) {
         $extractor = new AuderoWavExtractor(__DIR__ . "/music/" . $song["fileName"]);
         $duration = $extractor->getDuration() / 1000;
 
-        if ($duration <= $timeGet + $time) $till = $duration;
-        else $till = $timeGet + $time;
+        if ($duration <= $timeFrom + $time) $till = $duration;
+        else $till = $timeFrom + $time;
 
-        $part = $extractor->getChunk($timeGet * 1000, $till * 1000);
+        $part = $extractor->getChunk($timeFrom * 1000, $till * 1000);
 
         header('Content-Type: audio/wav');
         header('Content-Length: ' . strlen($part));
