@@ -638,11 +638,7 @@ function prepareNextPart(callback = null) {
             if (!nextSong && typeof partInfo[2] === 'undefined') {
                 let missingLength = findMissingLengthByCurrentPart()
 
-                if (missingLength) {
-                    downloadPart(nextTime, playIndex, nextPartIndex, missingLength);
-                } else {
-                    downloadPart(nextTime, playIndex, nextPartIndex);
-                }
+                downloadPart(nextTime, playIndex, nextPartIndex, missingLength);
             } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
                 partlist[nextIndex] = {};
                 downloadPart(0, nextIndex, 0);
