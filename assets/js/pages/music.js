@@ -640,13 +640,10 @@ function prepareNextPart(callback = null) {
 
                     downloadPart(nextTime, playIndex, nextPartIndex, missingLength);
                 }
+                playlist[playIndex]["player"].queueTrack(nextPartIndex);
             } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
                 partlist[nextIndex] = {};
                 downloadPart(0, nextIndex, 0);
-            }
-
-            if (!nextSong) {
-                playlist[playIndex]["player"].queueTrack(nextPartIndex);
             }
 
             if (callback) callback();
