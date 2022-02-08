@@ -504,7 +504,8 @@
     "artist": "Travis Scott",
     "length": "3:10",
     "fileName": "Travis Scott - BUTTERFLY EFFECT.wav",
-    "category": "Trap"
+    "category": "Trap",
+    "info": 47
   },
   {
     "id": 49,
@@ -513,7 +514,8 @@
     "artist": "Pop Smoke",
     "length": "3:36",
     "fileName": "Pop Smoke - Dior.wav",
-    "category": "Trap"
+    "category": "Trap",
+    "info": 48
   },
   {
     "id": 50,
@@ -522,7 +524,8 @@
     "artist": "Travis Scott feat. Kendrick Lamar",
     "length": "4:04",
     "fileName": "Travis Scott feat. Kendrick Lamar - Goosebumps.wav",
-    "category": "Trap"
+    "category": "Trap",
+    "info": [47, 49]
   },
   {
     "id": 51,
@@ -531,7 +534,8 @@
     "artist": "Hucci",
     "length": "3:34",
     "fileName": "Hucci - Wings.wav",
-    "category": "Trap"
+    "category": "Trap",
+    "info": 50
   },
   {
     "id": 52,
@@ -540,7 +544,8 @@
     "artist": "DJ Krush",
     "length": "5:25",
     "fileName": "DJ Krush - Kemuri.wav",
-    "category": "Trip-Hop"
+    "category": "Trip-Hop",
+    "info": 51
   },
   {
     "id": 53,
@@ -549,7 +554,8 @@
     "artist": "DJ Shadow",
     "length": "5:00",
     "fileName": "DJ Shadow - Midnight In A Perfect World.wav",
-    "category": "Trip-Hop"
+    "category": "Trip-Hop",
+    "info": 52
   },
   {
     "id": 54,
@@ -558,7 +564,8 @@
     "artist": "Aion",
     "length": "8:06",
     "fileName": "Aion - Knowledge.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 53
   },
   {
     "id": 55,
@@ -567,7 +574,8 @@
     "artist": "Altered State",
     "length": "7:24",
     "fileName": "Altered State - Genetics.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 1
   },
   {
     "id": 56,
@@ -576,7 +584,8 @@
     "artist": "Atma",
     "length": "7:48",
     "fileName": "Atma - Everything Is Nothing.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 54
   },
   {
     "id": 57,
@@ -585,7 +594,8 @@
     "artist": "Chronosphere",
     "length": "6:10",
     "fileName": "Chronosphere - High Voltage.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 55
   },
   {
     "id": 58,
@@ -594,7 +604,8 @@
     "artist": "Cloud6",
     "length": "7:35",
     "fileName": "Cloud6 - Scouting.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 56
   },
   {
     "id": 59,
@@ -603,7 +614,8 @@
     "artist": "Disconnect & Second Life",
     "length": "7:27",
     "fileName": "Disconnect & Second Life - Super Rare.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": [57, 58]
   },
   {
     "id": 60,
@@ -612,7 +624,8 @@
     "artist": "Hypnoise",
     "length": "7:00",
     "fileName": "Hypnoise - The Outside.wav",
-    "category": "Psytrance"
+    "category": "Psytrance",
+    "info": 59
   },
   {
     "id": 61,
