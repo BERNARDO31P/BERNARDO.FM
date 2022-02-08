@@ -680,11 +680,7 @@ function downloadPart(time, sIndex, pIndex, till = null) {
         playlist[sIndex]["player"] = gapless;
     }
 
-    if (till) {
-        playlist[sIndex]["player"].addTrack(pageURL + "system/song/" + songID + "/" + time + "/" + till);
-    } else {
-        playlist[sIndex]["player"].addTrack(pageURL + "system/song/" + songID + "/" + time);
-    }
+    playlist[sIndex]["player"].addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""));
 
     if (typeof partlist[sIndex] === 'undefined') partlist[sIndex] = {};
 
