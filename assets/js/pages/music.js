@@ -631,10 +631,6 @@ function prepareNextPart(callback = function () {
                 nextIndex = nextSongIndex();
             }
 
-            /*
-             * TODO: Check if next part is far away (max. length of current part (ex: 5 sec. or 20sec.)
-             *  If next part is not far away, download it
-             */
             let partInfo = getPartIndexByStartTime(nextTime);
 
             if (partInfo[2]) nextPartIndex = partInfo[2];
@@ -652,13 +648,6 @@ function prepareNextPart(callback = function () {
                 partlist[nextIndex] = {};
                 downloadPart(0, nextIndex, 0);
             }
-
-            /*if (!nextSong && typeof partInfo[2] === 'undefined') {
-                downloadPart(nextTime, playIndex, nextPartIndex);
-            } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
-                partlist[nextIndex] = {};
-                downloadPart(0, nextIndex, 0);
-            }*/
 
             if (!nextSong) {
                 playlist[playIndex]["player"].queueTrack(nextPartIndex);
