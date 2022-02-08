@@ -614,8 +614,7 @@ function addSongToPlaylist(element) {
  *
  * Lädt den nächsten Teil herunter oder pausiert die weitere Wiedergabe
  */
-function prepareNextPart(callback = function () {
-}) {
+function prepareNextPart(callback = null) {
     let timeline = document.getElementById("timeline"), nextTime;
 
     let interval = setInterval(function () {
@@ -653,7 +652,7 @@ function prepareNextPart(callback = function () {
                 playlist[playIndex]["player"].queueTrack(nextPartIndex);
             }
 
-            callback();
+            if (callback) callback();
         }
     }, 50);
 }
