@@ -31,7 +31,7 @@ bindEvent("mouseover", "#content tr[data-id]", function () {
         controls.style.right = "0";
         controls.style.height = pos.height - 6 + "px";
         controls.style.lineHeight = pos.height - 6 + "px";
-        controls.setAttribute("data-id", this.getAttribute("data-id"));
+        controls.setAttribute("data-id", this.dataset.id);
 
         setTimeout(() => {
             this.querySelector("td:last-of-type").appendChild(controls);
@@ -44,21 +44,10 @@ bindEvent("mouseover", "#content tr[data-id]", function () {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * Ändert die Ansicht auf Listenansicht
+ * Ändert die Ansicht zwischen Gitter und Liste
  */
-bindEvent("click", "#view .fa-list:not(.active)", function () {
-    setCookie("view", "list");
-    loadPage();
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Ändert die Ansicht auf Gitteransicht
- */
-bindEvent("click", "#view .fa-grip-horizontal:not(.active)", function () {
-    setCookie("view", "grid");
+bindEvent("click", "#view [data-prefix='fas']:not(.active)", function () {
+    setCookie("view", this.dataset.view);
     loadPage();
 });
 
@@ -78,27 +67,6 @@ bindEvent("mouseout", "#content tr[data-id]", function () {
     }, 0);
 });
 
-bindEvent("mouseout", ".songCard", function () {
-    removeControlsCard(this);
-});
-
-bindEvent("mouseout", ".playlistCard", function () {
-    removeControlsCard(this);
-});
-
-bindEvent("mouseover", ".songCard", function () {
-    showControlsCard(this);
-});
-bindEvent("mouseover", ".playlistCard", function () {
-    showControlsCard(this);
-});
-bindEvent("click", ".songCard", function () {
-    showControlsCard(this);
-});
-bindEvent("click", ".playlistCard", function () {
-    showControlsCard(this);
-});
-
 /*
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
@@ -114,7 +82,10 @@ bindEvent("click", "#content .listAdd", function () {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * Setzt die Wiedergabenliste zurück und spielt das Lied ab
+ * Setzt die Wiedergabenliste zurück
+ * Fügt das Lied zur Wiedergabenliste hinzu
+ * Lädt den ersten Teil herunter
+ * Spielt das Lied ab
  */
 bindEvent("click", "#content .fa-play", function () {
     clearSongs();
@@ -143,7 +114,7 @@ bindEvent("click", "#content .fa-play", function () {
 bindEvent("click", "#queueView .fa-play", function () {
     resetSong(playIndex);
 
-    let id = Number(this.closest(".controlsQueue").getAttribute("data-id"));
+    let id = Number(this.closest(".controlsQueue").dataset.id);
 
     for (let [key, value] of Object.entries(playlist)) {
         if (value["id"] === id) playIndex = key;
@@ -161,22 +132,39 @@ bindEvent("click", "#queueView .fa-play", function () {
     play(true);
 });
 
-// TODO: Comment
 bindEvent("touchend", "#timeline", (e) => onTimelineRelease(e.target.value));
 bindEvent("mouseup", "#timeline", (e) => onTimelineRelease(e.target.value));
-
 bindEvent("click", "#player .fa-step-forward", () => nextSong());
 bindEvent("click", "#player .fa-step-backward", () => previousSong());
+
+bindEvent("mouseout", ".songCard", function () {
+    removeControlsCard(this);
+});
+bindEvent("mouseout", ".playlistCard", function () {
+    removeControlsCard(this);
+});
+bindEvent("mouseover", ".songCard", function () {
+    showControlsCard(this);
+});
+bindEvent("mouseover", ".playlistCard", function () {
+    showControlsCard(this);
+});
+bindEvent("click", ".songCard", function () {
+    showControlsCard(this);
+});
+bindEvent("click", ".playlistCard", function () {
+    showControlsCard(this);
+});
 
 // TODO: Comment
 bindEvent("click", ".songList .loadMore", function () {
     let table = this.previousElementSibling, category = table.previousElementSibling;
-    let loadMore = Boolean(Number(table.getAttribute("data-load")));
+    let loadMore = Boolean(Number(table.dataset.load));
 
     if (loadMore) {
         let search = document.querySelector("#search input");
         let tbody = table.querySelector("tbody");
-        let catPage = Number(table.getAttribute("data-page")) + 1;
+        let catPage = Number(table.dataset.page) + 1;
         let catCategory = category.textContent;
 
         let theadColumns = table.querySelectorAll("thead tr:first-of-type th");
@@ -188,13 +176,13 @@ bindEvent("click", ".songList .loadMore", function () {
 
         let data;
         if (search.value !== "") {
-            data = tryParseJSON(httpGet(table.getAttribute("data-url") + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
+            data = tryParseJSON(httpGet(table.dataset.url + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
         } else {
-            data = tryParseJSON(httpGet(table.getAttribute("data-url") + "/" + catCategory + "/" + catPage + "/" + count));
+            data = tryParseJSON(httpGet(table.dataset.url + "/" + catCategory + "/" + catPage + "/" + count));
         }
 
         if (Object.keys(data).length < count) {
-            table.setAttribute("data-load", String(0));
+            table.setAttribute("data-load", "0");
             this.remove();
         }
         table.setAttribute("data-page", String(catPage));
@@ -318,7 +306,7 @@ window["music"] = () => {
         count = Math.round(getWidth() / 160) + 2;
 
         if (search.value !== "") {
-            data = tryParseJSON(httpGet(object.getAttribute("data-url") + "/" + search.value + "/" + count));
+            data = tryParseJSON(httpGet(object.dataset.url + "/" + search.value + "/" + count));
 
             let div = document.createElement("div");
             div.classList.add("searchterm");
@@ -330,7 +318,7 @@ window["music"] = () => {
 
             object.parentNode.insertBefore(div, object);
         } else {
-            data = tryParseJSON(httpGet(object.getAttribute("data-url") + "/" + count));
+            data = tryParseJSON(httpGet(object.dataset.url + "/" + count));
         }
 
 
@@ -355,7 +343,7 @@ window["music"] = () => {
 
                     let table = generateListView(songs, cover);
                     table.setAttribute("data-page", "1");
-                    table.setAttribute("data-url", object.getAttribute("data-url"));
+                    table.setAttribute("data-url", object.dataset.url);
 
                     if (songs.length === count)
                         table.setAttribute("data-load", String(1));
@@ -387,7 +375,7 @@ window["music"] = () => {
                     categoryView.classList.add("songCategory");
 
                     div.setAttribute("data-page", "1");
-                    div.setAttribute("data-url", object.getAttribute("data-url"));
+                    div.setAttribute("data-url", object.dataset.url);
 
                     if (songs.length === count)
                         div.setAttribute("data-load", String(1));
@@ -398,14 +386,14 @@ window["music"] = () => {
 
                         if (scrolled >= 60) {
                             let search = document.querySelector("#search input");
-                            let catPage = Number(element.getAttribute("data-page")) + 1;
+                            let catPage = Number(element.dataset.page) + 1;
                             let catCategory = element.parentElement.previousElementSibling.textContent;
 
                             let data;
                             if (search.value !== "") {
-                                data = tryParseJSON(httpGet(element.getAttribute("data-url") + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
+                                data = tryParseJSON(httpGet(element.dataset.url + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
                             } else {
-                                data = tryParseJSON(httpGet(element.getAttribute("data-url") + "/" + catCategory + "/" + catPage + "/" + count));
+                                data = tryParseJSON(httpGet(element.dataset.url + "/" + catCategory + "/" + catPage + "/" + count));
                             }
 
                             let cover = "";
@@ -598,7 +586,7 @@ function addEvents(player) {
  */
 function addSongToPlaylist(element) {
     let controls = element.closest(".controlsContent");
-    let songID = controls.getAttribute("data-id");
+    let songID = controls.dataset.id;
     let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
 
     if (typeof data.length !== 'number') {
@@ -788,7 +776,7 @@ function showControlsCard(card) {
         else
             controls = createControls("controlsContent", ["play"]);
 
-        controls.setAttribute("data-id", card.getAttribute("data-id"));
+        controls.setAttribute("data-id", card.dataset.id);
         controls.style.bottom = "0";
         controls.style.left = "0";
 
