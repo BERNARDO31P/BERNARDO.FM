@@ -389,12 +389,11 @@ window["music"] = () => {
                     if (songs.length === count)
                         div.setAttribute("data-load", String(1));
 
-                    div.addEventListener("scroll", (e) => {
+                    div.addEventListener("scroll", function handler (e) {
                         let element = e.target;
-                        let loadMore = Boolean(Number(element.getAttribute("data-load")));
                         let scrolled = Math.round(100 * element.scrollLeft / (element.scrollWidth - element.clientWidth));
 
-                        if (scrolled >= 60 && loadMore) {
+                        if (scrolled >= 60) {
                             let search = document.querySelector("#search input");
                             let catPage = Number(element.getAttribute("data-page")) + 1;
                             let catCategory = element.parentElement.previousElementSibling.textContent;
@@ -416,7 +415,7 @@ window["music"] = () => {
                                 element.setAttribute("data-page", String(catPage));
                                 generateBlockView(data, element.querySelector(".songCategory"), cover);
                             } else {
-                                element.setAttribute("data-load", String(0));
+                                element.removeEventListener("scroll", handler);
                             }
                         }
 
