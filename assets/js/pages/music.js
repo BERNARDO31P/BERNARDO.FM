@@ -132,11 +132,16 @@ bindEvent("click", "#queueView .fa-play", function () {
     play(true);
 });
 
+/*
+ * Funktion: Diverse Funktionen
+ * Autor: Bernardo de Oliveira
+ *
+ * Diverse Funktionen welche durch Benutzereingaben ausgelöst werden
+ */
 bindEvent("touchend", "#timeline", (e) => onTimelineRelease(e.target.value));
 bindEvent("mouseup", "#timeline", (e) => onTimelineRelease(e.target.value));
 bindEvent("click", "#player .fa-step-forward", () => nextSong());
 bindEvent("click", "#player .fa-step-backward", () => previousSong());
-
 bindEvent("mouseout", ".songCard", function () {
     removeControlsCard(this);
 });
@@ -156,48 +161,54 @@ bindEvent("click", ".playlistCard", function () {
     showControlsCard(this);
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Lädt neue Lieder nach
+ */
 bindEvent("click", ".songList .loadMore", function () {
     let table = this.previousElementSibling, category = table.previousElementSibling;
-    let loadMore = Boolean(Number(table.dataset.load));
+    let search = document.querySelector("#search input");
+    let tbody = table.querySelector("tbody");
+    let catPage = Number(table.dataset.page) + 1;
+    let catCategory = category.textContent;
 
-    if (loadMore) {
-        let search = document.querySelector("#search input");
-        let tbody = table.querySelector("tbody");
-        let catPage = Number(table.dataset.page) + 1;
-        let catCategory = category.textContent;
+    let theadColumns = table.querySelectorAll("thead tr:first-of-type th");
 
-        let theadColumns = table.querySelectorAll("thead tr:first-of-type th");
-
-        let columns = [];
-        for (let theadColumn of theadColumns) {
-            columns.push(theadColumn.textContent.toLowerCase());
-        }
-
-        let data;
-        if (search.value !== "") {
-            data = tryParseJSON(httpGet(table.dataset.url + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
-        } else {
-            data = tryParseJSON(httpGet(table.dataset.url + "/" + catCategory + "/" + catPage + "/" + count));
-        }
-
-        if (Object.keys(data).length < count) {
-            table.setAttribute("data-load", "0");
-            this.remove();
-        }
-        table.setAttribute("data-page", String(catPage));
-
-        let cover = "";
-        if (typeof data["cover"] !== 'undefined') {
-            cover = data["cover"];
-            data = removeFromObject(data, "cover", false);
-        }
-
-        generateTableBody(data, columns, tbody, cover);
+    let columns = [];
+    for (let theadColumn of theadColumns) {
+        columns.push(theadColumn.textContent.toLowerCase());
     }
+
+    let data;
+    if (search.value !== "") {
+        data = tryParseJSON(httpGet(table.dataset.url + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
+    } else {
+        data = tryParseJSON(httpGet(table.dataset.url + "/" + catCategory + "/" + catPage + "/" + count));
+    }
+
+    if (Object.keys(data).length < count)
+        this.remove();
+
+    table.setAttribute("data-page", String(catPage));
+
+    let cover = "";
+    if (typeof data["cover"] !== 'undefined') {
+        cover = data["cover"];
+        data = removeFromObject(data, "cover", false);
+    }
+
+    generateTableBody(data, columns, tbody, cover);
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Scrollt am PC vorwärts binnen der Musikkategorie
+ * Löscht den Knopf, wenn das Ende erreicht wird
+ */
 bindEvent("click", ".scrollForward", function () {
     let element = this, categoryView = element.nextElementSibling;
     let parentDiv = element.parentElement;
@@ -212,7 +223,13 @@ bindEvent("click", ".scrollForward", function () {
     }, 500);
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Scrollt am PC rückwärts binnen der Musikkategorie
+ * Löscht den Knopf, wenn das Ende erreicht wird
+ */
 bindEvent("click", ".scrollBack", function () {
     let element = this, categoryView = element.nextElementSibling.nextElementSibling;
     let parentDiv = element.parentElement;
@@ -254,13 +271,27 @@ window.addEventListener("resize", function () {
     }
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Stoppt die Wiedergabe, sobald der Platzhalter fertig ist
+ * Dafür da um in der MediaSession API "stop" zu drücken
+ */
 MSAPI.addEventListener("ended", function () {
     playlist[playIndex]["player"].stop();
     playlist[playIndex]["player"].onfinishedall();
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Pausiert die Wiedergabe, sobald der Platzhalter pausiert wird
+ * Die MediaSession API pausiert die Wiedergabe, sobald eine neue beginnt
+ * Sie startet auch die Wiedergabe neu, sobald die andere pausiert
+ * Da sie aber lediglich nur den Audio-Tag pausiert, wird dieses Event benötigt
+ */
 MSAPI.addEventListener("pause", function () {
     let player = new Gapless5({});
     if (typeof playlist[playIndex]["player"] !== 'undefined')
@@ -269,7 +300,15 @@ MSAPI.addEventListener("pause", function () {
     if (player.isPlaying()) pauseSong();
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Beginnt die Wiedergabe, sobald der Platzhalter beginnt
+ * Die MediaSession API pausiert die Wiedergabe, sobald eine neue beginnt
+ * Sie startet auch die Wiedergabe neu, sobald die andere pausiert
+ * Da sie aber lediglich nur den Audio-Tag startet, wird dieses Event benötigt
+ */
 MSAPI.addEventListener("play", function () {
     let player = new Gapless5({});
     if (typeof playlist[playIndex]["player"] !== 'undefined')
@@ -278,6 +317,12 @@ MSAPI.addEventListener("play", function () {
     if (!player.isPlaying()) play();
 });
 
+/*
+ * Funktion: music
+ * Autor: Bernardo de Oliveira
+ *
+ * Lädt die Musik Seite und rendert alle notwendigen Dinge
+ */
 window["music"] = () => {
     let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search input");
     let view = getCookie("view");
@@ -287,6 +332,7 @@ window["music"] = () => {
      *
      * Die Lautstärke wird in einem Cookie gespeichert
      * Hier wird dieser ausgelesen und gesetzt
+     * Nur wenn der Ton nicht auf Stumm war
      */
     if (getCookie("muted") !== "true") {
         let vol = getCookie("volume");
@@ -294,11 +340,24 @@ window["music"] = () => {
         volume = Number(vol);
     }
 
+    /*
+     * Author: Bernardo de Oliveira
+     *
+     * Setzt den je nach Lautstärke das richtige Icon und den richtigen Wert (UI)
+     */
     let volumeSlider = document.getElementsByClassName("volume")[0].querySelector(".volumeSlider");
     let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
     volumeSlider.value = volume * 100;
     setVolumeIcon(volumeIcon, volumeSlider);
 
+    /*
+     * Author: Bernardo de Oliveira
+     *
+     * Geht alle Elemente mit einem data-url Attribut durch und lädt die Informationen herunter
+     * Zum Link wird noch eine Suche hinzugefügt, wenn vorhanden
+     *
+     * Je nach Ansicht wird diese generiert
+     */
     for (let object of objects) {
         if (view === "") view = "grid";
 
@@ -380,7 +439,16 @@ window["music"] = () => {
                     if (songs.length === count)
                         div.setAttribute("data-load", String(1));
 
-                    div.addEventListener("scroll", function handler (e) {
+                    /*
+                     * Funktion: handler()
+                     * Author: Bernardo de Oliveira
+                     * Argumente:
+                     *  e: (Event) Das jetzige Event
+                     *
+                     * Lädt neue Lieder nach, sobald mehr 60% gescrollt wurde
+                     * Wenn kein Touchgerät, dann werden die Knöpfe je nach Scroll-Position angepasst
+                     */
+                    div.addEventListener("scroll", function handler(e) {
                         let element = e.target;
                         let scrolled = Math.round(100 * element.scrollLeft / (element.scrollWidth - element.clientWidth));
 
@@ -475,11 +543,22 @@ window["music"] = () => {
  *
  * Fügt Events zum Player hinzu
  *
+ * onerror: Sobald ein Fehler beim Hinzufügen eines Teils entsteht
  * onplay: Sobald die Wiedergabe beginnt, soll der nächste Teil im Hintergrund heruntergeladen werden
- * onnext: Sobald der nächste Teil des Liedes beginnt, soll der nächste Teil im Hintergrund heruntergeladen werden
+ * onfinishedtrack: Sobald ein Teil abgeschlossen ist, wird der nächste Teil wiedergeben
  * onfinishedall: Sobald das Lied abgeschlossen ist, wird das nächste Lied wiedergeben
  */
 function addEvents(player) {
+    /*
+     * Funktion: onerror()
+     * Autor: Bernardo de Oliveira
+     * Argumente:
+     *  track: (String|Integer) Definiert den Teil, welcher einen Fehler auslöste
+     *
+     * Versucht bei einem Fehler erneut den Teil herunterzuladen
+     * Löscht den fehlerhaften Teil
+     * Dafür da, wenn z.B. die Internetverbindung schlecht ist
+     */
     player.onerror = (track) => {
         let gapless = playlist[playIndex]["player"];
 
@@ -497,6 +576,13 @@ function addEvents(player) {
         }, 2000);
     }
 
+    /*
+     * Funktion: onplay()
+     * Autor: Bernardo de Oliveira
+     *
+     * Startet den Platzhalter
+     * Lädt den nächsten Teil herunter
+     */
     player.onplay = () => {
         playPauseButton("play");
         if (MSAPI.paused) MSAPI.play();
@@ -508,6 +594,15 @@ function addEvents(player) {
         })
     }
 
+    /*
+     * Funktion: onfinishedtrack()
+     * Autor: Bernardo de Oliveira
+     *
+     * Dafür da um den derzeitigen Index neu zu definieren
+     * Überprüft, ob es Fehler oder Wartezeiten gibt
+     * Wartet bis diese vorüber sind und startet die weitere Wiedergabe
+     * Bei keinen Anomalien wird nur der neue Index gesetzt
+     */
     player.onfinishedtrack = () => {
         let timeline = document.getElementById("timeline");
 
@@ -539,6 +634,18 @@ function addEvents(player) {
         }, 50);
     }
 
+    /*
+     * Funktion: onfinishedall()
+     * Autor: Bernardo de Oliveira
+     *
+     * Sobald ein Lied fertig ist, wird überprüft, ob ein nächstes vorhanden ist
+     * Falls nicht, wird die Wiedergabe gestoppt
+     *
+     * Sonst wird überprüft, ob das nächste Lied den ersten Teil hat
+     * Sonst wird der erste Teil heruntergeladen
+     *
+     * Bei einem Fehler, wird gewartet
+     */
     player.onfinishedall = () => {
         partIndex = 0;
         resetSong(playIndex);
@@ -598,11 +705,11 @@ function addSongToPlaylist(element) {
 /*
  * Funktion: prepareNextPart()
  * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  callback: (Funktion) Definiert eine Funktion welche anschliessen ausgeführt wird
  *
- * Überprüft, ob das Lied fertig ist
- * Überprüft, ob ein nächstes Lied in der Wiedergabenliste verfügbar ist
- *
- * Lädt den nächsten Teil herunter oder pausiert die weitere Wiedergabe
+ * Berechnet den nächsten Teil
+ * TODO: Comment
  */
 function prepareNextPart(callback = null) {
     let timeline = document.getElementById("timeline"), nextTime;
