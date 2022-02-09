@@ -786,5 +786,25 @@
     "fileName": "Zone Tempest - Space Time.wav",
     "category": "Psytrance",
     "info": 80
+  },
+  {
+    "id": 77,
+    "cover": "Deliriant - New Dawn.jpg",
+    "name": "New Dawn",
+    "artist": "Deliriant",
+    "length": "7:03",
+    "fileName": "Deliriant - New Dawn.wav",
+    "category": "Psytrance",
+    "info": 81
+  },
+  {
+    "id": 78,
+    "cover": "Timecode - Wanna More.jpeg",
+    "name": "Wanna More",
+    "artist": "Timecode",
+    "length": "7:17",
+    "fileName": "Timecode - Wanna More.wav",
+    "category": "Psytrance",
+    "info": 82
   }
 ]
