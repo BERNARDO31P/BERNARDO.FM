@@ -1339,7 +1339,7 @@ function findMissingLengthByCurrentPart() {
     for (let part of Object.values(partlist[playIndex])) {
         let missingLength = part["from"] - currentEnding - 1;
 
-        if (missingLength && missingLength <= currentLength)
+        if (missingLength > 0 && missingLength <= currentLength)
             return missingLength;
     }
     return null;
