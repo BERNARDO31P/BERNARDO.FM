@@ -168,7 +168,7 @@ bindEvent("click", ".playlistCard", function () {
  * Lädt neue Lieder nach
  */
 bindEvent("click", ".songList .loadMore", function () {
-    let table = this.previousElementSibling, category = table.previousElementSibling;
+    let table = prev(this), category = prev(table);
     let search = document.querySelector("#search input");
     let tbody = table.querySelector("tbody");
     let catPage = Number(table.dataset.page) + 1;
@@ -214,7 +214,7 @@ bindEvent("click", ".scrollForward", function () {
     let parentDiv = element.parentElement;
 
 
-    element.previousElementSibling.style.display = "flex";
+    prev(element).style.display = "flex";
     categoryView.scrollBy({left: parentDiv.getBoundingClientRect().width - 200, top: 0, behavior: 'smooth'});
 
     setTimeout(function () {
@@ -455,7 +455,7 @@ window["music"] = () => {
                         if (scrolled >= 60) {
                             let search = document.querySelector("#search input");
                             let catPage = Number(element.dataset.page) + 1;
-                            let catCategory = element.parentElement.previousElementSibling.textContent;
+                            let catCategory = prev(element.parentElement).textContent;
 
                             let data;
                             if (search.value !== "") {
@@ -539,7 +539,7 @@ window["music"] = () => {
  * Funktion: addEvents()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  player: (Objekt) Der Player, welchem die Events zugewiesen werden
+ *  player: (Object) Der Player, welchem die Events zugewiesen werden
  *
  * Fügt Events zum Player hinzu
  *
@@ -686,7 +686,7 @@ function addEvents(player) {
  * Funktion: addSongToPlaylist()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  element: (Objekt) Das Element, welches überprüft werden soll
+ *  element: (Object) Das Element, welches überprüft werden soll
  *
  * Liesst die Lied ID aus den Objekt-Eigenschaften aus
  * Lädt die Liedinformationen herunter und fügt diese zur Wiedergabenliste hinzu
@@ -706,10 +706,22 @@ function addSongToPlaylist(element) {
  * Funktion: prepareNextPart()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  callback: (Funktion) Definiert eine Funktion welche anschliessen ausgeführt wird
+ *  callback: (Function) Definiert eine Funktion welche anschliessen ausgeführt wird
  *
- * Berechnet den nächsten Teil
- * TODO: Comment
+ * Überprüft, ob es einen nächsten Teil gibt
+ * Sonst lädt es den ersten Teil des nächsten Liedes
+ *
+ * Falls weitere Teile verfügbar sind
+ * Wird überprüft, ob diese bereits heruntergeladen wurden
+ *
+ * Falls nicht, wird überprüft, ob irgendwo später im Lied bereits Teile heruntergeladen wurden
+ * Falls nicht, wird einfach der nächste Teil heruntergeladen
+ *
+ * Falls die länge zum nächsten Teil unter der Länge des jetzigen Teils ist, wird dieser heruntergeladen
+ * Beispiel:
+ *  - Teil 60 - 70 Sekunden wurde heruntergeladen
+ *  - Teil 75 - 85 Sekunden wurde heruntergeladen
+ *  - Jetzt fehlt ein 5 Sekunden langer Teil, dieser wird heruntergeladen (anstatt 10 Sekunden)
  */
 function prepareNextPart(callback = null) {
     let timeline = document.getElementById("timeline"), nextTime;
@@ -732,7 +744,7 @@ function prepareNextPart(callback = null) {
                 if (partInfo[2]) nextPartIndex = partInfo[2];
                 else nextPartIndex = Object.keys(partlist[playIndex]).length
 
-                if (typeof partInfo[2] === 'undefined') {
+                if (!partInfo[2]) {
                     let missingLength = findMissingLengthByCurrentPart()
 
                     downloadPart(nextTime, playIndex, nextPartIndex, missingLength);
@@ -754,10 +766,13 @@ function prepareNextPart(callback = null) {
  * Argumente:
  *  time: (Integer) Definiert die Zeit, ab wann der nächste Teil beginnt
  *  sIndex: (Integer) Definiert den Index des Songs (auch playIndex)
- *  pIndex: (Interger) Definiert den Index des Teils (auch partIndex)
+ *  pIndex: (Integer) Definiert den Index des Teils (auch partIndex)
+ *  till: (Integer) Definiert die Zeit, bis wann der nächste Teil gehen soll
  *
  * Lädt ein Teilstück von einem Lied herunter, ab einer bestimmten Zeit
  * Fügt die Informationen zur partlist hinzu
+ *
+ * Optional kann man auch bis zu einer bestimmten Zeit herunterladen
  */
 function downloadPart(time, sIndex, pIndex, till = null) {
     let songID = playlist[sIndex]["id"];
@@ -804,7 +819,17 @@ function generateQueue(data) {
     return listView;
 }
 
-// TODO: Comment
+/*
+ * Funktion: generateBlockView()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  songs: (Object) Definiert die Songs in der Kategorie
+ *  categoryView: (Object) Definiert die Musikkategorie
+ *  cover: (String) Definiert das Sprites Cover, falls vorhanden
+ *
+ * Generiert aus den Daten -> Cards 
+ * Generiert auch Playlist Cards
+ */
 function generateBlockView(songs, categoryView, cover) {
     for (let arrayID in songs) {
         let song = songs[arrayID];
@@ -822,7 +847,7 @@ function generateBlockView(songs, categoryView, cover) {
         } else {
             card.classList.add("playlistCard");
 
-            let info = generatePlaylistCover(song);
+            let info = generatePlaylistInfo(song);
 
             card.innerHTML += info["cover"].innerHTML;
             card.innerHTML += "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
@@ -838,6 +863,7 @@ function generateBlockView(songs, categoryView, cover) {
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  data: (Object) Die Daten, welche verarbeitet werden sollen
+ *  cover: (String) Definiert das Sprites Cover, falls vorhanden
  *
  * Generiert eine Tabelle aus den Daten (Table body) und Schlüssel (Table head)
  */
@@ -898,7 +924,7 @@ function showControlsCard(card) {
  * Funktion: removeControlsCard()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  card: (Objekt) Definiert das Objekt welches verlassen wurde
+ *  card: (Object) Definiert das Objekt welches verlassen wurde
  *
  * Entfernt die Liedoptionen
  */
@@ -915,8 +941,14 @@ function removeControlsCard(card) {
 /*
  * Funktion: onTimelineRelease()
  * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  value: (Integer) Definiert die Zeit, zu welcher gesprungen wurde
  *
- * Sobald die Timeline wieder losgelassen wird, wird die Zeit information mit dem jetzigen Fortschritt des Liedes versteckt
+ * Berechnet den Part, welcher die Zeit beinhaltet
+ * Falls kein Part verfügbar ist, wird dieser heruntergeladen
+ *
+ * Falls verfügbar, wird die Position in diesem Part berechnet und gesetzt
+ *
  * Die Wiedergabe beginnt
  */
 function onTimelineRelease(value) {
@@ -932,7 +964,7 @@ function onTimelineRelease(value) {
     let index = partInfo[2];
 
     clearTimeout(timelineTimeout);
-    if (typeof index === "undefined") {
+    if (!index) {
         timelineTimeout = setTimeout(function () {
             index = Object.keys(partlist[playIndex]).length;
             downloadPart(Number(value), playIndex, index);
@@ -941,13 +973,10 @@ function onTimelineRelease(value) {
                 if (!downloading) {
                     clearInterval(interval);
 
-                    let startFrom = (value - partlist[playIndex][index]["from"]) * 1000;
-
                     gapless.gotoTrack(partlist[playIndex][index]["gid"]);
                     partIndex = index;
                     MSAPI.currentTime = value;
 
-                    gapless.playlist.sources[partlist[playIndex][partIndex]["gid"]].setPosition(startFrom, false);
                     play();
                 }
             }, 50);
@@ -974,9 +1003,7 @@ function onTimelineRelease(value) {
  * Funktion: nextSong()
  * Autor: Bernardo de Oliveira
  *
- * Überprüft ob weitere Lieder in der Wiedergabenliste verfügbar sind
- * Falls dies der Fall sein sollte, wird der Playindex um eine ID inkrementiert
- *
+ * Überprüft, ob der nächste Index in der Playlist verfügbar ist
  * Die Wiedergabe wird gestartet
  */
 function nextSong() {
@@ -998,8 +1025,6 @@ function nextSong() {
         }
 
         play(true);
-    } else {
-        pauseSong();
     }
 }
 
@@ -1007,9 +1032,7 @@ function nextSong() {
  * Funktion: previousSong()
  * Autor: Bernardo de Oliveira
  *
- * Überprüft ob weitere Lieder in der Wiedergabenliste verfügbar sind
- * Falls dies der Fall sein sollte, wird der Playindex um eine ID dekrementiert
- *
+ * Überprüft, ob der vorherige Index in der Playlist verfügbar ist
  * Die Wiedergabe wird gestartet
  */
 function previousSong() {

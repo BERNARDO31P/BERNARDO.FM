@@ -7,124 +7,17 @@ include_once __DIR__ . "/vendor/autoload.php";
 ini_set('memory_limit', '256M');
 session_start();
 
-// TODO: Comment
-function recursive_unset(&$array, $unwanted_key)
-{
-    unset($array[$unwanted_key]);
-    foreach ($array as &$value) {
-        if (is_array($value)) recursive_unset($value, $unwanted_key);
-    }
-}
-
-// TODO: Comment
-function recursive_prepend(&$array, $key, $data)
-{
-    foreach ($array as $arrKey => &$value) {
-        if (is_array($value)) recursive_prepend($value, $key, $data);
-        else {
-            if ($arrKey === $key) {
-                $value = $data . $value;
-            }
-        }
-    }
-}
-
-// TODO: Comment
-function sorting_by_category($array): array
-{
-    $parsed = array();
-    foreach ($array as $id => $song) {
-        $key = $song["category"];
-
-        if (!array_key_exists($key, $parsed))
-            $parsed[$key] = array();
-
-        $parsed[$key][$id] = $song;
-    }
-    return $parsed;
-}
-
-// TODO: Comment
-function paging($array, $page, $count): array
-{
-    $new = array();
-
-    foreach ($array as $category => $songs) {
-        $new[$category] = array_splice($songs, ($page - 1) * $count, $count);
-    }
-
-    return $new;
-}
-
-// TODO: Comment
-function category_paging($array, $page, $category, $count): array
-{
-    $new = array();
-
-    $array = array_change_key_case($array);
-    if (isset($array[$category])) {
-        $new = array_splice($array[$category], ($page - 1) * $count, $count);
-    }
-
-    return $new;
-}
-
-// TODO: Comment
-function shuffle_level(&$array, $level, $current = 0)
-{
-    if ($level === $current) {
-        $keys = array_keys($array);
-        shuffle($keys);
-
-        $new = array();
-        foreach ($keys as $key) {
-            if (is_numeric($key))
-                $new[] = $array[$key];
-            else
-                $new[$key] = $array[$key];
-        }
-
-        $array = $new;
-
-    } else {
-        foreach ($array as $value) {
-            if (is_array($value))
-                shuffle_level($value, $level, $current + 1);
-        }
-    }
-
-    return true;
-}
-
-// TODO: Comment
-function search_songs($search, $db): array
-{
-    $songs = array();
-
-    foreach ($db as $song) {
-        if (
-            (stripos($song["name"] ?? "", $search) !== false) ||
-            (stripos($song["artist"] ?? "", $search) !== false) ||
-            (stripos($song["category"] ?? "", $search) !== false)
-        ) {
-            $songs[] = $song;
-        }
-    }
-
-    return $songs;
-}
-
-// TODO: Comment
-function search_song($id, $db): array
-{
-    foreach ($db as $arrID => $data) {
-        if ($data["id"] == $id)
-            return $data;
-    }
-    return array();
-}
-
-// TODO: Comment
+/*
+ * Funktion: loadDatabase()
+ * Autor: Bernardo de Oliveira
+ *
+ * Lädt die individualisierte Datenbank, falls vorhanden
+ *
+ * Lädt sonst die standardmässige Datenbank und mischt sie
+ * Speichert die neue Datenbank ab und speichert den Namen in die Session
+ *
+ * Gibt die Datenbank zurück
+ */
 function loadDatabase()
 {
     if ($_SESSION["database"] !== null && file_exists($_SESSION["database"]))
@@ -145,7 +38,13 @@ function loadDatabase()
     return $db;
 }
 
-// TODO: Comment
+/*
+ * Funktion: loadHashDatabase()
+ * Autor: Bernardo de Oliveira
+ *
+ * Lädt die Hash Datenbank, falls vorhanden
+ * Erstellt sie sonst
+ */
 function loadHashDatabase()
 {
     $dbFile = __DIR__ . "/db/hashes.json";
@@ -154,15 +53,211 @@ function loadHashDatabase()
     return json_decode(file_get_contents($dbFile), true);
 }
 
-// TODO: Comment
-function generatePictures(&$db, $hashDB, $length = 200): string
+/*
+ * Funktion: recursive_unset()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  object: (Object) Die Daten, welche manipuliert werden sollen
+ *  key: (String) Den zu entfernenden Schlüssel
+ *
+ * Entfernt ein unerwünschter Schlüssel mit den jeweiligen Daten dazu
+ */
+function recursive_unset(&$object, $key)
+{
+    unset($object[$key]);
+    foreach ($object as &$value) {
+        if (is_array($value))
+            recursive_unset($value, $key);
+    }
+}
+
+/*
+ * Funktion: recursive_prepend()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  object: (Object) Die Daten, welche manipuliert werden sollen
+ *  key: (String) Den Schlüsselnamen, den man manipulieren möchte
+ *  data: (String) Den Wert, den man hinzufügen möchte
+ *
+ * Fügt einen Wert zu einem bestehenden Wert vorne hinzu
+ * Dieser Wert wird anhand von einem Schlüssel gefunden
+ */
+function recursive_prepend(&$object, $key, $data)
+{
+    foreach ($object as $loopKey => &$value) {
+        if (is_array($value))
+            recursive_prepend($value, $key, $data);
+        else {
+            if ($loopKey === $key)
+                $value = $data . $value;
+        }
+    }
+}
+
+/*
+ * Funktion: sorting_by_category()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  object: (Object) Die Daten, welche manipuliert werden sollen
+ *
+ * Sortiert die Daten je nach Kategorie
+ * Gibt ein neues, sortiertes Objekt zurück
+ */
+function sorting_by_category($object): array
+{
+    $parsed = array();
+    foreach ($object as $id => $song) {
+        $key = $song["category"];
+
+        if (!array_key_exists($key, $parsed))
+            $parsed[$key] = array();
+
+        $parsed[$key][$id] = $song;
+    }
+    return $parsed;
+}
+
+/*
+ * Funktion: paging()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  object: (Object) Die Daten, welche manipuliert werden sollen
+ *
+ * Sortiert die Daten je nach Kategorie
+ * Gibt ein neues, sortiertes Objekt zurück
+ */
+function paging($object, $page, $count, $category = null): array
+{
+    $new = array();
+
+    if ($category) {
+        $object = array_change_key_case($object);
+        if (isset($object[$category]))
+            $new = array_splice($object[$category], ($page - 1) * $count, $count);
+    } else {
+        foreach ($object as $category => $songs)
+            $new[$category] = array_splice($songs, ($page - 1) * $count, $count);
+    }
+
+    return $new;
+}
+
+/*
+ * Funktion: shuffle_level()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  object: (Object) Die Daten, welche manipuliert werden sollen
+ *  level: (Integer) Definiert das Objekten-Level, welches gemischt werden soll
+ *  current: (Integer) Definiert das derzeitige Level
+ *
+ * Mischt die Daten in einem bestimmten Level
+ * Behält die Schlüssel bei einem Objekt
+ */
+function shuffle_level(&$object, $level, $current = 0)
+{
+    if ($level === $current) {
+        $keys = array_keys($object);
+        shuffle($keys);
+
+        $new = array();
+        foreach ($keys as $key) {
+            if (is_numeric($key))
+                $new[] = $object[$key];
+            else
+                $new[$key] = $object[$key];
+        }
+
+        $object = $new;
+    } else {
+        foreach ($object as $value) {
+            if (is_array($value))
+                shuffle_level($value, $level, $current + 1);
+        }
+    }
+}
+
+/*
+ * Funktion: search_songs()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  search: (String) Definiert die Suche
+ *  db: (Object) Definiert die Datenbank
+ *
+ * Sucht in der Datenbank nach Daten, die mit der Suche übereinstimmen
+ *
+ * Überprüft wird: Songname, Künstlername und Kategorie
+ */
+function search_songs($search, $db): array
+{
+    $songs = array();
+
+    foreach ($db as $song) {
+        if (
+            (stripos($song["name"] ?? "", $search) !== false) ||
+            (stripos($song["artist"] ?? "", $search) !== false) ||
+            (stripos($song["category"] ?? "", $search) !== false)
+        ) {
+            $songs[] = $song;
+        }
+    }
+
+    return $songs;
+}
+
+/*
+ * Funktion: search_song()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  id: (Integer) Definiert die Lied ID
+ *  db: (Object) Definiert die Datenbank
+ *
+ * Sucht ein Lied anhand von der ID
+ */
+function search_song($id, $db): array
+{
+    foreach ($db as $data) {
+        if ($data["id"] == $id)
+            return $data;
+    }
+    return array();
+}
+
+/*
+ * Funktion: generatePictures()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  db: (Object) Definiert die Datenbank
+ *  hashDB: (Object) Definiert die Hash Datenbank
+ *  hasCategory: (Boolean) Definiert ob die Daten kategorisiert sind
+ *  length: (Integer) Definiert die Seitenlänge der Bilder in Pixel
+ *
+ * Generiert aus den Daten einen Hash und ein CSS Sprite
+ * Speichert die Spriteinformationen in die normale (temporär) und in die Hash Datenbank ab
+ *
+ * Gibt den Speicherort des Bildes zurück
+ */
+function generatePictures(&$db, $hashDB, $hasCategory, $length = 200): string
 {
     $i = 0;
     $imagick = new Imagick();
     $hash = md5(http_build_query($db));
     $data = array("coverPos" => array());
-    foreach ($db as &$category) {
-        foreach ($category as &$song) {
+    if ($hasCategory) {
+        foreach ($db as &$category) {
+            foreach ($category as &$song) {
+                if (isset($song["cover"])) {
+                    $imagick->readImage("img/" . $song["cover"]);
+                    $imagick->scaleImage($length, $length);
+
+                    $pos = $i * $length;
+                    $song["coverPos"] = $pos;
+                    $data["coverPos"][$song["id"]] = $pos;
+                    $i++;
+                }
+            }
+        }
+    } else {
+        foreach ($db as &$song) {
             if (isset($song["cover"])) {
                 $imagick->readImage("img/" . $song["cover"]);
                 $imagick->scaleImage($length, $length);
@@ -188,39 +283,16 @@ function generatePictures(&$db, $hashDB, $length = 200): string
     return $data["image"];
 }
 
-// TODO: Comment
-function category_generatePictures(&$db, $hashDB, $length = 200): string
-{
-    $i = 0;
-    $imagick = new Imagick();
-    $hash = md5(http_build_query($db));
-    $data = array("coverPos" => array());
-    foreach ($db as &$song) {
-        if (isset($song["cover"])) {
-            $imagick->readImage("img/" . $song["cover"]);
-            $imagick->scaleImage($length, $length);
-
-            $pos = $i * $length;
-            $song["coverPos"] = $pos;
-            $data["coverPos"][$song["id"]] = $pos;
-            $i++;
-        }
-    }
-
-    $imagick->resetIterator();
-    $out = $imagick->appendImages(false);
-    $out->setImageFormat("jpg");
-
-    $newImage = "temp/" . uniqid(rand(), true) . ".jpg";
-    $data["image"] = "system/" . $newImage;
-
-    $out->writeimage($newImage);
-    add_hash($hash, $data, $hashDB);
-
-    return $data["image"];
-}
-
-// TODO: Comment
+/*
+ * Funktion: add_hash()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  hash: (String) Definiert den Hash
+ *  value: (String) Definiert die Daten zum Hash
+ *  hashDB: (Object) Definiert die Hash Datenbank
+ *
+ * Speichert einen Hash (als Schlüssel) und die dazugehörigen Daten (als Wert) ab
+ */
 function add_hash($hash, $value, $hashDB)
 {
     $dbFile = __DIR__ . "/db/hashes.json";
@@ -229,7 +301,18 @@ function add_hash($hash, $value, $hashDB)
     file_put_contents($dbFile, json_encode($hashDB));
 }
 
-// TODO: Comment
+/*
+ * Funktion: check_hash()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  db: (Object) Definiert die Datenbank
+ *  hashDB: (Object) Definiert die Hash Datenbank
+ *
+ * Generiert einen Hash aus den Daten
+ * Überprüft ob der Hash in der Hash Datenbank vorkommt
+ *
+ * Gibt den Speicherort des Bildes zurück
+ */
 function check_hash($db, $hashDB)
 {
     $hash = md5(http_build_query($db));
@@ -240,35 +323,57 @@ function check_hash($db, $hashDB)
     return null;
 }
 
-// TODO: Comment
-function apply_hash(&$db, $hashDB)
+/*
+ * Funktion: check_hash()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  db: (Object) Definiert die Datenbank
+ *  hashDB: (Object) Definiert die Hash Datenbank
+ *  hasCategory: (Boolean) Definiert ob die Daten kategorisiert sind
+ *
+ * Generiert einen Hash aus den Daten
+ * Sucht den Hash in der Datenbank
+ * Speichert die Position des Covers vom Hash in die Datenbank ab
+ */
+function apply_hash(&$db, $hashDB, $hasCategory)
 {
     $hash = md5(http_build_query($db));
-    foreach ($db as &$category) {
-        foreach ($category as &$song) {
+
+    if ($hasCategory) {
+        foreach ($db as &$category) {
+            foreach ($category as &$song) {
+                if (isset($hashDB[$hash]["coverPos"][$song["id"]]))
+                    $song["coverPos"] = $hashDB[$hash]["coverPos"][$song["id"]];
+            }
+        }
+    } else {
+        foreach ($db as &$song) {
             if (isset($hashDB[$hash]["coverPos"][$song["id"]]))
                 $song["coverPos"] = $hashDB[$hash]["coverPos"][$song["id"]];
         }
     }
 }
 
-// TODO: Comment
-function category_apply_hash(&$db, $hashDB)
-{
-    $hash = md5(http_build_query($db));
-    foreach ($db as &$song) {
-        $song["coverPos"] = $hashDB[$hash]["coverPos"][$song["id"]];
-    }
-}
-
 $router = new Router();
 
-// Normale Anfrage (Seite neu geladen)
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  count: (Integer) Definiert die Anzahl Lieder pro Kategorie
+ *
+ * Lädt die Datenbank
+ * Sortiert die Lieder nach Kategorie
+ * Limitiert die Daten auf die erste Seite
+ * Löscht den Song Speicherort von den Daten
+ *
+ * Findet den Hash, der zu den Daten passt
+ * Sonst generiert er einen neuen
+ *
+ * Mischt die Kategorien
+ */
 $router->get('/songs/([\d]+)', function ($count) {
     $db = loadDatabase();
-
-    header('Content-Type: application/json');
-
     $db = sorting_by_category($db);
     $db = paging($db, 1, $count);
 
@@ -279,9 +384,9 @@ $router->get('/songs/([\d]+)', function ($count) {
 
         $url = check_hash($db, $hashDB);
         if ($url === null) {
-            $url = generatePictures($db, $hashDB);
+            $url = generatePictures($db, $hashDB, true);
         } else {
-            apply_hash($db, $hashDB);
+            apply_hash($db, $hashDB, true);
         }
 
         $db["cover"] = $url;
@@ -289,17 +394,32 @@ $router->get('/songs/([\d]+)', function ($count) {
 
     shuffle_level($db, 0);
 
+    header('Content-Type: application/json');
     echo json_encode($db);
 });
 
-// Mehr laden (Nachdem die Seite geladen hat)
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  category: (String) Definiert die Kategorie, welche mehr laden soll
+ *  page: (Integer) Definiert die momentane Seite
+ *  count: (Integer) Definiert die Anzahl Lieder pro Kategorie
+ *
+ * Lädt die Datenbank
+ * Sortiert die Lieder nach Kategorie
+ * Limitiert die Daten auf die spezifische Seite und Kategorie
+ * Löscht den Song Speicherort von den Daten
+ *
+ * Findet den Hash, der zu den Daten passt
+ * Sonst generiert er einen neuen
+ *
+ * Mischt die Lieder
+ */
 $router->get('/songs/([^\/]*)/([\d]+)/([\d]+)', function ($category, $page, $count) {
     $db = loadDatabase();
-
-    header('Content-Type: application/json');
-
     $db = sorting_by_category($db);
-    $db = category_paging($db, $page, strtolower($category), $count);
+    $db = paging($db, $page, $count, strtolower($category));
 
     recursive_unset($db, "fileName");
 
@@ -308,9 +428,9 @@ $router->get('/songs/([^\/]*)/([\d]+)/([\d]+)', function ($category, $page, $cou
 
         $url = check_hash($db, $hashDB);
         if ($url === null) {
-            $url = category_generatePictures($db, $hashDB);
+            $url = generatePictures($db, $hashDB, false);
         } else {
-            category_apply_hash($db, $hashDB);
+            apply_hash($db, $hashDB, false);
         }
 
         $db["cover"] = $url;
@@ -318,16 +438,29 @@ $router->get('/songs/([^\/]*)/([\d]+)/([\d]+)', function ($category, $page, $cou
 
     shuffle_level($db, 0);
 
+    header('Content-Type: application/json');
     echo json_encode($db);
 });
 
-// Suche
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  search: (String) Definiert die Suche
+ *  count: (Integer) Definiert die Anzahl Lieder pro Kategorie
+ *
+ * Lädt die Datenbank
+ * Sucht die Lieder, anhand der Suche
+ * Sortiert die Lieder nach Kategorie
+ * Limitiert die Daten auf die erste Seite
+ * Löscht den Song Speicherort von den Daten
+ *
+ * Findet den Hash, der zu den Daten passt
+ * Sonst generiert er einen neuen
+ */
 $router->get('/songs/([^\/]*)/([\d]+)', function ($search, $count) {
     $db = loadDatabase();
-
-    header('Content-Type: application/json');
     $db = search_songs($search, $db);
-
     $db = sorting_by_category($db);
     $db = paging($db, 1, $count);
 
@@ -338,26 +471,41 @@ $router->get('/songs/([^\/]*)/([\d]+)', function ($search, $count) {
 
         $url = check_hash($db, $hashDB);
         if ($url === null) {
-            $url = generatePictures($db, $hashDB);
+            $url = generatePictures($db, $hashDB, true);
         } else {
-            apply_hash($db, $hashDB);
+            apply_hash($db, $hashDB, true);
         }
 
         $db["cover"] = $url;
     }
 
+    header('Content-Type: application/json');
     echo json_encode($db);
 });
 
-// Suche mehr laden
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  search: (String) Definiert die Suche
+ *  category: (String) Definiert die Kategorie, welche mehr laden soll
+ *  page: (Integer) Definiert die momentane Seite
+ *  count: (Integer) Definiert die Anzahl Lieder pro Kategorie
+ *
+ * Lädt die Datenbank
+ * Sucht die Lieder, anhand der Suche
+ * Sortiert die Lieder nach Kategorie
+ * Limitiert die Daten auf die spezifische Seite und Kategorie
+ * Löscht den Song Speicherort von den Daten
+ *
+ * Findet den Hash, der zu den Daten passt
+ * Sonst generiert er einen neuen
+ */
 $router->get('/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)', function ($search, $category, $page, $count) {
     $db = loadDatabase();
-
-    header('Content-Type: application/json');
     $db = search_songs($search, $db);
-
     $db = sorting_by_category($db);
-    $db = category_paging($db, $page, strtolower($category), $count);
+    $db = paging($db, $page, $count, strtolower($category));
 
     recursive_unset($db, "fileName");
 
@@ -366,18 +514,34 @@ $router->get('/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)', function ($search, $cat
 
         $url = check_hash($db, $hashDB);
         if ($url === null) {
-            $url = category_generatePictures($db, $hashDB);
+            $url = generatePictures($db, $hashDB, false);
         } else {
-            category_apply_hash($db, $hashDB);
+            apply_hash($db, $hashDB, false);
         }
 
         $db["cover"] = $url;
     }
 
+    header('Content-Type: application/json');
     echo json_encode($db);
 });
 
-// Song Informationen (Bei Playlists)
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  id: (Integer) Definiert die Lied ID
+ *
+ * Lädt die Datenbank
+ * Sucht das Lied, anhand der ID
+ *
+ * Unterstützt auch Playlists
+ * Mischt sie
+ *
+ * Löscht den Song Speicherort von den Daten
+ *
+ * Fügt dem Cover weitere Pfadinformationen hinzu
+ */
 $router->get('/song/([\d]+)', function ($id) {
     $db = loadDatabase();
     $song = search_song($id, $db);
@@ -391,7 +555,7 @@ $router->get('/song/([\d]+)', function ($id) {
         recursive_unset($playlist, "fileName");
         recursive_prepend($playlist, "cover", "system/img/");
 
-        shuffle($playlist);
+        shuffle_level($playlist, 0);
         echo json_encode($playlist);
     } else {
         recursive_unset($song, "fileName");
@@ -401,7 +565,20 @@ $router->get('/song/([\d]+)', function ($id) {
     }
 });
 
-// Künstler Informationen
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  id: (Integer) Definiert die Lied ID
+ *
+ * Lädt die Datenbank
+ * Sucht das Lied, anhand der ID
+ *
+ * Lädt die Datenbank mit den Künstlerinformationen
+ * Sucht die Informationen zum Lied
+ *
+ * Gibt diese zurück
+ */
 $router->get('/info/([\d]+)', function ($id) {
     $db = loadDatabase();
     $song = search_song($id, $db);
@@ -409,7 +586,7 @@ $router->get('/info/([\d]+)', function ($id) {
     header('Content-Type: application/json');
     $infoDB = json_decode(file_get_contents(__DIR__ . "/db/infos.json"), true);
 
-    if (isset($song["info"])){
+    if (isset($song["info"])) {
         if (is_array($song["info"])) {
             $infos = array();
             foreach ($song["info"] as $infoID)
@@ -421,20 +598,39 @@ $router->get('/info/([\d]+)', function ($id) {
     } else echo null;
 });
 
-// Wenn ein Lied abgespielt wird, neue Teile laden
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  id: (Integer) Definiert die Lied ID
+ *  timeFrom: (Integer) Definiert die Startzeit vom Lied-Teil
+ *  timeTill: (Integer) Definiert die Endzeit vom Lied-Teil
+ *
+ * timeTill kommt nur zur Verwendung, wenn eine ungewöhnliche Länge fehlt (z.B. 18 Sekunden)
+ * Beispiel:
+ * - Teil 60 - 80 Sekunden wird geladen
+ * - Benutzer springt zu Sekunde 98
+ * - Somit wird der Teil 98 - 118 Sekunden geladen
+ * - Jetzt fehlt der Teil 80 - 98, was 18 Sekunden sind
+ * - Hier kommt timeTill zu Nutzen
+ *
+ * Berechnet die Dauer des Teils anhand der Startzeit
+ * Lädt die Datenbank
+ * Sucht das Lied, anhand der ID
+ *
+ * Schneidet das Lied anhand der Start- und Endinformationen
+ * Gibt den Teil aus
+ */
 $router->get('/song/([\d]+)/([\d]+)(/[\d]+)?', function ($id, $timeFrom, $timeTill = null) {
-    $time = 0;
+    if (empty($timeTill)) $timeTill = 99;
 
-    if (!$timeTill) {
-        if ($timeFrom < 50) {
-            $time = 5;
-        } elseif ($timeFrom < 75) {
-            $time = 10;
-        } else {
-            $time = 20;
-        }
-    } elseif ($timeTill <= 20) {
-        $time = $timeTill;
+    $time = 0;
+    if ($timeFrom < 50) {
+        $time = ($timeTill <= 5) ? $timeTill : 5;
+    } elseif ($timeFrom < 75) {
+        $time = ($timeTill <= 10) ? $timeTill : 10;
+    } else {
+        $time = ($timeTill <= 20) ? $timeTill : 20;
     }
 
     $db = loadDatabase();
@@ -457,21 +653,46 @@ $router->get('/song/([\d]+)/([\d]+)(/[\d]+)?', function ($id, $timeFrom, $timeTi
     }
 });
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Lädt die Monitoring-Daten und gibt sie aus
+ */
 $router->get('/monitoring', function () {
     header('Content-Type: application/json');
     echo file_get_contents(__DIR__ . "/db/monitoring.json");
 });
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Lädt die Firewall-Daten und gibt sie aus
+ */
 $router->get('/firewall', function () {
     header('Content-Type: application/json');
     echo file_get_contents(__DIR__ . "/db/firewall.json");
 });
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Lädt die Changelog-Daten und gibt sie aus
+ */
 $router->get('/changelog', function () {
     header('Content-Type: application/json');
     echo file_get_contents(__DIR__ . "/db/changelog.json");
 });
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Lädt das gewünschte Bild und gibt es aus
+ * Dafür da, sodass direkter Zugriff nicht möglich ist
+ */
 $router->get('/img/(.*)', function ($image) {
     $imageUrl = __DIR__ . "/img/" . $image;
     $contentType = mime_content_type($imageUrl);
@@ -480,6 +701,13 @@ $router->get('/img/(.*)', function ($image) {
     echo file_get_contents($imageUrl);
 });
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Lädt die gewünschte Datei und gibt sie aus
+ * Dafür da, sodass direkter Zugriff nicht möglich ist
+ */
 $router->get('/temp/(.*)', function ($image) {
     $imageUrl = __DIR__ . "/temp/" . $image;
     $contentType = mime_content_type($imageUrl);

@@ -1484,6 +1484,27 @@ body {
   #content {
     padding: 20px 10px 40px 10px;
 
+    .songGrid {
+      & > div {
+        .scrollForward, .scrollBack {
+          top: 55px;
+          height: 50px;
+          width: 50px;
+
+          font-size: 20px;
+        }
+
+        .scrollForward {
+          right: -10px;
+        }
+
+        .scrollBack {
+          left: -10px;
+        }
+      }
+
+    }
+
     #view {
       right: 15px;
     }

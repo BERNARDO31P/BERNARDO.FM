@@ -30,20 +30,32 @@ window.addEventListener("resize", function () {
     if (!isTouchScreen()) document.querySelector("#search").querySelector("input").style.width = "";
 });
 
-// TODO: Comment
+/*
+ * Funktion: Diverse Funktionen
+ * Autor: Bernardo de Oliveira
+ *
+ * Diverse Funktionen welche ausgeführt werden, sobald die Bildschirmausrichtung geändert wird
+ * Dafür da um das Suchfeld anzupassen (Breite)
+ *
+ * Es werden beide Events benötigt, um die meisten Browser zu unterstützen
+ */
 window.addEventListener("orientationchange", updateSearch);
-
-// TODO: Comment
 if ('orientation' in screen) {
     screen.orientation.addEventListener('change', updateSearch);
 }
 
-// TODO: Comment
+/*
+ * Funktion: Diverse Funktionen
+ * Autor: Bernardo de Oliveira
+ *
+ * Wenn die Wiedergabe im Hintergrund beendet wird, wird der Play Knopf angepasst
+ * Wird ausgeführt, sobald man die Webseite in den Vordergrund nimmt
+ *
+ * Es werden beide Events benötigt, um die meisten Browser zu unterstützen
+ */
 window.addEventListener("focus", function () {
     if (typeof MSAPI !== 'undefined' && MSAPI.paused) playPauseButton("pause");
 });
-
-// TODO: Comment
 document.addEventListener('visibilitychange', () => {
     setTimeout(function () {
         if (document.visibilityState === 'visible' && typeof MSAPI !== 'undefined' && MSAPI.paused) {
@@ -52,7 +64,13 @@ document.addEventListener('visibilitychange', () => {
     }, 200);
 });
 
-// TODO: Comment
+/*
+ * Funktion: onkeydown()
+ * Autor: Bernardo de Oliveira
+ *
+ * Zuweisung von verschiedenen Tasten
+ * Somit kann man z.B. die Wiedergabe mit der Leertaste starten/stoppen
+ */
 document.onkeydown = function (e) {
 
     let keys = ["K", "Space", "M", "ArrowLeft", "ArrowRight", "J", "L", "R", "S", "ArrowUp", "ArrowDown"];
@@ -250,12 +268,32 @@ bindEvent("click", "#navbar-toggler", function () {
 
     if (navigation.classList.contains("show"))
         navigation.classList.remove("show");
-    else
+    else {
         navigation.classList.add("show");
+
+        let menu = document.querySelector("#menu");
+        menu.classList.remove("show");
+    }
 });
 
+/*
+ * Funktion: Diverse Funktionen
+ * Autor: Bernardo de Oliveira
+ *
+ * Diverse Funktionen welche durch Benutzereingaben ausgelöst werden
+ */
 bindEvent("click", "#player .fa-pause", () => pauseSong());
+bindEvent("touchstart", "#timeline", () => onTimelinePress());
+bindEvent("mousedown", "#timeline", () => onTimelinePress());
+bindEvent("input", "#timeline", (e) => onTimelineMove(e));
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Handler, wenn im Player auf den Play Knopf drückt
+ * Wenn das Lied beendet wurde, wird überprüft, ob ein nächstes Lied abgespielt werden kann
+ */
 bindEvent("click", "#player .fa-play", () => {
     let timeline = document.getElementById("timeline");
     if (timeline.max === timeline.value) {
@@ -271,12 +309,6 @@ bindEvent("click", "#player .fa-play", () => {
         play(true);
     } else play();
 });
-
-bindEvent("touchstart", "#timeline", () => onTimelinePress());
-
-bindEvent("mousedown", "#timeline", () => onTimelinePress());
-
-bindEvent("input", "#timeline", (e) => onTimelineMove(e));
 
 /*
  * Funktion: Anonym
@@ -327,7 +359,12 @@ bindEvent("mouseover", "#queueView tr[data-id]", function () {
     } else clearTimeout(controlsTimeout);
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Wenn die Wiedergabenliste verlassen wird, werden die Liedoptionen entfernt
+ */
 bindEvent("mouseout", "#queue", function () {
     setTimeout(function () {
         if (currentHover.closest("#queue") === null) {
@@ -416,12 +453,11 @@ bindEvent("click", ".repeat", function () {
 });
 
 /*
-     * Funktion: Anonym
-     * Autor: Bernardo de Oliveira
-     *
-     * Ändert die Farbe des Icons, damit der Benutzer erkennt, dass es aktiviert wurde
-     * Mischt die Playlist durch und aktualisiert die Playlist-Ansicht
-     */
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Mischt die Playlist durch und aktualisiert die Playlist-Ansicht
+ */
 bindEvent("click", ".fa-random", function () {
     let currentSong = playlist[playIndex];
 
@@ -572,26 +608,41 @@ bindEvent("click", ".theme-toggler", function () {
     document.getElementById("menu").classList.remove("show");
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Zeigt das Suchfeld, wenn der Knopf gedrückt wird
+ */
 bindEvent("click", ".search-toggler", function () {
     showSearch();
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Zeigt und versteckt das Menü, wenn der Knopf gedrückt wird
+ */
 bindEvent("click", "#menu-toggler", function () {
     let menu = this.parentNode.querySelector("#menu");
 
-    if (menu.classList.contains("show")) {
+    if (menu.classList.contains("show"))
         menu.classList.remove("show");
-    } else {
-        let interval = setInterval(function () {
-            menu.classList.add("show");
-            if (menu.classList.contains("show")) clearInterval(interval);
-        }, 50);
+    else {
+        menu.classList.add("show");
+
+        let navigation = document.querySelector("#navigation");
+        navigation.classList.remove("show");
     }
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Versteckt das Menü, sobald die Maus es verlässt
+ */
 bindEvent("mouseout", "#menu", function () {
     let menu = this;
     setTimeout(function () {
@@ -599,7 +650,12 @@ bindEvent("mouseout", "#menu", function () {
     });
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Versteckt die Suche, sobald der Fokus verloren geht
+ */
 bindEvent("focusout", "#search", function () {
     if (getWidth() <= 1150) {
         let input = this.querySelector("input");
@@ -607,7 +663,12 @@ bindEvent("focusout", "#search", function () {
     }
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Wechselt die Ansicht in der Wiedergabenliste zur Liste
+ */
 bindEvent("click", "#queueInfo .queue:not(.active)", function () {
     let queueInfo = document.getElementById("queueInfo");
 
@@ -618,7 +679,12 @@ bindEvent("click", "#queueInfo .queue:not(.active)", function () {
     this.classList.add("active");
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Wechselt die Ansicht in der Wiedergabenliste zur Infobox
+ */
 bindEvent("click", "#queueInfo .info:not(.active)", function () {
     let queueInfo = document.getElementById("queueInfo");
 
@@ -629,7 +695,18 @@ bindEvent("click", "#queueInfo .info:not(.active)", function () {
     this.classList.add("active");
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Wird ausgeführt, sobald die Seite geladen hat
+ * Setzt je nach Farbauswahl das richtige Symbol (z.B. Mond für dark mode)
+ *
+ * Lädt die korrekte Seite und ersetzt die fehlenden Elemente
+ * Aktualisiert die Navigation
+ *
+ * Startet den ServiceWorker
+ */
 document.addEventListener("DOMContentLoaded", function () {
     let iconInterval = setInterval(function () {
         let togglers = document.getElementsByClassName("theme-toggler");

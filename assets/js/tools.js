@@ -51,9 +51,9 @@ document.addEventListener("mousemove", (e) => {
  * Funktion: bindEvent()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  eventNames: (String) Eventname z.B. click
- *  selector: (String) Den Elementselector z.B. die ID oder Klasse usw.
- *  handler: (Objekt) Die Funktion welche ausgeführt werden soll
+ *  eventNames: (String) Event-Name z.B. click
+ *  selector: (String) Den Element-Selector z.B. die ID oder Klasse usw.
+ *  handler: (Object) Die Funktion welche ausgeführt werden soll
  *
  * Ist das Äquivalent zu .on(eventNames, selector, handler) in jQuery
  */
@@ -63,42 +63,19 @@ const bindEvent = (eventNames, selectors, handler) => {
             selectors.split(', ').forEach((selector) => {
                 if (event.target.matches(selector + ', ' + selector + ' *')) {
                     let element = event.target.closest(selector);
-
-                    switch (eventName) {
-                        case "click":
-                            if (!element.onclick) {
-                                element.onclick = handler;
-                                handler.apply(element, arguments);
-                            }
-                            break;
-                        case "play":
-                            if (!element.onplay) {
-                                element.onplay = handler;
-                                handler.apply(element, arguments);
-                            }
-                            break;
-                        case "timeupdate":
-                            if (!element.ontimeupdate) {
-                                element.ontimeupdate = handler;
-                                handler.apply(element, arguments);
-                            }
-                            break;
-                        case "mouseout":
-                            if (!element.onmouseout) {
-                                element.onmouseout = handler;
-                                handler.apply(element, arguments);
-                            }
-                            break;
-                        default:
-                            handler.apply(element, arguments);
-                            break;
-                    }
+                    handler.apply(element, arguments);
                 }
             });
         }, false);
     });
 };
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Dafür da um auch in JavaScript zu wissen, auf welchem Element man sich momentan befindet
+ */
 document.addEventListener("mouseover", function (e) {
     currentHover = e.target;
 });
@@ -107,7 +84,7 @@ document.addEventListener("mouseover", function (e) {
  * Funktion: prev()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  element: (Objekt) Das Element welches geprüft werden soll
+ *  element: (Object) Das Element welches geprüft werden soll
  *  className: (String) Wenn eine Klasse mitgegeben wird, wird ein Filter angewendet
  *
  * Ist das Äquivalent zu .prev(selector) in jQuery
@@ -121,7 +98,7 @@ const prev = (element, className = "") => {
 
 /*
  * Funktion: httpGet()
- * Autor: Joan [https://stackoverflow.com/questions/247483/http-get-request-in-javascript]
+ * Autor: Bernardo de Oliveira
  * Argumente:
  *  url: (String) URL von welcher heruntergeladen werden soll
  *
@@ -140,6 +117,12 @@ function httpGet(url) {
     }
 }
 
+/*
+ * Funktion: updateSearch()
+ * Autor: Bernardo de Oliveira
+ *
+ * Aktualisiert die Breite des Suchfeldes
+ */
 function updateSearch() {
     let search = document.getElementById("search").querySelector("input");
 
@@ -150,8 +133,15 @@ function updateSearch() {
     }
 }
 
-// TODO: Comment
-// https://gist.github.com/ktcy/1e981cfee7a309beebb33cdab1e29715
+/*
+ * Funktion: createSilence()
+ * Autor: ktcy (https://gist.github.com/ktcy/1e981cfee7a309beebb33cdab1e29715)
+ * Argumente:
+ *  seconds: (Integer) Definiert die Dauer des Platzhalters
+ *
+ * Erstellt einen Platzhalter in der Länge des momentanen Liedes
+ * Dafür da, damit die MediaSession API besser und vor allem überall funktioniert
+ */
 function createSilence(seconds = 1) {
     const sampleRate = 8000;
     const numChannels = 1;
@@ -220,7 +210,7 @@ function setActiveNavbar() {
  * Funktion: dataIncludeReplace()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  object: (Objekt) Definiert das HTML
+ *  object: (Object) Definiert das HTML
  *
  * Alle HTML Objekte mit dem Attribut "data-include" sowie "data-replace" werden ausgewählt
  * Gefundene Objekte werden mit einer Schleife geladen
@@ -405,9 +395,9 @@ function hideNotification(notification) {
 
 /*
  * Funktion: isTouchScreen()
- * Autor: Daniel Lavedonio de Lima (https://stackoverflow.com/questions/36408960/check-if-click-was-triggered-by-touch-or-click)
+ * Autor: bolmaster2 (https://stackoverflow.com/a/4819886)
  *
- * Überprüft ob der Benutzer irgendwo momentan mit der Maus ist, wenn nicht ist es ein Touchgerät
+ * Überprüft, ob ein Gerät touch-fähig ist
  */
 function isTouchScreen() {
     return (('ontouchstart' in window) ||
@@ -558,8 +548,8 @@ function removeControls(elementClass) {
  * Funktion: setVolumeIcon()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  volumeIcon: (Objekt) Definiert das Lautstärke Symbol
- *  volumeSlider: (Objekt) Definiert den Lautstärkeregler
+ *  volumeIcon: (Object) Definiert das Lautstärke Symbol
+ *  volumeSlider: (Object) Definiert den Lautstärkeregler
  *
  * Setzt je nach Lautstärke das richtige Symbol
  */
@@ -589,9 +579,9 @@ function hideVolumeSlider() {
  * Funktion: hidePlaylist()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  body: (Objekt) Definiert das Body-Objekt
- *  playlistView: (Objekt) Definiert die Playlist
- *  angleIcon: (Objekt) Definiert das Icon von der Playlist
+ *  body: (Object) Definiert das Body-Objekt
+ *  playlistView: (Object) Definiert die Playlist
+ *  angleIcon: (Object) Definiert das Icon von der Playlist
  *
  * Versteckt die Playlist-Ansicht
  */
@@ -619,7 +609,15 @@ function hidePlaylist(body, queueView, angleIcon) {
     angleIcon.setAttribute("data-angle", "down");
 }
 
-// TODO: Comment
+/*
+ * Funktion: setVolume()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  volume: (Double) Definiert die neue Lautstärke
+ *
+ * Ändert die Lautstärke auf den gewünschten Wert
+ * Speichert sie in einem Cookie
+ */
 function setVolume(volume) {
     let volumeSlider = document.getElementById("player").querySelector(".volumeSlider");
 
@@ -634,7 +632,17 @@ function setVolume(volume) {
     hideVolumeSlider();
 }
 
-// TODO: Comment
+/*
+ * Funktion: muteAudio()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  e: (Event) Definiert das ausgelöste Event
+ *
+ * Setzt das Lied auf Stumm oder machts rückgängig
+ * Speichert den Status in einen Cookie
+ *
+ * Wenn man auf einem Touchgerät ist, muss man zweimal drücken
+ */
 function muteAudio(e = null) {
     if (!isTouchScreen() || touched) {
         let volumeSlider = document.getElementById("player").querySelector(".volumeSlider"),
@@ -663,7 +671,12 @@ function muteAudio(e = null) {
     } else touched = true;
 }
 
-// TODO: Comment
+/*
+ * Funktion: showSearch()
+ * Autor: Bernardo de Oliveira
+ *
+ * Zeigt das Suchfeld und fügt ein Fokus hinzu
+ */
 function showSearch() {
     let searchToggler = document.getElementsByClassName("search-toggler")[0];
     let input = searchToggler.closest(".icons").querySelector("#search input");
@@ -682,9 +695,10 @@ function showSearch() {
  * Funktion: play()
  * Autor: Bernardo de Oliveira
  *
- * Fügt die neuen Liedinformationen in den Player ein
+ * Fügt die neuen Liedinformationen in den Player und in die MediaSession API ein
  * Beginnt die Wiedergabe
- * Erstellt eine Schleife, welche jede Sekunde sich wiederholt und den Fortschritt ins Tooltip einfügt
+ *
+ * Startet eine Schleife, welche jede Sekunde den Fortschritt des Liedes abruft und ins Tooltip speichert
  */
 function play(diffSong = false) {
     let player = document.getElementById("player");
@@ -876,20 +890,6 @@ function playPauseButton(option = "pause") {
 }
 
 /*
- * Funktion: getCurrentPartTime()
- * Autor: Bernardo de Oliveira
- *
- * Gibt die Position des jetzigen Songteiles zurück
- */
-function getCurrentPartTime() {
-    try {
-        return playlist[playIndex]["player"].playlist.sources[partlist[playIndex][partIndex]["gid"]].getPosition() / 1000;
-    } catch (e) {
-        return 0;
-    }
-}
-
-/*
  * Funktion: clearSong()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -928,7 +928,7 @@ function clearSongs() {
 function resetSong(index) {
     let gapless = playlist[index]["player"];
 
-    if (gapless.isPlaying()) gapless.stop();
+    if (playing) pauseSong();
     gapless.gotoTrack(0);
 
     for (let part of Object.values(partlist[index])) {
@@ -968,11 +968,7 @@ function onTimelinePress() {
     let timeInfo = document.getElementById("timeInfo");
     timeInfo.style.display = "initial";
 
-    playPauseButton("pause");
-    clearInterval(secondsInterval);
-    secondsInterval = null;
-
-    playlist[playIndex]["player"].pause();
+    pauseSong();
 }
 
 /*
@@ -1003,15 +999,15 @@ function onTimelineMove(rangeEvent) {
 }
 
 /*
- * Funktion: generatePlaylistCover()
+ * Funktion: generatePlaylistInfo()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  song: (Objekt) Die Songs, welche in der Playlist sind
+ *  song: (Object) Die Songs, welche in der Playlist sind
  *
  * Generiert ein Cover aus vier Liedern für eine Playlist
  * Generiert die Künstler für die Playlist
  */
-function generatePlaylistCover(song) {
+function generatePlaylistInfo(song) {
     let info = {"cover": document.createElement("div"), "artists": ""};
     info["cover"].classList.add("cover");
 
@@ -1032,7 +1028,7 @@ function generatePlaylistCover(song) {
  * Funktion: generateTableHead()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  columns: (Objekt) Die Daten, welche verarbeitet werden sollen
+ *  columns: (Object) Die Daten, welche verarbeitet werden sollen
  *
  * Generiert eine Tabelle aus den Schlüssel (Table head)
  */
@@ -1053,9 +1049,9 @@ function generateTableHead(columns) {
  * Funktion: generateTableBody()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  data: (Objekt) Die Daten, welche verarbeitet werden sollen
+ *  data: (Object) Die Daten, welche verarbeitet werden sollen
  *  columns: (Array) Definiert die Spalten der Tabelle
- *  tbody: (Objekt) Definiert den Table Body
+ *  tbody: (Object) Definiert den Table Body
  *
  * Erstellt einen Table Body, wenn keiner mitgesendet wird
  * Generiert die Tabellenzeilen aus den Daten
@@ -1076,7 +1072,19 @@ function generateTableBody(data, columns, tbody = null, cover = null) {
     return tbody;
 }
 
-// TODO: Comment
+/*
+ * Funktion: generateTableRow()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  rowData: (Object) Definiert die Reihendaten
+ *  tableRow: (Object) Definiert die Tabellenreihe
+ *  columns: (Array) Definiert die Spaltentitel
+ *  cover: (String) Definiert das Sprites Cover, falls vorhanden
+ *
+ * Generiert die Tabellenzeilen aus den Daten
+ *
+ * Diese Funktion wird für die Musik Listenansicht und Firewall benutzt
+ */
 function generateTableRow(rowData, tableRow, columns, cover = null) {
     if (typeof rowData["playlist"] === 'undefined') {
         for (let column of columns) {
@@ -1125,7 +1133,7 @@ function generateTableRow(rowData, tableRow, columns, cover = null) {
             }
         }
     } else {
-        let info = generatePlaylistCover(rowData);
+        let info = generatePlaylistInfo(rowData);
         let td = document.createElement("td");
         td.appendChild(info["cover"]);
         tableRow.appendChild(td);
@@ -1146,8 +1154,8 @@ function generateTableRow(rowData, tableRow, columns, cover = null) {
  * Funktion: removeFromObject()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  object: (Objekt): Das zu bearbeitende Objekt
- *  toRemove: (Objekt/String): Die Schlüssel die entfernt werden sollen
+ *  object: (Object): Das zu bearbeitende Objekt
+ *  toRemove: (Object/String): Die Schlüssel die entfernt werden sollen
  *
  * Entfernt ein oder mehrere Schlüssel in einem Objekt, rekursiv
  */
@@ -1202,7 +1210,7 @@ function isNum(val) {
  * Funktion: getColumns()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  data: (Objekt) Definiert die assoziativen Daten
+ *  data: (Object) Definiert die assoziativen Daten
  *  level: (Integer) Definiert wie weit gesucht werden soll (Rekursion)
  *  start: (Integer) Definiert die Ebene in welcher beginnt wird
  *
@@ -1226,12 +1234,44 @@ function getColumns(data, level = 0, start = 0) {
     return columns;
 }
 
-// TODO: Comment
+/*
+ * Funktion: getCurrentPartTime()
+ * Autor: Bernardo de Oliveira
+ *
+ * Gibt die Position des jetzigen Songteiles zurück
+ */
+function getCurrentPartTime() {
+    try {
+        return playlist[playIndex]["player"].playlist.sources[partlist[playIndex][partIndex]["gid"]].getPosition() / 1000;
+    } catch (e) {
+        return 0;
+    }
+}
+
+/*
+ * Funktion: getPartLength()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  index: (Integer) Definiert den Teil, von welchem die Länge zurückgegeben werden soll
+ *
+ * Berechnet sich die Länge vom Teil den man benötigt
+ */
 function getPartLength(index) {
     return Number((playlist[playIndex]["player"].playlist.sources[index].getLength() / 1000).toFixed());
 }
 
-// TODO: Comment
+/*
+ * Funktion: getPartLengthCallback()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  index: (Integer) Definiert den Teil, von welchem die Länge zurückgegeben werden soll
+ *  callback: (Function) Definiert eine Funktion welche anschliessen ausgeführt wird
+ *
+ * Berechnet sich die Länge vom Teil den man benötigt
+ * Dafür da, wenn neue Lieder hinzugefügt sind, dann sind sie nicht sofort verfügbar
+ *
+ * Sobald die Länge herausgefunden wurde, wird der Callback mit der Länge ausgeführt
+ */
 function getPartLengthCallback(index, callback) {
     let length = 0;
 
@@ -1247,27 +1287,51 @@ function getPartLengthCallback(index, callback) {
     }, 50);
 }
 
-// TODO: Comment
+/*
+ * Funktion: getPartIndexByTime()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  time: (Integer) Definiert die Zeit, welche der Teil beinhalten soll
+ *
+ * Sucht den Teil welcher die Zeit beinhaltet
+ * Wenn die Startzeit kleiner als time und die Endzeit grösser als time ist
+ * Wird dieser Teil zurückgegeben, sonst null
+ */
 function getPartIndexByTime(time) {
     for (let [index, part] of Object.entries(partlist[playIndex])) {
         if (part["from"] <= time && part["till"] >= time)
             return [part["from"], part["till"], Number(index)];
     }
 
-    return [undefined, undefined, undefined];
+    return [null, null, null];
 }
 
-// TODO: Comment
+/*
+ * Funktion: getPartIndexByStartTime()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  time: (Integer) Definiert die Startzeit von einem Teil
+ *
+ * Sucht ein Teil, welcher mit der gewünschten Zeit beginnt
+ * Gibt diesen zurück, sonst null
+ */
 function getPartIndexByStartTime(time) {
     for (let [index, part] of Object.entries(partlist[playIndex])) {
         if (part["from"] === time)
             return [part["from"], part["till"], Number(index)];
     }
 
-    return [undefined, undefined, undefined];
+    return [null, null, null];
 }
 
-// TODO: Comment
+/*
+ * Funktion: findMissingLengthByCurrentPart()
+ * Autor: Bernardo de Oliveira
+ *
+ * Berechnet wie viel Sekunden es zum nächsten Teil sind
+ * Falls kein nächster Teil verfügbar ist oder es länger geht als der jetzige Teil selbst
+ * Wird null zurückgegeben, sonst die Zeit in Sekunden
+ */
 function findMissingLengthByCurrentPart() {
     let currentLength = getPartLength(partIndex);
     let currentEnding = partlist[playIndex][partIndex]["till"];
@@ -1275,7 +1339,7 @@ function findMissingLengthByCurrentPart() {
     for (let part of Object.values(partlist[playIndex])) {
         let missingLength = part["from"] - currentEnding - 1;
 
-        if (missingLength <= currentLength && missingLength > 0)
+        if (missingLength && missingLength <= currentLength)
             return missingLength;
     }
     return null;
