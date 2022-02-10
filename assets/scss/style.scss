@@ -1453,12 +1453,9 @@ body {
       width: 100%;
     }
 
-    #info {
-      height: calc(100% - 35px);
-    }
-
     #queue, #info {
       width: calc(100% + 10px);
+      height: calc(100% - 35px);
       overflow-y: scroll;
 
       box-shadow: -1px -1px 3px var(--shadow-light);
@@ -1467,8 +1464,6 @@ body {
     }
 
     #queue {
-      height: calc(100vw - 66%);
-
       .responsive-table {
         min-width: initial !important;
         max-width: initial !important;
