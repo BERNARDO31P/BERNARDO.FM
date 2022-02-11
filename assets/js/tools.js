@@ -782,7 +782,10 @@ function play(diffSong = false) {
                 timeline.dispatchEvent(mouseUpEvent);
             });
             navigator.mediaSession.setActionHandler('seekto', function (details) {
-                onTimelineRelease(details.seekTime);
+                if ('seekTime' in details) {
+                    let time = Math.round(details.seekTime);
+                    onTimelineRelease(time);
+                }
             })
         }
 
