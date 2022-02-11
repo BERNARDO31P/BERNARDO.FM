@@ -407,7 +407,7 @@ bindEvent("input", "#search input", function () {
     searchTimeout = setTimeout(function () {
         if (!value) {
             times.classList.remove("show");
-            page = prevPage ?? "music";
+            page = (prevPage) ? prevPage : "music";
         } else {
             times.classList.add("show");
             page = "music";
