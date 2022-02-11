@@ -399,10 +399,12 @@ bindEvent("mouseout", "#queueView tr[data-id]", function () {
  */
 bindEvent("input", "#search input", function () {
     clearTimeout(searchTimeout);
+    let value = this.value;
+
     searchTimeout = setTimeout(function () {
         if (page !== "music") prevPage = getPage();
 
-        if (this.value || typeof prevPage === 'undefined') page = "music";
+        if (value || typeof prevPage === 'undefined') page = "music";
         else page = prevPage;
 
         window.location.href = "#!page=" + page;
@@ -657,9 +659,9 @@ bindEvent("mouseout", "#menu", function () {
  * Versteckt die Suche, sobald der Fokus verloren geht
  */
 bindEvent("focusout", "#search", function () {
-    if (getWidth() <= 1150) {
-        let input = this.querySelector("input");
-        input.style.width = "";
+    let search = this.querySelector("input");
+    if (getWidth() <= 1150 && !search.value) {
+        search.style.width = "";
     }
 });
 
