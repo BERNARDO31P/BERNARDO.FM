@@ -27,7 +27,7 @@ window.addEventListener("resize", function () {
     removeControls("controlsContent");
     removeControls("controlsQueue");
 
-    if (!isTouchScreen()) document.querySelector("#search").querySelector("input").style.width = "";
+    updateSearch();
 });
 
 /*
@@ -684,9 +684,10 @@ bindEvent("mouseout", "#menu", function () {
  * Versteckt die Suche, sobald der Fokus verloren geht
  */
 bindEvent("focusout", "#search", function () {
-    let search = this.querySelector("input");
-    if (getWidth() <= 1150 && !search.value) {
-        search.style.width = "";
+    let input = this.querySelector("input");
+    if (getWidth() <= 1150 && !input.value) {
+        input.style.width = "";
+        input.style.padding = "";
     }
 });
 
