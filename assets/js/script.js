@@ -400,16 +400,41 @@ bindEvent("mouseout", "#queueView tr[data-id]", function () {
 bindEvent("input", "#search input", function () {
     clearTimeout(searchTimeout);
     let value = this.value;
+    let times = this.closest("#search").querySelector(".fa-times");
+
+    if (page !== "music") prevPage = getPage();
 
     searchTimeout = setTimeout(function () {
-        if (page !== "music") prevPage = getPage();
-
-        if (value || typeof prevPage === 'undefined') page = "music";
-        else page = prevPage;
+        if (!value) {
+            times.classList.remove("show");
+            page = prevPage ?? "music";
+        } else {
+            times.classList.add("show");
+            page = "music";
+        }
 
         window.location.href = "#!page=" + page;
         loadPage();
     }, 500);
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Löscht die Eingabe beim Klicken vom X
+ */
+bindEvent("click", "#search .fa-times", function() {
+    let inputEvent = new Event('input', {
+        bubbles: true,
+        cancelable: true,
+    });
+
+    let input = this.closest("#search").querySelector("input");
+    input.value = "";
+
+    input.dispatchEvent(inputEvent);
+    input.focus();
 });
 
 /*
