@@ -721,9 +721,8 @@ function play(diffSong = false) {
         songLength.textContent = song["length"];
         player.querySelector("#timeline").max = length;
 
-        MSAPI.pause();
-        MSAPI.load();
         MSAPI.src = createSilence(length);
+        MSAPI.load();
         MSAPI.currentTime = 0;
 
         player.querySelector("#name").innerHTML = "<div class='truncate'>" +
@@ -804,6 +803,7 @@ function play(diffSong = false) {
     }
 
     player.style.display = "initial";
+    if (MSAPI.paused) MSAPI.play();
 
     let title = document.querySelector("title");
     title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
