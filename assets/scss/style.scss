@@ -645,6 +645,8 @@ body {
 
   .searchterm {
     margin: 35px 0 -20px 0;
+
+    word-break: break-all;
   }
 
   .responsive-table {
