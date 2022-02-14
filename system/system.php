@@ -240,7 +240,7 @@ function generatePictures(&$db, $hashDB, $hasCategory, $length = 200): string
 {
     $i = 0;
     $imagick = new Imagick();
-    $hash = md5(http_build_query($db));
+    $hash = generate_hash($db);
     $data = array("coverPos" => array());
     if ($hasCategory) {
         foreach ($db as &$category) {
@@ -284,6 +284,31 @@ function generatePictures(&$db, $hashDB, $hasCategory, $length = 200): string
 }
 
 /*
+ * Funktion: generate_hash()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  data: (Object) Definiert die Daten mit den Songs
+ *  songs: (Array) Defineirt das Array mit den Song IDs
+ *
+ * Generiert aus den sortierten Song IDs einen Hash
+ * Dafür da, damit die Generierung des Hashes immer gleich ist
+ */
+function generate_hash($data, &$songs = array()): string
+{
+    foreach ($data as $value) {
+        if (is_array($value) && !isset($value["id"])) {
+            generate_hash($value, $songs);
+        } else {
+            if (isset($value["id"]))
+                $songs[] = $value["id"];
+        }
+    }
+
+    sort($songs);
+    return md5(http_build_query($songs));
+}
+
+/*
  * Funktion: add_hash()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -315,7 +340,7 @@ function add_hash($hash, $value, $hashDB)
  */
 function check_hash($db, $hashDB)
 {
-    $hash = md5(http_build_query($db));
+    $hash = generate_hash($db);
 
     if (isset($hashDB[$hash]))
         return $hashDB[$hash]["image"];
@@ -337,7 +362,7 @@ function check_hash($db, $hashDB)
  */
 function apply_hash(&$db, $hashDB, $hasCategory)
 {
-    $hash = md5(http_build_query($db));
+    $hash = generate_hash($db);
 
     if ($hasCategory) {
         foreach ($db as &$category) {
