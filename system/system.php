@@ -288,7 +288,7 @@ function generatePictures(&$db, $hashDB, $hasCategory, $length = 200): string
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  data: (Object) Definiert die Daten mit den Songs
- *  songs: (Array) Defineirt das Array mit den Song IDs
+ *  songs: (Array) Definiert das Array mit den Song IDs
  *
  * Generiert aus den sortierten Song IDs einen Hash
  * Dafür da, damit die Generierung des Hashes immer gleich ist
