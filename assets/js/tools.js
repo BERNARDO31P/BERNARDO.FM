@@ -541,14 +541,15 @@ function createControls(elementClass, actions) {
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  elementClass: (String) Defineirt die Objekte durch die Klasse
+ *  element: (Object) Definiert das Element, welches nicht gelöscht werden soll
  *
  * Entfernt die Liedoptionen
  */
-function removeControls(elementClass) {
+function removeControls(elementClass, element = null) {
     let controls = document.getElementsByClassName(elementClass);
 
     for (let control of controls) {
-        control.remove();
+        if (element !== control) control.remove();
     }
 }
 

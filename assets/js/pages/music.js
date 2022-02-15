@@ -18,8 +18,9 @@ let count = 0,
  */
 bindEvent("mouseover", "#content tr[data-id]", function () {
     let controls = this.querySelector(".controlsContent");
+    removeControls("controlsContent", controls);
+
     if (!controls) {
-        removeControls("controlsContent");
         if (!this.classList.contains("playlist"))
             controls = createControls("controlsContent", ["play", "add"]);
         else
@@ -37,7 +38,7 @@ bindEvent("mouseover", "#content tr[data-id]", function () {
             this.querySelector("td:last-of-type").appendChild(controls);
             controls.classList.add("show");
         }, 0);
-    } else clearTimeout(controlsTimeout);
+    }
 });
 
 /*
@@ -49,22 +50,6 @@ bindEvent("mouseover", "#content tr[data-id]", function () {
 bindEvent("click", "#view [data-prefix='fas']:not(.active)", function () {
     setCookie("view", this.dataset.view);
     loadPage();
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Entfernt die Liedoptionen
- */
-bindEvent("mouseout", "#content tr[data-id]", function () {
-    let row = this;
-    controlsTimeout = setTimeout(function () {
-        if (row !== currentHover) {
-            let controls = row.querySelector(".controlsContent");
-            if (controls) controls.remove();
-        }
-    }, 0);
 });
 
 /*
