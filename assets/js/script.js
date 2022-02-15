@@ -584,8 +584,12 @@ bindEvent("click", ".fa-angle-up", function () {
         });
 
         let queue = queueView.querySelector("#queue");
-        queue.innerHTML = "";
-        queue.appendChild(generateQueue(playlist));
+        if (changedQueue) {
+            queue.innerHTML = "";
+            queue.appendChild(generateQueue(playlist));
+
+            changedQueue = false;
+        }
 
         if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
         else queue.style.right = "0";

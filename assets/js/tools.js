@@ -11,7 +11,8 @@ let currentHover = null,
     repeatMode = 0,
     touched = false,
     touchedElement = null,
-    currentButton = null;
+    currentButton = null,
+    changedQueue = false;
 
 let backgroundProcesses = [];
 let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, searchTimeout = null;

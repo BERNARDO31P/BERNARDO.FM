@@ -699,6 +699,8 @@ function addSongToPlaylist(element) {
         let id = playlist.length;
         playlist[id] = data;
     } else playlist = data;
+
+    changedQueue = true;
 }
 
 /*
