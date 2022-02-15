@@ -1016,6 +1016,8 @@ function generatePlaylistInfo(song) {
     let info = {"cover": document.createElement("div"), "artists": ""};
     info["cover"].classList.add("cover");
 
+    song["playlist"] = song["playlist"].sort(() => 0.5 - Math.random());
+
     for (let i = 0; i < 4; i++) {
         let songID = song["playlist"][i];
         let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
