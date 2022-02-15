@@ -363,6 +363,51 @@ bindEvent("mouseover", "#queueView tr[data-id]", function () {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
+ * Findet heraus welches Lied abgespielt werden soll
+ * Spielt das Lied ab
+ */
+bindEvent("click", "#queueView .fa-play", function () {
+    resetSong(playIndex);
+
+    let id = Number(this.closest(".controlsQueue").dataset.id);
+
+    for (let [key, value] of Object.entries(playlist)) {
+        if (value["id"] === id) playIndex = key;
+    }
+
+    partIndex = 0;
+
+    if (typeof playlist[playIndex]["player"] === 'undefined')
+        downloadPart(0, playIndex, partIndex);
+
+    clearInterval(secondsInterval);
+    secondsInterval = null;
+
+    playPauseButton("load");
+    play(true);
+});
+
+// TODO: Comment
+bindEvent("click", "#queueView .fa-trash", function () {
+    let id = Number(this.closest(".controlsQueue").dataset.id);
+
+    for (let [key, value] of Object.entries(playlist)) {
+        if (value["id"] === id) playlist = removeNumericKey(playlist, key);
+    }
+
+    let queueView = document.getElementById("queueView");
+    let queue = queueView.querySelector("#queue");
+    queue.innerHTML = "";
+    queue.appendChild(generateQueue(playlist));
+
+    if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
+    else queue.style.right = "0";
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
  * Wenn die Wiedergabenliste verlassen wird, werden die Liedoptionen entfernt
  */
 bindEvent("mouseout", "#queue", function () {
@@ -371,7 +416,6 @@ bindEvent("mouseout", "#queue", function () {
             removeControls("controlsQueue");
         }
     }, 50);
-
 });
 
 /*
@@ -424,7 +468,7 @@ bindEvent("input", "#search input", function () {
  *
  * Löscht die Eingabe beim Klicken vom X
  */
-bindEvent("click", "#search .fa-times", function() {
+bindEvent("click", "#search .fa-times", function () {
     let inputEvent = new Event('input', {
         bubbles: true,
         cancelable: true,

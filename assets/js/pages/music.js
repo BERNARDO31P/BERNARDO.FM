@@ -105,34 +105,6 @@ bindEvent("click", "#content .fa-play", function () {
 });
 
 /*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Findet heraus welches Lied abgespielt werden soll
- * Spielt das Lied ab
- */
-bindEvent("click", "#queueView .fa-play", function () {
-    resetSong(playIndex);
-
-    let id = Number(this.closest(".controlsQueue").dataset.id);
-
-    for (let [key, value] of Object.entries(playlist)) {
-        if (value["id"] === id) playIndex = key;
-    }
-
-    partIndex = 0;
-
-    if (typeof playlist[playIndex]["player"] === 'undefined')
-        downloadPart(0, playIndex, partIndex);
-
-    clearInterval(secondsInterval);
-    secondsInterval = null;
-
-    playPauseButton("load");
-    play(true);
-});
-
-/*
  * Funktion: Diverse Funktionen
  * Autor: Bernardo de Oliveira
  *

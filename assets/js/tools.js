@@ -522,6 +522,13 @@ function createControls(elementClass, actions) {
                 icon.appendChild(plusIcon);
 
                 break;
+            case "delete":
+
+                icon = document.createElement("i");
+                icon.title = "Remove this song";
+                icon.classList.add("fas", "fa-trash");
+
+                break;
         }
         controls.appendChild(icon);
     }
@@ -1191,6 +1198,30 @@ function removeFromObject(object, toRemove = "", recursive = true) {
                     }
                 }
             }
+        }
+    }
+
+    return cleaned;
+}
+
+/*
+ * Funktion: removeNumericKey()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  object: (Object): Das zu bearbeitende Objekt
+ *  toRemove: (Object/String): Die Schlüssel die entfernt werden sollen
+ *
+ * Entfernt ein oder mehrere Schlüssel in einem Objekt
+ * Generiert die Reihenfolge neu
+ */
+function removeNumericKey(object, toRemove = null) {
+    let cleaned = {};
+
+    let i = 0;
+    for (let [key, value] of Object.entries(object)) {
+        if (key !== toRemove) {
+            cleaned[i] = value;
+            i++;
         }
     }
 
