@@ -143,8 +143,16 @@ function updatePlaying() {
     let id = playlist[playIndex]["id"];
     let row = queueView.querySelector("[data-id='" + id + "']");
 
-    if (row)
+
+
+    if (row) {
+        // TODO: Scroll to row position
+        //let queue = queueView.querySelector("#queue");
+        //let bounding = row.getBoundingClientRect();
+        //queue.scrollTo(0, bounding.top - 200);
         row.querySelector("td").innerHTML += "<div class=\"lds-facebook\"><div></div><div></div><div></div></div>";
+    }
+
 }
 
 /*
