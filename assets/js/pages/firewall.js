@@ -58,7 +58,7 @@ function generateFirewall(objects) {
         firewall.id = "firewall";
 
         let data = tryParseJSON(httpGet(object.getAttribute("data-url")));
-        let tempData = removeFromObject(data, "comment");
+        let tempData = removeFromObject(data, ["comment", "dport", "flags", "tcp options", "tcp mss"]);
         let columns = getColumns(tempData, 3);
 
         for (let [table, chains] of Object.entries(data)) {
@@ -197,6 +197,26 @@ function generateCommentRow(row, comment, columnCount) {
             infoText.textContent += row["prot"] + " packets";
         }
 
+        infoText.textContent += " which follow this rule: ";
+        if (row["rule"]) {
+            infoText.textContent += row["rule"];
+        } else {
+            infoText.textContent += "no rule found";
+        }
+
+
+        // TODO: Generate firewall explanations
+        /*if ('flags' in row) {
+            infoText.textContent += "are " + row["flags"];
+        }
+
+        if ('tcp options' in row) {
+            infoText.textContent += "are tcp option " + row["tcp options"];
+        }
+
+        if ('tcp mss' in row) {
+            infoText.textContent += "have a tcp mss between " + row["tcp mss"];
+        }*/
     }
 
     let div = document.createElement("div");

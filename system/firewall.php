@@ -198,10 +198,26 @@ function structureArray($array): array
 
                 $extraKeys = array();
                 if (count($removed)) {
-                    foreach ($removed as $column) {
-                        $matches = array();
-                        if (preg_match('/dpt:(.*?)\s/', $column, $matches)) {
+                    // TODO: Generate firewall explanations
+                    /*foreach ($removed as $column) {
+                        if (preg_match('/dpt:(.*?)($|\s)/', $column, $matches)) {
                             $extraKeys[] = "dport";
+                            $rule[] = $matches[1];
+                        }
+
+                        if (preg_match('/flags:(.*?)($|\s)/', $column, $matches)) {
+                            $extraKeys[] = "flags";
+                            $rule[] = $matches[1];
+                        }
+
+                        if (preg_match('/tcp option=(.*?)($|\s)/', $column, $matches)) {
+                            $extraKeys[] = "tcp options";
+                            $rule[] = $matches[1];
+                        }
+
+                        $matches = array();
+                        if (preg_match('/tcpmss match (.*?)($|\s)/', $column, $matches)) {
+                            $extraKeys[] = "tcp mss";
                             $rule[] = $matches[1];
                         }
 
@@ -214,6 +230,13 @@ function structureArray($array): array
                             $extraKeys[] = "comment";
                             $rule[] = $matches[1];
                         }
+                    }*/
+
+                    $extra = end($removed);
+
+                    if (!preg_match('/\/\* (.*?) \*\//', $extra)) {
+                        $extraKeys[] = "rule";
+                        $rule[] = $extra;
                     }
                 }
 
@@ -237,10 +260,10 @@ function structureArray($array): array
  * Speichert diese ab
  */
 while (sleep(2) !== null) {
-    $raw = shell_exec("sudo iptables -t raw -L -n -v | sed '/^[[:space:]]*$/d'");
-    $mangle = shell_exec("sudo iptables -t mangle -L -n -v | sed '/^[[:space:]]*$/d'");
-    $nat = shell_exec("sudo iptables -t nat -L -n -v | sed '/^[[:space:]]*$/d'");
-    $filter = shell_exec("sudo iptables -t filter -L -n -v | sed '/^[[:space:]]*$/d'");
+    $raw = shell_exec("sudo iptables -t raw -L -v | sed '/^[[:space:]]*$/d'");
+    $mangle = shell_exec("sudo iptables -t mangle -L -v | sed '/^[[:space:]]*$/d'");
+    $nat = shell_exec("sudo iptables -t nat -L -v | sed '/^[[:space:]]*$/d'");
+    $filter = shell_exec("sudo iptables -t filter -L -v | sed '/^[[:space:]]*$/d'");
 
     $data = array();
     $data["raw"] = explode("\n", $raw);
