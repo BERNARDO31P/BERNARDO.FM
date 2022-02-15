@@ -134,6 +134,19 @@ function updateSearch() {
     }
 }
 
+// TODO: Comment
+function updatePlaying() {
+    let queueView = document.getElementById("queueView");
+    let animation = queueView.querySelector(".lds-facebook");
+    if (animation) animation.remove();
+
+    let id = playlist[playIndex]["id"];
+    let row = queueView.querySelector("[data-id='" + id + "']");
+
+    if (row)
+        row.querySelector("td").innerHTML += "<div class=\"lds-facebook\"><div></div><div></div><div></div></div>";
+}
+
 /*
  * Funktion: createSilence()
  * Autor: ktcy (https://gist.github.com/ktcy/1e981cfee7a309beebb33cdab1e29715)
@@ -809,6 +822,8 @@ function play(diffSong = false) {
         } else {
             infoBox.innerHTML = "<h3>No description found.</h3>";
         }
+
+        updatePlaying();
     }
 
     player.style.display = "initial";

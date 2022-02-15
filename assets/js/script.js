@@ -636,6 +636,8 @@ bindEvent("click", ".fa-angle-up", function () {
             fill: "forwards"
         });
 
+        updatePlaying();
+
         this.setAttribute("data-angle", "up");
     }
 
