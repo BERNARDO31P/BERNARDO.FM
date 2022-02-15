@@ -387,7 +387,13 @@ bindEvent("click", "#queueView .fa-play", function () {
     play(true);
 });
 
-// TODO: Comment
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Findet heraus welches Lied gelöscht werden soll
+ * Löscht das Lied aus der Wiedergabenliste
+ */
 bindEvent("click", "#queueView .fa-trash", function () {
     let id = Number(this.closest(".controlsQueue").dataset.id);
 
