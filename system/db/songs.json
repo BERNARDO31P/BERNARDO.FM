@@ -282,7 +282,14 @@
       73,
       74,
       75,
-      76
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83
     ]
   },
   {
@@ -806,5 +813,55 @@
     "fileName": "Timecode - Wanna More.wav",
     "category": "Psytrance",
     "info": 82
+  },
+  {
+    "id": 79,
+    "cover": "E-Mov & ConWerter - Multipurpose Molecule.jpg",
+    "name": "Multipurpose Molecule",
+    "artist": "E-Mov & ConWerter",
+    "length": "7:24",
+    "fileName": "E-Mov & ConWerter - Multipurpose Molecule.wav",
+    "category": "Psytrance",
+    "info": [83, 84]
+  },
+  {
+    "id": 80,
+    "cover": "Orisma & Solar Walker - Mind Medicine.jpg",
+    "name": "Mind Medicine",
+    "artist": "Orisma & Solar Walker",
+    "length": "7:36",
+    "fileName": "Orisma & Solar Walker - Mind Medicine.wav",
+    "category": "Psytrance",
+    "info": [85, 86]
+  },
+  {
+    "id": 81,
+    "cover": "Sam Alien - Among The Stars.jpg",
+    "name": "Among The Stars",
+    "artist": "Sam Alien",
+    "length": "",
+    "fileName": "Sam Alien - Among The Stars.wav",
+    "category": "Psytrance",
+    "info": 87
+  },
+  {
+    "id": 82,
+    "cover": "Synchromatrix - Goa Shiva.jpg",
+    "name": "Goa Shiva",
+    "artist": "Synchromatrix",
+    "length": "7:58",
+    "fileName": "Synchromatrix - Goa Shiva.wav",
+    "category": "Psytrance",
+    "info": 88
+  },
+  {
+    "id": 83,
+    "cover": "X-Side - Neurogenesis.jpg",
+    "name": "Neurogenesis",
+    "artist": "X-Side",
+    "length": "6:21",
+    "fileName": "X-Side - Neurogenesis.wav",
+    "category": "Psytrance",
+    "info": 78
   }
 ]
