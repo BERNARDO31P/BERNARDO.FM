@@ -344,7 +344,7 @@ bindEvent("mouseover", "#queueView tr[data-id]", function () {
     removeControls("controlsQueue", controls);
 
     if (!controls) {
-        controls = createControls("controlsQueue", ["play"]);
+        controls = createControls("controlsQueue", ["play", "delete"]);
         let pos = this.getBoundingClientRect();
 
         controls.style.top = "3px";
