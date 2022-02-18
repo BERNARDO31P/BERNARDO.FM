@@ -152,9 +152,15 @@ function updatePlaying() {
 
     if (row) {
         // TODO: Scroll to row position
-        //let queue = queueView.querySelector("#queue");
-        //let bounding = row.getBoundingClientRect();
-        //queue.scrollTo(0, bounding.top - 200);
+        let queue = queueView.querySelector("#queue");
+
+        let queueBounding = queue.getBoundingClientRect();
+        let rowBounding = row.getBoundingClientRect();
+        let top = rowBounding.height + queueBounding.top;
+
+        let scroll = rowBounding.top - top;
+        queue.scrollBy(0, scroll);
+
         row.querySelector("td").innerHTML += "<div class=\"lds-facebook\"><div></div><div></div><div></div></div>";
 
         let divs = row.querySelector(".lds-facebook").querySelectorAll("div");
