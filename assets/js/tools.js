@@ -1278,7 +1278,11 @@ function getCurrentPartTime() {
  * Berechnet sich die Länge vom Teil den man benötigt
  */
 function getPartLength(index) {
-    return Number((playlist[playIndex]["player"].playlist.sources[index].getLength() / 1000).toFixed());
+    try {
+        return Number((playlist[playIndex]["player"].playlist.sources[index].getLength() / 1000).toFixed());
+    } catch (e) {
+        return 0;
+    }
 }
 
 /*

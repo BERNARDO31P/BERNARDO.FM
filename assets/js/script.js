@@ -393,13 +393,20 @@ bindEvent("click", "#queueView .fa-play", function () {
  * Autor: Bernardo de Oliveira
  *
  * Findet heraus welches Lied gelöscht werden soll
- * Löscht das Lied aus der Wiedergabenliste
+ * Löscht das Lied aus der Wiedergabenliste und der Liste mit den Teilen
+ *
+ * Definiert den PlayIndex neu, da dieser eventuell nicht mehr gleich ist
  */
 bindEvent("click", "#queueView .fa-trash", function () {
     let id = Number(this.closest(".controlsQueue").dataset.id);
+    let current = playlist[playIndex]["id"];
 
-    for (let [key, value] of Object.entries(playlist)) {
-        if (value["id"] === id) playlist = removeNumericKey(playlist, key);
+    if (id === current) {
+        let nextIndex = nextSongIndex();
+        if (typeof playlist[nextIndex] !== "undefined") nextSong();
+        else previousSong();
+
+        current = playlist[playIndex]["id"];
     }
 
     this.closest("tr").remove();
@@ -409,6 +416,25 @@ bindEvent("click", "#queueView .fa-trash", function () {
 
     if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
     else queue.style.right = "0";
+
+    let interval = setInterval(function () {
+        if (!downloading) {
+            clearInterval(interval);
+
+            for (let [key, value] of Object.entries(playlist)) {
+                if (value["id"] === id) {
+                    playlist = removeNumericKey(playlist, key);
+                    partlist = removeNumericKey(partlist, key);
+                }
+            }
+
+            for (let [key, value] of Object.entries(playlist)) {
+                if (value["id"] === current) {
+                    playIndex = key;
+                }
+            }
+        }
+    }, 50);
 });
 
 /*
