@@ -1,18 +1,6 @@
-let currentHover = null,
-    playIndex = 0,
-    partIndex = 0,
-    nextPartIndex = 0,
-    playlist = [],
-    partlist = {},
-    playing = false,
-    downloading = false,
-    volume = 0,
-    previousVolume = null,
-    repeatMode = 0,
-    touched = false,
-    touchedElement = null,
-    currentButton = null,
-    changedQueue = false;
+let currentHover = null, playIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], partlist = {}, playing = false,
+    downloading = false, volume = 0, previousVolume = null, repeatMode = 0, touched = false, touchedElement = null,
+    currentButton = null, changedQueue = false;
 
 let backgroundProcesses = [];
 let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, searchTimeout = null;
@@ -93,8 +81,7 @@ document.addEventListener("mouseover", function (e) {
 const prev = (element, className = "") => {
     let prev = element.previousElementSibling;
 
-    if (!className || prev.classList.contains(className))
-        return prev;
+    if (!className || prev.classList.contains(className)) return prev;
 }
 
 /*
@@ -163,9 +150,10 @@ function updatePlaying() {
         queue.scrollBy(0, scroll);
 
         row.querySelector("td").innerHTML += "<div class=\"lds-facebook\"><div></div><div></div><div></div></div>";
-
         let divs = row.querySelector(".lds-facebook").querySelectorAll("div");
-        for (let div of divs) div.style.animationPlayState = "running";
+
+        if (playing) for (let div of divs) div.style.animationPlayState = "running";
+        else for (let div of divs) div.style.animationPlayState = "paused";
     }
 
 }
@@ -346,12 +334,8 @@ function showNotification(message, time) {
 
     let timeoutOpacity, timeoutBottom;
 
-    notification.animateCallback([
-        {opacity: 0},
-        {opacity: 1}
-    ], {
-        duration: 100,
-        fill: "forwards"
+    notification.animateCallback([{opacity: 0}, {opacity: 1}], {
+        duration: 100, fill: "forwards"
     }, function () {
         timeoutOpacity = setTimeout(() => {
             removeOpacityNotification(notification);
@@ -360,10 +344,7 @@ function showNotification(message, time) {
 
     if (playerStyle.display !== "none") {
         if (getWidth() > 500) {
-            notification.animateCallback([
-                {bottom: '10px'},
-                {bottom: '110px'}
-            ], {
+            notification.animateCallback([{bottom: '10px'}, {bottom: '110px'}], {
                 duration: 100
             }, function () {
                 notification.style.bottom = "110px";
@@ -398,12 +379,8 @@ function showNotification(message, time) {
  * Entfernt die Benachrichtigung nach Schluss
  */
 function removeOpacityNotification(notification) {
-    notification.animateCallback([
-        {opacity: 1},
-        {opacity: 0}
-    ], {
-        duration: 100,
-        fill: "forwards"
+    notification.animateCallback([{opacity: 1}, {opacity: 0}], {
+        duration: 100, fill: "forwards"
     }, function () {
         notification.remove();
     });
@@ -420,10 +397,7 @@ function removeOpacityNotification(notification) {
 function hideNotification(notification) {
     let position = window.getComputedStyle(notification);
 
-    notification.animateCallback([
-        {bottom: position.bottom},
-        {bottom: '10px'}
-    ], {
+    notification.animateCallback([{bottom: position.bottom}, {bottom: '10px'}], {
         duration: 100
     }, function () {
         notification.style.bottom = "10px";
@@ -437,9 +411,7 @@ function hideNotification(notification) {
  * Überprüft, ob ein Gerät touch-fähig ist
  */
 function isTouchScreen() {
-    return (('ontouchstart' in window) ||
-        (navigator.maxTouchPoints > 0) ||
-        (navigator.msMaxTouchPoints > 0));
+    return (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
 }
 
 /*
@@ -449,13 +421,7 @@ function isTouchScreen() {
  * Gibt die Browser Breite zurück
  */
 function getWidth() {
-    return Math.max(
-        document.body.scrollWidth,
-        document.documentElement.scrollWidth,
-        document.body.offsetWidth,
-        document.documentElement.offsetWidth,
-        document.documentElement.clientWidth
-    );
+    return Math.max(document.body.scrollWidth, document.documentElement.scrollWidth, document.body.offsetWidth, document.documentElement.offsetWidth, document.documentElement.clientWidth);
 }
 
 /*
@@ -601,9 +567,7 @@ function removeControls(elementClass, element = null) {
 function setVolumeIcon(volumeIcon, volumeSlider) {
     volumeIcon.classList.remove("fa-volume-*");
 
-    if (volumeSlider.value >= 50) volumeIcon.classList.add("fa-volume-up");
-    else if (volumeSlider.value >= 1) volumeIcon.classList.add("fa-volume-down");
-    else volumeIcon.classList.add("fa-volume-off");
+    if (volumeSlider.value >= 50) volumeIcon.classList.add("fa-volume-up"); else if (volumeSlider.value >= 1) volumeIcon.classList.add("fa-volume-down"); else volumeIcon.classList.add("fa-volume-off");
 }
 
 /*
@@ -633,20 +597,12 @@ function hideVolumeSlider() {
 function hidePlaylist(body, queueView, angleIcon) {
     body.style.overflowY = "initial";
 
-    angleIcon.animate([
-        {transform: 'rotate(-180deg)'},
-        {transform: 'rotate(0deg)'}
-    ], {
-        duration: 200,
-        fill: "forwards"
+    angleIcon.animate([{transform: 'rotate(-180deg)'}, {transform: 'rotate(0deg)'}], {
+        duration: 200, fill: "forwards"
     });
 
-    queueView.animateCallback([
-        {top: '60px'},
-        {top: '100%'}
-    ], {
-        duration: 300,
-        fill: "forwards",
+    queueView.animateCallback([{top: '60px'}, {top: '100%'}], {
+        duration: 300, fill: "forwards",
     }, function () {
         queueView.classList.remove("show");
     });
@@ -709,8 +665,7 @@ function muteAudio(e = null) {
             setCookie("muted", true);
         }
 
-        if (typeof playlist[playIndex] !== 'undefined')
-            playlist[playIndex]["player"].setVolume(volume);
+        if (typeof playlist[playIndex] !== 'undefined') playlist[playIndex]["player"].setVolume(volume);
 
         hideVolumeSlider();
     } else touched = true;
@@ -727,8 +682,7 @@ function showSearch() {
     let input = searchToggler.closest(".icons").querySelector("#search input");
     let width = "";
 
-    if (getWidth() <= 500) width = getWidth() - 195 + "px";
-    else if (getWidth() <= 1150) width = getWidth() - 265 + "px";
+    if (getWidth() <= 500) width = getWidth() - 195 + "px"; else if (getWidth() <= 1150) width = getWidth() - 265 + "px";
 
     input.style.width = width;
     input.style.padding = "12px 65px 12px 16px";
@@ -770,33 +724,20 @@ function play(diffSong = false) {
         MSAPI.load();
         MSAPI.currentTime = 0;
 
-        player.querySelector("#name").innerHTML = "<div class='truncate'>" +
-            "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" +
-            "<div class='spacer'>" + song["name"] + "</div>" +
-            "<span>&nbsp;</span>" +
-            "</div>";
+        player.querySelector("#name").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" + "<div class='spacer'>" + song["name"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
 
-        player.querySelector("#artist").innerHTML = "<div class='truncate'>" +
-            "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" +
-            "<div class='spacer'>" + song["artist"] + "</div>" +
-            "<span>&nbsp;</span>" +
-            "</div>";
+        player.querySelector("#artist").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" + "<div class='spacer'>" + song["artist"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
 
 
         if ('mediaSession' in navigator) {
             let song = playlist[playIndex];
 
             let mouseUpEvent = new Event('mouseup', {
-                bubbles: true,
-                cancelable: true,
+                bubbles: true, cancelable: true,
             });
 
             navigator.mediaSession.metadata = new MediaMetadata({
-                title: song["name"],
-                artist: song["artist"],
-                artwork: [
-                    {src: song["cover"], type: 'image/png'},
-                ]
+                title: song["name"], artist: song["artist"], artwork: [{src: song["cover"], type: 'image/png'},]
             });
 
             navigator.mediaSession.setActionHandler('play', function () {
@@ -839,8 +780,7 @@ function play(diffSong = false) {
         if (Object.keys(data).length) {
             infoBox.innerHTML = "";
             for (let info of Object.values(data)) {
-                infoBox.innerHTML += "<h3>" + info["name"] + "</h3>" +
-                    "<p>" + info["description"] + "</p>";
+                infoBox.innerHTML += "<h3>" + info["name"] + "</h3>" + "<p>" + info["description"] + "</p>";
             }
         } else {
             infoBox.innerHTML = "<h3>No description found.</h3>";
@@ -877,9 +817,7 @@ function play(diffSong = false) {
 
                 if ('mediaSession' in navigator) {
                     navigator.mediaSession.setPositionState({
-                        duration: MSAPI.duration,
-                        playbackRate: MSAPI.playbackRate,
-                        position: MSAPI.currentTime
+                        duration: MSAPI.duration, playbackRate: MSAPI.playbackRate, position: MSAPI.currentTime
                     });
                 }
             }
@@ -897,8 +835,7 @@ function nextSongIndex() {
     let nextIndex = Number(playIndex) + 1;
     switch (repeatMode) {
         case 1:
-            if (typeof playlist[nextIndex] === 'undefined')
-                return 0;
+            if (typeof playlist[nextIndex] === 'undefined') return 0;
             break;
         case 2:
             return playIndex;
@@ -917,8 +854,7 @@ function previousSongIndex() {
     switch (repeatMode) {
         case 0:
         case 1:
-            if (typeof playlist[previousIndex] === 'undefined')
-                return 0;
+            if (typeof playlist[previousIndex] === 'undefined') return 0;
             break;
         case 2:
             return playIndex;
@@ -993,8 +929,7 @@ function resetSong(index) {
     gapless.gotoTrack(0);
 
     for (let part of Object.values(partlist[index])) {
-        if (typeof gapless.playlist.sources[part["gid"]] !== 'undefined')
-            gapless.playlist.sources[part["gid"]].setPosition(0);
+        if (typeof gapless.playlist.sources[part["gid"]] !== 'undefined') gapless.playlist.sources[part["gid"]].setPosition(0);
     }
 }
 
@@ -1057,10 +992,7 @@ function onTimelineMove(rangeEvent) {
     let measurementRange = rangeEvent.target.getBoundingClientRect();
     let leftPos = mouseX - (measurementTimeInfo["width"] / 2);
 
-    if (leftPos < 0)
-        leftPos = 0;
-    else if ((leftPos + measurementTimeInfo["width"]) > getWidth())
-        leftPos = getWidth() - measurementTimeInfo["width"];
+    if (leftPos < 0) leftPos = 0; else if ((leftPos + measurementTimeInfo["width"]) > getWidth()) leftPos = getWidth() - measurementTimeInfo["width"];
 
     timeInfo.style.top = (measurementRange["top"] - measurementTimeInfo["height"] - 10) + "px";
     timeInfo.style.left = leftPos + "px";
@@ -1212,14 +1144,7 @@ function generateTableRow(rowData, tableRow, columns, cover = null) {
         tableRow.appendChild(td);
         tableRow.classList.add("playlist");
 
-        tableRow.innerHTML += "<td>" + rowData["name"] + "</td>" +
-            "<td colspan='2'>" +
-            "<div class='truncate'>" +
-            "<div class='content' data-title='" + info["artists"] + "'>" + info["artists"] + "</div>" +
-            "<div class='spacer'>" + info["artists"] + "</div>" +
-            "<span>&nbsp;</span>" +
-            "</div>" +
-            "</td>";
+        tableRow.innerHTML += "<td>" + rowData["name"] + "</td>" + "<td colspan='2'>" + "<div class='truncate'>" + "<div class='content' data-title='" + info["artists"] + "'>" + info["artists"] + "</div>" + "<div class='spacer'>" + info["artists"] + "</div>" + "<span>&nbsp;</span>" + "</div>" + "</td>";
     }
 }
 
@@ -1250,8 +1175,7 @@ function removeFromObject(object, toRemove = "", recursive = true) {
                 if (typeof value === 'object' && recursive) {
                     cleaned[key] = removeFromObject(Object.assign({}, value), toRemove);
                 } else {
-                    if (!isNum(key)) cleaned[key] = value;
-                    else {
+                    if (!isNum(key)) cleaned[key] = value; else {
                         if (!Array.isArray(cleaned)) cleaned = [];
                         cleaned.push(value);
                     }
@@ -1396,8 +1320,7 @@ function getPartLengthCallback(index, callback) {
  */
 function getPartIndexByTime(time) {
     for (let [index, part] of Object.entries(partlist[playIndex])) {
-        if (part["from"] <= time && part["till"] >= time)
-            return [part["from"], part["till"], Number(index)];
+        if (part["from"] <= time && part["till"] >= time) return [part["from"], part["till"], Number(index)];
     }
 
     return [null, null, null];
@@ -1414,8 +1337,7 @@ function getPartIndexByTime(time) {
  */
 function getPartIndexByStartTime(time) {
     for (let [index, part] of Object.entries(partlist[playIndex])) {
-        if (part["from"] === time)
-            return [part["from"], part["till"], Number(index)];
+        if (part["from"] === time) return [part["from"], part["till"], Number(index)];
     }
 
     return [null, null, null];
@@ -1436,8 +1358,7 @@ function findMissingLengthByCurrentPart() {
     for (let part of Object.values(partlist[playIndex])) {
         let missingLength = part["from"] - currentEnding - 1;
 
-        if (missingLength > 0 && missingLength <= currentLength)
-            return missingLength;
+        if (missingLength > 0 && missingLength <= currentLength) return missingLength;
     }
     return null;
 }
