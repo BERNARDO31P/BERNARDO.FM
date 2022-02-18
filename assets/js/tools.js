@@ -140,6 +140,8 @@ function updateSearch() {
  *
  * Sucht das Lied, welches momentan abgespielt wird
  * Fügt eine Animation hinzu
+ *
+ * Scrollt zum Lied, welches momentan abgespielt wird
  */
 function updatePlaying() {
     let queueView = document.getElementById("queueView");
@@ -151,7 +153,6 @@ function updatePlaying() {
 
 
     if (row) {
-        // TODO: Scroll to row position
         let queue = queueView.querySelector("#queue");
 
         let queueBounding = queue.getBoundingClientRect();
