@@ -402,10 +402,10 @@ bindEvent("click", "#queueView .fa-trash", function () {
         if (value["id"] === id) playlist = removeNumericKey(playlist, key);
     }
 
+    this.closest("tr").remove();
+
     let queueView = document.getElementById("queueView");
     let queue = queueView.querySelector("#queue");
-    queue.innerHTML = "";
-    queue.appendChild(generateQueue(playlist));
 
     if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
     else queue.style.right = "0";
