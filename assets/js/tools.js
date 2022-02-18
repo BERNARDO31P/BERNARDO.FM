@@ -134,7 +134,13 @@ function updateSearch() {
     }
 }
 
-// TODO: Comment
+/*
+ * Funktion: updatePlaying()
+ * Autor: Bernardo de Oliveira
+ *
+ * Sucht das Lied, welches momentan abgespielt wird
+ * Fügt eine Animation hinzu
+ */
 function updatePlaying() {
     let queueView = document.getElementById("queueView");
     let animation = queueView.querySelector(".lds-facebook");
@@ -144,13 +150,15 @@ function updatePlaying() {
     let row = queueView.querySelector("[data-id='" + id + "']");
 
 
-
     if (row) {
         // TODO: Scroll to row position
         //let queue = queueView.querySelector("#queue");
         //let bounding = row.getBoundingClientRect();
         //queue.scrollTo(0, bounding.top - 200);
         row.querySelector("td").innerHTML += "<div class=\"lds-facebook\"><div></div><div></div><div></div></div>";
+
+        let divs = row.querySelector(".lds-facebook").querySelectorAll("div");
+        for (let div of divs) div.style.animationPlayState = "running";
     }
 
 }
@@ -840,6 +848,16 @@ function play(diffSong = false) {
     let title = document.querySelector("title");
     title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
 
+    let animation = document.getElementsByClassName("lds-facebook")[0];
+    if (animation) {
+        let divs = animation.querySelectorAll("div");
+        for (let div of divs) {
+            if (div.style.animationPlayState === "paused") {
+                div.style.animationPlayState = "running";
+            }
+        }
+    }
+
     if (!secondsInterval) {
         secondsInterval = setInterval(function () {
             let timeline = document.getElementById("timeline");
@@ -990,6 +1008,16 @@ function pauseSong() {
         secondsInterval = null;
 
         playing = false;
+
+        let animation = document.getElementsByClassName("lds-facebook")[0];
+        if (animation) {
+            let divs = animation.querySelectorAll("div");
+            for (let div of divs) {
+                if (div.style.animationPlayState === "running") {
+                    div.style.animationPlayState = "paused";
+                }
+            }
+        }
     }
 }
 
