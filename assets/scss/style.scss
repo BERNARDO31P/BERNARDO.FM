@@ -1656,3 +1656,31 @@ body {
     }
   }
 }
+
+@media screen and (max-width: 345px) {
+  #navbar {
+    #navbar-toggler {
+      margin: 0 0 0 -20px;
+    }
+
+    #menu-toggler {
+      margin: 0 10px 0 0;
+    }
+  }
+
+  #search {
+    input {
+      margin: 0 10px 0 0 !important;
+    }
+
+    .fa-times {
+      right: 55px !important;
+    }
+  }
+
+  #player {
+    svg {
+      margin: 0;
+    }
+  }
+}
