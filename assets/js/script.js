@@ -737,10 +737,13 @@ bindEvent("click", "#menu-toggler", function () {
  * Versteckt das Menü, sobald die Maus es verlässt
  */
 bindEvent("mouseout", "#menu", function () {
-    let menu = this;
-    setTimeout(function () {
-        if (currentHover.closest("#menu") !== menu) menu.classList.remove("show");
-    });
+    if (!isTouchScreen()) {
+        let menu = this;
+
+        setTimeout(function () {
+            if (currentHover.closest("#menu") !== menu) menu.classList.remove("show");
+        });
+    }
 });
 
 /*
@@ -751,10 +754,16 @@ bindEvent("mouseout", "#menu", function () {
  */
 bindEvent("focusout", "#search", function () {
     let input = this.querySelector("input");
+    input.readOnly = true;
+
     if (getWidth() <= 1150 && !input.value) {
         input.style.width = "";
         input.style.padding = "";
     }
+
+    setTimeout(function () {
+        input.readOnly = false;
+    }, 500);
 });
 
 /*
