@@ -435,6 +435,13 @@ window["music"] = () => {
                             }
                         }
 
+                        removeControls("controlsContent");
+                    });
+
+                    div.addEventListener("scroll", function (e) {
+                        let element = e.target;
+                        let scrolled = Math.round(100 * element.scrollLeft / (element.scrollWidth - element.clientWidth));
+
                         if (!isTouchScreen()) {
                             let scrollBack = div.parentElement.querySelector(".scrollBack");
                             if (scrolled === 0) scrollBack.style.display = "none";
@@ -444,8 +451,6 @@ window["music"] = () => {
                             if (scrolled === 100) scrollForward.style.display = "none";
                             else scrollForward.style.display = "flex";
                         }
-
-                        removeControls("controlsContent");
                     });
 
                     generateBlockView(songs, categoryView, cover);
