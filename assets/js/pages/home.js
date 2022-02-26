@@ -46,26 +46,27 @@ window["home"] = () => {
         }
     }
 
-    /*
-     * Funktion: Anonym
-     * Autor: Bernardo de Oliveira
-     *
-     * Zeigt die Details von einem Beitrag an oder versteckt sie wieder
-     */
-    bindEvent("click", ".detailsButton", function () {
-        let details = prev(this);
-
-        if (details.classList.contains("show")) {
-            this.textContent = "Show more";
-            details.classList.remove("show");
-        } else {
-            let elements = document.querySelectorAll(".details.show");
-            for (let element of elements) {
-                element.classList.remove("show");
-            }
-
-            this.textContent = "Show less";
-            details.classList.add("show");
-        }
-    });
 }
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Zeigt die Details von einem Beitrag an oder versteckt sie wieder
+ */
+bindEvent("click", ".detailsButton", function () {
+    let details = prev(this);
+
+    if (details.classList.contains("show")) {
+        this.textContent = "Show more";
+        details.classList.remove("show");
+    } else {
+        let elements = document.querySelectorAll(".details.show");
+        for (let element of elements) {
+            element.classList.remove("show");
+        }
+
+        this.textContent = "Show less";
+        details.classList.add("show");
+    }
+});
