@@ -5,6 +5,9 @@
       <path value="$PROJECT_DIR$/system/vendor/composer" />
       <path value="$PROJECT_DIR$/system/vendor/bramus/router" />
       <path value="$PROJECT_DIR$/system/vendor/audero/audero-wav-extractor" />
+      <path value="$PROJECT_DIR$/app/system/vendor/bramus/router" />
+      <path value="$PROJECT_DIR$/app/system/vendor/composer" />
+      <path value="$PROJECT_DIR$/app/system/vendor/audero/audero-wav-extractor" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.1" />

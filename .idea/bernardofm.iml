@@ -4,12 +4,12 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
-      <excludeFolder url="file://$MODULE_DIR$/assets/scss/.sass-cache" />
-      <excludeFolder url="file://$MODULE_DIR$/system/music" />
-      <excludeFolder url="file://$MODULE_DIR$/system/temp" />
-      <excludeFolder url="file://$MODULE_DIR$/system/img" />
-      <excludeFolder url="file://$MODULE_DIR$/system/vendor/composer" />
-      <excludeFolder url="file://$MODULE_DIR$/system/vendor" />
+      <excludeFolder url="file://$MODULE_DIR$/app/system/temp" />
+      <excludeFolder url="file://$MODULE_DIR$/app/system/vendor" />
+      <excludeFolder url="file://$MODULE_DIR$/app/system/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/app/system/music" />
+      <excludeFolder url="file://$MODULE_DIR$/app/system/img" />
+      <excludeFolder url="file://$MODULE_DIR$/app/assets/scss/.sass-cache" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

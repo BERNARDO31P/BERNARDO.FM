@@ -246,12 +246,14 @@ function generatePictures(&$db, $hashDB, $hasCategory, $length = 200): string
         foreach ($db as &$category) {
             foreach ($category as &$song) {
                 if (isset($song["cover"])) {
-                    $imagick->readImage("img/" . $song["cover"]);
-                    $imagick->scaleImage($length, $length);
+                    try {
+                        $imagick->readImage("img/" . $song["cover"]);
+                        $imagick->scaleImage($length, $length);
 
-                    $pos = $i * $length;
-                    $song["coverPos"] = $pos;
-                    $data["coverPos"][$song["id"]] = $pos;
+                        $pos = $i * $length;
+                        $song["coverPos"] = $pos;
+                        $data["coverPos"][$song["id"]] = $pos;
+                    } catch (Exception $e) {}
                     $i++;
                 }
             }
@@ -720,10 +722,16 @@ $router->get('/changelog', function () {
  */
 $router->get('/img/(.*)', function ($image) {
     $imageUrl = __DIR__ . "/img/" . $image;
-    $contentType = mime_content_type($imageUrl);
 
-    header('Content-Type: ' . $contentType);
-    echo file_get_contents($imageUrl);
+    if (file_exists($imageUrl)) {
+        $contentType = mime_content_type($imageUrl);
+
+        header('Content-Type: ' . $contentType);
+
+        echo file_get_contents($imageUrl);
+    } else {
+        echo "";
+    }
 });
 
 /*

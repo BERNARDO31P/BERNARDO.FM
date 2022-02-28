@@ -1,0 +1,34 @@
+version: '3'
+
+volumes:
+  mysqldata:
+  mysqlinit:
+  app:
+
+
+services:
+  php:
+    build: ./php
+    ports:
+      - 8000:8080
+    volumes:
+      - ./app:/var/www/html
+
+  mysql:
+    image: mysql:8
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: ansible
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_ROOT_PASSWORD: Sonne-123
+    cap_add:
+      - SYS_NICE
+    volumes:
+      - ./mysql/initscripts:/php-entrypoint-initdb.d
+      - ./mysql/mysqldata:/var/lib/mysql/
+    command: [mysqld, --default-authentication-plugin=mysql_native_password]
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
