@@ -14,7 +14,7 @@
     "cover": "Infected Mushroom - Groove Attack.jpg",
     "name": "Groove Attack",
     "artist": "Infected Mushroom",
-    "length": "6:49",
+    "length": "6:47",
     "fileName": "Infected Mushroom - Groove Attack.wav",
     "category": "Psytrance",
     "info": 3
@@ -24,7 +24,7 @@
     "cover": "Mobb Deep - Hell on Earth.jpg",
     "name": "Hell on Earth",
     "artist": "Mobb Deep",
-    "length": "4:37",
+    "length": "4:34",
     "fileName": "Mobb Deep - Hell on Earth.wav",
     "category": "Hip-Hop",
     "info": 4
@@ -34,7 +34,7 @@
     "cover": "Atacama & Jakaan - KMOS.jpg",
     "name": "KMOS",
     "artist": "Atacama & Jakaan",
-    "length": "8:39",
+    "length": "8:40",
     "fileName": "Atacama & Jakaan - KMOS.wav",
     "category": "Psytrance",
     "info": [5, 6]
@@ -54,8 +54,8 @@
     "cover": "J Dilla - Dont Cry.jpg",
     "name": "Don't Cry",
     "artist": "J Dilla",
-    "length": "2:00",
-    "fileName": "J Dilla - Don't Cry.wav",
+    "length": "1:59",
+    "fileName": "J Dilla - Dont Cry.wav",
     "category": "Trip-Hop",
     "info": 8
   },
@@ -104,7 +104,7 @@
     "cover": "Dillon Cooper - Knuckle Up.jpg",
     "name": "Knuckle Up",
     "artist": "Dillon Cooper",
-    "length": "3:01",
+    "length": "3:05",
     "fileName": "Dillon Cooper - Knuckle Up.wav",
     "category": "Hip-Hop",
     "info": 13
@@ -124,7 +124,7 @@
     "cover": "Dr. Dre - The Message.jpg",
     "name": "The Message",
     "artist": "Dr. Dre",
-    "length": "5:29",
+    "length": "5:03",
     "fileName": "Dr. Dre - The Message.wav",
     "category": "Hip-Hop",
     "info": 16
@@ -214,7 +214,7 @@
     "cover": "Ours Samplus - Memento.jpg",
     "name": "Memento",
     "artist": "Ours Samplus",
-    "length": "2:39",
+    "length": "2:42",
     "fileName": "Ours Samplus - Memento.wav",
     "category": "Trip-Hop",
     "info": 25
@@ -224,7 +224,7 @@
     "cover": "Bent - An Ordinary Day.jpg",
     "name": "An Ordinary Day",
     "artist": "Bent",
-    "length": "4:46",
+    "length": "4:45",
     "fileName": "Bent - An Ordinary Day.wav",
     "category": "Trip-Hop",
     "info": 27
@@ -309,7 +309,7 @@
     "cover": "Alienatic - War of the World.jpg",
     "name": "War of the World",
     "artist": "Alienatic",
-    "length": "7:08",
+    "length": "7:46",
     "fileName": "Alienatic - War of the World.wav",
     "category": "Psytrance",
     "info": 29
@@ -329,7 +329,7 @@
     "cover": "Sybarite - Sonic Staircase.jpg",
     "name": "Sonic Staircase",
     "artist": "Sybarite",
-    "length": "8:39",
+    "length": "8:38",
     "fileName": "Sybarite - Sonic Staircase.wav",
     "category": "Psytrance",
     "info": 31
@@ -339,7 +339,7 @@
     "cover": "Ashtar Command & Razzle Dazzle - Rebirth.jpg",
     "name": "Rebirth",
     "artist": "Ashtar Command & Razzle Dazzle",
-    "length": "8:37",
+    "length": "8:36",
     "fileName": "Ashtar Command & Razzle Dazzle - Rebirth.wav",
     "category": "Psytrance",
     "info": [32, 33]
@@ -349,7 +349,7 @@
     "cover": "Pixel & Wrecked Machines - Mother Funker (FNX Rmx).jpg",
     "name": "Mother Funker (FNX Rmx)",
     "artist": "Pixel & Wrecked Machines",
-    "length": "8:26",
+    "length": "8:23",
     "fileName": "Pixel & Wrecked Machines - Mother Funker (FNX Rmx).wav",
     "category": "Psytrance",
     "info": [34, 35, 36]
@@ -369,7 +369,7 @@
     "cover": "Lil Nas X - MONTERO (Call Me By Your Name).jpeg",
     "name": "MONTERO (Call Me By Your Name)",
     "artist": "Lil Nas X",
-    "length": "2:51",
+    "length": "2:50",
     "fileName": "Lil Nas X - MONTERO (Call Me By Your Name).wav",
     "category": "Trap",
     "info": 0
@@ -379,7 +379,7 @@
     "cover": "Lil Nas X - INDUSTRY BABY.jpg",
     "name": "INDUSTRY BABY",
     "artist": "Lil Nas X",
-    "length": "3:48",
+    "length": "3:32",
     "fileName": "Lil Nas X - INDUSTRY BABY.wav",
     "category": "Trap",
     "info": 0
@@ -439,7 +439,7 @@
     "cover": "Deltron 3030 - 3030.jpg",
     "name": "3030",
     "artist": "Deltron 3030",
-    "length": "7:30",
+    "length": "7:29",
     "fileName": "Deltron 3030 - 3030.wav",
     "category": "Hip-Hop",
     "info": 42
@@ -449,7 +449,7 @@
     "cover": "NECRO - Our Life.jpg",
     "name": "Our Life",
     "artist": "NECRO",
-    "length": "3:22",
+    "length": "3:21",
     "fileName": "NECRO - Our Life.wav",
     "category": "Hip-Hop",
     "info": 43
@@ -459,7 +459,7 @@
     "cover": "NECRO - Push It to the Limit.jpg",
     "name": "Push It to the Limit",
     "artist": "NECRO",
-    "length": "3:33",
+    "length": "3:31",
     "fileName": "NECRO - Push It to the Limit.wav",
     "category": "Hip-Hop",
     "info": 43
@@ -529,7 +529,7 @@
     "cover": "Travis Scott feat. Kendrick Lamar - Goosebumps.jpg",
     "name": "Goosebumps",
     "artist": "Travis Scott feat. Kendrick Lamar",
-    "length": "4:04",
+    "length": "4:03",
     "fileName": "Travis Scott feat. Kendrick Lamar - Goosebumps.wav",
     "category": "Trap",
     "info": [47, 49]
@@ -549,7 +549,7 @@
     "cover": "DJ Krush - Kemuri.jpg",
     "name": "Kemuri",
     "artist": "DJ Krush",
-    "length": "5:25",
+    "length": "5:17",
     "fileName": "DJ Krush - Kemuri.wav",
     "category": "Trip-Hop",
     "info": 51
@@ -559,7 +559,7 @@
     "cover": "DJ Shadow - Midnight In A Perfect World.jpg",
     "name": "Midnight In A Perfect World",
     "artist": "DJ Shadow",
-    "length": "5:00",
+    "length": "4:58",
     "fileName": "DJ Shadow - Midnight In A Perfect World.wav",
     "category": "Trip-Hop",
     "info": 52
@@ -799,7 +799,7 @@
     "cover": "Deliriant - New Dawn.jpg",
     "name": "New Dawn",
     "artist": "Deliriant",
-    "length": "7:03",
+    "length": "7:02",
     "fileName": "Deliriant - New Dawn.wav",
     "category": "Psytrance",
     "info": 81
@@ -809,7 +809,7 @@
     "cover": "Timecode - Wanna More.jpeg",
     "name": "Wanna More",
     "artist": "Timecode",
-    "length": "6:56",
+    "length": "7:02",
     "fileName": "Timecode - Wanna More.wav",
     "category": "Psytrance",
     "info": 82
