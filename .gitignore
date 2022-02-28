@@ -7,3 +7,4 @@ app/system/composer.lock
 app/system/db/monitoring.json
 app/system/db/firewall.json
 app/system/db/hashes.json
+mysql/mysqldata
