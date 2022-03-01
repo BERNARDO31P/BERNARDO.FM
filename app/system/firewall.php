@@ -260,10 +260,10 @@ function structureArray($array): array
  * Speichert diese ab
  */
 while (sleep(2) !== null) {
-    $raw = file_get_contents("/var/www/html/system/data/raw");
-    $mangle = file_get_contents("/var/www/html/system/data/mangle");
-    $nat = file_get_contents("/var/www/html/system/data/nat");
-    $filter = file_get_contents("/var/www/html/system/data/filter");
+    $raw = file_get_contents(__DIR__ . "/data/raw");
+    $mangle = file_get_contents(__DIR__ . "/data/mangle");
+    $nat = file_get_contents(__DIR__ . "/data/nat");
+    $filter = file_get_contents(__DIR__ . "/data/filter");
 
     if (empty($raw) || empty($mangle) || empty($nat) || empty($filter)) continue;
 

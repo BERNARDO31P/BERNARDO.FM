@@ -9,7 +9,7 @@ $db = array_slice($db, -($amount * 4), $amount * 4, true);
 
 function get_server_memory_usage(): float
 {
-    $free = file_get_contents("/var/www/html/system/data/free");
+    $free = file_get_contents(__DIR__ . "/data/free");
     $free = (string)trim($free);
     $free_arr = explode("\n", $free);
     $mem = explode(" ", $free_arr[1]);
@@ -20,12 +20,12 @@ function get_server_memory_usage(): float
 
 function get_server_cpu_usage(): float
 {
-    $cont = file('/var/www/html/system/data/stat');
+    $cont = file(__DIR__ . "/data/stat");
     $cpuloadtmp = explode(' ', $cont[0]);
     $cpuload0[0] = $cpuloadtmp[2] + $cpuloadtmp[4];
     $cpuload0[1] = $cpuloadtmp[2] + $cpuloadtmp[4] + $cpuloadtmp[5];
     sleep(1);
-    $cont = file('/var/www/html/system/data/stat');
+    $cont = file(__DIR__ . "/data/stat");
     $cpuloadtmp = explode(' ', $cont[0]);
     $cpuload1[0] = $cpuloadtmp[2] + $cpuloadtmp[4];
     $cpuload1[1] = $cpuloadtmp[2] + $cpuloadtmp[4] + $cpuloadtmp[5];
@@ -39,11 +39,11 @@ function get_server_cpu_usage(): float
 
 function get_server_network_usage(): array
 {
-    $rx[] = file_get_contents("/var/www/html/system/data/rx_bytes");
-    $tx[] = file_get_contents("/var/www/html/system/data/tx_bytes");
+    $rx[] = file_get_contents(__DIR__ . "/data/rx_bytes");
+    $tx[] = file_get_contents(__DIR__ . "/data/tx_bytes");
     sleep(1);
-    $rx[] = file_get_contents("/var/www/html/system/data/rx_bytes");
-    $tx[] = file_get_contents("/var/www/html/system/data/tx_bytes");
+    $rx[] = file_get_contents(__DIR__ . "/data/rx_bytes");
+    $tx[] = file_get_contents(__DIR__ . "/data/tx_bytes");
 
     $tbps = intval($tx[1]) - intval($tx[0]);
     $rbps = intval($rx[1]) - intval($rx[0]);
