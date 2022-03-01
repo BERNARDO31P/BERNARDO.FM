@@ -260,10 +260,12 @@ function structureArray($array): array
  * Speichert diese ab
  */
 while (sleep(2) !== null) {
-    $raw = shell_exec("sudo iptables -t raw -L -v | sed '/^[[:space:]]*$/d'");
-    $mangle = shell_exec("sudo iptables -t mangle -L -v | sed '/^[[:space:]]*$/d'");
-    $nat = shell_exec("sudo iptables -t nat -L -v | sed '/^[[:space:]]*$/d'");
-    $filter = shell_exec("sudo iptables -t filter -L -v | sed '/^[[:space:]]*$/d'");
+    $raw = file_get_contents("/var/www/html/system/data/raw");
+    $mangle = file_get_contents("/var/www/html/system/data/mangle");
+    $nat = file_get_contents("/var/www/html/system/data/nat");
+    $filter = file_get_contents("/var/www/html/system/data/filter");
+
+    if (empty($raw) || empty($mangle) || empty($nat) || empty($filter)) continue;
 
     $data = array();
     $data["raw"] = explode("\n", $raw);

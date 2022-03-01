@@ -3,6 +3,7 @@ app/system/vendor
 app/system/music
 app/system/temp
 app/system/img
+data
 app/system/composer.lock
 app/system/db/monitoring.json
 app/system/db/firewall.json

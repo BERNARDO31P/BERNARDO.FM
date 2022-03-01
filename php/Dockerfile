@@ -12,6 +12,7 @@ RUN apk --no-cache add php8-pecl-imagick
 
 RUN apk add php8-fileinfo
 RUN apk add git
+RUN apk add screen
 
 RUN echo "user = nginx" >> /etc/php8/php-fpm.d/www.conf
 RUN echo "listen.owner = nginx" >> /etc/php8/php-fpm.d/www.conf
