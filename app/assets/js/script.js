@@ -373,7 +373,7 @@ bindEvent("click", "#queueView .fa-play", function () {
     let id = Number(this.closest(".controlsQueue").dataset.id);
 
     for (let [key, value] of Object.entries(playlist)) {
-        if (value["id"] === id) playIndex = key;
+        if (value["id"] === id) playIndex = Number(key);
     }
 
     partIndex = 0;
@@ -423,8 +423,10 @@ bindEvent("click", "#queueView .fa-trash", function () {
 
             for (let [key, value] of Object.entries(playlist)) {
                 if (value["id"] === id) {
-                    playlist = removeNumericKey(playlist, key);
-                    partlist = removeNumericKey(partlist, key);
+                    playlist = removeKey(playlist, key);
+                    playlist = generateNumericalOrder(playlist);
+
+                    partlist = removeKey(partlist, key);
                 }
             }
 

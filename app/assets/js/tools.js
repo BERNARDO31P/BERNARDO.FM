@@ -1190,7 +1190,7 @@ function removeFromObject(object, toRemove = "", recursive = true) {
 }
 
 /*
- * Funktion: removeNumericKey()
+ * Funktion: removeKey()
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  object: (Object): Das zu bearbeitende Objekt
@@ -1199,15 +1199,24 @@ function removeFromObject(object, toRemove = "", recursive = true) {
  * Entfernt ein oder mehrere Schlüssel in einem Objekt
  * Generiert die Reihenfolge neu
  */
-function removeNumericKey(object, toRemove = null) {
+function removeKey(object, toRemove = null) {
+    let cleaned = {};
+
+    for (let [key, value] of Object.entries(object)) {
+        if (key !== toRemove) cleaned[key] = value;
+    }
+
+    return cleaned;
+}
+
+// TODO: Comment
+function generateNumericalOrder(object) {
     let cleaned = {};
 
     let i = 0;
-    for (let [key, value] of Object.entries(object)) {
-        if (key !== toRemove) {
-            cleaned[i] = value;
-            i++;
-        }
+    for (let value of Object.entries(object)) {
+       cleaned[i] = value;
+       i++;
     }
 
     return cleaned;
