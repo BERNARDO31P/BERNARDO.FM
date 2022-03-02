@@ -724,6 +724,25 @@ function showSearch() {
     document.getElementById("menu").classList.remove("show");
 }
 
+// TODO: Comment
+function getLengthByString(stringTime) {
+    let split = stringTime.split(":"), length = 0;
+
+    switch (split.length) {
+        case 1:
+            length = Number(split[0]);
+            break;
+        case 2:
+            length = Number(split[0]) * 60 + Number(split[1]);
+            break;
+        case 3:
+            length = Number(split[0]) * 60 * 60 + Number(split[1]) * 60 + Number(split[2]);
+            break;
+    }
+
+    return length;
+}
+
 /*
  * Funktion: play()
  * Autor: Bernardo de Oliveira
@@ -744,7 +763,7 @@ function play(diffSong = false) {
     playing = true;
 
     if (diffSong) {
-        let split = song["length"].split(":"), length = Number(split[0]) * 60 + Number(split[1]);
+        let length = getLengthByString(song["length"]);
         let songLength = document.getElementById("timeInfo").querySelector("#length");
         let queueView = document.getElementById("queueView");
         let cover = queueView.querySelector("#playingCover").querySelector("img");
