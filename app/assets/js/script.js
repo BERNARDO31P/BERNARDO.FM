@@ -497,6 +497,8 @@ bindEvent("click", "#search .fa-times", function () {
 
     input.dispatchEvent(inputEvent);
     input.focus();
+
+    this.classList.remove("show");
 });
 
 /*
