@@ -159,7 +159,14 @@ function updatePlaying() {
 
 }
 
-// TODO: Comments
+/*
+ * Funktion: showScrollButtons
+ * Autor: Bernardo de Oliveira
+ *
+ * Zeigt die Scroll-Buttons, sobald das Maus-Event ausgelöst wird
+ *
+ * Entfernt sich anschliessend selbst
+ */
 function showScrollButtons () {
     let view = getCookie("view");
     if (view === "grid") {
@@ -724,7 +731,15 @@ function showSearch() {
     document.getElementById("menu").classList.remove("show");
 }
 
-// TODO: Comment
+/*
+ * Funktion: getLengthByString()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  stringTime: (String) Die Zeit als Text [hh:mm:ss]
+ *
+ * Nimmt die Textzeit und teilt diese beim Doppelpunkt auf
+ * Gibt die Zeit in Sekunden zurück
+ */
 function getLengthByString(stringTime) {
     let split = stringTime.split(":"), length = 0;
 
@@ -1265,7 +1280,15 @@ function removeKey(object, toRemove = null) {
     return cleaned;
 }
 
-// TODO: Comment
+/*
+ * Funktion: generateNumericalOrder()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  object: (Object): Das zu bearbeitende Objekt
+ *
+ * Erstellt ein neues Array ohne Lücken
+ * Generiert den Index neu (zählt um eins hoch)
+ */
 function generateNumericalOrder(object) {
     let cleaned = {};
 
