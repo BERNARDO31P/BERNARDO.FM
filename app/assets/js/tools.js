@@ -683,11 +683,11 @@ function showSearch() {
     let width = "";
 
     if (getWidth() <= 345) width = getWidth() - 155 + "px";
-    else if (getWidth() <= 500) width = getWidth() - 195 + "px";
-    else if (getWidth() <= 1150) width = getWidth() - 265 + "px";
+    else if (getWidth() <= 500) width = getWidth() - 225 + "px";
+    else if (getWidth() <= 1150) width = getWidth() - 290 + "px";
 
     input.style.width = width;
-    input.style.padding = "12px 65px 12px 16px";
+    input.classList.add("show");
 
     input.focus();
     document.getElementById("menu").classList.remove("show");

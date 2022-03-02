@@ -178,19 +178,24 @@ body {
       position: relative;
       display: inline-block;
 
+      input {
+        padding: 12px 45px 12px 16px;
+        width: 155px;
+      }
+
       * {
         display: inline-block;
       }
 
       .fa-times {
         position: absolute;
-        right: 10px;
+        right: 0;
         top: 50%;
         transform: translateY(-50%);
 
         cursor: pointer;
 
-        padding: 5px;
+        padding: 10px 15px;
 
         display: none;
 
@@ -1419,10 +1424,18 @@ body {
           input {
             margin: 0 90px 0 0;
             width: 5px;
+            padding: 12px 0;
+
+            opacity: 0;
+
+            &.show {
+              opacity: 1;
+              padding: 12px 95px 12px 16px;
+            }
           }
 
           .fa-times {
-            right: 135px;
+            right: 130px;
           }
         }
 

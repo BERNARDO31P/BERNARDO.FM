@@ -760,7 +760,7 @@ bindEvent("focusout", "#search", function () {
 
     if (getWidth() <= 1150 && !input.value) {
         input.style.width = "";
-        input.style.padding = "";
+        input.classList.remove("show");
     }
 
     setTimeout(function () {
