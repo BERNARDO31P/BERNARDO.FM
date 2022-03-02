@@ -802,6 +802,11 @@ bindEvent("click", "#queueInfo .info:not(.active)", function () {
     this.classList.add("active");
 });
 
+// TODO: Comment
+document.addEventListener("mousemove", function () {
+    touch = false;
+});
+
 /*
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira

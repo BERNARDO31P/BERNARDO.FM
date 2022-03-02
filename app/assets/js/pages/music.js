@@ -282,6 +282,11 @@ MSAPI.addEventListener("play", function () {
 window["music"] = () => {
     let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search input");
     let view = getCookie("view");
+    if (!view) view = "grid";
+
+    setCookie("view", view);
+
+    document.addEventListener("mousemove", showScrollButtons);
 
     /*
      * Author: Bernardo de Oliveira
@@ -315,8 +320,6 @@ window["music"] = () => {
      * Je nach Ansicht wird diese generiert
      */
     for (let object of objects) {
-        if (view === "") view = "grid";
-
         let data = {};
         count = Math.round(getWidth() / 160) + 2;
 
@@ -457,23 +460,6 @@ window["music"] = () => {
                     let parent = document.createElement("div");
 
                     div.appendChild(categoryView);
-
-                    if (!isTouchScreen()) {
-                        let scrollBack = document.createElement("div");
-                        scrollBack.classList.add("scrollBack");
-                        scrollBack.innerHTML = "<i class='fas fa-arrow-left'></i>";
-                        parent.appendChild(scrollBack);
-
-                        let scrollForward = document.createElement("div");
-                        scrollForward.classList.add("scrollForward");
-                        scrollForward.innerHTML = "<i class='fas fa-arrow-right'></i>";
-                        parent.appendChild(scrollForward);
-
-                        if (Object.keys(songs).length > count - 3) {
-                            scrollForward.style.display = "flex";
-                        }
-                    }
-
                     parent.appendChild(div);
                     gridView.appendChild(parent);
                 }

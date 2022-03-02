@@ -6,6 +6,7 @@ let backgroundProcesses = [];
 let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, searchTimeout = null;
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
+let touch = true;
 
 /*
  * Autor: Bernardo de Oliveira
@@ -156,6 +157,36 @@ function updatePlaying() {
         else for (let div of divs) div.style.animationPlayState = "paused";
     }
 
+}
+
+// TODO: Comments
+function showScrollButtons () {
+    let view = getCookie("view");
+    if (view === "grid") {
+        let scrollBack = document.createElement("div");
+        scrollBack.classList.add("scrollBack");
+        scrollBack.innerHTML = "<i class='fas fa-arrow-left'></i>";
+
+        let scrollForward = document.createElement("div");
+        scrollForward.classList.add("scrollForward");
+        scrollForward.innerHTML = "<i class='fas fa-arrow-right'></i>";
+
+        let categories = document.getElementsByClassName("songCategory");
+        for (let category of categories) {
+            let parent = category.parentElement.parentElement;
+            let scrollForwardCopy = scrollForward.cloneNode(true);
+
+            parent.prepend(scrollForwardCopy);
+            parent.prepend(scrollBack.cloneNode(true));
+
+            let songs = category.childElementCount;
+            if (songs > count - 3) {
+                scrollForwardCopy.style.display = "flex";
+            }
+        }
+
+        document.removeEventListener("mousemove", showScrollButtons);
+    }
 }
 
 /*
