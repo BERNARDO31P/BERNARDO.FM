@@ -813,7 +813,8 @@ function play(diffSong = false) {
             let currentPosition = getCurrentPartTime();
 
             if (currentPosition) {
-                let position = currentPosition + partlist[playIndex][partIndex]["from"];
+                let songID = playlist[playIndex]["id"];
+                let position = currentPosition + partlist[songID][partIndex]["from"];
                 timeline.value = position;
                 MSAPI.currentTime = position;
 
@@ -900,6 +901,9 @@ function clearSong(index) {
     if (typeof playlist[index]["player"] !== 'undefined') {
         playlist[index]["player"].stop();
         playlist[index]["player"].removeAllTracks();
+
+        let songID = playlist[index]["id"];
+        removeKey(partlist, songID);
     }
 }
 
@@ -926,11 +930,12 @@ function clearSongs() {
  */
 function resetSong(index) {
     let gapless = playlist[index]["player"];
+    let songID = playlist[index]["id"];
 
     if (playing) pauseSong();
     gapless.gotoTrack(0);
 
-    for (let part of Object.values(partlist[index])) {
+    for (let part of Object.values(partlist[songID])) {
         if (typeof gapless.playlist.sources[part["gid"]] !== 'undefined') gapless.playlist.sources[part["gid"]].setPosition(0);
     }
 }
@@ -1203,6 +1208,7 @@ function removeKey(object, toRemove = null) {
     let cleaned = {};
 
     for (let [key, value] of Object.entries(object)) {
+        if (isNum(toRemove)) key = Number(key);
         if (key !== toRemove) cleaned[key] = value;
     }
 
@@ -1214,7 +1220,7 @@ function generateNumericalOrder(object) {
     let cleaned = {};
 
     let i = 0;
-    for (let value of Object.entries(object)) {
+    for (let value of Object.values(object)) {
        cleaned[i] = value;
        i++;
     }
@@ -1274,7 +1280,8 @@ function getColumns(data, level = 0, start = 0) {
  */
 function getCurrentPartTime() {
     try {
-        return playlist[playIndex]["player"].playlist.sources[partlist[playIndex][partIndex]["gid"]].getPosition() / 1000;
+        let songID = playlist[playIndex]["id"];
+        return playlist[playIndex]["player"].playlist.sources[partlist[songID][partIndex]["gid"]].getPosition() / 1000;
     } catch (e) {
         return 0;
     }
@@ -1334,7 +1341,8 @@ function getPartLengthCallback(index, callback) {
  * Wird dieser Teil zurückgegeben, sonst null
  */
 function getPartIndexByTime(time) {
-    for (let [index, part] of Object.entries(partlist[playIndex])) {
+    let songID = playlist[playIndex]["id"];
+    for (let [index, part] of Object.entries(partlist[songID])) {
         if (part["from"] <= time && part["till"] >= time) return [part["from"], part["till"], Number(index)];
     }
 
@@ -1351,7 +1359,8 @@ function getPartIndexByTime(time) {
  * Gibt diesen zurück, sonst null
  */
 function getPartIndexByStartTime(time) {
-    for (let [index, part] of Object.entries(partlist[playIndex])) {
+    let songID = playlist[playIndex]["id"];
+    for (let [index, part] of Object.entries(partlist[songID])) {
         if (part["from"] === time) return [part["from"], part["till"], Number(index)];
     }
 
@@ -1368,9 +1377,10 @@ function getPartIndexByStartTime(time) {
  */
 function findMissingLengthByCurrentPart() {
     let currentLength = getPartLength(partIndex);
-    let currentEnding = partlist[playIndex][partIndex]["till"];
+    let songID = playlist[playIndex]["id"];
+    let currentEnding = partlist[songID][partIndex]["till"];
 
-    for (let part of Object.values(partlist[playIndex])) {
+    for (let part of Object.values(partlist[songID])) {
         let missingLength = part["from"] - currentEnding - 1;
 
         if (missingLength > 0 && missingLength <= currentLength) return missingLength;

@@ -78,7 +78,6 @@ bindEvent("click", "#content .fa-play", function () {
     playIndex = 0;
     partIndex = 0;
     playlist = [];
-    partlist[playIndex] = {0: 0};
 
     clearInterval(secondsInterval);
     secondsInterval = null;
@@ -578,7 +577,8 @@ function addEvents(player) {
                 if (!downloading) {
                     clearInterval(interval);
 
-                    if (typeof partlist[playIndex][nextPartIndex] !== "undefined" && partlist[playIndex][partIndex]["till"] + 1 < Number(timeline.max)) {
+                    let songID = playlist[playIndex]["id"];
+                    if (typeof partlist[songID][nextPartIndex] !== "undefined" && partlist[songID][partIndex]["till"] + 1 < Number(timeline.max)) {
                         partIndex = nextPartIndex;
 
                         if (waited || hadError) play();
@@ -688,24 +688,27 @@ function addSongToPlaylist(element) {
  */
 function prepareNextPart(callback = null) {
     let timeline = document.getElementById("timeline"), nextTime;
+    let songID = playlist[playIndex]["id"];
 
     let interval = setInterval(function () {
-        if (!downloading && typeof partlist[playIndex][partIndex] !== 'undefined') {
+        if (!downloading && typeof partlist[songID][partIndex] !== 'undefined') {
             clearInterval(interval);
 
-            nextTime = partlist[playIndex][partIndex]["till"] + 1;
+            let songID = playlist[playIndex]["id"];
+            nextTime = partlist[songID][partIndex]["till"] + 1;
 
-            let nextSong = false, nextIndex;
+            let nextSong = false, nextIndex, nextSongID = null;
             if (!(Number(timeline.max) - nextTime > 1)) {
                 nextSong = true;
                 nextIndex = nextSongIndex();
+                nextSongID = playlist[nextIndex]["id"];
             }
 
             if (!nextSong) {
                 let partInfo = getPartIndexByStartTime(nextTime);
 
                 if (partInfo[2]) nextPartIndex = partInfo[2];
-                else nextPartIndex = Object.keys(partlist[playIndex]).length
+                else nextPartIndex = Object.keys(partlist[songID]).length
 
                 if (!partInfo[2]) {
                     let missingLength = findMissingLengthByCurrentPart()
@@ -713,8 +716,7 @@ function prepareNextPart(callback = null) {
                     downloadPart(nextTime, playIndex, nextPartIndex, missingLength);
                 }
                 playlist[playIndex]["player"].queueTrack(nextPartIndex);
-            } else if (typeof partlist[nextIndex] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
-                partlist[nextIndex] = {};
+            } else if (typeof partlist[nextSongID] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
                 downloadPart(0, nextIndex, 0);
             }
 
@@ -751,10 +753,10 @@ function downloadPart(time, sIndex, pIndex, till = null) {
 
     playlist[sIndex]["player"].addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""));
 
-    if (typeof partlist[sIndex] === 'undefined') partlist[sIndex] = {};
+    if (typeof partlist[songID] === 'undefined') partlist[songID] = {};
 
     getPartLengthCallback(pIndex, function (length) {
-        partlist[sIndex][pIndex] = {
+        partlist[songID][pIndex] = {
             "gid": playlist[sIndex]["player"].totalTracks() - 1,
             "from": time,
             "till": time + length - 1
@@ -925,18 +927,19 @@ function onTimelineRelease(value) {
 
     let partInfo = getPartIndexByTime(value);
     let index = partInfo[2];
+    let songID = playlist[playIndex]["id"];
 
     clearTimeout(timelineTimeout);
     if (!index) {
         timelineTimeout = setTimeout(function () {
-            index = Object.keys(partlist[playIndex]).length;
+            index = Object.keys(partlist[songID]).length;
             downloadPart(Number(value), playIndex, index);
 
             let interval = setInterval(function () {
                 if (!downloading) {
                     clearInterval(interval);
 
-                    gapless.gotoTrack(partlist[playIndex][index]["gid"]);
+                    gapless.gotoTrack(partlist[songID][index]["gid"]);
                     partIndex = index;
                     MSAPI.currentTime = value;
 
@@ -946,16 +949,16 @@ function onTimelineRelease(value) {
         }, 2000);
     } else {
         let interval = setInterval(function () {
-            if (typeof partlist[playIndex][index] !== 'undefined') {
+            if (typeof partlist[songID][index] !== 'undefined') {
                 clearInterval(interval);
 
-                let startFrom = (value - partlist[playIndex][index]["from"]) * 1000;
+                let startFrom = (value - partlist[songID][index]["from"]) * 1000;
 
-                gapless.gotoTrack(partlist[playIndex][index]["gid"]);
+                gapless.gotoTrack(partlist[songID][index]["gid"]);
                 partIndex = index;
                 MSAPI.currentTime = value;
 
-                gapless.playlist.sources[partlist[playIndex][partIndex]["gid"]].setPosition(startFrom, false);
+                gapless.playlist.sources[partlist[songID][partIndex]["gid"]].setPosition(startFrom, false);
                 play();
             }
         }, 50);

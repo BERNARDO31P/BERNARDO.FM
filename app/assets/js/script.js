@@ -426,7 +426,7 @@ bindEvent("click", "#queueView .fa-trash", function () {
                     playlist = removeKey(playlist, key);
                     playlist = generateNumericalOrder(playlist);
 
-                    partlist = removeKey(partlist, key);
+                    partlist = removeKey(partlist, id);
                 }
             }
 
