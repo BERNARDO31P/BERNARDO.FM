@@ -806,21 +806,6 @@ bindEvent("click", "#queueInfo .info:not(.active)", function () {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * Sobald das Event ausgelöst wird, ist es 100% ein Maus-Benutzer
- * Dafür da zum herauszufinden, ob jemand auf einem Touchgerät ist oder nicht
- *
- * Entfernt sich anschliessend selbst
- */
-document.addEventListener("mousemove", function touchCheck () {
-    touch = false;
-
-    document.removeEventListener("mousemove", touchCheck);
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
  * Wird ausgeführt, sobald die Seite geladen hat
  * Setzt je nach Farbauswahl das richtige Symbol (z.B. Mond für dark mode)
  *

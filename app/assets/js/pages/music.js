@@ -286,8 +286,6 @@ window["music"] = () => {
 
     setCookie("view", view);
 
-    document.addEventListener("mousemove", showScrollButtons);
-
     /*
      * Author: Bernardo de Oliveira
      *
@@ -460,6 +458,23 @@ window["music"] = () => {
                     let parent = document.createElement("div");
 
                     div.appendChild(categoryView);
+
+                    if (!isTouchScreen()) {
+                        let scrollBack = document.createElement("div");
+                        scrollBack.classList.add("scrollBack");
+                        scrollBack.innerHTML = "<i class='fas fa-arrow-left'></i>";
+                        parent.appendChild(scrollBack);
+
+                        let scrollForward = document.createElement("div");
+                        scrollForward.classList.add("scrollForward");
+                        scrollForward.innerHTML = "<i class='fas fa-arrow-right'></i>";
+                        parent.appendChild(scrollForward);
+
+                        if (Object.keys(songs).length > count - 3) {
+                            scrollForward.style.display = "flex";
+                        }
+                    }
+
                     parent.appendChild(div);
                     gridView.appendChild(parent);
                 }
