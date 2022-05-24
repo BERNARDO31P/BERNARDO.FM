@@ -55,15 +55,16 @@ function get_server_network_usage(): array
 }
 
 while (true) {
-    if (count($db) == $amount * 4)
-        unset($db[key($db)]);
+    try {
+	    if (count($db) == $amount * 4)
+		    unset($db[key($db)]);
 
-    $network =
-    $db[time()] = array(
-        "cpu" => get_server_cpu_usage(),
-        "ram" => get_server_memory_usage(),
-        "network" => get_server_network_usage()
-    );
+	    $db[time()] = array(
+		    "cpu" => get_server_cpu_usage(),
+		    "ram" => get_server_memory_usage(),
+		    "network" => get_server_network_usage()
+	    );
 
-    file_put_contents($dbFile, json_encode($db));
+	    file_put_contents($dbFile, json_encode($db));
+    } catch (Exception $ignored) {}
 }
