@@ -957,14 +957,10 @@ function clearSongs() {
  */
 function resetSong(index) {
     let gapless = playlist[index]["player"];
-    let songID = playlist[index]["id"];
 
     if (playing) pauseSong();
     gapless.gotoTrack(0);
-
-    for (let part of Object.values(partlist[songID])) {
-        if (typeof gapless.playlist.sources[part["gid"]] !== 'undefined') gapless.playlist.sources[part["gid"]].setPosition(0);
-    }
+    gapless.setPosition(0);
 }
 
 /*
@@ -1315,8 +1311,7 @@ function getColumns(data, level = 0, start = 0) {
  */
 function getCurrentPartTime() {
     try {
-        let songID = playlist[playIndex]["id"];
-        return playlist[playIndex]["player"].playlist.sources[partlist[songID][partIndex]["gid"]].getPosition() / 1000;
+        return playlist[playIndex]["player"].getPosition() / 1000;
     } catch (e) {
         return 0;
     }

@@ -959,7 +959,7 @@ function onTimelineRelease(value) {
                 partIndex = index;
                 MSAPI.currentTime = value;
 
-                gapless.playlist.sources[partlist[songID][partIndex]["gid"]].setPosition(startFrom, false);
+                gapless.setPosition(startFrom);
                 play();
             }
         }, 50);
