@@ -477,14 +477,11 @@ function ucFirst(string) {
  *
  * Wandelt Sekunden in Minuten und Sekunden um
  */
-function getMinutesAndSeconds(time) {
-    let minutes = Math.floor(time / 60);
-    let seconds = time - minutes * 60;
-
-    minutes = ("0" + minutes).slice(-2);
-    seconds = ("0" + seconds).slice(-2);
-
-    return minutes + ":" + seconds;
+function getReadableTime(time) {
+    const date = new Date(0);
+    date.setSeconds(time);
+    const timeString = date.toISOString().substr(11, 8);
+    return timeString;
 }
 
 /*
@@ -1028,7 +1025,7 @@ function onTimelineMove(rangeEvent) {
     timeInfo.style.left = leftPos + "px";
 
     let currentTime = timeInfo.querySelector("#current");
-    currentTime.textContent = getMinutesAndSeconds(rangeEvent.target.value);
+    currentTime.textContent = getReadableTime(rangeEvent.target.value);
 }
 
 /*
