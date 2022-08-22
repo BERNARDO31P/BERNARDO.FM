@@ -3,9 +3,17 @@ let currentHover = null, playIndex = 0, partIndex = 0, nextPartIndex = 0, playli
     currentButton = null, changedQueue = false;
 
 let backgroundProcesses = [];
-let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, searchTimeout = null;
+let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, searchTimeout = null, songInterval = null;
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
+
+let currentSong = null;
+
+
+let clickEvent = new Event('click', {
+    bubbles: true,
+    cancelable: true,
+});
 
 /*
  * Autor: Bernardo de Oliveira
@@ -902,10 +910,12 @@ function getLengthByString(stringTime) {
  *
  * Startet eine Schleife, welche jede Sekunde den Fortschritt des Liedes abruft und ins Tooltip speichert
  */
-function play(diffSong = false) {
+function play(diffSong = false, pageLoad = false) {
     let player = document.getElementById("player");
 
     let song = playlist[playIndex];
+    currentSong = song["id"];
+
     let gapless = song["player"];
     gapless.setVolume(volume);
 
@@ -1026,9 +1036,14 @@ function play(diffSong = false) {
                 }
             }, 1000);
         }
+
+        if (pageLoad) {
+            let angleUp = document.getElementsByClassName("fa-angle-up")[0];
+            angleUp.dispatchEvent(clickEvent);
+        }
     }).catch(function () {
         showConfirmation("Warning", "Your browser is blocking the automatic playback. Do you want to allow it?", function () {
-            play(diffSong);
+            play(diffSong, pageLoad);
         });
     });
 }

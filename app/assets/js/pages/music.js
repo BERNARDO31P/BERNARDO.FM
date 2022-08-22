@@ -514,7 +514,7 @@ window["music"] = () => {
         if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]) {
             playPauseButton("load");
             downloadPart(time, playIndex, partIndex);
-            play(true);
+            play(true, true);
         }
     }
 }

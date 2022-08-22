@@ -88,11 +88,6 @@ document.onkeydown = function (e) {
                 cancelable: true,
             });
 
-            let clickEvent = new Event('click', {
-                bubbles: true,
-                cancelable: true,
-            });
-
             switch (key) {
                 case "R":
                     let repeatButton = player.querySelector(".repeat");
@@ -639,6 +634,10 @@ bindEvent("click", ".fa-angle-up", function () {
 
     if (this.getAttribute("data-angle") === "up") {
         hidePlaylist(body, queueView, this);
+        clearInterval(songInterval);
+
+        location.replace(removeGetParameter(location.href, "s"));
+        location.replace(removeGetParameter(location.href, "t"));
 
         if (window.scrollY !== 0) navbar.classList.add("shadow");
     } else {
@@ -673,6 +672,12 @@ bindEvent("click", ".fa-angle-up", function () {
         });
 
         updatePlaying();
+
+        let timeline = document.getElementById("timeline");
+        songInterval = setInterval(function() {
+            location.replace(setGetParameter(location.href, "s", currentSong));
+            location.replace(setGetParameter(location.href, "t", timeline.value));
+        }, 1000);
 
         this.setAttribute("data-angle", "up");
     }
