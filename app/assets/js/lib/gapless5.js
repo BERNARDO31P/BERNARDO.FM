@@ -2,7 +2,7 @@
  *
  * Gapless 5: Gapless JavaScript/CSS audio player for HTML5
  *
- * Version 1.3.11
+ * Version 1.3.16
  * Copyright 2014 Rego Sen
  *
 */
@@ -215,7 +215,7 @@ function Gapless5Source(parentPlayer, parentLog, inAudioPath) {
                     if (audio) {
                         audio.pause();
                     }
-                } else {
+                } else if (source) {
                     // in case stop was requested while awaiting promise
                     source.stop();
                 }
@@ -412,7 +412,7 @@ function Gapless5Source(parentPlayer, parentLog, inAudioPath) {
 
 // A Gapless5FileList "class". Processes an array of JSON song objects, taking
 // the "file" members out to constitute the this.playlist.sources[] in the Gapless5 player
-function Gapless5FileList(parentPlayer, parentLog, inShuffle, inLoadLimit = -1) {
+function Gapless5FileList(parentPlayer, parentLog, inShuffle, inLoadLimit = -1, inTracks = [], inStartingTrack = 0) {
     const player = parentPlayer;
     const log = parentLog;
 
@@ -432,11 +432,11 @@ function Gapless5FileList(parentPlayer, parentLog, inShuffle, inLoadLimit = -1) 
 
     // PRIVATE METHODS
 
-    this.setStartingTrack = (inStartingTrack) => {
-        if (inStartingTrack === 'random') {
+    this.setStartingTrack = (newStartingTrack) => {
+        if (newStartingTrack === 'random') {
             this.startingTrack = Math.floor(Math.random() * this.sources.length);
         } else {
-            this.startingTrack = inStartingTrack || 0;
+            this.startingTrack = newStartingTrack || 0;
         }
         log.debug(`Setting starting track to ${this.startingTrack}`);
         this.trackNumber = this.startingTrack;
@@ -670,6 +670,16 @@ function Gapless5FileList(parentPlayer, parentLog, inShuffle, inLoadLimit = -1) 
         }
         this.updateLoading();
     };
+
+    // process inputs from constructor
+    if (inTracks.length > 0) {
+        for (let i = 0; i < inTracks.length; i++) {
+            this.sources.push(new Gapless5Source(player, log, inTracks[i]));
+            this.shuffledIndices.splice(Math.floor(Math.random() * this.numTracks()), 0, this.numTracks() - 1);
+        }
+        this.setStartingTrack(inStartingTrack);
+        this.updateLoading();
+    }
 }
 
 // parameters are optional.
@@ -734,7 +744,7 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
             break;
         /* eslint-enable no-fallthrough */
     }
-    this.playlist = new Gapless5FileList(this, log, options.shuffle, options.loadLimit);
+    this.playlist = null;
     this.loop = options.loop || false;
     this.singleMode = options.singleMode || false;
     this.exclusive = options.exclusive || false;
@@ -779,7 +789,6 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
     }
 
     // Callback and Execution logic
-    this.isPlayButton = true;
     this.keyMappings = {};
 
     // Callbacks
@@ -868,7 +877,7 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
     this.isSingleLoop = () => this.loop && (this.singleMode || this.totalTracks() === 1);
 
     this.mapKeys = (keyOptions) => {
-        for (let key in keyOptions) {
+        for (const key in keyOptions) {
             const uppercode = keyOptions[key].toUpperCase().charCodeAt(0);
             const lowercode = keyOptions[key].toLowerCase().charCodeAt(0);
             const player = gapless5Players[this.id];
@@ -950,14 +959,17 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
                 this.queuedTrack = null;
             } else if (this.loop || this.getIndex() < this.totalTracks() - 1) {
                 if (this.singleMode || this.totalTracks() === 1) {
-                    this.prev(!this.loop);
+                    if (this.loop) {
+                        this.prev(null, false);
+                    }
                 } else {
-                    source.stop(true);
-                    this.next(true);
+                    source.stop();
+                    this.next(null, true);
                 }
             } else {
-                source.stop(true);
+                source.stop();
                 this.scrub(0, true);
+                source.setPosition(0);
                 finishedAll = true;
             }
             this.onfinishedtrack(audioPath);
@@ -976,7 +988,7 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
         const source = this.currentSource();
         if (source) {
             if (source.inPlayState() && this.scrubPosition >= this.currentLength()) {
-                this.next(true);
+                this.next(null, true);
             } else {
                 source.setPosition(this.scrubPosition, true);
             }
@@ -1116,7 +1128,7 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
         this.onprev(currentSource.audioPath, newSource.audioPath);
     };
 
-    this.prev = (e) => {
+    this.prev = (uiEvent, forceReset) => {
         const currentSource = this.currentSource();
         if (!currentSource) {
             return;
@@ -1126,7 +1138,8 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
         let playlistIndex = this.getIndex();
         if (currentSource.getPosition() > 0) {
             // jump to start of track if we're not there
-            currentSource.setPosition(0, e !== false);
+            this.scrub(0, true);
+            currentSource.setPosition(0, forceReset || Boolean(uiEvent));
             track = playlistIndex;
             wantsCallback = false;
         } else if (this.singleMode && this.loop) {
@@ -1139,14 +1152,14 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
             return;
         }
 
-        this.gotoTrack(track, e === true);
         if (wantsCallback) {
+            this.gotoTrack(track, forceReset || Boolean(uiEvent), true);
             const newSource = this.currentSource();
             this.onprev(currentSource.audioPath, newSource.audioPath);
         }
     };
 
-    this.next = (e) => {
+    this.next = (_uiEvent, forcePlay) => {
         const currentSource = this.currentSource();
         if (!currentSource) {
             return;
@@ -1160,7 +1173,7 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
         } else if (!this.loop) {
             return;
         }
-        this.gotoTrack(track, e === true, true);
+        this.gotoTrack(track, forcePlay || this.isPlaying(), true);
         const newSource = this.currentSource();
         this.onnext(currentSource.audioPath, newSource.audioPath);
     };
@@ -1182,23 +1195,20 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
         this.onplayrequest(source.audioPath);
     };
 
-    this.playpause = (e) => {
-        if (this.isPlayButton) {
-            this.play(e);
+    this.playpause = () => {
+        const source = this.currentSource();
+        if (source && source.inPlayState(true)) {
+            this.pause();
         } else {
-            this.pause(e);
+            this.play();
         }
     };
 
-    this.cue = (e) => {
-        if (!this.isPlayButton) {
-            this.prev(e);
-        } else if (this.currentPosition() > 0) {
-            this.prev(e);
-            this.play(e);
-        } else {
-            this.play(e);
+    this.cue = () => {
+        if (this.currentPosition() > 0) {
+            this.prev(null, true);
         }
+        this.play();
     };
 
     this.pause = () => {
@@ -1212,9 +1222,10 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
     this.stop = () => {
         const source = this.currentSource();
         if (source) {
-            source.stop(true);
+            source.stop();
             if (source.getPosition() > 0) {
                 this.scrub(0, true);
+                source.setPosition(0);
             }
             this.onstop(source.audioPath);
         }
@@ -1265,7 +1276,7 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
             enableShuffleButton('shuffle', false);
             enableButton('next', false);
         } else {
-            getElement('trackIndex').innerText = this.playlist.trackNumber;
+            getElement('trackIndex').innerText = this.playlist.trackNumber + 1;
             getElement('tracks').innerText = numTracks;
             getElement('totalPosition').innerText = getTotalPositionText();
             enableButton('prev', this.loop || this.getIndex() > 0 || this.currentPosition() > 0);
@@ -1274,10 +1285,8 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
             const source = this.currentSource();
             if (source && source.inPlayState(true)) {
                 enableButton('play', false);
-                this.isPlayButton = false;
             } else {
                 enableButton('play', true);
-                this.isPlayButton = true;
 
                 if (source && source.state === Gapless5State.Error) {
                     this.onerror(source.audioPath);
@@ -1430,6 +1439,7 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
                 for (let i = 0; i < options.tracks.length; i++) {
                     items[i] = options.tracks[i];
                 }
+                startingTrack = this.startingTrack || 0;
             } else if (typeof options.tracks[0] === 'object') {
                 // convert JSON items into array
                 for (let i = 0; i < options.tracks.length; i++) {
@@ -1440,10 +1450,9 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
         } else if (typeof options.tracks === 'string') {
             items[0] = options.tracks;
         }
-        for (let i = 0; i < items.length; i++) {
-            this.addTrack(items[i]);
-        }
-        this.playlist.setStartingTrack(startingTrack);
+        this.playlist = new Gapless5FileList(this, log, options.shuffle, options.loadLimit, items, startingTrack);
+    } else {
+        this.playlist = new Gapless5FileList(this, log, options.shuffle, options.loadLimit);
     }
 
     this.initialized = true;
