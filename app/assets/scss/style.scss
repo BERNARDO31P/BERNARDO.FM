@@ -1073,6 +1073,60 @@ body {
   height: 150px;
 }
 
+#confirmation {
+  z-index: 3;
+
+  font-family: "Roboto Regular", sans-serif;
+
+  color: var(--text-color);
+  background-color: var(--notification-background);
+  box-shadow: 1px 1px 1px var(--shadow-dark), -1px -1px 1px var(--shadow-light);
+
+  display: none;
+  width: 250px;
+  height: 100px;
+
+  position: fixed;
+  padding: 5px;
+
+  border-radius: 5px;
+
+  top: calc(50% - 50px);
+  left: calc(50% - 125px);
+
+  .title {
+    margin: 0;
+    padding: 0;
+  }
+
+  .message {
+    margin: 0;
+    padding: 0;
+  }
+
+  button {
+    position: absolute;
+    bottom: 5px;
+    height: 25px;
+    min-width: 50px;
+
+    border: none;
+    border-radius: 3px;
+
+    box-shadow: -2px -2px 3px var(--shadow-light), 2px 2px 3px var(--shadow-dark);
+    color: var(--text-color-title);
+    background-color: var(--navbar-background);
+
+    &.cancel {
+      right: 5px;
+    }
+
+    &.ok {
+      right: 70px;
+    }
+  }
+}
+
 .notification {
   font-family: "Roboto Regular", sans-serif;
 

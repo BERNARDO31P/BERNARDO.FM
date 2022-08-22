@@ -300,6 +300,44 @@ function tryParseJSON(jsonString) {
 }
 
 /*
+ * Funktion: showConfirmation()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  title: (String) Definiert den Titel der Benachrichtigung
+ *  message: (String) Definiert die Nachricht in der Benachrichtigung
+ *
+ * Zeigt eine Bestätigungsanfrage welche akzeptiert oder abgelehnt werden kann
+ * Gibt die Antwort zurück
+ */
+function showConfirmation(title, message, action = function(){}) {
+    let confirmation = document.getElementById("confirmation");
+    let titleElement = confirmation.querySelector(".title");
+    let messageElement = confirmation.querySelector(".message");
+
+    let okButton = confirmation.querySelector(".ok");
+    let cancelButton = confirmation.querySelector(".cancel");
+
+    titleElement.textContent = title;
+    messageElement.textContent = message;
+
+    confirmation.style.display = "block";
+
+    okButton.addEventListener("click", function accept () {
+        okButton.removeEventListener("click", accept);
+
+        confirmation.style.display = "none";
+
+        action();
+    });
+
+    cancelButton.addEventListener("click", function cancel() {
+        cancelButton.removeEventListener("click", cancel);
+
+        confirmation.style.display = "none";
+    });
+}
+
+/*
  * Funktion: showNotification()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -422,6 +460,144 @@ function isTouchScreen() {
  */
 function getWidth() {
     return Math.max(document.body.scrollWidth, document.documentElement.scrollWidth, document.body.offsetWidth, document.documentElement.offsetWidth, document.documentElement.clientWidth);
+}
+
+/*
+ * Funktion: hasGetParameter()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  url: (String) Definiert die zu überprüfende URL-Adresse
+ *  parameter: (String) Definiert den zu überprüfenden Parameter
+ *
+ * Überprüft ob der Parameter in der URL vorhanden ist
+ */
+function hasGetParameter(url, parameter) {
+    let parameters = url.split('#!')[1];
+    let includes = false;
+
+    if (parameters) {
+        let parameterArr = parameters.split('&');
+
+        parameterArr.forEach(function (singlePair) {
+            let pair = singlePair.split("=");
+            if (pair[0] === parameter) {
+                includes = true;
+            }
+        });
+    }
+    return includes;
+}
+
+/*
+* Funktion: getGetParameters()
+* Autor: Bernardo de Oliveira
+* Argumente:
+*  url: (String) Definiert die zu bearbeitende URL-Adresse
+*
+* Sucht alle GET Parameter und gibt diese als Objekt zurück
+*/
+function getGetParameters(url) {
+    let parameters = url.split('#!')[1], parameterArr = [], output = {};
+    if (parameters) {
+        parameterArr = parameters.split('&');
+
+        if (parameterArr.length) {
+            Object.values(parameterArr).forEach(parameterPair => {
+                let pair = parameterPair.split('=');
+                output[pair[0]] = pair[1];
+            });
+        }
+    }
+
+    return output;
+}
+
+function getGetParameter(url, parameter) {
+    let parameters = getGetParameters(url);
+
+    return parameters[parameter] ?? null;
+}
+
+/*
+ * Funktion: setGetParameter()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  url: (String) Definiert die zu bearbeitende URL-Adresse
+ *  parameter: (String) Definiert den zu setztenden GET Parameter
+ *  value: (String) Definiert den Wert von diesem Parameter
+ *
+ * Setzt ein GET Parameter mit einem Wert
+ * Entspricht dem HTTP-GET Standard
+ */
+function setGetParameter(url, parameter, value) {
+    if (hasGetParameter(url, parameter))
+        url = removeGetParameter(url, parameter);
+
+    if (!url.includes("#!"))
+        url += "#!";
+
+    if (!url.endsWith("!") && !url.endsWith("&"))
+        url += "&";
+
+    if (value) {
+        return url + parameter + "=" + value;
+    } else {
+        if (url.endsWith("&") || url.endsWith("!")) {
+            return url.slice(0, -1);
+        } else {
+            return url;
+        }
+    }
+}
+
+/*
+ * Funktion: removeGetParameters()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  url: (String) Definiert die zu bearbeitende URL-Adresse
+ *
+ * Entfernt alle GET Parameter
+ */
+function removeGetParameters(url) {
+    return url.split('#!')[0];
+}
+
+/*
+ * Funktion: removeGetParameter()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  url: (String) Definiert die zu bearbeitende Adresse
+ *  parameter: (String) Definiert den zu entfernenden Parameter
+ *
+ * Entfernt alle Parameter
+ * Sucht alle Parameter, welche nicht gesucht werden
+ * Fügt diese zur URL wieder hinzu
+ */
+function removeGetParameter(url, parameter) {
+    let cleanUrl = removeGetParameters(url) + "#!";
+    let parameters = url.split('#!')[1] ?? "";
+    let parameterArr = parameters.split('&') ?? {};
+    let parameterNum = parameterArr.length, count = 1;
+
+    if (parameters) {
+        parameterArr.forEach(function (singlePair) {
+            let pair = singlePair.split("=");
+            if (pair[0] !== parameter) {
+                cleanUrl += pair[0] + "=" + pair[1];
+                if (parameterNum !== count && !cleanUrl.endsWith("&"))
+                    cleanUrl += "&";
+            }
+            count++;
+        });
+    }
+
+    if (cleanUrl.endsWith("&"))
+        cleanUrl = cleanUrl.slice(0, -1);
+
+    if (cleanUrl.endsWith("!"))
+        cleanUrl = cleanUrl.slice(0, -2);
+
+    return cleanUrl;
 }
 
 /*
@@ -731,125 +907,130 @@ function play(diffSong = false) {
 
     let song = playlist[playIndex];
     let gapless = song["player"];
-
     gapless.setVolume(volume);
-    gapless.play();
-    playing = true;
 
+    let length = getLengthByString(song["length"]);
     if (diffSong) {
-        let length = getLengthByString(song["length"]);
-        let songLength = document.getElementById("timeInfo").querySelector("#length");
-        let queueView = document.getElementById("queueView");
-        let cover = queueView.querySelector("#playingCover").querySelector("img");
-
-        cover.src = song["cover"]
-        songLength.textContent = song["length"];
-        player.querySelector("#timeline").max = length;
-
         MSAPI.src = createSilence(length);
         MSAPI.load();
         MSAPI.currentTime = 0;
+    }
 
-        player.querySelector("#name").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" + "<div class='spacer'>" + song["name"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
+    if (MSAPI.paused) MSAPI.play().then(function () {
+        gapless.play();
+        playing = true;
 
-        player.querySelector("#artist").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" + "<div class='spacer'>" + song["artist"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
+        if (diffSong) {
+            let songLength = document.getElementById("timeInfo").querySelector("#length");
+            let queueView = document.getElementById("queueView");
+            let cover = queueView.querySelector("#playingCover").querySelector("img");
 
+            cover.src = song["cover"];
+            songLength.textContent = song["length"];
 
-        if ('mediaSession' in navigator) {
-            let song = playlist[playIndex];
+            player.querySelector("#timeline").max = length;
+            player.querySelector("#name").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" + "<div class='spacer'>" + song["name"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
+            player.querySelector("#artist").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" + "<div class='spacer'>" + song["artist"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
 
-            let mouseUpEvent = new Event('mouseup', {
-                bubbles: true, cancelable: true,
-            });
+            if ('mediaSession' in navigator) {
+                let song = playlist[playIndex];
 
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: song["name"], artist: song["artist"], artwork: [{src: song["cover"], type: 'image/png'},]
-            });
+                let mouseUpEvent = new Event('mouseup', {
+                    bubbles: true, cancelable: true,
+                });
 
-            navigator.mediaSession.setActionHandler('play', function () {
-                play()
-            });
-            navigator.mediaSession.setActionHandler('pause', function () {
-                pauseSong()
-            });
-            navigator.mediaSession.setActionHandler('previoustrack', function () {
-                previousSong()
-            });
-            navigator.mediaSession.setActionHandler('nexttrack', function () {
-                nextSong()
-            });
-            navigator.mediaSession.setActionHandler('stop', function () {
-                pauseSong()
-            });
-            navigator.mediaSession.setActionHandler('seekbackward', function () {
-                let timeline = document.getElementById("timeline");
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: song["name"], artist: song["artist"], artwork: [{src: song["cover"], type: 'image/png'},]
+                });
 
-                timeline.value = Number(timeline.value) - 10;
-                timeline.dispatchEvent(mouseUpEvent);
-            });
-            navigator.mediaSession.setActionHandler('seekforward', function () {
-                let timeline = document.getElementById("timeline");
+                navigator.mediaSession.setActionHandler('play', function () {
+                    play()
+                });
+                navigator.mediaSession.setActionHandler('pause', function () {
+                    pauseSong()
+                });
+                navigator.mediaSession.setActionHandler('previoustrack', function () {
+                    previousSong()
+                });
+                navigator.mediaSession.setActionHandler('nexttrack', function () {
+                    nextSong()
+                });
+                navigator.mediaSession.setActionHandler('stop', function () {
+                    pauseSong()
+                });
+                navigator.mediaSession.setActionHandler('seekbackward', function () {
+                    let timeline = document.getElementById("timeline");
 
-                timeline.value = Number(timeline.value) + 10;
-                timeline.dispatchEvent(mouseUpEvent);
-            });
-            navigator.mediaSession.setActionHandler('seekto', function (details) {
-                if ('seekTime' in details) {
-                    let time = Math.round(details.seekTime);
-                    onTimelineRelease(time);
+                    timeline.value = Number(timeline.value) - 10;
+                    timeline.dispatchEvent(mouseUpEvent);
+                });
+                navigator.mediaSession.setActionHandler('seekforward', function () {
+                    let timeline = document.getElementById("timeline");
+
+                    timeline.value = Number(timeline.value) + 10;
+                    timeline.dispatchEvent(mouseUpEvent);
+                });
+                navigator.mediaSession.setActionHandler('seekto', function (details) {
+                    if ('seekTime' in details) {
+                        let time = Math.round(details.seekTime);
+                        onTimelineRelease(time);
+                    }
+                })
+            }
+
+            let data = tryParseJSON(httpGet(pageURL + "system/info/" + song["id"]));
+            let infoBox = queueView.querySelector("#info");
+            if (Object.keys(data).length) {
+                infoBox.innerHTML = "";
+                for (let info of Object.values(data)) {
+                    infoBox.innerHTML += "<h3>" + info["name"] + "</h3>" + "<p>" + info["description"] + "</p>";
                 }
-            })
-        }
-
-        let data = tryParseJSON(httpGet(pageURL + "system/info/" + song["id"]));
-        let infoBox = queueView.querySelector("#info");
-        if (Object.keys(data).length) {
-            infoBox.innerHTML = "";
-            for (let info of Object.values(data)) {
-                infoBox.innerHTML += "<h3>" + info["name"] + "</h3>" + "<p>" + info["description"] + "</p>";
+            } else {
+                infoBox.innerHTML = "<h3>No description found.</h3>";
             }
-        } else {
-            infoBox.innerHTML = "<h3>No description found.</h3>";
+
+            updatePlaying();
         }
 
-        updatePlaying();
-    }
+        player.style.display = "initial";
 
-    player.style.display = "initial";
-    if (MSAPI.paused) MSAPI.play();
+        let title = document.querySelector("title");
+        title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
 
-    let title = document.querySelector("title");
-    title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
-
-    let animation = document.getElementsByClassName("lds-facebook")[0];
-    if (animation) {
-        let divs = animation.querySelectorAll("div");
-        for (let div of divs) {
-            if (div.style.animationPlayState === "paused") {
-                div.style.animationPlayState = "running";
-            }
-        }
-    }
-
-    if (!secondsInterval) {
-        secondsInterval = setInterval(function () {
-            let timeline = document.getElementById("timeline");
-            let currentPosition = getCurrentPartTime();
-
-            if (currentPosition) {
-                let songID = playlist[playIndex]["id"];
-                let position = currentPosition + partlist[songID][partIndex]["from"];
-                timeline.value = position;
-                MSAPI.currentTime = position;
-
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.setPositionState({
-                        duration: MSAPI.duration, playbackRate: MSAPI.playbackRate, position: MSAPI.currentTime
-                    });
+        let animation = document.getElementsByClassName("lds-facebook")[0];
+        if (animation) {
+            let divs = animation.querySelectorAll("div");
+            for (let div of divs) {
+                if (div.style.animationPlayState === "paused") {
+                    div.style.animationPlayState = "running";
                 }
             }
-        }, 1000);
-    }
+        }
+
+        if (!secondsInterval) {
+            secondsInterval = setInterval(function () {
+                let timeline = document.getElementById("timeline");
+                let currentPosition = getCurrentPartTime();
+
+                if (currentPosition) {
+                    let songID = playlist[playIndex]["id"];
+                    let position = currentPosition + partlist[songID][partIndex]["from"];
+                    timeline.value = position;
+                    MSAPI.currentTime = position;
+
+                    if ('mediaSession' in navigator) {
+                        navigator.mediaSession.setPositionState({
+                            duration: MSAPI.duration, playbackRate: MSAPI.playbackRate, position: MSAPI.currentTime
+                        });
+                    }
+                }
+            }, 1000);
+        }
+    }).catch(function () {
+        showConfirmation("Warning", "Your browser is blocking the automatic playback. Do you want to allow it?", function () {
+            play(diffSong);
+        });
+    });
 }
 
 /*
@@ -1249,8 +1430,8 @@ function generateNumericalOrder(object) {
 
     let i = 0;
     for (let value of Object.values(object)) {
-       cleaned[i] = value;
-       i++;
+        cleaned[i] = value;
+        i++;
     }
 
     return cleaned;

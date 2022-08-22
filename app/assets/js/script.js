@@ -154,6 +154,8 @@ document.onkeydown = function (e) {
  * Wird durch ein Event aufgerufen
  */
 function loadPage() {
+    setPage(page);
+
     let content = document.querySelector("#content"), title = document.querySelector("title");
     let data = htmlToElement(httpGet("./pages/" + page + ".html"));
     dataIncludeReplace(data);
@@ -210,6 +212,11 @@ function getScript(source) {
     prior.remove();
 }
 
+// TODO: Comment
+function setPage() {
+    location.href = setGetParameter(location.href, "page", page);
+}
+
 /*
  * Funktion: getPage()
  * Autor: Bernardo de Oliveira
@@ -251,7 +258,6 @@ bindEvent("click", "#navbar [data-page]", function (e) {
 
     page = this.getAttribute("data-page");
     prevPage = undefined;
-    window.location.href = "#!page=" + page;
 
     loadPage();
     setActiveNavbar();
@@ -834,7 +840,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 50);
 
     page = getPage();
-    window.location.href = "#!page=" + page;
     loadPage();
     dataIncludeReplace(document.body);
     setActiveNavbar();

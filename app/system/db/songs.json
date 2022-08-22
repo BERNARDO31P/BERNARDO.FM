@@ -1,877 +1,878 @@
 [
   {
-    "id": 1,
+    "id": "dQVjRxdFQ3e_36p3s9w",
     "cover": "Altered State & Xenoben - Perception.jpg",
     "name": "Perception",
     "artist": "Altered State & Xenoben",
     "length": "6:51",
     "fileName": "Altered State & Xenoben - Perception.wav",
     "category": "Psytrance",
-    "info": [1, 2]
+    "info": ["x7FKhWAtW_DVXJe7YSM", "Oc899ICemhaCiAveK5g"]
   },
   {
-    "id": 2,
+    "id": "O0Rd-k9nbhr8vilp8UM",
     "cover": "Infected Mushroom - Groove Attack.jpg",
     "name": "Groove Attack",
     "artist": "Infected Mushroom",
     "length": "6:47",
     "fileName": "Infected Mushroom - Groove Attack.wav",
     "category": "Psytrance",
-    "info": 3
+    "info": "IqW0Qi8zzJzK66yidII"
   },
   {
-    "id": 3,
+    "id": "cRRkdrBJ5YtYdq1guvQ",
     "cover": "Mobb Deep - Hell on Earth.jpg",
     "name": "Hell on Earth",
     "artist": "Mobb Deep",
     "length": "4:34",
     "fileName": "Mobb Deep - Hell on Earth.wav",
     "category": "Hip-Hop",
-    "info": 4
+    "info": "dIzdh0RO8hlrR2gpzaQ"
   },
   {
-    "id": 4,
+    "id": "G_BjVCsB1oykTWelKDg",
     "cover": "Atacama & Jakaan - KMOS.jpg",
     "name": "KMOS",
     "artist": "Atacama & Jakaan",
     "length": "8:40",
     "fileName": "Atacama & Jakaan - KMOS.wav",
     "category": "Psytrance",
-    "info": [5, 6]
+    "info": ["IOzNKqb-W9wvyO7SE6k", "eBn0moHkU2hx7GYLruo"]
   },
   {
-    "id": 5,
+    "id": "eU5ykqUgwIXClfanA8s",
     "cover": "Reborn - Deep Future.jpg",
     "name": "Deep Future",
     "artist": "Reborn",
     "length": "7:42",
     "fileName": "Reborn - Deep Future.wav",
     "category": "Psytrance",
-    "info": 7
+    "info": "52D88Af5tK7P-7bSZ1w"
   },
   {
-    "id": 6,
+    "id": "XsKFHnId8-8___vnxJk",
     "cover": "J Dilla - Dont Cry.jpg",
     "name": "Don't Cry",
     "artist": "J Dilla",
     "length": "1:59",
     "fileName": "J Dilla - Dont Cry.wav",
     "category": "Trip-Hop",
-    "info": 8
+    "info": "4Y61KOly6fscVi43hYQ"
   },
   {
-    "id": 7,
+    "id": "AHZRYIKPy3W805JfD-A",
     "cover": "Astrix - Sahara (Tristan Remix).jpg",
     "name": "Sahara (Tristan Remix)",
     "artist": "Astrix",
     "length": "7:50",
     "fileName": "Astrix - Sahara (Tristan Remix).wav",
     "category": "Psytrance",
-    "info": 9
+    "info": "9oPMOD2sIG2Y1StdrgQ"
   },
   {
-    "id": 8,
+    "id": "PB7C0deSIOpbtLiezZw",
     "cover": "Transient Disorder - The Watchers.jpg",
     "name": "The Watchers",
     "artist": "Transient Disorder",
     "length": "8:23",
     "fileName": "Transient Disorder - The Watchers.wav",
     "category": "Psytrance",
-    "info": 10
+    "info": "c7QWGpV0v3HVC4q9W4w"
   },
   {
-    "id": 9,
+    "id": "0Fw89kE6VK0NiP44D44",
     "cover": "Tropical Bleyage - My Thoughts.jpg",
     "name": "My Thoughts",
     "artist": "Tropical Bleyage",
     "length": "7:23",
     "fileName": "Tropical Bleyage - My Thoughts.wav",
     "category": "Psytrance",
-    "info": 11
+    "info": "3rbvSRgp3pf-x8q974I"
   },
   {
-    "id": 10,
+    "id": "GfL9CNSZ3ZYSPmnl9wE",
     "cover": "Mad Tribe - Alien Hoax.jpg",
     "name": "Alien Hoax",
     "artist": "Mad Tribe",
     "length": "7:43",
     "fileName": "Mad Tribe - Alien Hoax.wav",
     "category": "Psytrance",
-    "info": 12
+    "info": "xchjR7U9ug2bI7wZCII"
   },
   {
-    "id": 11,
+    "id": "CAWJJmsLtlRUi8vqPOw",
     "cover": "Dillon Cooper - Knuckle Up.jpg",
     "name": "Knuckle Up",
     "artist": "Dillon Cooper",
     "length": "3:05",
     "fileName": "Dillon Cooper - Knuckle Up.wav",
     "category": "Hip-Hop",
-    "info": 13
+    "info": "9_85SxzXAA9uISNplYs"
   },
   {
-    "id": 12,
-    "cover": "Soulchef - Write This Down x Ice Cube x Dr Dre x MC Ren.jpg",
+    "id": "Z8F5yFfpWAfDJYSiYTA",
+    "cover": "Soulchef - Write This Down x Ice Cube x Dr. Dre x MC Ren.jpg",
     "name": "Write This Down",
     "artist": "Soulchef feat. Ice Cube, Dr. Dre and MC Ren",
     "length": "3:12",
-    "fileName": "Soulchef - Write This Down x Ice Cube x Dr Dre x MC Ren.wav",
+    "fileName": "Soulchef - Write This Down x Ice Cube x Dr. Dre x MC Ren.wav",
     "category": "Hip-Hop",
-    "info": [14, 15, 16, 17]
+    "info": ["A2y2DStLt11yWw1pwGA", "49NwaGlllFjrGyA0zHk", "geUI0EQNJTajQNKV8f8", "fisjzl_l0xxq0vudhmc"]
   },
   {
-    "id": 13,
+    "id": "MLppS5SRgSaMr0dn6Lg",
     "cover": "Dr. Dre - The Message.jpg",
     "name": "The Message",
     "artist": "Dr. Dre",
     "length": "5:03",
     "fileName": "Dr. Dre - The Message.wav",
     "category": "Hip-Hop",
-    "info": 16
+    "info": "geUI0EQNJTajQNKV8f8"
   },
   {
-    "id": 14,
+    "id": "4AA5RHUxJOWUeCHirXE",
     "cover": "2Pac - They Dont Give A Fuck About Us.jpg",
     "name": "They Don't Give A F*** About Us",
     "artist": "2Pac",
     "length": "5:06",
     "fileName": "2Pac - They Dont Give A Fuck About Us.wav",
     "category": "Hip-Hop",
-    "info": 18
+    "info": "sqd0B7wvY1AaA9CQNhI"
   },
   {
-    "id": 15,
+    "id": "B-1Pa8ciRz6ghMnJPn8",
     "cover": "Dillon Cooper - State of Elevation.jpg",
     "name": "State of Elevation",
     "artist": "Dillon Cooper",
     "length": "3:39",
     "fileName": "Dillon Cooper - State of Elevation.wav",
     "category": "Hip-Hop",
-    "info": 13
+    "info": "9_85SxzXAA9uISNplYs"
   },
   {
-    "id": 16,
+    "id": "WTSQAXkMOCQMQvDWWZA",
     "cover": "Mr. Hyde feat. Ill Bill, Q-Unique & DJ Eclipse - Killer Collage.jpg",
     "name": "Killer Collage",
     "artist": "Mr. Hyde feat. Ill Bill, Q-Unique & DJ Eclipse",
     "length": "3:14",
     "fileName": "Mr. Hyde feat. Ill Bill, Q-Unique & DJ Eclipse - Killer Collage.wav",
     "category": "Hip-Hop",
-    "info": [19, 20, 21, 22]
+    "info": ["YFDVzKsG5g9UlM6t0ZA", "x2QfpGQR1QnDW-omGL4", "d6g_YpkwpXIEk1fsLzE", "e5m1L0CXmO9IKoQygyA"]
   },
   {
-    "id": 17,
+    "id": "Q3Zzo6aSbVZfu5h6Nvk",
     "cover": "Artifacts - The Interview.png",
     "name": "The Interview",
     "artist": "Artifacts",
     "length": "3:39",
     "fileName": "Artifacts - The Interview.wav",
     "category": "Hip-Hop",
-    "info": 23
+    "info": "wmJIKE860MlrA3FSrtY"
   },
   {
-    "id": 18,
+    "id": "Mn1809EM86S1KnNB2gs",
     "cover": "Dillon Cooper - Charge It To The Game.jpg",
     "name": "Charge It To The Game",
     "artist": "Dillon Cooper",
     "length": "3:32",
     "fileName": "Dillon Cooper - Charge It To The Game.wav",
     "category": "Hip-Hop",
-    "info": 13
+    "info": "9_85SxzXAA9uISNplYs"
   },
   {
-    "id": 19,
+    "id": "mMstPMObsSzHT5MkmSw",
     "cover": "A-Tech - Frequencies.jpg",
     "name": "Frequencies",
     "artist": "A-Tech",
     "length": "7:56",
     "fileName": "A-Tech - Frequencies.wav",
     "category": "Psytrance",
-    "info": 24
+    "info": "kXsdVDWY5CacDlU3ERc"
   },
   {
-    "id": 20,
+    "id": "JXOvMls6_1egulslFIc",
     "cover": "Ours Samplus - Canopée.jpg",
     "name": "Canopée",
     "artist": "Ours Samplus",
     "length": "8:15",
     "fileName": "Ours Samplus - Canopée.wav",
     "category": "Trip-Hop",
-    "info": 25
+    "info": "acxbN1V4IyfQEEQjw7A"
   },
   {
-    "id": 21,
+    "id": "lDqHALGbmte4uw1Ud28",
     "cover": "Gramatik - Indigo Child.jpg",
     "name": "Indigo Child",
     "artist": "Gramatik",
     "length": "3:56",
     "fileName": "Gramatik - Indigo Child.wav",
     "category": "Trip-Hop",
-    "info": 26
+    "info": "LvdgQey4vTxAYUHkOfo"
   },
   {
-    "id": 22,
+    "id": "2zU83V5DEO-M6brJVxc",
     "cover": "Ours Samplus - Memento.jpg",
     "name": "Memento",
     "artist": "Ours Samplus",
     "length": "2:42",
     "fileName": "Ours Samplus - Memento.wav",
     "category": "Trip-Hop",
-    "info": 25
+    "info": "acxbN1V4IyfQEEQjw7A"
   },
   {
-    "id": 23,
+    "id": "1YjCInNzR-0iofemD7o",
     "cover": "Bent - An Ordinary Day.jpg",
     "name": "An Ordinary Day",
     "artist": "Bent",
     "length": "4:45",
     "fileName": "Bent - An Ordinary Day.wav",
     "category": "Trip-Hop",
-    "info": 27
+    "info": "-AyG4gERkNSrlvY21ds"
   },
   {
-    "id": 24,
+    "id": "rnBt08I9sxWLkFEPjWo",
     "cover": "Ours Samplus - Over.jpg",
     "name": "Over",
     "artist": "Ours Samplus",
     "length": "4:05",
     "fileName": "Ours Samplus - Over.wav",
     "category": "Trip-Hop",
-    "info": 25
+    "info": "acxbN1V4IyfQEEQjw7A"
   },
   {
-    "id": 25,
+    "id": "QDomV80FCWs47qs5aYU",
     "cover": "Shamanizm Parallelii - Mountains Snow.jpg",
     "name": "Mountain's Snow",
     "artist": "Shamanizm Parallelii",
     "length": "7:08",
     "fileName": "Shamanizm Parallelii - Mountains Snow.wav",
     "category": "Psybient",
-    "info": 28
+    "info": "lA0ajIespDNcp7wZMQ4"
   },
   {
-    "id": 26,
+    "id": "vKWsC017XIr7kf6bDzk",
     "name": "Full-On",
     "category": "Playlists",
     "playlist": [
-      1,
-      2,
-      4,
-      19,
-      29,
-      28,
-      54,
-      55,
-      56,
-      57,
-      58,
-      59,
-      60,
-      61,
-      62,
-      63,
-      64,
-      65,
-      66,
-      67,
-      68,
-      69,
-      70,
-      71,
-      72,
-      73,
-      74,
-      75,
-      76,
-      77,
-      78,
-      79,
-      80,
-      81,
-      82,
-      83
+      "dQVjRxdFQ3e_36p3s9w",
+      "O0Rd-k9nbhr8vilp8UM",
+      "G_BjVCsB1oykTWelKDg",
+      "mMstPMObsSzHT5MkmSw",
+      "cqyu6Obum__pmHmh9SA",
+      "vTKJyBtnAXPL7w5PTEs",
+      "3HpEZN8IGZFwGMOspxw",
+      "9Fnaz0DE-cLkJgYptbc",
+      "vuCbxL7J03dBqvcaUB4",
+      "bXAgyzSPL9_aH_2-GDI",
+      "STHC8Ks0z2m1fus7vxs",
+      "96tl0E4xAAdfVO5gtGk",
+      "aL4sO9UIQA34WrKpRXs",
+      "hFRvjSgSlHuDSoNB3YM",
+      "F1h_DHY5AR4xreYooLA",
+      "ZrvVUDoCZHu6LCi8e2w",
+      "xqzkmKKfgYaBfbFItZw",
+      "uM4JIBT8JFSNp_mG8IY",
+      "D0hZLykJwzqlGa0Z9Mw",
+      "zTYTpxw8ZQCRJtCFesc",
+      "2_iSKBAEcxgmQrPUV58",
+      "12utnZkPzzmvNdd7_wY",
+      "PH7OH-ZOqQuyqDS9gkQ",
+      "ehsYhq9Rx6nfRBWNPZA",
+      "EJJgHoFjkCiuYv3XDF8",
+      "O8whPYL-XLgP_10qswE",
+      "QRIOJ9CXA7oKDSaNPoQ",
+      "mg56Rzfm7sQiodkorcc",
+      "PyQud4gzmJsp9FF1OPQ",
+      "Jx1vmhltL-77s6TJoRQ",
+      "zVv2RBYhWQ26D4zCh-M",
+      "pArzUTNWh9zlxQWj9Ps",
+      "6zm3aSoZ_wpbh9wa9jM",
+      "F1by3BN0C5UdlUJn2A8",
+      "Pkc21G8LrmAfMEbnh9M",
+      "UYEGfzSo3zH4E4TBZIU"
     ]
   },
   {
-    "id": 27,
+    "id": "XOaBmUtmTQ4znYZODeE",
     "name": "Old-School",
     "category": "Playlists",
     "playlist": [
-      17,
-      16,
-      3,
-      14,
-      15
+      "cRRkdrBJ5YtYdq1guvQ",
+      "4AA5RHUxJOWUeCHirXE",
+      "WTSQAXkMOCQMQvDWWZA",
+      "Q3Zzo6aSbVZfu5h6Nvk",
+      "B-1Pa8ciRz6ghMnJPn8",
+      "Mn1809EM86S1KnNB2gs"
     ]
   },
   {
-    "id": 28,
+    "id": "vTKJyBtnAXPL7w5PTEs",
     "cover": "Alienatic - War of the World.jpg",
     "name": "War of the World",
     "artist": "Alienatic",
     "length": "7:46",
     "fileName": "Alienatic - War of the World.wav",
     "category": "Psytrance",
-    "info": 29
+    "info": "fZWx3rZq1o9zyozTpSY"
   },
   {
-    "id": 29,
+    "id": "cqyu6Obum__pmHmh9SA",
     "cover": "Bellatrix - Higher Dimensions.jpg",
     "name": "Higher Dimensions",
     "artist": "Bellatrix",
     "length": "9:02",
     "fileName": "Bellatrix - Higher Dimensions.wav",
     "category": "Psytrance",
-    "info": 30
+    "info": "NkEbICIGagtbjGqbtrk"
   },
   {
-    "id": 30,
+    "id": "A4crOCmx4HKhchE7cOc",
     "cover": "Sybarite - Sonic Staircase.jpg",
     "name": "Sonic Staircase",
     "artist": "Sybarite",
     "length": "8:38",
     "fileName": "Sybarite - Sonic Staircase.wav",
     "category": "Psytrance",
-    "info": 31
+    "info": "uRFTeyiieGNlSQiZ3k8"
   },
   {
-    "id": 31,
+    "id": "85op7J0vKQRmiwwn3H4",
     "cover": "Ashtar Command & Razzle Dazzle - Rebirth.jpg",
     "name": "Rebirth",
     "artist": "Ashtar Command & Razzle Dazzle",
     "length": "8:36",
     "fileName": "Ashtar Command & Razzle Dazzle - Rebirth.wav",
     "category": "Psytrance",
-    "info": [32, 33]
+    "info": ["uRFTeyiieGNlSQiZ3k8", "L5XTppYU9sT8gmcCrbE"]
   },
   {
-    "id": 32,
+    "id": "tlSJ1m5JXGD0Ht56JFg",
     "cover": "Pixel & Wrecked Machines - Mother Funker (FNX Rmx).jpg",
     "name": "Mother Funker (FNX Rmx)",
     "artist": "Pixel & Wrecked Machines",
     "length": "8:23",
     "fileName": "Pixel & Wrecked Machines - Mother Funker (FNX Rmx).wav",
     "category": "Psytrance",
-    "info": [34, 35, 36]
+    "info": ["hMyNhL1YqlMHp9lnhnU", "R0otLc0YxtqLg2uAAOc", "k4hrim17l1UFrVZ9tew"]
   },
   {
-    "id": 33,
+    "id": "s6F13Dza0oUh4NHEN2M",
     "cover": "Bitkit & Lexxus - Destiny.jpg",
     "name": "Destiny",
     "artist": "Bitkit & Lexxus",
     "length": "7:43",
     "fileName": "Bitkit & Lexxus - Destiny.wav",
     "category": "Psytrance",
-    "info": [37, 38]
+    "info": ["OgAGTKEVHGlEbR5um2I", "ihZJDNeXoqkVhOuzqi0"]
   },
   {
-    "id": 34,
+    "id": "jEt1akrppa814TmjHVg",
     "cover": "Lil Nas X - MONTERO (Call Me By Your Name).jpeg",
     "name": "MONTERO (Call Me By Your Name)",
     "artist": "Lil Nas X",
     "length": "2:50",
     "fileName": "Lil Nas X - MONTERO (Call Me By Your Name).wav",
     "category": "Trap",
-    "info": 0
+    "info": "nDwv1vABjE_uB7Je59w"
   },
   {
-    "id": 35,
+    "id": "ktM-Yx9zxws4oMT8CoA",
     "cover": "Lil Nas X - INDUSTRY BABY.jpg",
     "name": "INDUSTRY BABY",
     "artist": "Lil Nas X",
     "length": "3:32",
     "fileName": "Lil Nas X - INDUSTRY BABY.wav",
     "category": "Trap",
-    "info": 0
+    "info": "nDwv1vABjE_uB7Je59w"
   },
   {
-    "id": 36,
+    "id": "PNbCLGPpZ5182LIbX-U",
     "cover": "Fluxsense - Divinity Plane.jpg",
     "name": "Divinity Plane",
     "artist": "Fluxsense",
     "length": "8:04",
     "fileName": "Fluxsense - Divinity Plane.wav",
     "category": "Psybient",
-    "info": 39
+    "info": "PVOuQG_qwlJC2BdxAVw"
   },
   {
-    "id": 37,
+    "id": "36nng9PDu5dBjClrquA",
     "cover": "Fluxsense - Medusa.jpg",
     "name": "Medusa",
     "artist": "Fluxsense",
     "length": "8:40",
     "fileName": "Fluxsense - Medusa.wav",
     "category": "Psybient",
-    "info": 39
+    "info": "PVOuQG_qwlJC2BdxAVw"
   },
   {
-    "id": 38,
+    "id": "mzQ1ZS8_5-2kz0pLM2w",
     "cover": "Fluxsense - Through Your Eyes.jfif",
     "name": "Through Your Eyes",
     "artist": "Fluxsense",
     "length": "9:46",
     "fileName": "Fluxsense - Through Your Eyes.wav",
     "category": "Psybient",
-    "info": 39
+    "info": "PVOuQG_qwlJC2BdxAVw"
   },
   {
-    "id": 39,
+    "id": "Hpl0WxkMk5bLM5lQe5o",
     "cover": "Matt Jah - Here and Now.jpg",
     "name": "Here and Now",
     "artist": "Matt Jah",
     "length": "6:27",
     "fileName": "Matt Jah - Here and Now.wav",
     "category": "Psybient",
-    "info": 40
+    "info": "b0YDjRnTmCNUQ24XYG4"
   },
   {
-    "id": 40,
+    "id": "k8lxL0yulqRAa9Yn2Ig",
     "cover": "Mobitex - Orin.jpg",
     "name": "Orin",
     "artist": "Mobitex",
     "length": "8:52",
     "fileName": "Mobitex - Orin.wav",
     "category": "Psybient",
-    "info": 41
+    "info": "nAU2lLX9x-kejD_c3gE"
   },
   {
-    "id": 41,
+    "id": "p9ABFjJW7kFtedehFxk",
     "cover": "Deltron 3030 - 3030.jpg",
     "name": "3030",
     "artist": "Deltron 3030",
     "length": "7:29",
     "fileName": "Deltron 3030 - 3030.wav",
     "category": "Hip-Hop",
-    "info": 42
+    "info": "6jBsYZXobSrqAOKSM6k"
   },
   {
-    "id": 42,
+    "id": "XNyqVXThG0uqbZl2bLQ",
     "cover": "NECRO - Our Life.jpg",
     "name": "Our Life",
     "artist": "NECRO",
     "length": "3:21",
     "fileName": "NECRO - Our Life.wav",
     "category": "Hip-Hop",
-    "info": 43
+    "info": "RqqJQPr_iFnTXbDdtOs"
   },
   {
-    "id": 43,
+    "id": "EX43FAEoPbFs8g2kAsw",
     "cover": "NECRO - Push It to the Limit.jpg",
     "name": "Push It to the Limit",
     "artist": "NECRO",
     "length": "3:31",
     "fileName": "NECRO - Push It to the Limit.wav",
     "category": "Hip-Hop",
-    "info": 43
+    "info": "RqqJQPr_iFnTXbDdtOs"
   },
   {
-    "id": 44,
+    "id": "Us9GqYHw8pJkolNr9MA",
     "cover": "NECRO - Thugcore Cowboy.jfif",
     "name": "Thugcore Cowboy",
     "artist": "NECRO",
     "length": "2:47",
     "fileName": "NECRO - Thugcore Cowboy.wav",
     "category": "Hip-Hop",
-    "info": 43
+    "info": "RqqJQPr_iFnTXbDdtOs"
   },
   {
-    "id": 45,
+    "id": "L7PLL28GtvYEDGCrhD8",
     "cover": "Lauge - Wider Horizons.jpg",
     "name": "Wider Horizons",
     "artist": "Lauge",
     "length": "10:42",
     "fileName": "Lauge - Wider Horizons.wav",
     "category": "Psybient",
-    "info": 44
+    "info": "DouVWkmb03NoumQeVZg"
   },
   {
-    "id": 46,
+    "id": "MQqFOvdySUuRZrKY6HU",
     "cover": "PSYBORT - Galactic Balance.jpg",
     "name": "Galactic Balance",
     "artist": "PSYBORT",
     "length": "10:30",
     "fileName": "PSYBORT - Galactic Balance.wav",
     "category": "Psybient",
-    "info": 45
+    "info": "XWAtNgKpjn17aZ0BlYs"
   },
   {
-    "id": 47,
+    "id": "QHQiDw6TodQ7hBxKJMc",
     "cover": "Suduaya - Patience.jpg",
     "name": "Patience",
     "artist": "Suduaya",
     "length": "8:16",
     "fileName": "Suduaya - Patience.wav",
     "category": "Psybient",
-    "info": 46
+    "info": "9Sk8wBxXZ7uQd_x7d1I"
   },
   {
-    "id": 48,
+    "id": "YKxApWK-NQepGCIigb8",
     "cover": "Travis Scott - BUTTERFLY EFFECT.jpg",
     "name": "BUTTERFLY EFFECT",
     "artist": "Travis Scott",
     "length": "3:10",
     "fileName": "Travis Scott - BUTTERFLY EFFECT.wav",
     "category": "Trap",
-    "info": 47
+    "info": "ez1HwRez1E7xJs4xWPY"
   },
   {
-    "id": 49,
+    "id": "An11raWsNFXzaG0XxYg",
     "cover": "Pop Smoke - Dior.jpg",
     "name": "Dior",
     "artist": "Pop Smoke",
     "length": "3:36",
     "fileName": "Pop Smoke - Dior.wav",
     "category": "Trap",
-    "info": 48
+    "info": "ZusUvDH0mbajmPS-AoA"
   },
   {
-    "id": 50,
+    "id": "yLBWlx7QxYYenBY6pWE",
     "cover": "Travis Scott feat. Kendrick Lamar - Goosebumps.jpg",
     "name": "Goosebumps",
     "artist": "Travis Scott feat. Kendrick Lamar",
     "length": "4:03",
     "fileName": "Travis Scott feat. Kendrick Lamar - Goosebumps.wav",
     "category": "Trap",
-    "info": [47, 49]
+    "info": ["ez1HwRez1E7xJs4xWPY", "4RMVtlZPkx3A-aQd-6M"]
   },
   {
-    "id": 51,
+    "id": "_oPCKgRULY63Ldo2ULQ",
     "cover": "Hucci - Wings.jpg",
     "name": "Wings",
     "artist": "Hucci",
     "length": "3:34",
     "fileName": "Hucci - Wings.wav",
     "category": "Trap",
-    "info": 50
+    "info": "KrEHGeKWsvk02bfLp8k"
   },
   {
-    "id": 52,
+    "id": "oRiZ1tictCo38sZ9Lv4",
     "cover": "DJ Krush - Kemuri.jpg",
     "name": "Kemuri",
     "artist": "DJ Krush",
     "length": "5:17",
     "fileName": "DJ Krush - Kemuri.wav",
     "category": "Trip-Hop",
-    "info": 51
+    "info": "sn4reTvxYeymTgCSOp4"
   },
   {
-    "id": 53,
+    "id": "IpL4_8YfABVdw_JU5pY",
     "cover": "DJ Shadow - Midnight In A Perfect World.jpg",
     "name": "Midnight In A Perfect World",
     "artist": "DJ Shadow",
     "length": "4:58",
     "fileName": "DJ Shadow - Midnight In A Perfect World.wav",
     "category": "Trip-Hop",
-    "info": 52
+    "info": "9hlx3aYx1P4zz8lOBMI"
   },
   {
-    "id": 54,
+    "id": "3HpEZN8IGZFwGMOspxw",
     "cover": "Aion - Knowledge.jpg",
     "name": "Knowledge",
     "artist": "Aion",
     "length": "8:06",
     "fileName": "Aion - Knowledge.wav",
     "category": "Psytrance",
-    "info": 53
+    "info": "TSnkM20ArzN-mU-xBUU"
   },
   {
-    "id": 55,
+    "id": "9Fnaz0DE-cLkJgYptbc",
     "cover": "Altered State - Genetics.jpg",
     "name": "Genetics",
     "artist": "Altered State",
     "length": "7:24",
     "fileName": "Altered State - Genetics.wav",
     "category": "Psytrance",
-    "info": 1
+    "info": "x7FKhWAtW_DVXJe7YSM"
   },
   {
-    "id": 56,
+    "id": "vuCbxL7J03dBqvcaUB4",
     "cover": "Atma - Everything Is Nothing.jpg",
     "name": "Everything Is Nothing",
     "artist": "Atma",
     "length": "7:48",
     "fileName": "Atma - Everything Is Nothing.wav",
     "category": "Psytrance",
-    "info": 54
+    "info": "NdbFrMw3FHP1qfWlK0I"
   },
   {
-    "id": 57,
+    "id": "bXAgyzSPL9_aH_2-GDI",
     "cover": "Chronosphere - High Voltage.jpg",
     "name": "High Voltage",
     "artist": "Chronosphere",
     "length": "6:10",
     "fileName": "Chronosphere - High Voltage.wav",
     "category": "Psytrance",
-    "info": 55
+    "info": "6lBSEh4A5h6LfHRlIDo"
   },
   {
-    "id": 58,
+    "id": "STHC8Ks0z2m1fus7vxs",
     "cover": "Cloud6 - Scouting.jpg",
     "name": "Scouting",
     "artist": "Cloud6",
     "length": "7:35",
     "fileName": "Cloud6 - Scouting.wav",
     "category": "Psytrance",
-    "info": 56
+    "info": "qlJgMiCYx2eSlzMKygs"
   },
   {
-    "id": 59,
+    "id": "96tl0E4xAAdfVO5gtGk",
     "cover": "Disconnect & Second Life - Super Rare.jpg",
     "name": "Super Rare",
     "artist": "Disconnect & Second Life",
     "length": "7:27",
     "fileName": "Disconnect & Second Life - Super Rare.wav",
     "category": "Psytrance",
-    "info": [57, 58]
+    "info": ["u1jvkjR4i0lhT7PyClU", "Nb2HxbbAenZeodY1SV8"]
   },
   {
-    "id": 60,
+    "id": "aL4sO9UIQA34WrKpRXs",
     "cover": "Hypnoise - The Outside.jpg",
     "name": "The Outside",
     "artist": "Hypnoise",
     "length": "7:00",
     "fileName": "Hypnoise - The Outside.wav",
     "category": "Psytrance",
-    "info": 59
+    "info": "6yzRC-A5rBQM0ANXe5M"
   },
   {
-    "id": 61,
+    "id": "hFRvjSgSlHuDSoNB3YM",
     "cover": "Inner Sphere - Velorum.jpg",
     "name": "Velorum",
     "artist": "Inner Sphere",
     "length": "6:30",
     "fileName": "Inner Sphere - Velorum.wav",
     "category": "Psytrance",
-    "info": 60
+    "info": "dTubcckp_Q835wnhfoM"
   },
   {
-    "id": 62,
+    "id": "F1h_DHY5AR4xreYooLA",
     "cover": "Inner State - Computer Simulation (Genesia Remix).jpg",
     "name": "Computer Simulation (Genesia Remix)",
     "artist": "Inner State",
     "length": "8:31",
     "fileName": "Inner State - Computer Simulation (Genesia Remix).wav",
     "category": "Psytrance",
-    "info": [61, 62]
+    "info": ["vdh2UrDNvuacGoW3LiA", "BHGNv2cx48tTlbi_HWU"]
   },
   {
-    "id": 63,
+    "id": "ZrvVUDoCZHu6LCi8e2w",
     "cover": "Inside Mind - Beyond Matter.jpg",
     "name": "Beyond Matter",
     "artist": "Inside Mind",
     "length": "8:26",
     "fileName": "Inside Mind - Beyond Matter.wav",
     "category": "Psytrance",
-    "info": 63
+    "info": "VMM0h0Eklir4oV0EBfw"
   },
   {
-    "id": 64,
+    "id": "xqzkmKKfgYaBfbFItZw",
     "cover": "Introspective - Deja Vu.jpg",
     "name": "Deja Vu",
     "artist": "Introspective",
     "length": "8:00",
     "fileName": "Introspective - Deja Vu.wav",
     "category": "Psytrance",
-    "info": 64
+    "info": "ZZydyYYdDv_BKtBUpxU"
   },
   {
-    "id": 65,
+    "id": "uM4JIBT8JFSNp_mG8IY",
     "cover": "Knock Out - Mixctli (XoXo Remix).jpg",
     "name": "Mixctli (XoXo Remix)",
     "artist": "Knock Out",
     "length": "8:06",
     "fileName": "Knock Out - Mixctli (XoXo Remix).wav",
     "category": "Psytrance",
-    "info": [65, 66]
+    "info": ["Qn_AYW1WEGzPQqUe3CA", "vMQ7RxSQqpxzyBIjusw"]
   },
   {
-    "id": 66,
+    "id": "D0hZLykJwzqlGa0Z9Mw",
     "cover": "Logic Bomb - Marauder (XoXo Remix).jpg",
     "name": "Marauder (XoXo Remix)",
     "artist": "Logic Bomb",
     "length": "7:43",
     "fileName": "Logic Bomb - Marauder (XoXo Remix).wav",
     "category": "Psytrance",
-    "info": [67, 66]
+    "info": ["uYGjZ0P6k3N9QW0OEmo", "vMQ7RxSQqpxzyBIjusw"]
   },
   {
-    "id": 67,
+    "id": "zTYTpxw8ZQCRJtCFesc",
     "cover": "Mystika - Whispering.jpg",
     "name": "Whispering",
     "artist": "Mystika",
     "length": "7:03",
     "fileName": "Mystika - Whispering.wav",
     "category": "Psytrance",
-    "info": 68
+    "info": "lioJbD8GgDtoYeyIOL8"
   },
   {
-    "id": 68,
+    "id": "2_iSKBAEcxgmQrPUV58",
     "cover": "Neuroplasm, Escape - Ecliptic Shift.jpg",
     "name": "Ecliptic Shift",
     "artist": "Neuroplasm, Escape",
     "length": "8:25",
     "fileName": "Neuroplasm, Escape - Ecliptic Shift.wav",
     "category": "Psytrance",
-    "info": [69, 70]
+    "info": ["NV-Cust2xv78MIInFvM", "TvWhnRdxSMmUYcb57Zo"]
   },
   {
-    "id": 69,
+    "id": "12utnZkPzzmvNdd7_wY",
     "cover": "Solitary Shell - Afterglow (Eve Mix).jpg",
     "name": "Afterglow (Eve Mix)",
     "artist": "Solitary Shell",
     "length": "7:17",
     "fileName": "Solitary Shell - Afterglow (Eve Mix).wav",
     "category": "Psytrance",
-    "info": 71
+    "info": "r5grZvf-IXK-BOxuTac"
   },
   {
-    "id": 70,
+    "id": "PH7OH-ZOqQuyqDS9gkQ",
     "cover": "Sungirl - Focus (XOXO Remix).jpg",
     "name": "Focus (XoXo Remix)",
     "artist": "Sungirl",
     "length": "7:46",
     "fileName": "Sungirl - Focus (XOXO Remix).wav",
     "category": "Psytrance",
-    "info": [72, 66]
+    "info": ["NUU-xOqweOfIOhLOujk", "vMQ7RxSQqpxzyBIjusw"]
   },
   {
-    "id": 71,
+    "id": "ehsYhq9Rx6nfRBWNPZA",
     "cover": "U-Recken - Aces High.jfif",
     "name": "Aces High",
     "artist": "U-Recken",
     "length": "8:15",
     "fileName": "U-Recken - Aces High.wav",
     "category": "Psytrance",
-    "info": 73
+    "info": "QGAKL8rhAlg6wuhpuIA"
   },
   {
-    "id": 72,
+    "id": "EJJgHoFjkCiuYv3XDF8",
     "cover": "Vibe Tribe, Spade & Faders - Story Of D.M.T.jfif",
     "name": "Story Of D.M.T",
     "artist": "Vibe Tribe, Spade & Faders",
     "length": "7:31",
     "fileName": "Vibe Tribe, Spade & Faders - Story Of D.M.T.wav",
     "category": "Psytrance",
-    "info": [74, 75, 76]
+    "info": ["970rXoHLceb1J5imY_U", "HJFQghXEzJftiyo0Q9s", "DC2hJ0Ql6x2-HIai9XE"]
   },
   {
-    "id": 73,
+    "id": "O8whPYL-XLgP_10qswE",
     "cover": "Xamanist - Ananda.jpg",
     "name": "Ananda",
     "artist": "Xamanist",
     "length": "7:13",
     "fileName": "Xamanist - Ananda.wav",
     "category": "Psytrance",
-    "info": 77
+    "info": "D1phHP_rMTD5b56wQOQ"
   },
   {
-    "id": 74,
+    "id": "QRIOJ9CXA7oKDSaNPoQ",
     "cover": "X-Side, Amplify - Arabian Nights.jpg",
     "name": "Arabian Nights",
     "artist": "X-Side, Amplify",
     "length": "7:30",
     "fileName": "X-Side, Amplify - Arabian Nights.wav",
     "category": "Psytrance",
-    "info": [78, 79]
+    "info": ["kZrDVxNZf0kA1C3Ky4o", "s16ru75q_owOR2qYQlk"]
   },
   {
-    "id": 75,
+    "id": "mg56Rzfm7sQiodkorcc",
     "cover": "Zone Tempest - Everything Is Different.jpg",
     "name": "Everything Is Different",
     "artist": "Zone Tempest",
     "length": "8:14",
     "fileName": "Zone Tempest - Everything Is Different.wav",
     "category": "Psytrance",
-    "info": 80
+    "info": "TCJiSyD1N__5o4mZ3aw"
   },
   {
-    "id": 76,
+    "id": "PyQud4gzmJsp9FF1OPQ",
     "cover": "Zone Tempest - Space Time.jpg",
     "name": "Space Time",
     "artist": "Zone Tempest",
     "length": "6:14",
     "fileName": "Zone Tempest - Space Time.wav",
     "category": "Psytrance",
-    "info": 80
+    "info": "TCJiSyD1N__5o4mZ3aw"
   },
   {
-    "id": 77,
+    "id": "Jx1vmhltL-77s6TJoRQ",
     "cover": "Deliriant - New Dawn.jpg",
     "name": "New Dawn",
     "artist": "Deliriant",
     "length": "7:02",
     "fileName": "Deliriant - New Dawn.wav",
     "category": "Psytrance",
-    "info": 81
+    "info": "-Xc7gB9akfCKWrf9AcI"
   },
   {
-    "id": 78,
+    "id": "zVv2RBYhWQ26D4zCh-M",
     "cover": "Timecode - Wanna More.jpeg",
     "name": "Wanna More",
     "artist": "Timecode",
     "length": "7:02",
     "fileName": "Timecode - Wanna More.wav",
     "category": "Psytrance",
-    "info": 82
+    "info": "K5Z9DY-RwQij9gACw2c"
   },
   {
-    "id": 79,
+    "id": "pArzUTNWh9zlxQWj9Ps",
     "cover": "E-Mov & ConWerter - Multipurpose Molecule.jpg",
     "name": "Multipurpose Molecule",
     "artist": "E-Mov & ConWerter",
     "length": "7:24",
     "fileName": "E-Mov & ConWerter - Multipurpose Molecule.wav",
     "category": "Psytrance",
-    "info": [83, 84]
+    "info": ["XXPuyTT2mggUbHYRKz0", "c78FejOj08fK1QJfnsU"]
   },
   {
-    "id": 80,
+    "id": "6zm3aSoZ_wpbh9wa9jM",
     "cover": "Orisma & Solar Walker - Mind Medicine.jpg",
     "name": "Mind Medicine",
     "artist": "Orisma & Solar Walker",
     "length": "7:36",
     "fileName": "Orisma & Solar Walker - Mind Medicine.wav",
     "category": "Psytrance",
-    "info": [85, 86]
+    "info": ["d74MIYg2anLfHb-rgRc", "qFxBfXx7fMppieS7Za0"]
   },
   {
-    "id": 81,
+    "id": "F1by3BN0C5UdlUJn2A8",
     "cover": "Sam Alien - Among The Stars.jpg",
     "name": "Among The Stars",
     "artist": "Sam Alien",
     "length": "8:05",
     "fileName": "Sam Alien - Among The Stars.wav",
     "category": "Psytrance",
-    "info": 87
+    "info": "DVhjvXPgfM30q0OZgfk"
   },
   {
-    "id": 82,
+    "id": "Pkc21G8LrmAfMEbnh9M",
     "cover": "Synchromatrix - Goa Shiva.jpg",
     "name": "Goa Shiva",
     "artist": "Synchromatrix",
     "length": "7:58",
     "fileName": "Synchromatrix - Goa Shiva.wav",
     "category": "Psytrance",
-    "info": 88
+    "info": "YN_R9qXvX1GvQjQ_LCk"
   },
   {
-    "id": 83,
+    "id": "UYEGfzSo3zH4E4TBZIU",
     "cover": "X-Side - Neurogenesis.jpg",
     "name": "Neurogenesis",
     "artist": "X-Side",
     "length": "6:21",
     "fileName": "X-Side - Neurogenesis.wav",
     "category": "Psytrance",
-    "info": 78
+    "info": "kZrDVxNZf0kA1C3Ky4o"
   },
   {
-    "id": 84,
+    "id": "ZKZjV3i5kgNwgRsGEnw",
     "cover": "cosmicode @Cubano Churer Fest 2022.png",
     "name": "Cubano Churer Fest 2022",
     "artist": "cosmicode",
     "length": "4:55:05",
     "fileName": "cosmicode @Cubano Churer Fest 2022.wav",
     "category": "Psytrance",
-    "info": null
+    "info": "4tcUX7loPqUwI9ahI9E"
   }
 ]

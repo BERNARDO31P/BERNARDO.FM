@@ -495,6 +495,28 @@ window["music"] = () => {
 
         object.remove();
     }
+
+    /*
+     * Funktion: Keine
+     * Author: Bernardo de Oliveira
+     *
+     * Dafür da, damit man ein Lied teilen kann und dieses sofort anfängt zu spielen
+     */
+    if (hasGetParameter(location.href, "s")) {
+        let songID = getGetParameter(location.href, "s");
+        let time = 0;
+
+        if (hasGetParameter(location.href, "t")) {
+            time = Number(getGetParameter(location.href, "t"));
+        }
+
+        addSongToPlaylist(null, songID);
+        if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]) {
+            playPauseButton("load");
+            downloadPart(time, playIndex, partIndex);
+            play(true);
+        }
+    }
 }
 
 /*
@@ -653,9 +675,14 @@ function addEvents(player) {
  * Liesst die Lied ID aus den Objekt-Eigenschaften aus
  * Lädt die Liedinformationen herunter und fügt diese zur Wiedergabenliste hinzu
  */
-function addSongToPlaylist(element) {
-    let controls = element.closest(".controlsContent");
-    let songID = controls.dataset.id;
+function addSongToPlaylist(element, id = 0) {
+    let songID = id;
+
+    if (element) {
+        let controls = element.closest(".controlsContent");
+        songID = controls.dataset.id;
+    }
+
     let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
 
     if (typeof data.length !== 'number') {

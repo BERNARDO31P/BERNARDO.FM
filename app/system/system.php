@@ -569,7 +569,7 @@ $router->get('/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)', function ($search, $cat
  *
  * Fügt dem Cover weitere Pfadinformationen hinzu
  */
-$router->get('/song/([\d]+)', function ($id) {
+$router->get('/song/([\w-]*)$', function ($id) {
     $db = loadDatabase();
     $song = search_song($id, $db);
 
@@ -606,7 +606,7 @@ $router->get('/song/([\d]+)', function ($id) {
  *
  * Gibt diese zurück
  */
-$router->get('/info/([\d]+)', function ($id) {
+$router->get('/info/([\w-]*)$', function ($id) {
     $db = loadDatabase();
     $song = search_song($id, $db);
 
@@ -648,7 +648,7 @@ $router->get('/info/([\d]+)', function ($id) {
  * Schneidet das Lied anhand der Start- und Endinformationen
  * Gibt den Teil aus
  */
-$router->get('/song/([\d]+)/([\d]+)(/[\d]+)?', function ($id, $timeFrom, $timeTill = null) {
+$router->get('/song/([\w-]+)/(\d+)(?:/)?([\d]+)?', function ($id, $timeFrom, $timeTill = null) {
     if (empty($timeTill)) $timeTill = 99;
 
     $time = 0;
