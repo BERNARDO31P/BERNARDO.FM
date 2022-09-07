@@ -104,6 +104,7 @@ function httpGet(url) {
     let xmlHttp = new XMLHttpRequest();
 
     xmlHttp.open("GET", url, false);
+    xmlHttp.withCredentials = true;
 
     try {
         xmlHttp.send();
