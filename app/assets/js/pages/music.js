@@ -94,7 +94,7 @@ bindEvent("click", "#content .fa-play", function () {
  *
  * Diverse Funktionen welche durch Benutzereingaben ausgelöst werden
  */
-bindEvent("touchend", "#timeline", (e) => setTimeout(function() {onTimelineRelease(e.target.value)}));
+bindEvent("touchend", "#timeline", (e) => setTimeout(() => onTimelineRelease(e.target.value)));
 bindEvent("mouseup", "#timeline", (e) => onTimelineRelease(e.target.value));
 bindEvent("click", "#player .fa-step-forward", () => nextSong());
 bindEvent("click", "#player .fa-step-backward", () => previousSong());
