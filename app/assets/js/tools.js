@@ -104,7 +104,12 @@ function httpGet(url) {
     let xmlHttp = new XMLHttpRequest();
 
     xmlHttp.open("GET", url, false);
-    xmlHttp.withCredentials = true;
+
+    try {
+        xmlHttp.withCredentials = new URL("/", url).host === location.host;
+    } catch (e) {
+        xmlHttp.withCredentials = true;
+    }
 
     try {
         xmlHttp.send();
@@ -318,7 +323,9 @@ function tryParseJSON(jsonString) {
  * Zeigt eine Bestätigungsanfrage welche akzeptiert oder abgelehnt werden kann
  * Gibt die Antwort zurück
  */
-function showConfirmation(title, message, action = function(){}) {
+function showConfirmation(title, message, acceptCallback = () => {
+}, cancelCallback = () => {
+}) {
     let confirmation = document.getElementById("confirmation");
     let titleElement = confirmation.querySelector(".title");
     let messageElement = confirmation.querySelector(".message");
@@ -331,18 +338,20 @@ function showConfirmation(title, message, action = function(){}) {
 
     confirmation.style.display = "block";
 
-    okButton.addEventListener("click", function accept () {
+    okButton.addEventListener("click", function accept() {
         okButton.removeEventListener("click", accept);
 
         confirmation.style.display = "none";
 
-        action();
+        acceptCallback();
     });
 
     cancelButton.addEventListener("click", function cancel() {
         cancelButton.removeEventListener("click", cancel);
 
         confirmation.style.display = "none";
+
+        cancelCallback();
     });
 }
 
@@ -925,88 +934,83 @@ function play(diffSong = false, pageLoad = false) {
         MSAPI.src = createSilence(length);
         MSAPI.load();
         MSAPI.currentTime = 0;
+
+
+        let songLength = document.getElementById("timeInfo").querySelector("#length");
+        let queueView = document.getElementById("queueView");
+        let cover = queueView.querySelector("#playingCover").querySelector("img");
+
+        cover.src = song["cover"];
+        songLength.textContent = song["length"];
+
+        player.querySelector("#timeline").max = length;
+        player.querySelector("#name").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" + "<div class='spacer'>" + song["name"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
+        player.querySelector("#artist").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" + "<div class='spacer'>" + song["artist"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
+
+        if ('mediaSession' in navigator) {
+            let song = playlist[playIndex];
+
+            let mouseUpEvent = new Event('mouseup', {
+                bubbles: true, cancelable: true,
+            });
+
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: song["name"], artist: song["artist"], artwork: [{src: song["cover"], type: 'image/png'},]
+            });
+
+            navigator.mediaSession.setActionHandler('play', function () {
+                play()
+            });
+            navigator.mediaSession.setActionHandler('pause', function () {
+                pauseSong()
+            });
+            navigator.mediaSession.setActionHandler('previoustrack', function () {
+                previousSong()
+            });
+            navigator.mediaSession.setActionHandler('nexttrack', function () {
+                nextSong()
+            });
+            navigator.mediaSession.setActionHandler('stop', function () {
+                pauseSong()
+            });
+            navigator.mediaSession.setActionHandler('seekbackward', function () {
+                let timeline = document.getElementById("timeline");
+
+                timeline.value = Number(timeline.value) - 10;
+                timeline.dispatchEvent(mouseUpEvent);
+            });
+            navigator.mediaSession.setActionHandler('seekforward', function () {
+                let timeline = document.getElementById("timeline");
+
+                timeline.value = Number(timeline.value) + 10;
+                timeline.dispatchEvent(mouseUpEvent);
+            });
+            navigator.mediaSession.setActionHandler('seekto', function (details) {
+                if ('seekTime' in details) {
+                    let time = Math.round(details.seekTime);
+                    onTimelineRelease(time);
+                }
+            })
+        }
+
+        let data = tryParseJSON(httpGet(pageURL + "system/info/" + song["id"]));
+        let infoBox = queueView.querySelector("#info");
+        if (Object.keys(data).length) {
+            infoBox.innerHTML = "";
+            for (let info of Object.values(data)) {
+                infoBox.innerHTML += "<h3>" + info["name"] + "</h3>" + "<p>" + info["description"] + "</p>";
+            }
+        } else {
+            infoBox.innerHTML = "<h3>No description found.</h3>";
+        }
+
+        updatePlaying();
+
     }
 
     if (MSAPI.paused) MSAPI.play().then(function () {
         gapless.play();
         playing = true;
-
-        if (diffSong) {
-            let songLength = document.getElementById("timeInfo").querySelector("#length");
-            let queueView = document.getElementById("queueView");
-            let cover = queueView.querySelector("#playingCover").querySelector("img");
-
-            cover.src = song["cover"];
-            songLength.textContent = song["length"];
-
-            player.querySelector("#timeline").max = length;
-            player.querySelector("#name").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" + "<div class='spacer'>" + song["name"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
-            player.querySelector("#artist").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" + "<div class='spacer'>" + song["artist"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
-
-            if ('mediaSession' in navigator) {
-                let song = playlist[playIndex];
-
-                let mouseUpEvent = new Event('mouseup', {
-                    bubbles: true, cancelable: true,
-                });
-
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: song["name"], artist: song["artist"], artwork: [{src: song["cover"], type: 'image/png'},]
-                });
-
-                navigator.mediaSession.setActionHandler('play', function () {
-                    play()
-                });
-                navigator.mediaSession.setActionHandler('pause', function () {
-                    pauseSong()
-                });
-                navigator.mediaSession.setActionHandler('previoustrack', function () {
-                    previousSong()
-                });
-                navigator.mediaSession.setActionHandler('nexttrack', function () {
-                    nextSong()
-                });
-                navigator.mediaSession.setActionHandler('stop', function () {
-                    pauseSong()
-                });
-                navigator.mediaSession.setActionHandler('seekbackward', function () {
-                    let timeline = document.getElementById("timeline");
-
-                    timeline.value = Number(timeline.value) - 10;
-                    timeline.dispatchEvent(mouseUpEvent);
-                });
-                navigator.mediaSession.setActionHandler('seekforward', function () {
-                    let timeline = document.getElementById("timeline");
-
-                    timeline.value = Number(timeline.value) + 10;
-                    timeline.dispatchEvent(mouseUpEvent);
-                });
-                navigator.mediaSession.setActionHandler('seekto', function (details) {
-                    if ('seekTime' in details) {
-                        let time = Math.round(details.seekTime);
-                        onTimelineRelease(time);
-                    }
-                })
-            }
-
-            let data = tryParseJSON(httpGet(pageURL + "system/info/" + song["id"]));
-            let infoBox = queueView.querySelector("#info");
-            if (Object.keys(data).length) {
-                infoBox.innerHTML = "";
-                for (let info of Object.values(data)) {
-                    infoBox.innerHTML += "<h3>" + info["name"] + "</h3>" + "<p>" + info["description"] + "</p>";
-                }
-            } else {
-                infoBox.innerHTML = "<h3>No description found.</h3>";
-            }
-
-            updatePlaying();
-        }
-
-        player.style.display = "initial";
-
-        let title = document.querySelector("title");
-        title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
 
         let animation = document.getElementsByClassName("lds-facebook")[0];
         if (animation) {
@@ -1042,10 +1046,17 @@ function play(diffSong = false, pageLoad = false) {
             let angleUp = document.getElementsByClassName("fa-angle-up")[0];
             angleUp.dispatchEvent(clickEvent);
         }
-    }).catch(function () {
-        showConfirmation("Warning", "Your browser is blocking the automatic playback. Do you want to allow it?", function () {
-            play(diffSong, pageLoad);
+    }).catch(() => {
+        showConfirmation("Warning", "Your browser is blocking the automatic playback. Do you want to allow it?", () => {
+            play(false, pageLoad);
+        }, () => {
+            pauseSong();
         });
+    }).then(() => {
+        player.style.display = "initial";
+
+        let title = document.querySelector("title");
+        title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
     });
 }
 
@@ -1164,9 +1175,9 @@ function resetSong(index) {
  * Pausiert die Wiedergabe
  */
 function pauseSong() {
-    if (playing) {
-        playPauseButton("pause");
+    playPauseButton("pause");
 
+    if (playing) {
         playlist[playIndex]["player"].pause();
         MSAPI.pause();
 
@@ -1240,7 +1251,7 @@ function generatePlaylistInfo(song) {
 
     song["playlist"] = song["playlist"].sort(() => 0.5 - Math.random());
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < (song["playlist"].length >= 4 ? 4 : 1); i++) {
         let songID = song["playlist"][i];
         let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
         info["cover"].innerHTML += "<img src='" + data["cover"] + "' alt='Cover'/>";

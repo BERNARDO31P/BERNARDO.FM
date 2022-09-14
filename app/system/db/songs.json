@@ -874,5 +874,24 @@
     "fileName": "cosmicode @Cubano Churer Fest 2022.wav",
     "category": "Psytrance",
     "info": "4tcUX7loPqUwI9ahI9E"
+  },
+  {
+    "id": "096gUnWl7z534S62io0",
+    "cover": "Psychedelic Trance mix September 2022.jpg",
+    "name": "Psychedelic Trance mix September 2022",
+    "artist": "cosmicode",
+    "length": "54:33",
+    "fileName": "Psychedelic Trance mix September 2022.wav",
+    "category": "Psytrance",
+    "info": "4tcUX7loPqUwI9ahI9E"
+  },
+  {
+    "id": "8SEG0pWs4JpgqrdI4Y0",
+    "name": "cosmicode mixes",
+    "category": "Playlists",
+    "playlist": [
+      "096gUnWl7z534S62io0",
+      "ZKZjV3i5kgNwgRsGEnw"
+    ]
   }
 ]

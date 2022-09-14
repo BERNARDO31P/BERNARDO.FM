@@ -10,6 +10,8 @@ html, body {
   height: 100%;
   width: 100%;
   margin: 0;
+
+  overscroll-behavior-x: none;
 }
 
 * {
@@ -282,10 +284,6 @@ body {
 
       margin: 2px 0;
 
-      &:hover {
-
-      }
-
       p {
         display: inline-block;
         margin: -40px 0 0 5px;
@@ -556,14 +554,9 @@ body {
             filter: brightness(50%);
           }
 
-          img {
-            transition: 0.2s;
+          img:not(:only-of-type) {
             width: 80px;
             height: 80px;
-
-            position: absolute;
-
-            user-select: none;
 
             &:nth-child(1) {
               border-top-left-radius: 5px;
@@ -584,6 +577,20 @@ body {
               left: 80px;
               border-bottom-right-radius: 5px;
             }
+          }
+
+          img:only-of-type {
+            width: 160px;
+            height: 160px;
+
+            border-radius: 5px;
+          }
+
+          img {
+            transition: 0.2s;
+            position: absolute;
+
+            user-select: none;
           }
         }
 
@@ -708,6 +715,87 @@ body {
   .graph {
     width: 100%;
     height: 350px;
+  }
+
+  .blockquote {
+    position: relative;
+    padding: 0 0 0 10px;
+
+    border-left: 4px solid var(--border-blockquote);
+    border-radius: 7px;
+
+    h2 {
+      margin: 0.83em 0 10px 0;
+      color: var(--text-color-title)
+    }
+
+    .authorDate {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+
+      color: var(--text-color-author);
+    }
+
+    .message {
+      color: var(--text-color);
+      display: block;
+
+      p {
+        margin: 0;
+      }
+
+      .break {
+        max-width: calc(100% - 275px);
+      }
+
+      .mail {
+        text-decoration: none;
+        color: var(--secondary-color);
+      }
+    }
+
+    .details {
+      transition: 0.3s ease-in-out, padding 0.6s;
+
+      color: var(--text-color);
+
+      display: block;
+      overflow: hidden;
+      max-height: 0;
+
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -5px -5px 7px var(--shadow-light);
+      border-radius: 5px;
+
+      margin: 5px 0 0 0;
+      padding: 0 20px;
+      opacity: 0;
+
+      &.show {
+        padding: 20px;
+        margin: 20px 0 0 0;
+        max-height: 1000px;
+
+        opacity: 1;
+      }
+    }
+
+    .detailsButton {
+      transition: 0.3s;
+
+      margin: 10px 0 0 0;
+      padding: 7px;
+
+      background-color: transparent;
+      border: none;
+      color: #8eb6ff;
+      font-size: 15px;
+      cursor: pointer;
+
+      &:hover {
+        color: #4f8eff;
+      }
+    }
   }
 
 }
@@ -1235,87 +1323,6 @@ body {
   }
 }
 
-.blockquote {
-  position: relative;
-  padding: 0 0 0 10px;
-
-  border-left: 4px solid var(--border-blockquote);
-  border-radius: 7px;
-
-  h2 {
-    margin: 0.83em 0 10px 0;
-    color: var(--text-color-title)
-  }
-
-  .authorDate {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-
-    color: var(--text-color-author);
-  }
-
-  .message {
-    color: var(--text-color);
-    display: block;
-
-    p {
-      margin: 0;
-    }
-
-    .break {
-      max-width: calc(100% - 275px);
-    }
-
-    .mail {
-      text-decoration: none;
-      color: var(--secondary-color);
-    }
-  }
-
-  .details {
-    transition: 0.3s ease-in-out, padding 0.6s;
-
-    color: var(--text-color);
-
-    display: block;
-    overflow: hidden;
-    max-height: 0;
-
-    box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -5px -5px 7px var(--shadow-light);
-    border-radius: 5px;
-
-    margin: 5px 0 0 0;
-    padding: 0 20px;
-    opacity: 0;
-
-    &.show {
-      padding: 20px;
-      margin: 20px 0 0 0;
-      max-height: 1000px;
-
-      opacity: 1;
-    }
-  }
-
-  .detailsButton {
-    transition: 0.3s;
-
-    margin: 10px 0 0 0;
-    padding: 7px;
-
-    background-color: transparent;
-    border: none;
-    color: #8eb6ff;
-    font-size: 15px;
-    cursor: pointer;
-
-    &:hover {
-      color: #4f8eff;
-    }
-  }
-}
-
 .csr-pointer {
   cursor: pointer;
 }
@@ -1547,24 +1554,24 @@ body {
     .graph {
       width: 754px;
     }
+
+    .blockquote {
+      .message {
+        .break {
+          max-width: 100%;
+        }
+      }
+
+      .authorDate {
+        margin: 10px 0 0 0;
+        position: initial;
+      }
+    }
   }
 
   #player {
     #timeline {
       height: 15px;
-    }
-  }
-
-  .blockquote {
-    .message {
-      .break {
-        max-width: 100%;
-      }
-    }
-
-    .authorDate {
-      margin: 10px 0 0 0;
-      position: initial;
     }
   }
 }
@@ -1700,7 +1707,6 @@ body {
 }
 
 @media screen and (max-width: 485px) {
-
   #navbar {
     a {
       padding: 5px 10px;

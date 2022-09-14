@@ -149,7 +149,7 @@ document.onkeydown = function (e) {
  * Wird durch ein Event aufgerufen
  */
 function loadPage() {
-    setPage(page);
+    location.href = setGetParameter(location.href, "page", page);
 
     let content = document.querySelector("#content"), title = document.querySelector("title");
     let data = htmlToElement(httpGet("./pages/" + page + ".html"));
@@ -207,28 +207,6 @@ function getScript(source) {
     prior.remove();
 }
 
-// TODO: Comment
-function setPage() {
-    location.href = setGetParameter(location.href, "page", page);
-}
-
-/*
- * Funktion: getPage()
- * Autor: Bernardo de Oliveira
- *
- * Holt die derzeitige Seite aus der URL
- * wenn keine definitiert ist, wird die Startseite zurückgegeben
- */
-function getPage() {
-    let hash = window.location.hash;
-    let match = hash.match("page=[^&]*");
-
-    if (match)
-        return match[0].split("=")[1];
-
-    return "home";
-}
-
 /*
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
@@ -253,6 +231,10 @@ bindEvent("click", "#navbar [data-page]", function (e) {
 
     page = this.getAttribute("data-page");
     prevPage = undefined;
+
+    location.replace(removeGetParameter(location.href, "p"));
+    location.replace(removeGetParameter(location.href, "s"));
+    location.replace(removeGetParameter(location.href, "t"));
 
     loadPage();
     setActiveNavbar();
@@ -465,7 +447,7 @@ bindEvent("input", "#search input", function () {
     let value = this.value;
     let times = this.closest("#search").querySelector(".fa-times");
 
-    if (page !== "music") prevPage = getPage();
+    if (page !== "music") prevPage = getGetParameter(location.href, "page");
 
     searchTimeout = setTimeout(function () {
         if (!value) {
@@ -844,7 +826,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }, 50);
 
-    page = getPage();
+    page = getGetParameter(location.href, "page") ?? "home";
     loadPage();
     dataIncludeReplace(document.body);
     setActiveNavbar();
@@ -859,3 +841,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+// TODO: Comment
+document.addEventListener("touchstart", function (e) {
+    if (e.pageX > 10 && e.pageY < window.innerWidth - 10) return;
+    e.preventDefault();
+})
