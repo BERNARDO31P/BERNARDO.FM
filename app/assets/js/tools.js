@@ -767,12 +767,12 @@ function setVolumeIcon(volumeIcon, volumeSlider) {
  *
  * Versteckt den Lautstärkeregler
  */
-function hideVolumeSlider() {
+function hideVolumeSlider(timeout = 2000) {
     clearTimeout(sliderTimeout);
     sliderTimeout = setTimeout(function () {
         document.getElementsByClassName("volumeBackground")[0].classList.remove("show");
         touched = false;
-    }, 2000);
+    }, timeout);
 }
 
 /*
@@ -927,14 +927,13 @@ function play(diffSong = false, pageLoad = false) {
     currentSong = song["id"];
 
     let gapless = song["player"];
-    gapless.setVolume(volume);
-
     let length = getLengthByString(song["length"]);
     if (diffSong) {
         MSAPI.src = createSilence(length);
         MSAPI.load();
         MSAPI.currentTime = 0;
 
+        gapless.setVolume(volume);
 
         let songLength = document.getElementById("timeInfo").querySelector("#length");
         let queueView = document.getElementById("queueView");

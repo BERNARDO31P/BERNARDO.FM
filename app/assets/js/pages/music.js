@@ -773,7 +773,7 @@ function downloadPart(time, sIndex, pIndex, till = null) {
     downloading = true;
 
     if (typeof playlist[sIndex]["player"] === 'undefined') {
-        let gapless = new Gapless5({useHTML5Audio: false});
+        let gapless = new Gapless5({useHTML5Audio: false, loadLimit: 5});
         addEvents(gapless);
 
         playlist[sIndex]["player"] = gapless;
@@ -783,9 +783,12 @@ function downloadPart(time, sIndex, pIndex, till = null) {
 
     if (typeof partlist[songID] === 'undefined') partlist[songID] = {};
 
-    getPartLengthCallback(pIndex, function (length) {
+    let gid = playlist[sIndex]["player"].totalTracks() - 1;
+    playlist[sIndex]["player"].playlist.sources[gid].load();
+
+    getPartLengthCallback(pIndex, (length) => {
         partlist[songID][pIndex] = {
-            "gid": playlist[sIndex]["player"].totalTracks() - 1,
+            "gid": gid,
             "from": time,
             "till": time + length - 1
         };
@@ -945,7 +948,6 @@ function removeControlsCard(card) {
  * Die Wiedergabe beginnt
  */
 function onTimelineRelease(value) {
-
     let timeInfo = document.getElementById("timeInfo");
     let gapless = playlist[playIndex]["player"];
     timeInfo.style.display = "none";
@@ -980,13 +982,13 @@ function onTimelineRelease(value) {
             if (typeof partlist[songID][index] !== 'undefined') {
                 clearInterval(interval);
 
-                let startFrom = (value - partlist[songID][index]["from"]) * 1000;
-
                 gapless.gotoTrack(partlist[songID][index]["gid"]);
                 partIndex = index;
                 MSAPI.currentTime = value;
 
+                let startFrom = (value - partlist[songID][index]["from"]) * 1000;
                 gapless.setPosition(startFrom);
+
                 play();
             }
         }, 50);

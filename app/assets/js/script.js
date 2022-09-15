@@ -573,9 +573,7 @@ bindEvent("mouseover", ".volume", function () {
  *
  * Versteckt den Lautstärkeregler
  */
-bindEvent("mouseout", ".volume", function () {
-    document.getElementsByClassName("volumeBackground")[0].classList.remove("show");
-});
+bindEvent("mouseout", ".volume", () => hideVolumeSlider(0));
 
 /*
  * Funktion: Anonym
