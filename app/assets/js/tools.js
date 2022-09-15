@@ -135,6 +135,30 @@ function updateSearch() {
     }
 }
 
+// TODO: Comment
+function clearURL() {
+    location.replace(removeGetParameter(location.href, "s"));
+    location.replace(removeGetParameter(location.href, "t"));
+    location.replace(removeGetParameter(location.href, "p"));
+}
+
+// TODO: Comment
+function updateURL() {
+    let timeline = document.getElementById("timeline");
+    let angleUp = document.getElementsByClassName("fa-angle-up")[0];
+
+    console.log(songInterval);
+
+    if (!songInterval) {
+        songInterval = setInterval(function () {
+            if (angleUp.getAttribute("data-angle") === "up") {
+                location.replace(setGetParameter(location.href, "s", currentSong));
+                location.replace(setGetParameter(location.href, "t", timeline.value));
+            }
+        }, 1000);
+    }
+}
+
 /*
  * Funktion: updatePlaying()
  * Autor: Bernardo de Oliveira
@@ -1004,7 +1028,6 @@ function play(diffSong = false, pageLoad = false) {
         }
 
         updatePlaying();
-
     }
 
     if (MSAPI.paused) MSAPI.play().then(function () {
@@ -1020,6 +1043,8 @@ function play(diffSong = false, pageLoad = false) {
                 }
             }
         }
+
+        updateURL();
 
         if (!secondsInterval) {
             secondsInterval = setInterval(function () {
@@ -1180,7 +1205,9 @@ function pauseSong() {
         playlist[playIndex]["player"].pause();
         MSAPI.pause();
 
+        clearInterval(songInterval);
         clearInterval(secondsInterval);
+        songInterval = null;
         secondsInterval = null;
 
         playing = false;

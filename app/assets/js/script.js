@@ -232,10 +232,7 @@ bindEvent("click", "#navbar [data-page]", function (e) {
     page = this.getAttribute("data-page");
     prevPage = undefined;
 
-    location.replace(removeGetParameter(location.href, "p"));
-    location.replace(removeGetParameter(location.href, "s"));
-    location.replace(removeGetParameter(location.href, "t"));
-
+    clearURL();
     loadPage();
     setActiveNavbar();
 });
@@ -614,10 +611,11 @@ bindEvent("click", ".fa-angle-up", function () {
 
     if (this.getAttribute("data-angle") === "up") {
         hidePlaylist(body, queueView, this);
-        clearInterval(songInterval);
 
-        location.replace(removeGetParameter(location.href, "s"));
-        location.replace(removeGetParameter(location.href, "t"));
+        clearInterval(songInterval);
+        songInterval = null;
+
+        clearURL();
 
         if (window.scrollY !== 0) navbar.classList.add("shadow");
     } else {
@@ -652,12 +650,7 @@ bindEvent("click", ".fa-angle-up", function () {
         });
 
         updatePlaying();
-
-        let timeline = document.getElementById("timeline");
-        songInterval = setInterval(function() {
-            location.replace(setGetParameter(location.href, "s", currentSong));
-            location.replace(setGetParameter(location.href, "t", timeline.value));
-        }, 1000);
+        updateURL();
 
         this.setAttribute("data-angle", "up");
     }
