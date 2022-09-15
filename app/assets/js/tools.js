@@ -147,8 +147,6 @@ function updateURL() {
     let timeline = document.getElementById("timeline");
     let angleUp = document.getElementsByClassName("fa-angle-up")[0];
 
-    console.log(songInterval);
-
     if (!songInterval) {
         songInterval = setInterval(function () {
             if (angleUp.getAttribute("data-angle") === "up") {
