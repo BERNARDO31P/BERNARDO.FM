@@ -35,6 +35,7 @@ window["projects"] = () => {
             github.href = entry.html_url;
             github.target = "_blank";
             github.classList.add("button");
+            github.classList.add("shadow");
             card.appendChild(github);
 
 

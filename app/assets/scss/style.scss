@@ -120,11 +120,23 @@ button, .button {
   min-width: 50px;
 
   border: none;
-  border-radius: 3px;
   text-align: center;
 
   color: var(--text-color-title);
   background-color: var(--navbar-background);
+
+  &.shadow {
+    transition: 0.2s;
+    box-shadow: -2px -2px 3px var(--shadow-light), 2px 2px 3px var(--shadow-dark);
+
+    border-top-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+
+    &:hover {
+      box-shadow: -1px -1px 2px var(--shadow-light), 1px 1px 2px var(--shadow-dark);
+    }
+  }
 }
 
 a.button {
@@ -844,10 +856,7 @@ a.button {
       }
 
       .button {
-        box-shadow: -2px -2px 3px var(--shadow-light), 2px 2px 3px var(--shadow-dark);
-        
         line-height: 25px;
-        
         position: absolute;
         margin: 10px 0;
         width: calc(100% - 50px);
