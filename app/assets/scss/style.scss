@@ -117,14 +117,12 @@ button, .button {
 
   bottom: 5px;
   height: 25px;
-  line-height: 25px;
   min-width: 50px;
 
   border: none;
   border-radius: 3px;
   text-align: center;
 
-  box-shadow: -2px -2px 3px var(--shadow-light), 2px 2px 3px var(--shadow-dark);
   color: var(--text-color-title);
   background-color: var(--navbar-background);
 }
@@ -846,6 +844,10 @@ a.button {
       }
 
       .button {
+        box-shadow: -2px -2px 3px var(--shadow-light), 2px 2px 3px var(--shadow-dark);
+        
+        line-height: 25px;
+        
         position: absolute;
         margin: 10px 0;
         width: calc(100% - 50px);
