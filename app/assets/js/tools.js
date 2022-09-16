@@ -348,6 +348,8 @@ function tryParseJSON(jsonString) {
 function showConfirmation(title, message, acceptCallback = () => {
 }, cancelCallback = () => {
 }) {
+    let body = document.getElementsByTagName("body")[0];
+    let transparent = document.getElementById('transparent');
     let confirmation = document.getElementById("confirmation");
     let titleElement = confirmation.querySelector(".title");
     let messageElement = confirmation.querySelector(".message");
@@ -357,13 +359,14 @@ function showConfirmation(title, message, acceptCallback = () => {
 
     titleElement.textContent = title;
     messageElement.textContent = message;
-
-    confirmation.style.display = "block";
+    transparent.style.display = "block";
+    body.style.overflow = "hidden";
 
     okButton.addEventListener("click", function accept() {
         okButton.removeEventListener("click", accept);
 
-        confirmation.style.display = "none";
+        transparent.style.display = "none";
+        body.style.overflow = "initial";
 
         acceptCallback();
     });
@@ -371,7 +374,8 @@ function showConfirmation(title, message, acceptCallback = () => {
     cancelButton.addEventListener("click", function cancel() {
         cancelButton.removeEventListener("click", cancel);
 
-        confirmation.style.display = "none";
+        transparent.style.display = "none";
+        body.style.overflow = "initial";
 
         cancelCallback();
     });

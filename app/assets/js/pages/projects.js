@@ -30,6 +30,14 @@ window["projects"] = () => {
             description.textContent = entry.description;
             card.appendChild(description);
 
+            let github = document.createElement("a");
+            github.textContent = "View on GitHub";
+            github.href = entry.html_url;
+            github.target = "_blank";
+            github.classList.add("button");
+            card.appendChild(github);
+
+
             cards.appendChild(card);
         }
     }

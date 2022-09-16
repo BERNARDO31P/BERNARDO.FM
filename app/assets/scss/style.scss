@@ -110,6 +110,29 @@ body {
   background-color: var(--body-background);
 }
 
+button, .button {
+  text-decoration: none;
+  padding: 5px 10px;
+  display: inline-block;
+
+  bottom: 5px;
+  height: 25px;
+  line-height: 25px;
+  min-width: 50px;
+
+  border: none;
+  border-radius: 3px;
+  text-align: center;
+
+  box-shadow: -2px -2px 3px var(--shadow-light), 2px 2px 3px var(--shadow-dark);
+  color: var(--text-color-title);
+  background-color: var(--navbar-background);
+}
+
+a.button {
+  color: #5F6DC7;
+}
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -373,6 +396,11 @@ body {
       background-color: var(--hover-background);
       border-radius: 2px;
     }
+  }
+
+  .button {
+    margin: 10px 0;
+    width: calc(100% - 20px);
   }
 
   .responsive-container {
@@ -798,6 +826,26 @@ body {
     }
   }
 
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+
+    justify-content: space-evenly;
+
+    .card {
+      text-decoration: none;
+      color: var(--text-color);
+
+      border-radius: 5px;
+      box-shadow: 1px 1px 3px var(--shadow-dark), -1px -1px 2px var(--shadow-light);
+
+      width: 200px;
+
+      margin: 0 0 15px 0;
+      padding: 0 15px;
+    }
+  }
+
 }
 
 .fullWidth {
@@ -1162,56 +1210,59 @@ body {
   height: 150px;
 }
 
-#confirmation {
+#transparent {
   z-index: 3;
 
-  font-family: "Roboto Regular", sans-serif;
-
-  color: var(--text-color);
-  background-color: var(--notification-background);
-  box-shadow: 1px 1px 1px var(--shadow-dark), -1px -1px 1px var(--shadow-light);
-
   display: none;
-  width: 250px;
-  height: 100px;
-
   position: fixed;
-  padding: 5px;
 
-  border-radius: 5px;
+  height: 100%;
+  width: 100%;
 
-  top: calc(50% - 50px);
-  left: calc(50% - 125px);
+  top: 0;
+  left: 0;
 
-  .title {
-    margin: 0;
-    padding: 0;
-  }
+  background-color: rgba(0, 0, 0, 0.3);
 
-  .message {
-    margin: 0;
-    padding: 0;
-  }
+  #confirmation {
+    font-family: "Roboto Regular", sans-serif;
 
-  button {
-    position: absolute;
-    bottom: 5px;
-    height: 25px;
-    min-width: 50px;
+    color: var(--text-color);
+    background-color: var(--primary-color);
+    box-shadow: 1px 1px 1px var(--shadow-dark), -1px -1px 1px var(--shadow-light);
 
-    border: none;
-    border-radius: 3px;
+    width: 250px;
+    height: 100px;
 
-    box-shadow: -2px -2px 3px var(--shadow-light), 2px 2px 3px var(--shadow-dark);
-    color: var(--text-color-title);
-    background-color: var(--navbar-background);
+    position: fixed;
+    padding: 5px;
 
-    &.cancel {
-      right: 5px;
+    border-radius: 5px;
+
+    top: calc(50% - 50px);
+    left: calc(50% - 125px);
+
+    button {
+      position: absolute;
+      padding: initial;
+
+      &.cancel {
+        right: 5px;
+      }
+
+      &.ok {
+        right: 70px;
+      }
     }
 
-    &.ok {
-      right: 70px;
+    .title {
+      margin: 0;
+      padding: 0;
+    }
+
+    .message {
+      margin: 0;
+      padding: 0;
     }
   }
 }
@@ -1656,7 +1707,12 @@ body {
           left: -10px;
         }
       }
+    }
 
+    .cards {
+      .card {
+        width: 100%;
+      }
     }
 
     #view {
