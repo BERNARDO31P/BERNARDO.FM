@@ -398,11 +398,6 @@ a.button {
     }
   }
 
-  .button {
-    margin: 10px 0;
-    width: calc(100% - 20px);
-  }
-
   .responsive-container {
     overflow-x: auto;
     overflow-y: hidden;
@@ -833,6 +828,8 @@ a.button {
     justify-content: space-evenly;
 
     .card {
+      position: relative;
+
       text-decoration: none;
       color: var(--text-color);
 
@@ -843,6 +840,16 @@ a.button {
 
       margin: 0 0 15px 0;
       padding: 0 15px;
+
+      p {
+        margin: 0 0 60px 0;
+      }
+
+      .button {
+        position: absolute;
+        margin: 10px 0;
+        width: calc(100% - 50px);
+      }
     }
   }
 
