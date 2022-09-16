@@ -130,7 +130,7 @@ button, .button {
 }
 
 a.button {
-  color: #5F6DC7;
+  color: var(--secondary-color);
 }
 
 ::-webkit-scrollbar {
