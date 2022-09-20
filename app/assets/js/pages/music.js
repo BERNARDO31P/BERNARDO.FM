@@ -8,7 +8,8 @@ let count = 0,
     errorTimeout = null,
     width = getWidth(),
     error = false,
-    hadError = false;
+    hadError = false,
+    usedTimeline = false;
 
 /*
  * Funktion: Anonym
@@ -547,16 +548,37 @@ function addEvents(player) {
         let gapless = playlist[playIndex]["player"];
 
         clearTimeout(errorTimeout);
+        clearTimeout(downloadTimeout);
+        clearTimeout(timelineTimeout);
 
         error = true;
         downloading = false;
         gapless.removeTrack(track);
 
         errorTimeout = setTimeout(function () {
-            prepareNextPart(function () {
-                hadError = true;
-                error = false;
-            });
+            if (!usedTimeline) {
+                prepareNextPart(function () {
+                    hadError = true;
+                    error = false;
+                });
+            } else {
+                let timeline = document.getElementById("timeline");
+                downloadPart(timeline.value, playIndex, partIndex);
+
+                downloadTimeout = setTimeout(() => {
+                    let interval = setInterval(() => {
+                        if (!downloading) {
+                            clearInterval(interval);
+
+                            play();
+
+                            usedTimeline = false;
+                            hadError = true;
+                            error = false;
+                        }
+                    }, 50);
+                }, 1000);
+            }
         }, 2000);
     }
 
@@ -959,21 +981,24 @@ function onTimelineRelease(value) {
     let index = partInfo[2];
     let songID = playlist[playIndex]["id"];
 
+    usedTimeline = true;
+
     clearTimeout(timelineTimeout);
-    if (!index) {
+    if (index === null) {
         timelineTimeout = setTimeout(function () {
-            index = Object.keys(partlist[songID]).length;
-            downloadPart(Number(value), playIndex, index);
+            partIndex = Object.keys(partlist[songID]).length;
+            downloadPart(Number(value), playIndex, partIndex);
 
             let interval = setInterval(function () {
                 if (!downloading) {
                     clearInterval(interval);
 
-                    gapless.gotoTrack(partlist[songID][index]["gid"]);
-                    partIndex = index;
-                    MSAPI.currentTime = value;
+                    if (typeof partlist[songID][partIndex] !== 'undefined') {
+                        gapless.gotoTrack(partlist[songID][partIndex]["gid"]);
+                        MSAPI.currentTime = value;
 
-                    play();
+                        play();
+                    }
                 }
             }, 50);
         }, 2000);

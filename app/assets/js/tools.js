@@ -3,7 +3,7 @@ let currentHover = null, playIndex = 0, partIndex = 0, nextPartIndex = 0, playli
     currentButton = null, changedQueue = false;
 
 let backgroundProcesses = [];
-let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, searchTimeout = null, songInterval = null;
+let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, downloadTimeout = null, searchTimeout = null, songInterval = null;
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 

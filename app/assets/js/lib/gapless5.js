@@ -343,7 +343,9 @@ function Gapless5Source(parentPlayer, parentLog, inAudioPath) {
                         (incomingBuffer) => {
                             onLoadedWebAudio(incomingBuffer);
                         }
-                    );
+                    ).catch((e) => {
+                        onError(e);
+                    });
                 }
             };
             if (audioPath.startsWith('blob:')) {
