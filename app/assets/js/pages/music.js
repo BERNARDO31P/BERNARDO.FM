@@ -80,8 +80,14 @@ bindEvent("click", "#content .fa-play", function () {
     partIndex = 0;
     playlist = [];
 
+    clearInterval(songInterval);
     clearInterval(secondsInterval);
     secondsInterval = null;
+
+    clearTimeout(errorTimeout);
+    clearTimeout(downloadTimeout);
+    clearTimeout(timelineTimeout);
+    clearTimeout(sliderTimeout);
 
     addSongToPlaylist(this);
     playPauseButton("load");
@@ -576,7 +582,7 @@ function addEvents(player) {
                             error = false;
                         }
                     }, 50);
-                }, 1000);
+                }, 3000);
             }
         }, 2000);
     }
