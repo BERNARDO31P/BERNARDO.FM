@@ -549,7 +549,6 @@ function addEvents(player) {
 
         clearTimeout(errorTimeout);
         clearTimeout(downloadTimeout);
-        clearTimeout(timelineTimeout);
 
         error = true;
         downloading = false;
@@ -993,7 +992,7 @@ function onTimelineRelease(value) {
                 if (!downloading) {
                     clearInterval(interval);
 
-                    if (typeof partlist[songID][partIndex] !== 'undefined') {
+                    if (!error) {
                         gapless.gotoTrack(partlist[songID][partIndex]["gid"]);
                         MSAPI.currentTime = value;
 
