@@ -1201,7 +1201,7 @@ function resetSong(index) {
  * Pausiert die Wiedergabe
  */
 function pauseSong() {
-    playPauseButton("pause");
+    if (["play", "load"].includes(currentButton) && !error && !downloading) playPauseButton("pause");
 
     if (playing) {
         playlist[playIndex]["player"].pause();

@@ -9,7 +9,8 @@ let count = 0,
     width = getWidth(),
     error = false,
     hadError = false,
-    usedTimeline = false;
+    usedTimeline = false,
+    finished = false;
 
 /*
  * Funktion: Anonym
@@ -598,6 +599,7 @@ function addEvents(player) {
         playPauseButton("play");
 
         hadError = false;
+        finished = false;
 
         setTimeout(function () {
             prepareNextPart();
@@ -634,12 +636,16 @@ function addEvents(player) {
                         if (waited || hadError) play();
                     }
                 } else {
-                    pauseSong();
-                    playPauseButton("load");
-                    clearInterval(secondsInterval);
-                    secondsInterval = null;
+                    if (!finished) {
+                        playPauseButton("load");
+                        clearInterval(secondsInterval);
+                        secondsInterval = null;
 
-                    waited = true;
+                        waited = true;
+                    } else {
+                        pauseSong();
+                        return false;
+                    }
                 }
             }
         }, 50);
@@ -671,7 +677,7 @@ function addEvents(player) {
             if (typeof playlist[playIndex]["player"] === "undefined")
                 downloadPart(0, playIndex, partIndex);
         } else {
-            pauseSong();
+            finished = true;
             return;
         }
 
@@ -754,9 +760,12 @@ function prepareNextPart(callback = null) {
 
             let nextSong = false, nextIndex, nextSongID = null;
             if (!(Number(timeline.max) - nextTime > 1)) {
-                nextSong = true;
                 nextIndex = nextSongIndex();
-                nextSongID = playlist[nextIndex]["id"];
+
+                if (typeof playlist[nextIndex] !== 'undefined') {
+                    nextSong = true;
+                    nextSongID = playlist[nextIndex]["id"];
+                }
             }
 
             if (!nextSong) {
