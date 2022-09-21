@@ -350,7 +350,7 @@ bindEvent("mouseover", "#queueView tr[data-id]", function () {
 bindEvent("click", "#queueView .fa-play", function () {
     resetSong(playIndex);
 
-    let id = Number(this.closest(".controlsQueue").dataset.id);
+    let id = this.closest(".controlsQueue").dataset.id;
 
     for (let [key, value] of Object.entries(playlist)) {
         if (value["id"] === id) playIndex = Number(key);
