@@ -311,6 +311,31 @@ function generate_hash($data, &$songs = array()): string
 }
 
 /*
+ * Funktion: findExecutable()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  executableName: (String) Definiert den Namen des ausführbaren Programms
+ *
+ * Sucht nach einem ausführbaren Programm in den Verzeichnissen des PATH
+ * Gibt den Pfad des Programms zurück, wenn es gefunden wurde
+ * Gibt null zurück, wenn es nicht gefunden wurde
+ */
+function findExecutable($executableName): ?string
+{
+	$path = getenv('PATH');
+	$pathDirs = explode(PATH_SEPARATOR, $path);
+
+	foreach ($pathDirs as $dir) {
+		$executablePath = $dir . DIRECTORY_SEPARATOR . $executableName;
+		if (is_executable($executablePath)) {
+			return $executablePath;
+		}
+	}
+
+	return null;
+}
+
+/*
  * Funktion: add_hash()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -648,22 +673,14 @@ $router->get("/info/([\w-]*)$", function ($id) {
  * Schneidet das Lied anhand der Start- und Endinformationen
  * Gibt den Teil aus
  */
-$router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $timeTill = null) {
-	if (empty($timeTill)) $timeTill = 99;
-
-	if ($timeFrom < 50) {
-		$time = ($timeTill <= 5) ? $timeTill : 5;
-	} elseif ($timeFrom < 75) {
-		$time = ($timeTill <= 10) ? $timeTill : 10;
-	} else {
-		$time = ($timeTill <= 20) ? $timeTill : 20;
-	}
+$router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom) {
+	$time = ($timeFrom < 50) ? 5 : (($timeFrom < 75) ? 10 : 20);
 
 	$db = loadDatabase();
 	$song = search_song($id, $db);
 
 	$inputFile = "'" . __DIR__ . "/music/" . $song["fileName"] . "'";
-	$ffmpegPath = "/usr/bin/ffmpeg"; // Change this to the path of your FFmpeg binary
+	$ffmpegPath = findExecutable("ffmpeg");
 
 	// Prepare FFmpeg command to get the duration
 	$cmd = "{$ffmpegPath} -i {$inputFile} 2>&1";
