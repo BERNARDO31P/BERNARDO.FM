@@ -682,10 +682,7 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom) {
 	$inputFile = "'" . __DIR__ . "/music/" . $song["fileName"] . "'";
 	$ffmpegPath = findExecutable("ffmpeg");
 
-	// Prepare FFmpeg command to get the duration
 	$cmd = "{$ffmpegPath} -i {$inputFile} 2>&1";
-
-	// Open FFmpeg process
 	$descriptorspec = [
 		0 => ["pipe", "r"],
 		1 => ["pipe", "w"],
