@@ -679,7 +679,7 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom) {
 	$db = loadDatabase();
 	$song = search_song($id, $db);
 
-	$inputFile = "'" . __DIR__ . "/music/" . $song["fileName"] . "'";
+	$inputFile = escapeshellarg(__DIR__ . "/music/" . $song["fileName"]);
 	$ffmpegPath = findExecutable("ffmpeg");
 
 	$cmd = "{$ffmpegPath} -i {$inputFile} 2>&1";
