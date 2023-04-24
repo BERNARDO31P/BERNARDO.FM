@@ -1,10 +1,9 @@
 <?php
 
-use Audero\WavExtractor\AuderoWavExtractor;
 use Bramus\Router\Router;
 
 include_once __DIR__ . "/vendor/autoload.php";
-ini_set('memory_limit', '256M');
+ini_set("memory_limit", "256M");
 session_start();
 
 /*
@@ -20,22 +19,22 @@ session_start();
  */
 function loadDatabase()
 {
-    if ($_SESSION["database"] !== null && file_exists($_SESSION["database"]))
-        $db = json_decode(file_get_contents($_SESSION["database"]), true);
-    else {
-        $db = json_decode(file_get_contents(__DIR__ . "/db/songs.json"), true);
-        shuffle_level($db, 0);
+	if ($_SESSION["database"] !== null && file_exists($_SESSION["database"]))
+		$db = json_decode(file_get_contents($_SESSION["database"]), true);
+	else {
+		$db = json_decode(file_get_contents(__DIR__ . "/db/songs.json"), true);
+		shuffle_level($db, 0);
 
-        $tempDB = __DIR__ . "/temp/" . uniqid(rand(), true) . ".json";
-        $_SESSION["database"] = $tempDB;
-        file_put_contents($tempDB, json_encode($db));
-    }
+		$tempDB = __DIR__ . "/temp/" . uniqid(rand(), true) . ".json";
+		$_SESSION["database"] = $tempDB;
+		file_put_contents($tempDB, json_encode($db));
+	}
 
-    usort($db, function ($a, $b) {
-        return $a['category'] <=> $b['category'];
-    });
+	usort($db, function ($a, $b) {
+		return $a["category"] <=> $b["category"];
+	});
 
-    return $db;
+	return $db;
 }
 
 /*
@@ -47,10 +46,10 @@ function loadDatabase()
  */
 function loadHashDatabase()
 {
-    $dbFile = __DIR__ . "/db/hashes.json";
-    if (!file_exists($dbFile)) touch($dbFile);
+	$dbFile = __DIR__ . "/db/hashes.json";
+	if (!file_exists($dbFile)) touch($dbFile);
 
-    return json_decode(file_get_contents($dbFile), true);
+	return json_decode(file_get_contents($dbFile), true);
 }
 
 /*
@@ -64,11 +63,11 @@ function loadHashDatabase()
  */
 function recursive_unset(&$object, $key)
 {
-    unset($object[$key]);
-    foreach ($object as &$value) {
-        if (is_array($value))
-            recursive_unset($value, $key);
-    }
+	unset($object[$key]);
+	foreach ($object as &$value) {
+		if (is_array($value))
+			recursive_unset($value, $key);
+	}
 }
 
 /*
@@ -84,14 +83,14 @@ function recursive_unset(&$object, $key)
  */
 function recursive_prepend(&$object, $key, $data)
 {
-    foreach ($object as $loopKey => &$value) {
-        if (is_array($value))
-            recursive_prepend($value, $key, $data);
-        else {
-            if ($loopKey === $key)
-                $value = $data . $value;
-        }
-    }
+	foreach ($object as $loopKey => &$value) {
+		if (is_array($value))
+			recursive_prepend($value, $key, $data);
+		else {
+			if ($loopKey === $key)
+				$value = $data . $value;
+		}
+	}
 }
 
 /*
@@ -105,16 +104,16 @@ function recursive_prepend(&$object, $key, $data)
  */
 function sorting_by_category($object): array
 {
-    $parsed = array();
-    foreach ($object as $id => $song) {
-        $key = $song["category"];
+	$parsed = array();
+	foreach ($object as $id => $song) {
+		$key = $song["category"];
 
-        if (!array_key_exists($key, $parsed))
-            $parsed[$key] = array();
+		if (!array_key_exists($key, $parsed))
+			$parsed[$key] = array();
 
-        $parsed[$key][$id] = $song;
-    }
-    return $parsed;
+		$parsed[$key][$id] = $song;
+	}
+	return $parsed;
 }
 
 /*
@@ -128,18 +127,18 @@ function sorting_by_category($object): array
  */
 function paging($object, $page, $count, $category = null): array
 {
-    $new = array();
+	$new = array();
 
-    if ($category) {
-        $object = array_change_key_case($object);
-        if (isset($object[$category]))
-            $new = array_splice($object[$category], ($page - 1) * $count, $count);
-    } else {
-        foreach ($object as $category => $songs)
-            $new[$category] = array_splice($songs, ($page - 1) * $count, $count);
-    }
+	if ($category) {
+		$object = array_change_key_case($object);
+		if (isset($object[$category]))
+			$new = array_splice($object[$category], ($page - 1) * $count, $count);
+	} else {
+		foreach ($object as $category => $songs)
+			$new[$category] = array_splice($songs, ($page - 1) * $count, $count);
+	}
 
-    return $new;
+	return $new;
 }
 
 /*
@@ -155,25 +154,25 @@ function paging($object, $page, $count, $category = null): array
  */
 function shuffle_level(&$object, $level, $current = 0)
 {
-    if ($level === $current) {
-        $keys = array_keys($object);
-        shuffle($keys);
+	if ($level === $current) {
+		$keys = array_keys($object);
+		shuffle($keys);
 
-        $new = array();
-        foreach ($keys as $key) {
-            if (is_numeric($key))
-                $new[] = $object[$key];
-            else
-                $new[$key] = $object[$key];
-        }
+		$new = array();
+		foreach ($keys as $key) {
+			if (is_numeric($key))
+				$new[] = $object[$key];
+			else
+				$new[$key] = $object[$key];
+		}
 
-        $object = $new;
-    } else {
-        foreach ($object as $value) {
-            if (is_array($value))
-                shuffle_level($value, $level, $current + 1);
-        }
-    }
+		$object = $new;
+	} else {
+		foreach ($object as $value) {
+			if (is_array($value))
+				shuffle_level($value, $level, $current + 1);
+		}
+	}
 }
 
 /*
@@ -189,19 +188,19 @@ function shuffle_level(&$object, $level, $current = 0)
  */
 function search_songs($search, $db): array
 {
-    $songs = array();
+	$songs = array();
 
-    foreach ($db as $song) {
-        if (
-            (stripos($song["name"] ?? "", $search) !== false) ||
-            (stripos($song["artist"] ?? "", $search) !== false) ||
-            (stripos($song["category"] ?? "", $search) !== false)
-        ) {
-            $songs[] = $song;
-        }
-    }
+	foreach ($db as $song) {
+		if (
+			(stripos($song["name"] ?? "", $search) !== false) ||
+			(stripos($song["artist"] ?? "", $search) !== false) ||
+			(stripos($song["category"] ?? "", $search) !== false)
+		) {
+			$songs[] = $song;
+		}
+	}
 
-    return $songs;
+	return $songs;
 }
 
 /*
@@ -215,11 +214,11 @@ function search_songs($search, $db): array
  */
 function search_song($id, $db): array
 {
-    foreach ($db as $data) {
-        if ($data["id"] == $id)
-            return $data;
-    }
-    return array();
+	foreach ($db as $data) {
+		if ($data["id"] == $id)
+			return $data;
+	}
+	return array();
 }
 
 /*
@@ -238,51 +237,52 @@ function search_song($id, $db): array
  */
 function generatePictures(&$db, $hashDB, $hasCategory, $length = 200): string
 {
-    $i = 0;
-    $imagick = new Imagick();
-    $hash = generate_hash($db);
-    $data = array("coverPos" => array());
-    if ($hasCategory) {
-        foreach ($db as &$category) {
-            foreach ($category as &$song) {
-                if (isset($song["cover"])) {
-                    try {
-                        $imagick->readImage("img/" . $song["cover"]);
-                        $imagick->scaleImage($length, $length);
+	$i = 0;
+	$imagick = new Imagick();
+	$hash = generate_hash($db);
+	$data = array("coverPos" => array());
+	if ($hasCategory) {
+		foreach ($db as &$category) {
+			foreach ($category as &$song) {
+				if (isset($song["cover"])) {
+					try {
+						$imagick->readImage("img/" . $song["cover"]);
+						$imagick->scaleImage($length, $length);
 
-                        $pos = $i * $length;
-                        $song["coverPos"] = $pos;
-                        $data["coverPos"][$song["id"]] = $pos;
-                    } catch (Exception $e) {}
-                    $i++;
-                }
-            }
-        }
-    } else {
-        foreach ($db as &$song) {
-            if (isset($song["cover"])) {
-                $imagick->readImage("img/" . $song["cover"]);
-                $imagick->scaleImage($length, $length);
+						$pos = $i * $length;
+						$song["coverPos"] = $pos;
+						$data["coverPos"][$song["id"]] = $pos;
+					} catch (Exception $e) {
+					}
+					$i++;
+				}
+			}
+		}
+	} else {
+		foreach ($db as &$song) {
+			if (isset($song["cover"])) {
+				$imagick->readImage("img/" . $song["cover"]);
+				$imagick->scaleImage($length, $length);
 
-                $pos = $i * $length;
-                $song["coverPos"] = $pos;
-                $data["coverPos"][$song["id"]] = $pos;
-                $i++;
-            }
-        }
-    }
+				$pos = $i * $length;
+				$song["coverPos"] = $pos;
+				$data["coverPos"][$song["id"]] = $pos;
+				$i++;
+			}
+		}
+	}
 
-    $imagick->resetIterator();
-    $out = $imagick->appendImages(false);
-    $out->setImageFormat("jpg");
+	$imagick->resetIterator();
+	$out = $imagick->appendImages(false);
+	$out->setImageFormat("jpg");
 
-    $newImage = "temp/" . uniqid(rand(), true) . ".jpg";
-    $data["image"] = "system/" . $newImage;
+	$newImage = "temp/" . uniqid(rand(), true) . ".jpg";
+	$data["image"] = "system/" . $newImage;
 
-    $out->writeimage($newImage);
-    add_hash($hash, $data, $hashDB);
+	$out->writeimage($newImage);
+	add_hash($hash, $data, $hashDB);
 
-    return $data["image"];
+	return $data["image"];
 }
 
 /*
@@ -297,17 +297,17 @@ function generatePictures(&$db, $hashDB, $hasCategory, $length = 200): string
  */
 function generate_hash($data, &$songs = array()): string
 {
-    foreach ($data as $value) {
-        if (is_array($value) && !isset($value["id"])) {
-            generate_hash($value, $songs);
-        } else {
-            if (isset($value["id"]))
-                $songs[] = $value["id"];
-        }
-    }
+	foreach ($data as $value) {
+		if (is_array($value) && !isset($value["id"])) {
+			generate_hash($value, $songs);
+		} else {
+			if (isset($value["id"]))
+				$songs[] = $value["id"];
+		}
+	}
 
-    sort($songs);
-    return md5(http_build_query($songs));
+	sort($songs);
+	return md5(http_build_query($songs));
 }
 
 /*
@@ -322,10 +322,10 @@ function generate_hash($data, &$songs = array()): string
  */
 function add_hash($hash, $value, $hashDB)
 {
-    $dbFile = __DIR__ . "/db/hashes.json";
-    $hashDB[$hash] = $value;
+	$dbFile = __DIR__ . "/db/hashes.json";
+	$hashDB[$hash] = $value;
 
-    file_put_contents($dbFile, json_encode($hashDB));
+	file_put_contents($dbFile, json_encode($hashDB));
 }
 
 /*
@@ -342,12 +342,12 @@ function add_hash($hash, $value, $hashDB)
  */
 function check_hash($db, $hashDB)
 {
-    $hash = generate_hash($db);
+	$hash = generate_hash($db);
 
-    if (isset($hashDB[$hash]))
-        return $hashDB[$hash]["image"];
+	if (isset($hashDB[$hash]))
+		return $hashDB[$hash]["image"];
 
-    return null;
+	return null;
 }
 
 /*
@@ -364,21 +364,21 @@ function check_hash($db, $hashDB)
  */
 function apply_hash(&$db, $hashDB, $hasCategory)
 {
-    $hash = generate_hash($db);
+	$hash = generate_hash($db);
 
-    if ($hasCategory) {
-        foreach ($db as &$category) {
-            foreach ($category as &$song) {
-                if (isset($hashDB[$hash]["coverPos"][$song["id"]]))
-                    $song["coverPos"] = $hashDB[$hash]["coverPos"][$song["id"]];
-            }
-        }
-    } else {
-        foreach ($db as &$song) {
-            if (isset($hashDB[$hash]["coverPos"][$song["id"]]))
-                $song["coverPos"] = $hashDB[$hash]["coverPos"][$song["id"]];
-        }
-    }
+	if ($hasCategory) {
+		foreach ($db as &$category) {
+			foreach ($category as &$song) {
+				if (isset($hashDB[$hash]["coverPos"][$song["id"]]))
+					$song["coverPos"] = $hashDB[$hash]["coverPos"][$song["id"]];
+			}
+		}
+	} else {
+		foreach ($db as &$song) {
+			if (isset($hashDB[$hash]["coverPos"][$song["id"]]))
+				$song["coverPos"] = $hashDB[$hash]["coverPos"][$song["id"]];
+		}
+	}
 }
 
 $router = new Router();
@@ -399,30 +399,30 @@ $router = new Router();
  *
  * Mischt die Kategorien
  */
-$router->get('/songs/([\d]+)', function ($count) {
-    $db = loadDatabase();
-    $db = sorting_by_category($db);
-    $db = paging($db, 1, $count);
+$router->get("/songs/([\d]+)", function ($count) {
+	$db = loadDatabase();
+	$db = sorting_by_category($db);
+	$db = paging($db, 1, $count);
 
-    recursive_unset($db, "fileName");
+	recursive_unset($db, "fileName");
 
-    if (count($db)) {
-        $hashDB = loadHashDatabase();
+	if (count($db)) {
+		$hashDB = loadHashDatabase();
 
-        $url = check_hash($db, $hashDB);
-        if ($url === null) {
-            $url = generatePictures($db, $hashDB, true);
-        } else {
-            apply_hash($db, $hashDB, true);
-        }
+		$url = check_hash($db, $hashDB);
+		if ($url === null) {
+			$url = generatePictures($db, $hashDB, true);
+		} else {
+			apply_hash($db, $hashDB, true);
+		}
 
-        $db["cover"] = $url;
-    }
+		$db["cover"] = $url;
+	}
 
-    shuffle_level($db, 0);
+	shuffle_level($db, 0);
 
-    header('Content-Type: application/json');
-    echo json_encode($db);
+	header("Content-Type: application/json");
+	echo json_encode($db);
 });
 
 /*
@@ -443,30 +443,30 @@ $router->get('/songs/([\d]+)', function ($count) {
  *
  * Mischt die Lieder
  */
-$router->get('/songs/([^\/]*)/([\d]+)/([\d]+)', function ($category, $page, $count) {
-    $db = loadDatabase();
-    $db = sorting_by_category($db);
-    $db = paging($db, $page, $count, strtolower($category));
+$router->get("/songs/([^\/]*)/([\d]+)/([\d]+)", function ($category, $page, $count) {
+	$db = loadDatabase();
+	$db = sorting_by_category($db);
+	$db = paging($db, $page, $count, strtolower($category));
 
-    recursive_unset($db, "fileName");
+	recursive_unset($db, "fileName");
 
-    if (count($db)) {
-        $hashDB = loadHashDatabase();
+	if (count($db)) {
+		$hashDB = loadHashDatabase();
 
-        $url = check_hash($db, $hashDB);
-        if ($url === null) {
-            $url = generatePictures($db, $hashDB, false);
-        } else {
-            apply_hash($db, $hashDB, false);
-        }
+		$url = check_hash($db, $hashDB);
+		if ($url === null) {
+			$url = generatePictures($db, $hashDB, false);
+		} else {
+			apply_hash($db, $hashDB, false);
+		}
 
-        $db["cover"] = $url;
-    }
+		$db["cover"] = $url;
+	}
 
-    shuffle_level($db, 0);
+	shuffle_level($db, 0);
 
-    header('Content-Type: application/json');
-    echo json_encode($db);
+	header("Content-Type: application/json");
+	echo json_encode($db);
 });
 
 /*
@@ -485,29 +485,29 @@ $router->get('/songs/([^\/]*)/([\d]+)/([\d]+)', function ($category, $page, $cou
  * Findet den Hash, der zu den Daten passt
  * Sonst generiert er einen neuen
  */
-$router->get('/songs/([^\/]*)/([\d]+)', function ($search, $count) {
-    $db = loadDatabase();
-    $db = search_songs($search, $db);
-    $db = sorting_by_category($db);
-    $db = paging($db, 1, $count);
+$router->get("/songs/([^\/]*)/([\d]+)", function ($search, $count) {
+	$db = loadDatabase();
+	$db = search_songs($search, $db);
+	$db = sorting_by_category($db);
+	$db = paging($db, 1, $count);
 
-    recursive_unset($db, "fileName");
+	recursive_unset($db, "fileName");
 
-    if (count($db)) {
-        $hashDB = loadHashDatabase();
+	if (count($db)) {
+		$hashDB = loadHashDatabase();
 
-        $url = check_hash($db, $hashDB);
-        if ($url === null) {
-            $url = generatePictures($db, $hashDB, true);
-        } else {
-            apply_hash($db, $hashDB, true);
-        }
+		$url = check_hash($db, $hashDB);
+		if ($url === null) {
+			$url = generatePictures($db, $hashDB, true);
+		} else {
+			apply_hash($db, $hashDB, true);
+		}
 
-        $db["cover"] = $url;
-    }
+		$db["cover"] = $url;
+	}
 
-    header('Content-Type: application/json');
-    echo json_encode($db);
+	header("Content-Type: application/json");
+	echo json_encode($db);
 });
 
 /*
@@ -528,29 +528,29 @@ $router->get('/songs/([^\/]*)/([\d]+)', function ($search, $count) {
  * Findet den Hash, der zu den Daten passt
  * Sonst generiert er einen neuen
  */
-$router->get('/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)', function ($search, $category, $page, $count) {
-    $db = loadDatabase();
-    $db = search_songs($search, $db);
-    $db = sorting_by_category($db);
-    $db = paging($db, $page, $count, strtolower($category));
+$router->get("/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)", function ($search, $category, $page, $count) {
+	$db = loadDatabase();
+	$db = search_songs($search, $db);
+	$db = sorting_by_category($db);
+	$db = paging($db, $page, $count, strtolower($category));
 
-    recursive_unset($db, "fileName");
+	recursive_unset($db, "fileName");
 
-    if (count($db)) {
-        $hashDB = loadHashDatabase();
+	if (count($db)) {
+		$hashDB = loadHashDatabase();
 
-        $url = check_hash($db, $hashDB);
-        if ($url === null) {
-            $url = generatePictures($db, $hashDB, false);
-        } else {
-            apply_hash($db, $hashDB, false);
-        }
+		$url = check_hash($db, $hashDB);
+		if ($url === null) {
+			$url = generatePictures($db, $hashDB, false);
+		} else {
+			apply_hash($db, $hashDB, false);
+		}
 
-        $db["cover"] = $url;
-    }
+		$db["cover"] = $url;
+	}
 
-    header('Content-Type: application/json');
-    echo json_encode($db);
+	header("Content-Type: application/json");
+	echo json_encode($db);
 });
 
 /*
@@ -569,27 +569,27 @@ $router->get('/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)', function ($search, $cat
  *
  * Fügt dem Cover weitere Pfadinformationen hinzu
  */
-$router->get('/song/([\w-]*)$', function ($id) {
-    $db = loadDatabase();
-    $song = search_song($id, $db);
+$router->get("/song/([\w-]*)$", function ($id) {
+	$db = loadDatabase();
+	$song = search_song($id, $db);
 
-    header('Content-Type: application/json');
-    if (isset($song["playlist"])) {
-        $playlist = array();
-        foreach ($song["playlist"] as $songID) {
-            $playlist[] = search_song($songID, $db);
-        }
-        recursive_unset($playlist, "fileName");
-        recursive_prepend($playlist, "cover", "system/img/");
+	header("Content-Type: application/json");
+	if (isset($song["playlist"])) {
+		$playlist = array();
+		foreach ($song["playlist"] as $songID) {
+			$playlist[] = search_song($songID, $db);
+		}
+		recursive_unset($playlist, "fileName");
+		recursive_prepend($playlist, "cover", "system/img/");
 
-        shuffle_level($playlist, 0);
-        echo json_encode($playlist);
-    } else {
-        recursive_unset($song, "fileName");
-        recursive_prepend($song, "cover", "system/img/");
+		shuffle_level($playlist, 0);
+		echo json_encode($playlist);
+	} else {
+		recursive_unset($song, "fileName");
+		recursive_prepend($song, "cover", "system/img/");
 
-        echo json_encode($song);
-    }
+		echo json_encode($song);
+	}
 });
 
 /*
@@ -606,23 +606,23 @@ $router->get('/song/([\w-]*)$', function ($id) {
  *
  * Gibt diese zurück
  */
-$router->get('/info/([\w-]*)$', function ($id) {
-    $db = loadDatabase();
-    $song = search_song($id, $db);
+$router->get("/info/([\w-]*)$", function ($id) {
+	$db = loadDatabase();
+	$song = search_song($id, $db);
 
-    header('Content-Type: application/json');
-    $infoDB = json_decode(file_get_contents(__DIR__ . "/db/infos.json"), true);
+	header("Content-Type: application/json");
+	$infoDB = json_decode(file_get_contents(__DIR__ . "/db/infos.json"), true);
 
-    if (isset($song["info"])) {
-        if (is_array($song["info"])) {
-            $infos = array();
-            foreach ($song["info"] as $infoID)
-                $infos[] = $infoDB[$infoID];
+	if (isset($song["info"])) {
+		if (is_array($song["info"])) {
+			$infos = array();
+			foreach ($song["info"] as $infoID)
+				$infos[] = $infoDB[$infoID];
 
-            echo json_encode($infos);
+			echo json_encode($infos);
 
-        } else echo json_encode(array("0" => $infoDB[$song["info"]]));
-    } else echo null;
+		} else echo json_encode(array("0" => $infoDB[$song["info"]]));
+	} else echo null;
 });
 
 /*
@@ -648,36 +648,72 @@ $router->get('/info/([\w-]*)$', function ($id) {
  * Schneidet das Lied anhand der Start- und Endinformationen
  * Gibt den Teil aus
  */
-$router->get('/song/([\w-]+)/(\d+)(?:/)?([\d]+)?', function ($id, $timeFrom, $timeTill = null) {
-    if (empty($timeTill)) $timeTill = 99;
+$router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $timeTill = null) {
+	if (empty($timeTill)) $timeTill = 99;
 
-    $time = 0;
-    if ($timeFrom < 50) {
-        $time = ($timeTill <= 5) ? $timeTill : 5;
-    } elseif ($timeFrom < 75) {
-        $time = ($timeTill <= 10) ? $timeTill : 10;
-    } else {
-        $time = ($timeTill <= 20) ? $timeTill : 20;
-    }
+	if ($timeFrom < 50) {
+		$time = ($timeTill <= 5) ? $timeTill : 5;
+	} elseif ($timeFrom < 75) {
+		$time = ($timeTill <= 10) ? $timeTill : 10;
+	} else {
+		$time = ($timeTill <= 20) ? $timeTill : 20;
+	}
 
-    $db = loadDatabase();
-    $song = search_song($id, $db);
+	$db = loadDatabase();
+	$song = search_song($id, $db);
 
-    try {
-        $extractor = new AuderoWavExtractor(__DIR__ . "/music/" . $song["fileName"]);
-        $duration = $extractor->getDuration() / 1000;
+	$inputFile = "'" . __DIR__ . "/music/" . $song["fileName"] . "'";
+	$ffmpegPath = "/usr/bin/ffmpeg"; // Change this to the path of your FFmpeg binary
 
-        if ($duration <= $timeFrom + $time) $till = $duration;
-        else $till = $timeFrom + $time;
+	// Prepare FFmpeg command to get the duration
+	$cmd = "{$ffmpegPath} -i {$inputFile} 2>&1";
 
-        $part = $extractor->getChunk($timeFrom * 1000, $till * 1000);
+	// Open FFmpeg process
+	$descriptorspec = [
+		0 => ["pipe", "r"],
+		1 => ["pipe", "w"],
+		2 => ["pipe", "w"],
+	];
 
-        header('Content-Type: audio/wav');
-        header('Content-Length: ' . strlen($part));
-        echo $part;
-    } catch (\Exception $ex) {
-        echo 'An error has occurred: ' . $ex->getMessage();
-    }
+	$process = proc_open($cmd, $descriptorspec, $pipes);
+	$output = stream_get_contents($pipes[1]);
+
+	fclose($pipes[0]);
+	fclose($pipes[1]);
+	fclose($pipes[2]);
+	proc_close($process);
+
+	$totalSeconds = 0;
+	if (preg_match("/Duration: (\d{2}:\d{2}:\d{2}\.\d{2})/", $output, $matches)) {
+		$duration = $matches[1];
+
+		list($hours, $minutes, $seconds) = sscanf($duration, "%d:%d:%f");
+		$totalSeconds = $hours * 3600 + $minutes * 60 + $seconds;
+	}
+
+	if ($totalSeconds <= $timeFrom + $time) $till = $totalSeconds;
+	else $till = $timeFrom + $time;
+
+	try {
+		$bitrate = "64k";
+		$cmd = "{$ffmpegPath} -i {$inputFile} -ss {$timeFrom} -t {$till} -vn -b:a {$bitrate} -f webm -";
+
+		$process = proc_open($cmd, $descriptorspec, $pipes);
+		$webmAudioData = stream_get_contents($pipes[1]);
+
+		fclose($pipes[0]);
+		fclose($pipes[1]);
+		fclose($pipes[2]);
+		proc_close($process);
+
+		header("Content-Type: audio/webm");
+		header("Content-Disposition: attachment; filename=output.webm");
+
+	    echo $webmAudioData;
+    } catch (Exception $ex) {
+		error_log($ex->getMessage());
+		echo "An error has occurred: " . $ex->getMessage();
+	}
 });
 
 /*
@@ -686,9 +722,9 @@ $router->get('/song/([\w-]+)/(\d+)(?:/)?([\d]+)?', function ($id, $timeFrom, $ti
  *
  * Lädt die Monitoring-Daten und gibt sie aus
  */
-$router->get('/monitoring', function () {
-    header('Content-Type: application/json');
-    echo file_get_contents(__DIR__ . "/db/monitoring.json");
+$router->get("/monitoring", function () {
+	header("Content-Type: application/json");
+	echo file_get_contents(__DIR__ . "/db/monitoring.json");
 });
 
 /*
@@ -697,9 +733,9 @@ $router->get('/monitoring', function () {
  *
  * Lädt die Firewall-Daten und gibt sie aus
  */
-$router->get('/firewall', function () {
-    header('Content-Type: application/json');
-    echo file_get_contents(__DIR__ . "/db/firewall.json");
+$router->get("/firewall", function () {
+	header("Content-Type: application/json");
+	echo file_get_contents(__DIR__ . "/db/firewall.json");
 });
 
 /*
@@ -708,9 +744,9 @@ $router->get('/firewall', function () {
  *
  * Lädt die Changelog-Daten und gibt sie aus
  */
-$router->get('/changelog', function () {
-    header('Content-Type: application/json');
-    echo file_get_contents(__DIR__ . "/db/changelog.json");
+$router->get("/changelog", function () {
+	header("Content-Type: application/json");
+	echo file_get_contents(__DIR__ . "/db/changelog.json");
 });
 
 /*
@@ -720,18 +756,18 @@ $router->get('/changelog', function () {
  * Lädt das gewünschte Bild und gibt es aus
  * Dafür da, sodass direkter Zugriff nicht möglich ist
  */
-$router->get('/img/(.*)', function ($image) {
-    $imageUrl = __DIR__ . "/img/" . $image;
+$router->get("/img/(.*)", function ($image) {
+	$imageUrl = __DIR__ . "/img/" . $image;
 
-    if (file_exists($imageUrl)) {
-        $contentType = mime_content_type($imageUrl);
+	if (file_exists($imageUrl)) {
+		$contentType = mime_content_type($imageUrl);
 
-        header('Content-Type: ' . $contentType);
+		header("Content-Type: " . $contentType);
 
-        echo file_get_contents($imageUrl);
-    } else {
-        echo "";
-    }
+		echo file_get_contents($imageUrl);
+	} else {
+		echo "";
+	}
 });
 
 /*
@@ -741,12 +777,12 @@ $router->get('/img/(.*)', function ($image) {
  * Lädt die gewünschte Datei und gibt sie aus
  * Dafür da, sodass direkter Zugriff nicht möglich ist
  */
-$router->get('/temp/(.*)', function ($image) {
-    $imageUrl = __DIR__ . "/temp/" . $image;
-    $contentType = mime_content_type($imageUrl);
+$router->get("/temp/(.*)", function ($image) {
+	$imageUrl = __DIR__ . "/temp/" . $image;
+	$contentType = mime_content_type($imageUrl);
 
-    header('Content-Type: ' . $contentType);
-    echo file_get_contents($imageUrl);
+	header("Content-Type: " . $contentType);
+	echo file_get_contents($imageUrl);
 });
 
 $router->run();
