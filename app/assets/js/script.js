@@ -263,8 +263,7 @@ bindEvent("click", "#navbar-toggler", function () {
  * Diverse Funktionen welche durch Benutzereingaben ausgelöst werden
  */
 bindEvent("click", "#player .fa-pause", () => pauseSong());
-bindEvent("touchstart", "#timeline", () => onTimelinePress());
-bindEvent("mousedown", "#timeline", () => onTimelinePress());
+bindEvent("mousedown, touchstart", "#timeline", () => onTimelinePress());
 bindEvent("input", "#timeline", (e) => onTimelineMove(e));
 
 /*

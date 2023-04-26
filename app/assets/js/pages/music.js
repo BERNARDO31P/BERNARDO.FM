@@ -860,9 +860,6 @@ async function onTimelineRelease(value) {
     let timeInfo = document.getElementById("timeInfo");
     timeInfo.style.display = "none";
 
-    pauseSong();
-    playPauseButton("load");
-
     let songID = playlist[playIndex]["id"];
     let partInfo = getPartIndexByTime(value);
 
@@ -873,13 +870,13 @@ async function onTimelineRelease(value) {
         nextPartIndex = Object.keys(partlist[songID]).length;
 
         await downloadPart(Number(value), playIndex, nextPartIndex);
+    } else {
+        const player = playlist[playIndex]["player"];
+        player.setOffset(value - Number(partlist[songID][partIndex]["from"]));
     }
 
     MSAPI.currentTime = value;
     partIndex = nextPartIndex;
-
-    const player = playlist[playIndex]["player"];
-    player.setOffset(value - Number(partlist[songID][partIndex]["from"]));
 
     play();
 }

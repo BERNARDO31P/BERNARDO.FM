@@ -1111,6 +1111,10 @@ a.button {
     -webkit-appearance: none;
     height: 5px;
     overflow: hidden;
+
+    &:focus-visible {
+      outline: none;
+    }
   }
 
   #timeInfo {

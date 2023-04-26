@@ -58,8 +58,13 @@ class MultiTrackPlayer extends EventTarget {
             source.buffer = this.#audioBuffers[index];
             source.connect(this.#gainNode);
 
-            const when = startTime + audioContext.currentTime;
-            source.start(when, this.#offset);
+            let when = audioContext.currentTime;
+            try {
+                source.start(startTime + when, this.#offset);
+                when = startTime + when;
+            } catch (e) {
+                source.start(when, this.#offset);
+            }
             source.when = when;
 
             this.#audioSources[index] = source;

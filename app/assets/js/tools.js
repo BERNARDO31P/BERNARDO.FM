@@ -1065,10 +1065,9 @@ function play(diffSong = false, pageLoad = false) {
             angleUp.dispatchEvent(clickEvent);
         }
     }).catch(() => {
+        pauseSong();
         showConfirmation("Warning", "Your browser is blocking the automatic playback. Do you want to allow it?", () => {
             play(false, pageLoad);
-        }, () => {
-            pauseSong();
         });
     }).then(() => {
         playerHTML.style.display = "initial";
@@ -1200,6 +1199,7 @@ function onTimelinePress() {
     timeInfo.style.display = "initial";
 
     pauseSong();
+    playPauseButton("load");
 }
 
 /*
