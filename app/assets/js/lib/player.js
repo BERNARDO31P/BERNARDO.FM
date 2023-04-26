@@ -53,6 +53,9 @@ class MultiTrackPlayer extends EventTarget {
 
     playNext(index = 0, startTime = 0) {
         if (typeof this.#audioBuffers[index] !== "undefined") {
+            if (audioContext.state !== "running")
+                audioContext.resume();
+
             const source = audioContext.createBufferSource();
 
             source.buffer = this.#audioBuffers[index];
@@ -90,14 +93,16 @@ class MultiTrackPlayer extends EventTarget {
     pause() {
         this.#clearTimeouts();
 
-        this.#offset = this.getCurrentPartTime();
+        audioContext.suspend().then(() => {
+            this.setOffset(this.getCurrentPartTime());
 
-        this.#audioSources.forEach((source) => {
-            source.onended = () => {};
-            source.stop(source.when);
-            try {
-                source.disconnect(this.#gainNode);
-            } catch (ignored) {}
+            this.#audioSources.forEach((source) => {
+                source.onended = () => {};
+                source.stop(source.when);
+                try {
+                    source.disconnect(this.#gainNode);
+                } catch (ignored) {}
+            });
         });
 
         this.#currentTrackIndex = this.#previousTrackIndex;
@@ -136,7 +141,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     setOffset(offset) {
-        this.#offset = offset;
+        this.#offset = (offset >= 0) ? offset : 0;
     }
 
     isPlaying() {

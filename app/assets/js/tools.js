@@ -1,4 +1,4 @@
-let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], partlist = {}, playing = false,
+let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], partlist = {},
     downloading = false, volume = 0, previousVolume = null, repeatMode = 0, touched = false, touchedElement = null,
     currentButton = null, changedQueue = false;
 
@@ -171,7 +171,8 @@ function updatePlaying() {
     let animation = queueView.querySelector(".lds-facebook");
     if (animation) animation.remove();
 
-    let id = playlist[playIndex]["id"];
+    const song = playlist[playIndex];
+    const id = song["id"];
     let row = queueView.querySelector("[data-id='" + id + "']");
 
 
@@ -188,7 +189,7 @@ function updatePlaying() {
         row.querySelector("td").innerHTML += "<div class=\"lds-facebook\"><div></div><div></div><div></div></div>";
         let divs = row.querySelector(".lds-facebook").querySelectorAll("div");
 
-        if (playing) for (let div of divs) div.style.animationPlayState = "running";
+        if (song["player"].isPlaying()) for (let div of divs) div.style.animationPlayState = "running";
         else for (let div of divs) div.style.animationPlayState = "paused";
     }
 
@@ -1026,8 +1027,6 @@ function play(diffSong = false, pageLoad = false) {
         player.setVolume(volume);
         player.playNext(partIndex);
 
-        playing = true;
-
         let animation = document.getElementsByClassName("lds-facebook")[0];
         if (animation) {
             let divs = animation.querySelectorAll("div");
@@ -1162,9 +1161,10 @@ function clearSongs() {
  * Pausiert die Wiedergabe
  */
 function pauseSong() {
-    if (["play", "load"].includes(currentButton)) playPauseButton("pause");
+    playPauseButton("pause");
 
-    if (playing) {
+    const player = playlist[playIndex]["player"];
+    if (player.isPlaying()) {
         playlist[playIndex]["player"].pause();
         MSAPI.pause();
 
@@ -1172,8 +1172,6 @@ function pauseSong() {
         clearInterval(secondsInterval);
         songInterval = null;
         secondsInterval = null;
-
-        playing = false;
 
         let animation = document.getElementsByClassName("lds-facebook")[0];
         if (animation) {

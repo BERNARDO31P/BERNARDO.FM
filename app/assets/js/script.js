@@ -80,8 +80,8 @@ document.onkeydown = function (e) {
         if (keys.includes(key)) {
             e.preventDefault();
 
-            let player = document.getElementById("player");
-            let timeline = player.querySelector("#timeline");
+            let playerHTML = document.getElementById("player");
+            let timeline = playerHTML.querySelector("#timeline");
 
             let mouseUpEvent = new Event('mouseup', {
                 bubbles: true,
@@ -101,8 +101,10 @@ document.onkeydown = function (e) {
                     break;
                 case "K":
                 case "Space":
-                    if (playing) pauseSong();
-                    else play();
+                    if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]["player"].isPlaying())
+                        pauseSong();
+                    else
+                        play();
                     break;
                 case "M":
                     muteAudio();
@@ -157,7 +159,7 @@ function loadPage() {
 
     content.innerHTML = data.body.innerHTML;
 
-    if (!playing) {
+    if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]["player"].isPlaying()) {
         let subpage = (data.querySelector("title")) ? data.querySelector("title").textContent : "error";
         title.textContent = subpage + " - " + title.textContent.split(" - ")[1];
     }
