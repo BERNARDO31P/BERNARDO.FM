@@ -74,12 +74,8 @@ bindEvent("click", "#content .listAdd", function () {
  * Lädt den ersten Teil herunter
  * Spielt das Lied ab
  */
-bindEvent("click", "#content .fa-play", function () {
+bindEvent("click", "#content .fa-play", async function () {
     clearSongs();
-
-    playIndex = 0;
-    partIndex = 0;
-    playlist = [];
 
     clearInterval(songInterval);
     clearInterval(secondsInterval);
@@ -92,8 +88,10 @@ bindEvent("click", "#content .fa-play", function () {
 
     addSongToPlaylist(this);
     playPauseButton("load");
-    downloadPart(0, playIndex, partIndex);
-    play(true);
+
+    downloadPart(0, playIndex, partIndex).then(() => {
+        play(true);
+    });
 });
 
 /*
@@ -102,8 +100,7 @@ bindEvent("click", "#content .fa-play", function () {
  *
  * Diverse Funktionen welche durch Benutzereingaben ausgelöst werden
  */
-bindEvent("touchend", "#timeline", (e) => setTimeout(() => onTimelineRelease(e.target.value)));
-bindEvent("mouseup", "#timeline", (e) => onTimelineRelease(e.target.value));
+bindEvent("mouseup, touchend", "#timeline", (e) => onTimelineRelease(e.target.value));
 bindEvent("click", "#player .fa-step-forward", () => nextSong());
 bindEvent("click", "#player .fa-step-backward", () => previousSong());
 bindEvent("mouseout", ".songCard", function () {
@@ -233,52 +230,6 @@ window.addEventListener("resize", function () {
             if (getGetParameter(location.href, "page") === "music") loadPage();
         }, 200);
     }
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Stoppt die Wiedergabe, sobald der Platzhalter fertig ist
- * Dafür da um in der MediaSession API "stop" zu drücken
- */
-MSAPI.addEventListener("ended", function () {
-    playlist[playIndex]["player"].stop();
-    playlist[playIndex]["player"].onfinishedall();
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Pausiert die Wiedergabe, sobald der Platzhalter pausiert wird
- * Die MediaSession API pausiert die Wiedergabe, sobald eine neue beginnt
- * Sie startet auch die Wiedergabe neu, sobald die andere pausiert
- * Da sie aber lediglich nur den Audio-Tag pausiert, wird dieses Event benötigt
- */
-MSAPI.addEventListener("pause", function () {
-    let player = new Gapless5({});
-    if (typeof playlist[playIndex]["player"] !== 'undefined')
-        player = playlist[playIndex]["player"];
-
-    if (player.isPlaying()) pauseSong();
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Beginnt die Wiedergabe, sobald der Platzhalter beginnt
- * Die MediaSession API pausiert die Wiedergabe, sobald eine neue beginnt
- * Sie startet auch die Wiedergabe neu, sobald die andere pausiert
- * Da sie aber lediglich nur den Audio-Tag startet, wird dieses Event benötigt
- */
-MSAPI.addEventListener("play", function () {
-    let player = new Gapless5({});
-    if (typeof playlist[playIndex]["player"] !== 'undefined')
-        player = playlist[playIndex]["player"];
-
-    if (!player.isPlaying()) play();
 });
 
 /*
@@ -534,11 +485,6 @@ window["music"] = () => {
  *  player: (Object) Der Player, welchem die Events zugewiesen werden
  *
  * Fügt Events zum Player hinzu
- *
- * onerror: Sobald ein Fehler beim Hinzufügen eines Teils entsteht
- * onplay: Sobald die Wiedergabe beginnt, soll der nächste Teil im Hintergrund heruntergeladen werden
- * onfinishedtrack: Sobald ein Teil abgeschlossen ist, wird der nächste Teil wiedergeben
- * onfinishedall: Sobald das Lied abgeschlossen ist, wird das nächste Lied wiedergeben
  */
 function addEvents(player) {
     /*
@@ -592,111 +538,36 @@ function addEvents(player) {
      * Funktion: onplay()
      * Autor: Bernardo de Oliveira
      *
-     * Startet den Platzhalter
-     * Lädt den nächsten Teil herunter
+     * Sobald die Wiedergabe beginnt, soll der nächste Teil im Hintergrund heruntergeladen werden
      */
-    player.onplay = () => {
+    player.addEventListener("play", () => {
         playPauseButton("play");
+
+        partIndex = nextPartIndex;
 
         hadError = false;
         finished = false;
 
-        setTimeout(function () {
-            prepareNextPart();
-        })
-    }
+        prepareNextPart();
+    });
 
     /*
-     * Funktion: onfinishedtrack()
+     * Funktion: onend()
      * Autor: Bernardo de Oliveira
      *
-     * Dafür da um den derzeitigen Index neu zu definieren
-     * Überprüft, ob es Fehler oder Wartezeiten gibt
-     * Wartet bis diese vorüber sind und startet die weitere Wiedergabe
-     * Bei keinen Anomalien wird nur der neue Index gesetzt
+     * Sobald ein Track abgeschlossen ist, wird überprüft, ob ein weiterer Track verfügbar ist
+     * Wenn ja, wird dieser abgespielt
      */
-    player.onfinishedtrack = () => {
-        let timeline = document.getElementById("timeline");
+    player.addEventListener("end", () => {
+        pauseSong();
 
-        let waited = false;
-        let interval = setInterval(function () {
-            if (error) {
-                pauseSong();
-                playPauseButton("load");
-                clearInterval(secondsInterval);
-                secondsInterval = null;
-            } else {
-                if (!downloading) {
-                    clearInterval(interval);
+        if (playIndex !== nextPlayIndex) {
+            playIndex = nextPlayIndex;
+            partIndex = 0;
 
-                    let songID = playlist[playIndex]["id"];
-                    if (typeof partlist[songID][nextPartIndex] !== "undefined" && partlist[songID][partIndex]["till"] + 1 < Number(timeline.max)) {
-                        partIndex = nextPartIndex;
-
-                        if (waited || hadError) play();
-                    }
-                } else {
-                    if (!finished) {
-                        playPauseButton("load");
-                        clearInterval(secondsInterval);
-                        secondsInterval = null;
-
-                        waited = true;
-                    } else {
-                        pauseSong();
-                        return false;
-                    }
-                }
-            }
-        }, 50);
-    }
-
-    /*
-     * Funktion: onfinishedall()
-     * Autor: Bernardo de Oliveira
-     *
-     * Sobald ein Lied fertig ist, wird überprüft, ob ein nächstes vorhanden ist
-     * Falls nicht, wird die Wiedergabe gestoppt
-     *
-     * Sonst wird überprüft, ob das nächste Lied den ersten Teil hat
-     * Sonst wird der erste Teil heruntergeladen
-     *
-     * Bei einem Fehler, wird gewartet
-     */
-    player.onfinishedall = () => {
-        partIndex = 0;
-        resetSong(playIndex);
-
-        clearInterval(secondsInterval);
-        secondsInterval = null;
-
-        let nextIndex = nextSongIndex();
-        if (typeof playlist[nextIndex] !== 'undefined') {
-            playIndex = nextIndex;
-
-            if (typeof playlist[playIndex]["player"] === "undefined")
-                downloadPart(0, playIndex, partIndex);
-        } else {
-            finished = true;
-            return;
+            play(true);
         }
-
-        playPauseButton("load");
-
-        let interval = setInterval(function () {
-            if (error) {
-                clearInterval(interval);
-                pauseSong();
-                playPauseButton("load");
-            } else {
-                if (!downloading) {
-                    clearInterval(interval);
-
-                    play(true);
-                }
-            }
-        }, 50);
-    }
+    });
 }
 
 /*
@@ -747,46 +618,53 @@ function addSongToPlaylist(element, id = 0) {
  *  - Teil 75 - 85 Sekunden wurde heruntergeladen
  *  - Jetzt fehlt ein 5 Sekunden langer Teil, dieser wird heruntergeladen (anstatt 10 Sekunden)
  */
-function prepareNextPart(callback = null) {
+async function prepareNextPart(callback = () => {
+}) {
     let timeline = document.getElementById("timeline"), nextTime;
     let songID = playlist[playIndex]["id"];
 
-    let interval = setInterval(function () {
-        if (!downloading && typeof partlist[songID][partIndex] !== 'undefined') {
-            clearInterval(interval);
+    if (typeof partlist[songID][partIndex] !== "undefined") {
+        let songID = playlist[playIndex]["id"];
+        nextTime = Math.round(partlist[songID][partIndex]["till"]);
 
-            let songID = playlist[playIndex]["id"];
-            nextTime = partlist[songID][partIndex]["till"] + 1;
+        let songEnded = false, nextSong = false, nextIndex, nextSongID = null;
+        if (!(Number(timeline.max) - nextTime + 1 > 2)) {
+            songEnded = true;
+            nextIndex = nextSongIndex();
 
-            let nextSong = false, nextIndex, nextSongID = null;
-            if (!(Number(timeline.max) - nextTime > 1)) {
-                nextIndex = nextSongIndex();
 
-                if (typeof playlist[nextIndex] !== 'undefined') {
-                    nextSong = true;
-                    nextSongID = playlist[nextIndex]["id"];
-                }
+            if (typeof playlist[nextIndex] !== 'undefined') {
+                nextSong = true;
+                nextSongID = playlist[nextIndex]["id"];
             }
-
-            if (!nextSong) {
-                let partInfo = getPartIndexByStartTime(nextTime);
-
-                if (partInfo[2]) nextPartIndex = partInfo[2];
-                else nextPartIndex = Object.keys(partlist[songID]).length
-
-                if (!partInfo[2]) {
-                    let missingLength = findMissingLengthByCurrentPart()
-
-                    downloadPart(nextTime, playIndex, nextPartIndex, missingLength);
-                }
-                playlist[playIndex]["player"].queueTrack(nextPartIndex);
-            } else if (typeof partlist[nextSongID] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
-                downloadPart(0, nextIndex, 0);
-            }
-
-            if (callback) callback();
         }
-    }, 50);
+
+        if (!nextSong && !songEnded) {
+            let partInfo = getPartIndexByStartTime(nextTime);
+
+            if (partInfo[2]) {
+                nextPartIndex = partInfo[2];
+            } else {
+                nextPartIndex = Object.keys(partlist[songID]).length;
+            }
+
+            if (!partInfo[2]) {
+                let missingLength = findMissingLengthByCurrentPart();
+
+                await downloadPart(nextTime, playIndex, nextPartIndex, missingLength);
+            }
+
+            playlist[playIndex]["player"].queueTrack(nextPartIndex);
+        } else if (typeof partlist[nextSongID] === 'undefined' && typeof playlist[nextIndex] !== 'undefined') {
+            nextPartIndex = 0;
+            nextPlayIndex = nextIndex;
+
+            await downloadPart(0, nextIndex, nextPartIndex);
+
+            playlist[nextIndex]["player"].queueTrack(nextPlayIndex);
+        }
+    }
+    callback();
 }
 
 /*
@@ -803,33 +681,28 @@ function prepareNextPart(callback = null) {
  *
  * Optional kann man auch bis zu einer bestimmten Zeit herunterladen
  */
-function downloadPart(time, sIndex, pIndex, till = null) {
+async function downloadPart(time, sIndex, pIndex, till = null) {
     let songID = playlist[sIndex]["id"];
 
-    downloading = true;
-
     if (typeof playlist[sIndex]["player"] === 'undefined') {
-        let gapless = new Gapless5({useHTML5Audio: false, loadLimit: 5});
-        addEvents(gapless);
+        let player = new MultiTrackPlayer();
+        addEvents(player);
 
-        playlist[sIndex]["player"] = gapless;
+        playlist[sIndex]["player"] = player;
     }
 
-    playlist[sIndex]["player"].addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""));
+    await playlist[sIndex]["player"].addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""));
 
     if (typeof partlist[songID] === 'undefined') partlist[songID] = {};
 
     let gid = playlist[sIndex]["player"].totalTracks() - 1;
-    playlist[sIndex]["player"].playlist.sources[gid].load();
+    let length = playlist[sIndex]["player"].getPartLength(pIndex);
 
-    getPartLengthCallback(pIndex, (length) => {
-        partlist[songID][pIndex] = {
-            "gid": gid,
-            "from": time,
-            "till": time + length - 1
-        };
-        downloading = false;
-    });
+    partlist[songID][pIndex] = {
+        "gid": gid,
+        "from": time,
+        "till": time + length
+    };
 }
 
 /*
@@ -983,55 +856,32 @@ function removeControlsCard(card) {
  *
  * Die Wiedergabe beginnt
  */
-function onTimelineRelease(value) {
+async function onTimelineRelease(value) {
     let timeInfo = document.getElementById("timeInfo");
-    let gapless = playlist[playIndex]["player"];
     timeInfo.style.display = "none";
 
+    pauseSong();
     playPauseButton("load");
-    resetSong(playIndex);
 
-    let partInfo = getPartIndexByTime(value);
-    let index = partInfo[2];
     let songID = playlist[playIndex]["id"];
+    let partInfo = getPartIndexByTime(value);
 
+    nextPartIndex = partInfo[2];
     usedTimeline = true;
 
-    clearTimeout(timelineTimeout);
-    if (index === null) {
-        timelineTimeout = setTimeout(function () {
-            partIndex = Object.keys(partlist[songID]).length;
-            downloadPart(Number(value), playIndex, partIndex);
+    if (nextPartIndex === null) {
+        nextPartIndex = Object.keys(partlist[songID]).length;
 
-            let interval = setInterval(function () {
-                if (!downloading) {
-                    clearInterval(interval);
-
-                    if (!error) {
-                        gapless.gotoTrack(partlist[songID][partIndex]["gid"]);
-                        MSAPI.currentTime = value;
-
-                        play();
-                    }
-                }
-            }, 50);
-        }, 2000);
-    } else {
-        let interval = setInterval(function () {
-            if (typeof partlist[songID][index] !== 'undefined') {
-                clearInterval(interval);
-
-                gapless.gotoTrack(partlist[songID][index]["gid"]);
-                partIndex = index;
-                MSAPI.currentTime = value;
-
-                let startFrom = (value - partlist[songID][index]["from"]) * 1000;
-                gapless.setPosition(startFrom);
-
-                play();
-            }
-        }, 50);
+        await downloadPart(Number(value), playIndex, nextPartIndex);
     }
+
+    MSAPI.currentTime = value;
+    partIndex = nextPartIndex;
+
+    const player = playlist[playIndex]["player"];
+    player.setOffset(value - Number(partlist[songID][partIndex]["from"]));
+
+    play();
 }
 
 /*
@@ -1041,8 +891,8 @@ function onTimelineRelease(value) {
  * Überprüft, ob der nächste Index in der Playlist verfügbar ist
  * Die Wiedergabe wird gestartet
  */
-function nextSong() {
-    resetSong(playIndex);
+async function nextSong() {
+    playlist[playIndex]["player"].pause();
 
     partIndex = 0;
 
@@ -1056,7 +906,7 @@ function nextSong() {
 
         if (typeof playlist[nextIndex]["player"] === 'undefined') {
             partlist[nextIndex] = {};
-            downloadPart(0, playIndex, partIndex);
+            await downloadPart(0, playIndex, partIndex);
         }
 
         play(true);
@@ -1070,8 +920,8 @@ function nextSong() {
  * Überprüft, ob der vorherige Index in der Playlist verfügbar ist
  * Die Wiedergabe wird gestartet
  */
-function previousSong() {
-    resetSong(playIndex);
+async function previousSong() {
+    playlist[playIndex]["player"].pause();
 
     partIndex = 0;
 
@@ -1085,7 +935,7 @@ function previousSong() {
 
         if (typeof playlist[previousIndex]["player"] === 'undefined') {
             partlist[previousIndex] = {};
-            downloadPart(0, playIndex, partIndex);
+            await downloadPart(0, playIndex, partIndex);
         }
 
         play(true);

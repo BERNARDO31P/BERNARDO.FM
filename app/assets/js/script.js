@@ -347,8 +347,9 @@ bindEvent("mouseover", "#queueView tr[data-id]", function () {
  * Findet heraus welches Lied abgespielt werden soll
  * Spielt das Lied ab
  */
-bindEvent("click", "#queueView .fa-play", function () {
-    resetSong(playIndex);
+bindEvent("click", "#queueView .fa-play", async function () {
+    pauseSong();
+    playPauseButton("load");
 
     let id = this.closest(".controlsQueue").dataset.id;
 
@@ -359,12 +360,8 @@ bindEvent("click", "#queueView .fa-play", function () {
     partIndex = 0;
 
     if (typeof playlist[playIndex]["player"] === 'undefined')
-        downloadPart(0, playIndex, partIndex);
+        await downloadPart(0, playIndex, partIndex);
 
-    clearInterval(secondsInterval);
-    secondsInterval = null;
-
-    playPauseButton("load");
     play(true);
 });
 
@@ -533,11 +530,12 @@ bindEvent("click", ".fa-random", function () {
     let currentSong = playlist[playIndex];
 
     if (currentSong) {
-        resetSong(playIndex);
+        pauseSong();
+        playPauseButton("load");
 
         delete playlist[playIndex];
         playlist.splice(playIndex, 1);
-        playlist = playlist.sort((a, b) => 0.5 - Math.random());
+        playlist = playlist.sort(() => 0.5 - Math.random());
         playlist.unshift(currentSong);
 
         playIndex = 0;

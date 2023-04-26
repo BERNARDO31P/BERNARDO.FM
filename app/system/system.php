@@ -673,8 +673,11 @@ $router->get("/info/([\w-]*)$", function ($id) {
  * Schneidet das Lied anhand der Start- und Endinformationen
  * Gibt den Teil aus
  */
-$router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom) {
+$router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $duration = null) {
 	$time = ($timeFrom < 50) ? 5 : (($timeFrom < 75) ? 10 : 20);
+
+	if ($duration !== null && $duration < $time)
+		$time = $duration;
 
 	$db = loadDatabase();
 	$song = search_song($id, $db);
@@ -699,9 +702,9 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom) {
 
 	$totalSeconds = 0;
 	if (preg_match("/Duration: (\d{2}:\d{2}:\d{2}\.\d{2})/", $output, $matches)) {
-		$duration = $matches[1];
+		$songDuration = $matches[1];
 
-		list($hours, $minutes, $seconds) = sscanf($duration, "%d:%d:%f");
+		list($hours, $minutes, $seconds) = sscanf($songDuration, "%d:%d:%f");
 		$totalSeconds = $hours * 3600 + $minutes * 60 + $seconds;
 	}
 

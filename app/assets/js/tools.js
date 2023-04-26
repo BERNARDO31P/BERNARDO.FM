@@ -1,4 +1,4 @@
-let currentHover = null, playIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], partlist = {}, playing = false,
+let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], partlist = {}, playing = false,
     downloading = false, volume = 0, previousVolume = null, repeatMode = 0, touched = false, touchedElement = null,
     currentButton = null, changedQueue = false;
 
@@ -700,8 +700,7 @@ function ucFirst(string) {
 function getReadableTime(time) {
     const date = new Date(0);
     date.setSeconds(time);
-    const timeString = date.toISOString().substr(11, 8);
-    return timeString;
+    return date.toISOString().substring(11, 19);
 }
 
 /*
@@ -947,30 +946,27 @@ function getLengthByString(stringTime) {
  * Startet eine Schleife, welche jede Sekunde den Fortschritt des Liedes abruft und ins Tooltip speichert
  */
 function play(diffSong = false, pageLoad = false) {
-    let player = document.getElementById("player");
+    let playerHTML = document.getElementById("player");
 
     let song = playlist[playIndex];
     currentSong = song["id"];
 
-    let gapless = song["player"];
     let length = getLengthByString(song["length"]);
     if (diffSong) {
         MSAPI.src = createSilence(length);
         MSAPI.load();
         MSAPI.currentTime = 0;
 
-        gapless.setVolume(volume);
-
         let songLength = document.getElementById("timeInfo").querySelector("#length");
         let queueView = document.getElementById("queueView");
         let cover = queueView.querySelector("#playingCover").querySelector("img");
 
-        cover.src = song["cover"];
+        cover.src = String(song["cover"]);
         songLength.textContent = song["length"];
 
-        player.querySelector("#timeline").max = length;
-        player.querySelector("#name").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" + "<div class='spacer'>" + song["name"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
-        player.querySelector("#artist").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" + "<div class='spacer'>" + song["artist"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
+        playerHTML.querySelector("#timeline").max = length;
+        playerHTML.querySelector("#name").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" + "<div class='spacer'>" + song["name"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
+        playerHTML.querySelector("#artist").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" + "<div class='spacer'>" + song["artist"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
 
         if ('mediaSession' in navigator) {
             let song = playlist[playIndex];
@@ -983,21 +979,12 @@ function play(diffSong = false, pageLoad = false) {
                 title: song["name"], artist: song["artist"], artwork: [{src: song["cover"], type: 'image/png'},]
             });
 
-            navigator.mediaSession.setActionHandler('play', function () {
-                play()
-            });
-            navigator.mediaSession.setActionHandler('pause', function () {
-                pauseSong()
-            });
-            navigator.mediaSession.setActionHandler('previoustrack', function () {
-                previousSong()
-            });
-            navigator.mediaSession.setActionHandler('nexttrack', function () {
-                nextSong()
-            });
-            navigator.mediaSession.setActionHandler('stop', function () {
-                pauseSong()
-            });
+            navigator.mediaSession.setActionHandler('play',  () => play());
+            navigator.mediaSession.setActionHandler('pause', () => pauseSong());
+            navigator.mediaSession.setActionHandler('previoustrack', () => previousSong());
+            navigator.mediaSession.setActionHandler('nexttrack', () => nextSong());
+            navigator.mediaSession.setActionHandler('stop', () => pauseSong());
+
             navigator.mediaSession.setActionHandler('seekbackward', function () {
                 let timeline = document.getElementById("timeline");
 
@@ -1033,7 +1020,12 @@ function play(diffSong = false, pageLoad = false) {
     }
 
     if (MSAPI.paused) MSAPI.play().then(function () {
-        gapless.play();
+        nextPartIndex = partIndex;
+
+        let player = playlist[playIndex]["player"];
+        player.setVolume(volume);
+        player.playNext(partIndex);
+
         playing = true;
 
         let animation = document.getElementsByClassName("lds-facebook")[0];
@@ -1051,7 +1043,7 @@ function play(diffSong = false, pageLoad = false) {
         if (!secondsInterval) {
             secondsInterval = setInterval(function () {
                 let timeline = document.getElementById("timeline");
-                let currentPosition = getCurrentPartTime();
+                let currentPosition = playlist[playIndex]["player"].getCurrentPartTime();
 
                 if (currentPosition) {
                     let songID = playlist[playIndex]["id"];
@@ -1065,7 +1057,7 @@ function play(diffSong = false, pageLoad = false) {
                         });
                     }
                 }
-            }, 1000);
+            }, 500);
         }
 
         if (pageLoad) {
@@ -1079,7 +1071,7 @@ function play(diffSong = false, pageLoad = false) {
             pauseSong();
         });
     }).then(() => {
-        player.style.display = "initial";
+        playerHTML.style.display = "initial";
 
         let title = document.querySelector("title");
         title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
@@ -1150,48 +1142,18 @@ function playPauseButton(option = "pause") {
 /*
  * Funktion: clearSong()
  * Autor: Bernardo de Oliveira
- * Argumente:
- *  index: (Integer) Definiert welches Lied
- *
- * Löscht alle Teile eines Liedes
- */
-function clearSong(index) {
-    if (typeof playlist[index]["player"] !== 'undefined') {
-        playlist[index]["player"].stop();
-        playlist[index]["player"].removeAllTracks();
-
-        let songID = playlist[index]["id"];
-        removeKey(partlist, songID);
-    }
-}
-
-/*
- * Funktion: clearSong()
- * Autor: Bernardo de Oliveira
  *
  * Löscht alle Teile aller Lieder
  */
 function clearSongs() {
     for (let index of Object.keys(playlist)) {
-        clearSong(index);
+        playlist[index]["player"].pause();
     }
-}
 
-/*
- * Funktion: resetSong()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  index: (Integer) Definiert welches Lied
- *
- * Setzt ein Lied vollständig zurück
- * Alle Teile werden zurücksetzt
- */
-function resetSong(index) {
-    let gapless = playlist[index]["player"];
-
-    if (playing) pauseSong();
-    gapless.gotoTrack(0);
-    gapless.setPosition(0);
+    playIndex = 0;
+    partIndex = 0;
+    playlist = [];
+    partlist = [];
 }
 
 /*
@@ -1201,7 +1163,7 @@ function resetSong(index) {
  * Pausiert die Wiedergabe
  */
 function pauseSong() {
-    if (["play", "load"].includes(currentButton) && !error && !downloading) playPauseButton("pause");
+    if (["play", "load"].includes(currentButton)) playPauseButton("pause");
 
     if (playing) {
         playlist[playIndex]["player"].pause();
@@ -1420,7 +1382,7 @@ function generateTableRow(rowData, tableRow, columns, cover = null) {
  *
  * Entfernt ein oder mehrere Schlüssel in einem Objekt, rekursiv
  */
-function removeFromObject(object, toRemove = "", recursive = true) {
+function removeFromObject(object, toRemove = [], recursive = true) {
     let cleaned;
 
     if (object instanceof Object && object instanceof Array) {
@@ -1537,20 +1499,6 @@ function getColumns(data, level = 0, start = 0) {
 }
 
 /*
- * Funktion: getCurrentPartTime()
- * Autor: Bernardo de Oliveira
- *
- * Gibt die Position des jetzigen Songteiles zurück
- */
-function getCurrentPartTime() {
-    try {
-        return playlist[playIndex]["player"].getPosition() / 1000;
-    } catch (e) {
-        return 0;
-    }
-}
-
-/*
  * Funktion: getPartLength()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -1559,11 +1507,7 @@ function getCurrentPartTime() {
  * Berechnet sich die Länge vom Teil den man benötigt
  */
 function getPartLength(index) {
-    try {
-        return Number((playlist[playIndex]["player"].playlist.sources[index].getLength() / 1000).toFixed());
-    } catch (e) {
-        return 0;
-    }
+    return playlist[playIndex]["player"].getPartLength(index);
 }
 
 /*
@@ -1641,12 +1585,11 @@ function getPartIndexByStartTime(time) {
 function findMissingLengthByCurrentPart() {
     let currentLength = getPartLength(partIndex);
     let songID = playlist[playIndex]["id"];
-    let currentEnding = partlist[songID][partIndex]["till"];
+    let currentEnding = Math.round(partlist[songID][partIndex]["till"]);
 
     for (let part of Object.values(partlist[songID])) {
-        let missingLength = part["from"] - currentEnding - 1;
-
-        if (missingLength > 0 && missingLength <= currentLength) return missingLength;
+        if (part["from"] - currentEnding > 1 && part["from"] - currentEnding <= currentLength)
+            return part["from"] - currentEnding;
     }
     return null;
 }

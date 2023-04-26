@@ -19,7 +19,7 @@
       <path value="$PROJECT_DIR$/app/system/vendor/audero/audero-wav-extractor" />
     </include_path>
   </component>
-  <component name="PhpProjectSharedConfiguration" php_language_level="7.1" />
+  <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />
   <component name="PhpStanOptionsConfiguration">
     <option name="transferred" value="true" />
   </component>

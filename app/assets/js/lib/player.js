@@ -1,0 +1,148 @@
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+class MultiTrackPlayer extends EventTarget {
+    #volume = 1;
+    #gainNode = null;
+
+    #urls = [];
+    #audioBuffers = [];
+    #audioSources = [];
+
+    #isDecoding = false;
+    #decodingQueue = [];
+
+    #currentTrackIndex = 0;
+    #previousTrackIndex = 0;
+
+    #startTime = 0;
+    #startTimeouts = {};
+
+    #offset = null;
+
+    constructor() {
+        super();
+
+        this.#gainNode = audioContext.createGain();
+        this.#gainNode.connect(audioContext.destination);
+        this.#gainNode.gain.value = this.#volume;
+    }
+
+    async #processDecodeQueue() {
+        if (this.#decodingQueue.length > 0) {
+            this.#isDecoding = true;
+            const url = this.#decodingQueue.shift();
+            const bufferIndex = this.#urls.indexOf(url);
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            this.#audioBuffers[bufferIndex] = await audioContext.decodeAudioData(arrayBuffer);
+
+            await this.#processDecodeQueue();
+        } else {
+            this.#isDecoding = false;
+        }
+    }
+
+    async addTrack(url) {
+        this.#urls.push(url);
+        this.#audioBuffers.push(null);
+        this.#decodingQueue.push(url);
+        if (!this.#isDecoding) {
+            await this.#processDecodeQueue();
+        }
+    }
+
+    playNext(index = 0, startTime = 0) {
+        if (typeof this.#audioBuffers[index] !== "undefined") {
+            const source = audioContext.createBufferSource();
+
+            source.buffer = this.#audioBuffers[index];
+            source.connect(this.#gainNode);
+
+            const when = startTime + audioContext.currentTime;
+            source.start(when, this.#offset);
+            source.when = when;
+
+            this.#audioSources[index] = source;
+
+            source.onended = () => {
+                delete this.#startTimeouts[index];
+
+                if (!Object.keys(this.#startTimeouts).length) {
+                    this.dispatchEvent(new Event("end"));
+                }
+            }
+
+            this.#startTimeouts[index] = setTimeout(() => {
+                this.#previousTrackIndex = this.#currentTrackIndex;
+                this.#currentTrackIndex = index;
+
+                this.#startTime = when;
+                this.dispatchEvent(new Event("play"));
+            }, startTime * 1000);
+        }
+    }
+
+    pause() {
+        this.#clearTimeouts();
+
+        this.#offset = this.getCurrentPartTime();
+
+        this.#audioSources.forEach((source) => {
+            source.onended = () => {};
+            source.stop(source.when);
+            try {
+                source.disconnect(this.#gainNode);
+            } catch (ignored) {}
+        });
+
+        this.#currentTrackIndex = this.#previousTrackIndex;
+    }
+
+    queueTrack(index, startTime = null) {
+        if (typeof this.#audioBuffers[index] !== "undefined"
+            && this.#audioBuffers[index] !== null) {
+            if (startTime === null) startTime = (this.#audioBuffers[this.#currentTrackIndex].duration - this.#offset) - this.getCurrentPartTime();
+
+            this.#offset = 0;
+
+            this.playNext(index, startTime);
+        }
+    }
+
+    getCurrentPartTime() {
+        return audioContext.currentTime - this.#startTime;
+    }
+
+    totalTracks() {
+        return this.#audioBuffers.length;
+    }
+
+    getPartLength(partIndex) {
+        if (typeof this.#audioBuffers[partIndex] !== "undefined"
+            && this.#audioBuffers[partIndex] !== null) {
+            return this.#audioBuffers[partIndex].duration;
+        }
+        return 0;
+    }
+
+    setVolume(volume) {
+        this.#volume = volume;
+        this.#gainNode.gain.value = volume;
+    }
+
+    setOffset(offset) {
+        this.#offset = offset;
+    }
+
+    isPlaying() {
+        const state = audioContext.state;
+        return state === "running";
+    }
+
+    #clearTimeouts() {
+        for (const [index, timeout] of Object.entries(this.#startTimeouts)) {
+            clearTimeout(Number(timeout));
+            delete this.#startTimeouts[index];
+        }
+    }
+}
