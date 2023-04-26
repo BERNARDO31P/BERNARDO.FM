@@ -1244,6 +1244,7 @@ function generatePlaylistInfo(song) {
         let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
         info["cover"].innerHTML += "<img src='" + data["cover"] + "' alt='Cover'/>";
 
+        if (info["artists"].includes(data["artist"])) continue;
         info["artists"] += data["artist"] + ", ";
     }
 
