@@ -1021,8 +1021,6 @@ function play(diffSong = false, pageLoad = false) {
     }
 
     if (MSAPI.paused) MSAPI.play().then(function () {
-        nextPartIndex = partIndex;
-
         let player = playlist[playIndex]["player"];
         player.setVolume(volume);
         player.playNext(partIndex);
@@ -1145,13 +1143,23 @@ function playPauseButton(option = "pause") {
  */
 function clearSongs() {
     for (let index of Object.keys(playlist)) {
-        playlist[index]["player"].pause();
+        if (typeof playlist[index]["player"] !== 'undefined') playlist[index]["player"].pause();
     }
 
     playIndex = 0;
     partIndex = 0;
+    nextPlayIndex = 0;
+    nextPartIndex = 0;
+
     playlist = [];
     partlist = [];
+}
+
+function clearIntervals() {
+    clearInterval(songInterval);
+    clearInterval(secondsInterval);
+    songInterval = null;
+    secondsInterval = null;
 }
 
 /*
@@ -1168,10 +1176,7 @@ function pauseSong() {
         playlist[playIndex]["player"].pause();
         MSAPI.pause();
 
-        clearInterval(songInterval);
-        clearInterval(secondsInterval);
-        songInterval = null;
-        secondsInterval = null;
+        clearIntervals();
 
         let animation = document.getElementsByClassName("lds-facebook")[0];
         if (animation) {
@@ -1196,8 +1201,7 @@ function onTimelinePress() {
     let timeInfo = document.getElementById("timeInfo");
     timeInfo.style.display = "initial";
 
-    pauseSong();
-    playPauseButton("load");
+    clearIntervals();
 }
 
 /*
@@ -1323,7 +1327,7 @@ function generateTableRow(rowData, tableRow, columns, cover = null) {
 
             if (column === "cover") {
                 if (cover !== null) {
-                    tableRow.innerHTML += "<td><div class=\"cover\" style=\"background-image: url('" + cover + "'); background-position-x: -" + rowData["coverPos"] / 200 * 35 + "px\"></div></td>";
+                    tableRow.innerHTML += "<td><div class=\"cover\" style=\"background-image: url(" + cover + "); background-position-x: -" + rowData["coverPos"] / 200 * 35 + "px\"></div></td>";
                 } else {
                     tableRow.innerHTML += "<td><img src='" + rowData["cover"] + "' alt='cover' /></td>";
                 }

@@ -7,18 +7,18 @@
   },
   "changelog": [
     {
+      "title": "Version 1.1",
+      "message": "After a long and stressful time, I have finally managed to code my own player!<br/> It is still in beta, but it works better than ever before.<br/> I will be adding more features soon.<br/> I hope you enjoy it!",
+      "details": "+Gapless5 player has been replaced by my own player<br/> +Audero-Wav-Extractor has been replaced by my own audio-cut system.<br/> +Audio is now streamed in the WebM format, which is much more efficient.",
+      "author": "Bernardo de Oliveira",
+      "date": "27. Apr. 2023"
+    },
+    {
       "title": "Version 1.0",
       "message": "As I promised, here is the new website. Everything's got a full rewrite. Nothing is the same as it was. :)<br/>I'm adding more than just Psy-Trance. Have fun!",
       "details": "+Full rewrite of the webpage<br/> +Projects tab added<br/> +Monitoring is now accessible again",
       "author": "Bernardo de Oliveira",
       "date": "30. Aug. 2021"
-    },
-    {
-      "title": "Version pre-1.0",
-      "message": "There will be completely new music on my website.<br/>I already uploaded a few songs so you can get the taste.<br/>A completely new website is coming soon. Stay tuned. Stay safe.",
-      "details": "I'll be uploading completely new songs to my website.<br/>It's going to be only Psy-Trance.<br/>There will be a complete renewal of my website. Soon.",
-      "author": "Bernardo de Oliveira",
-      "date": "25. Dec. 2020"
     },
     {
       "title": "Version 0.9.1",

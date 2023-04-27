@@ -1,6 +1,8 @@
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 class MultiTrackPlayer extends EventTarget {
+    #waitIndex = 0;
+
     #volume = 1;
     #gainNode = null;
 
@@ -10,6 +12,7 @@ class MultiTrackPlayer extends EventTarget {
 
     #isDecoding = false;
     #decodingQueue = [];
+    #decodingCallbacks = [];
 
     #currentTrackIndex = 0;
     #previousTrackIndex = 0;
@@ -28,27 +31,40 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     async #processDecodeQueue() {
-        if (this.#decodingQueue.length > 0) {
+        if (this.#decodingQueue.length) {
             this.#isDecoding = true;
-            const url = this.#decodingQueue.shift();
+            const url = this.#decodingQueue.pop();
             const bufferIndex = this.#urls.indexOf(url);
             const response = await fetch(url);
             const arrayBuffer = await response.arrayBuffer();
             this.#audioBuffers[bufferIndex] = await audioContext.decodeAudioData(arrayBuffer);
 
+            this.#decodingCallbacks[bufferIndex]();
+
+            if (bufferIndex === this.#waitIndex) {
+                this.dispatchEvent(new Event("processed"));
+                this.#waitIndex = 0;
+            }
+
+            delete this.#decodingCallbacks[bufferIndex];
             await this.#processDecodeQueue();
         } else {
             this.#isDecoding = false;
         }
     }
 
-    async addTrack(url) {
-        this.#urls.push(url);
-        this.#audioBuffers.push(null);
+    async addTrack(url, callback) {
+        let index = this.#urls.push(url) - 1;
+        this.#audioBuffers[index] = null
         this.#decodingQueue.push(url);
+        this.#decodingCallbacks[index] = callback;
+
         if (!this.#isDecoding) {
             await this.#processDecodeQueue();
+        } else {
+            this.#waitIndex = index;
         }
+        return this.#isDecoding;
     }
 
     playNext(index = 0, startTime = 0) {
@@ -57,6 +73,7 @@ class MultiTrackPlayer extends EventTarget {
                 audioContext.resume();
 
             const source = audioContext.createBufferSource();
+            this.#audioSources[index] = source;
 
             source.buffer = this.#audioBuffers[index];
             source.connect(this.#gainNode);
@@ -69,8 +86,6 @@ class MultiTrackPlayer extends EventTarget {
                 source.start(when, this.#offset);
             }
             source.when = when;
-
-            this.#audioSources[index] = source;
 
             source.onended = () => {
                 delete this.#startTimeouts[index];
@@ -90,6 +105,15 @@ class MultiTrackPlayer extends EventTarget {
         }
     }
 
+    #killSource(source) {
+        source.onended = () => {};
+        source.stop(source.when);
+
+        try {
+            source.disconnect(this.#gainNode);
+        } catch (ignored) {}
+    }
+
     pause() {
         this.#clearTimeouts();
 
@@ -97,11 +121,7 @@ class MultiTrackPlayer extends EventTarget {
             this.setOffset(this.getCurrentPartTime());
 
             this.#audioSources.forEach((source) => {
-                source.onended = () => {};
-                source.stop(source.when);
-                try {
-                    source.disconnect(this.#gainNode);
-                } catch (ignored) {}
+                this.#killSource(source);
             });
         });
 
