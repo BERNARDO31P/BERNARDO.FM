@@ -364,7 +364,10 @@ bindEvent("click", "#queueView .fa-play", async function () {
         if (value["id"] === id) playIndex = Number(key);
     }
 
+    nextPlayIndex = playIndex;
+
     partIndex = 0;
+    nextPartIndex = 0;
 
     if (typeof playlist[playIndex]["player"] === 'undefined')
         await downloadPart(0, playIndex, partIndex);
@@ -546,13 +549,18 @@ bindEvent("click", ".fa-random", function () {
         playlist.unshift(currentSong);
 
         playIndex = 0;
+        nextPlayIndex = 0;
+
         partIndex = 0;
+        nextPartIndex = 0;
 
         let queueView = document.getElementById("queueView");
         let queue = queueView.querySelector("#queue");
 
         queue.innerHTML = "";
         queue.appendChild(generateListView(playlist));
+
+        playlist[playIndex]["player"].setOffset(0);
 
         play();
     }

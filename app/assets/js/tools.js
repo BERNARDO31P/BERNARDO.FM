@@ -988,7 +988,7 @@ function play(diffSong = false, pageLoad = false) {
 
             setPositionState(length, 0);
 
-            navigator.mediaSession.setActionHandler('play',  () => play());
+            navigator.mediaSession.setActionHandler('play', () => play());
             navigator.mediaSession.setActionHandler('pause', () => pauseSong());
             navigator.mediaSession.setActionHandler('previoustrack', () => previousSong());
             navigator.mediaSession.setActionHandler('nexttrack', () => nextSong());
@@ -1024,52 +1024,53 @@ function play(diffSong = false, pageLoad = false) {
         updatePlaying();
     }
 
-    if (MSAPI.paused) MSAPI.play().then(function () {
-        let player = playlist[playIndex]["player"];
-        player.setVolume(volume);
-        player.playNext(partIndex);
+    if (MSAPI.paused) {
+        MSAPI.play().then(() => {
+            let player = playlist[playIndex]["player"];
+            player.setVolume(volume);
+            player.playNext(partIndex);
 
-        let animation = document.getElementsByClassName("lds-facebook")[0];
-        if (animation) {
-            let divs = animation.querySelectorAll("div");
-            for (let div of divs) {
-                if (div.style.animationPlayState === "paused") {
-                    div.style.animationPlayState = "running";
+            let animation = document.getElementsByClassName("lds-facebook")[0];
+            if (animation) {
+                let divs = animation.querySelectorAll("div");
+                for (let div of divs) {
+                    if (div.style.animationPlayState === "paused") {
+                        div.style.animationPlayState = "running";
+                    }
                 }
             }
-        }
 
-        updateURL();
+            updateURL();
 
-        if (!secondsInterval) {
-            secondsInterval = setInterval(function () {
-                let timeline = document.getElementById("timeline");
-                let currentPosition = playlist[playIndex]["player"].getCurrentPartTime();
+            if (!secondsInterval) {
+                secondsInterval = setInterval(function () {
+                    let timeline = document.getElementById("timeline");
+                    let currentPosition = playlist[playIndex]["player"].getCurrentPartTime();
 
-                if (currentPosition) {
-                    let songID = playlist[playIndex]["id"];
-                    let position = currentPosition + partlist[songID][partIndex]["from"];
-                    timeline.value = position;
-                    MSAPI.currentTime = position;
-                }
-            }, 500);
-        }
+                    if (currentPosition) {
+                        let songID = playlist[playIndex]["id"];
+                        let position = currentPosition + partlist[songID][partIndex]["from"];
+                        timeline.value = position;
+                        MSAPI.currentTime = position;
+                    }
+                }, 500);
+            }
 
-        if (pageLoad) {
-            let angleUp = document.getElementsByClassName("fa-angle-up")[0];
-            angleUp.dispatchEvent(clickEvent);
-        }
-    }).catch(() => {
-        pauseSong();
-        showConfirmation("Warning", "Your browser is blocking the automatic playback. Do you want to allow it?", () => {
-            play(false, pageLoad);
+            if (pageLoad) {
+                let angleUp = document.getElementsByClassName("fa-angle-up")[0];
+                angleUp.dispatchEvent(clickEvent);
+            }
+            playerHTML.style.display = "initial";
+
+            let title = document.querySelector("title");
+            title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
+        }).catch(() =>  {
+            pauseSong();
+            showConfirmation("Warning", "Your browser is blocking the automatic playback. Do you want to allow it?", () => {
+                play(false, pageLoad);
+            });
         });
-    }).then(() => {
-        playerHTML.style.display = "initial";
-
-        let title = document.querySelector("title");
-        title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
-    });
+    }
 }
 
 /*

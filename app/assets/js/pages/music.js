@@ -1,7 +1,10 @@
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
-let MSAPI = new Audio();
+//let MSAPI = new Audio();
+let MSAPI = document.getElementById("audio");
 document.getElementById("player").appendChild(MSAPI);
+
+setPositionState(0, 0);
 
 let count = 0,
     resizeTimeout = null,
@@ -74,7 +77,7 @@ bindEvent("click", "#content .listAdd", function () {
  * Lädt den ersten Teil herunter
  * Spielt das Lied ab
  */
-bindEvent("click", "#content .fa-play", async function () {
+bindEvent("click", "#content .fa-play", function () {
     clearSongs();
 
     clearInterval(songInterval);
@@ -828,7 +831,6 @@ async function onTimelineRelease(value) {
 
         player.setOffset(0);
     } else {
-
         player.setOffset(value - Number(partlist[songID][partIndex]["from"]));
     }
 

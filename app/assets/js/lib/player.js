@@ -109,10 +109,9 @@ class MultiTrackPlayer extends EventTarget {
         this.#currentTrackIndex = this.#previousTrackIndex;
 
         this.#clearTimeouts();
+        this.setOffset(this.getCurrentPartTime());
 
         audioContext.suspend().then(() => {
-            this.setOffset(this.getCurrentPartTime());
-
             this.#audioSources.forEach((source) => {
                 this.#killSource(source);
             });
@@ -124,8 +123,7 @@ class MultiTrackPlayer extends EventTarget {
             && this.#audioBuffers[index] !== null) {
             if (startTime === null) startTime = (this.#audioBuffers[this.#currentTrackIndex].duration - this.#offset) - this.getCurrentPartTime();
 
-            this.#offset = 0;
-
+            this.setOffset(0);
             this.playNext(index, startTime);
         }
     }
