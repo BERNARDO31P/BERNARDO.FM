@@ -601,7 +601,7 @@ async function prepareNextPart() {
 
             let missingLength = findMissingLengthByCurrentPart();
             await downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength, () => {
-                if (playIndex === nextPlayIndex)
+                if (playIndex === nextPlayIndex && !playlist[nextPlayIndex]["player"].isPlaying())
                     playlist[nextPlayIndex]["player"].queueTrack(nextPartIndex);
             });
         }
