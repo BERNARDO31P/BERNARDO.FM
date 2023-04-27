@@ -982,10 +982,6 @@ function play(diffSong = false, pageLoad = false) {
         if ('mediaSession' in navigator) {
             let song = playlist[playIndex];
 
-            let mouseUpEvent = new Event('mouseup', {
-                bubbles: true, cancelable: true,
-            });
-
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song["name"], artist: song["artist"], artwork: [{src: song["cover"], type: 'image/png'},]
             });
@@ -1000,15 +996,11 @@ function play(diffSong = false, pageLoad = false) {
 
             navigator.mediaSession.setActionHandler('seekbackward', function () {
                 let timeline = document.getElementById("timeline");
-
-                timeline.value = Number(timeline.value) - 10;
-                timeline.dispatchEvent(mouseUpEvent);
+                onTimelineRelease(Number(timeline.value) - 10);
             });
             navigator.mediaSession.setActionHandler('seekforward', function () {
                 let timeline = document.getElementById("timeline");
-
-                timeline.value = Number(timeline.value) + 10;
-                timeline.dispatchEvent(mouseUpEvent);
+                onTimelineRelease(Number(timeline.value) + 10);
             });
             navigator.mediaSession.setActionHandler('seekto', function (details) {
                 if ('seekTime' in details) {
@@ -1059,8 +1051,6 @@ function play(diffSong = false, pageLoad = false) {
                     let position = currentPosition + partlist[songID][partIndex]["from"];
                     timeline.value = position;
                     MSAPI.currentTime = position;
-
-                    console.log(MSAPI.currentTime);
                 }
             }, 500);
         }
