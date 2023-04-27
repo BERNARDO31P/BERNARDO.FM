@@ -937,6 +937,16 @@ function getLengthByString(stringTime) {
     return length;
 }
 
+function setPositionState(length, position) {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.setPositionState({
+            duration: length,
+            playbackRate: MSAPI.playbackRate,
+            position: position
+        });
+    }
+}
+
 /*
  * Funktion: play()
  * Autor: Bernardo de Oliveira
@@ -980,11 +990,7 @@ function play(diffSong = false, pageLoad = false) {
                 title: song["name"], artist: song["artist"], artwork: [{src: song["cover"], type: 'image/png'},]
             });
 
-            navigator.mediaSession.setPositionState({
-                duration: MSAPI.duration || length,
-                playbackRate: MSAPI.playbackRate,
-                position: 0
-            });
+            setPositionState(length, 0);
 
             navigator.mediaSession.setActionHandler('play',  () => play());
             navigator.mediaSession.setActionHandler('pause', () => pauseSong());

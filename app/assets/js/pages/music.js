@@ -834,6 +834,7 @@ async function onTimelineRelease(value) {
 
     MSAPI.currentTime = value;
     partIndex = nextPartIndex;
+    setPositionState(MSAPI.duration, value);
 
     if (nextPartIndexCopy !== nextPartIndex || decoding) return;
 
