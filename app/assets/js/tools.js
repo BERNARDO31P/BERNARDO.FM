@@ -1171,6 +1171,7 @@ function clearIntervals() {
  */
 function pauseSong() {
     playPauseButton("pause");
+    nextPartIndex = partIndex;
 
     const player = playlist[playIndex]["player"];
     if (player.isPlaying()) {
