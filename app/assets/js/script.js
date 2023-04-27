@@ -275,20 +275,26 @@ bindEvent("input", "#timeline", (e) => onTimelineMove(e));
  * Handler, wenn im Player auf den Play Knopf drückt
  * Wenn das Lied beendet wurde, wird überprüft, ob ein nächstes Lied abgespielt werden kann
  */
-bindEvent("click", "#player .fa-play", () => {
+bindEvent("click", "#player .fa-play", async () => {
     let timeline = document.getElementById("timeline");
     if (timeline.max === timeline.value) {
         let nextIndex = nextSongIndex();
+        partIndex = 0;
 
         if (typeof playlist[nextIndex] !== 'undefined') {
             if (typeof playlist[nextIndex]["player"] === 'undefined')
-                downloadPart(0, nextIndex, partIndex);
+                await downloadPart(0, nextIndex, partIndex);
+
+            let diffIndex = (playIndex !== nextIndex);
 
             playIndex = nextIndex;
-        }
+            playlist[playIndex]["player"].setOffset(0);
 
-        play(true);
-    } else play();
+            play(diffIndex);
+        }
+    }
+
+    play();
 });
 
 /*

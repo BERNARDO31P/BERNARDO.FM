@@ -1,7 +1,7 @@
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 class MultiTrackPlayer extends EventTarget {
-    #waitIndex = 0;
+    #waitIndex = -1;
 
     #volume = 1;
     #gainNode = null;
@@ -43,7 +43,7 @@ class MultiTrackPlayer extends EventTarget {
 
             if (bufferIndex === this.#waitIndex) {
                 this.dispatchEvent(new Event("processed"));
-                this.#waitIndex = 0;
+                this.#waitIndex = -1;
             }
 
             delete this.#decodingCallbacks[bufferIndex];
@@ -105,15 +105,6 @@ class MultiTrackPlayer extends EventTarget {
         }
     }
 
-    #killSource(source) {
-        source.onended = () => {};
-        source.stop(source.when);
-
-        try {
-            source.disconnect(this.#gainNode);
-        } catch (ignored) {}
-    }
-
     pause() {
         this.#clearTimeouts();
 
@@ -143,10 +134,6 @@ class MultiTrackPlayer extends EventTarget {
         return audioContext.currentTime - this.#startTime;
     }
 
-    totalTracks() {
-        return this.#audioBuffers.length;
-    }
-
     getPartLength(partIndex) {
         if (typeof this.#audioBuffers[partIndex] !== "undefined"
             && this.#audioBuffers[partIndex] !== null) {
@@ -174,5 +161,14 @@ class MultiTrackPlayer extends EventTarget {
             clearTimeout(Number(timeout));
             delete this.#startTimeouts[index];
         }
+    }
+
+    #killSource(source) {
+        source.onended = () => {};
+        source.stop(source.when);
+
+        try {
+            source.disconnect(this.#gainNode);
+        } catch (ignored) {}
     }
 }

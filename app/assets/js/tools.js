@@ -956,7 +956,7 @@ function play(diffSong = false, pageLoad = false) {
     if (diffSong) {
         MSAPI.src = createSilence(length);
         MSAPI.load();
-        MSAPI.currentTime = 0;
+        MSAPI.currentTime = null;
 
         let songLength = document.getElementById("timeInfo").querySelector("#length");
         let queueView = document.getElementById("queueView");
@@ -978,6 +978,12 @@ function play(diffSong = false, pageLoad = false) {
 
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song["name"], artist: song["artist"], artwork: [{src: song["cover"], type: 'image/png'},]
+            });
+
+            navigator.mediaSession.setPositionState({
+                duration: MSAPI.duration || length,
+                playbackRate: MSAPI.playbackRate,
+                position: 0
             });
 
             navigator.mediaSession.setActionHandler('play',  () => play());
@@ -1003,7 +1009,7 @@ function play(diffSong = false, pageLoad = false) {
                     let time = Math.round(details.seekTime);
                     onTimelineRelease(time);
                 }
-            })
+            });
         }
 
         let data = tryParseJSON(httpGet(pageURL + "system/info/" + song["id"]));
@@ -1048,11 +1054,7 @@ function play(diffSong = false, pageLoad = false) {
                     timeline.value = position;
                     MSAPI.currentTime = position;
 
-                    if ('mediaSession' in navigator) {
-                        navigator.mediaSession.setPositionState({
-                            duration: MSAPI.duration, playbackRate: MSAPI.playbackRate, position: MSAPI.currentTime
-                        });
-                    }
+                    console.log(MSAPI.currentTime);
                 }
             }, 500);
         }
@@ -1083,6 +1085,9 @@ function play(diffSong = false, pageLoad = false) {
 function nextSongIndex() {
     let nextIndex = Number(playIndex) + 1;
     switch (repeatMode) {
+        case 0:
+            if (typeof playlist[nextIndex] === 'undefined') return playIndex;
+            break;
         case 1:
             if (typeof playlist[nextIndex] === 'undefined') return 0;
             break;

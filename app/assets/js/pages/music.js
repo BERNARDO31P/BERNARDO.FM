@@ -507,13 +507,13 @@ function addEvents(player) {
     player.addEventListener("end", () => {
         pauseSong();
 
-        if (playIndex !== nextPlayIndex || repeatMode === 2) {
+        let diffIndex = (playIndex !== nextPlayIndex);
+        if (diffIndex || repeatMode !== 0) {
             playIndex = nextPlayIndex;
             partIndex = 0;
 
             player.setOffset(0);
-
-            play(repeatMode !== 2);
+            play(diffIndex);
         }
     });
 
@@ -601,10 +601,11 @@ async function prepareNextPart() {
 
             let missingLength = findMissingLengthByCurrentPart();
             await downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength, () => {
-                playlist[nextPlayIndex]["player"].queueTrack(nextPartIndex);
+                if (playIndex === nextPlayIndex)
+                    playlist[nextPlayIndex]["player"].queueTrack(nextPartIndex);
             });
         }
-    } else if (typeof partlist[nextSongID] === 'undefined' || typeof playlist[nextPlayIndex] === 'undefined') {
+    } else if (typeof partlist[nextSongID] === 'undefined' && typeof playlist[nextPlayIndex] !== 'undefined') {
         await downloadPart(0, nextPlayIndex, nextPartIndex);
     }
 }
@@ -847,24 +848,23 @@ async function onTimelineRelease(value) {
  * Die Wiedergabe wird gestartet
  */
 async function nextSong() {
-    playlist[playIndex]["player"].pause();
-
-    partIndex = 0;
-
+    pauseSong();
     playPauseButton("load");
-    clearInterval(secondsInterval);
-    secondsInterval = null;
 
     let nextIndex = nextSongIndex();
     if (typeof playlist[nextIndex] !== 'undefined') {
-        playIndex = nextIndex;
+        let diffIndex = (playIndex !== nextIndex);
 
+        playIndex = nextIndex;
+        partIndex = 0;
+        nextPartIndex = 0;
         if (typeof playlist[nextIndex]["player"] === 'undefined') {
             partlist[nextIndex] = {};
             await downloadPart(0, playIndex, partIndex);
         }
 
-        play(true);
+        playlist[nextIndex]["player"].setOffset(0);
+        play(diffIndex);
     }
 }
 
@@ -876,23 +876,24 @@ async function nextSong() {
  * Die Wiedergabe wird gestartet
  */
 async function previousSong() {
-    playlist[playIndex]["player"].pause();
-
-    partIndex = 0;
-
+    pauseSong();
     playPauseButton("load");
-    clearInterval(secondsInterval);
-    secondsInterval = null;
+
 
     let previousIndex = previousSongIndex();
     if (typeof playlist[previousIndex] !== 'undefined') {
-        playIndex = previousIndex;
+        let diffIndex = (playIndex !== previousIndex);
 
+        playIndex = previousIndex;
+        partIndex = 0;
+        nextPartIndex = 0;
         if (typeof playlist[previousIndex]["player"] === 'undefined') {
             partlist[previousIndex] = {};
             await downloadPart(0, playIndex, partIndex);
         }
 
-        play(true);
+        playlist[previousIndex]["player"].setOffset(0);
+
+        play(diffIndex);
     }
 }
