@@ -106,6 +106,8 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     pause() {
+        this.#currentTrackIndex = this.#previousTrackIndex;
+
         this.#clearTimeouts();
 
         audioContext.suspend().then(() => {
@@ -115,8 +117,6 @@ class MultiTrackPlayer extends EventTarget {
                 this.#killSource(source);
             });
         });
-
-        this.#currentTrackIndex = this.#previousTrackIndex;
     }
 
     queueTrack(index, startTime = null) {
