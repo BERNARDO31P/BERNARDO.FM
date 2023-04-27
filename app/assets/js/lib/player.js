@@ -20,7 +20,8 @@ class MultiTrackPlayer extends EventTarget {
     #startTime = 0;
     #startTimeouts = {};
 
-    #offset = null;
+    #offset = 0;
+    #currentOffset = 0;
 
     constructor() {
         super();
@@ -28,6 +29,8 @@ class MultiTrackPlayer extends EventTarget {
         this.#gainNode = audioContext.createGain();
         this.#gainNode.connect(audioContext.destination);
         this.#gainNode.gain.value = this.#volume;
+
+        audioContext.suspend();
     }
 
     async #processDecodeQueue() {
@@ -89,6 +92,7 @@ class MultiTrackPlayer extends EventTarget {
 
             source.onended = () => {
                 delete this.#startTimeouts[index];
+                this.#currentOffset = 0;
 
                 if (!Object.keys(this.#startTimeouts).length) {
                     this.dispatchEvent(new Event("end"));
@@ -121,15 +125,19 @@ class MultiTrackPlayer extends EventTarget {
     queueTrack(index, startTime = null) {
         if (typeof this.#audioBuffers[index] !== "undefined"
             && this.#audioBuffers[index] !== null) {
-            if (startTime === null) startTime = (this.#audioBuffers[this.#currentTrackIndex].duration - this.#offset) - this.getCurrentPartTime();
+            if (startTime === null) startTime = (this.#audioBuffers[this.#currentTrackIndex].duration - this.#offset) - this.getStartTime();
 
             this.setOffset(0);
             this.playNext(index, startTime);
         }
     }
 
-    getCurrentPartTime() {
+    getStartTime() {
         return audioContext.currentTime - this.#startTime;
+    }
+
+    getCurrentPartTime() {
+        return audioContext.currentTime - this.#startTime + this.#currentOffset;
     }
 
     getPartLength(partIndex) {
@@ -146,6 +154,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     setOffset(offset) {
+        this.#currentOffset = this.#offset;
         this.#offset = (offset >= 0) ? offset : 0;
     }
 

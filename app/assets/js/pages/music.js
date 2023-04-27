@@ -1,9 +1,5 @@
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
-//let MSAPI = new Audio();
-let MSAPI = document.getElementById("audio");
-document.getElementById("player").appendChild(MSAPI);
-
 setPositionState(0, 0);
 
 let count = 0,
@@ -513,7 +509,9 @@ function addEvents(player) {
         let diffIndex = (playIndex !== nextPlayIndex);
         if (diffIndex || repeatMode !== 0) {
             playIndex = nextPlayIndex;
+
             partIndex = 0;
+            nextPartIndex = 0
 
             player.setOffset(0);
             play(diffIndex);
@@ -831,7 +829,7 @@ async function onTimelineRelease(value) {
 
         player.setOffset(0);
     } else {
-        player.setOffset(value - Number(partlist[songID][partIndex]["from"]));
+        player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
     }
 
     MSAPI.currentTime = value;
@@ -839,7 +837,6 @@ async function onTimelineRelease(value) {
     setPositionState(MSAPI.duration, value);
 
     if (nextPartIndexCopy !== nextPartIndex || decoding) return;
-
     play();
 }
 

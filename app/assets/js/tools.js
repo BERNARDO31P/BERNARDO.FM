@@ -2,6 +2,8 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
     downloading = false, volume = 0, previousVolume = null, repeatMode = 0, touched = false, touchedElement = null,
     currentButton = null, changedQueue = false;
 
+let MSAPI = new Audio();
+
 let backgroundProcesses = [];
 let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, downloadTimeout = null, searchTimeout = null, songInterval = null;
 let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
@@ -964,9 +966,10 @@ function play(diffSong = false, pageLoad = false) {
 
     let length = getLengthByString(song["length"]);
     if (diffSong) {
-        MSAPI.src = createSilence(length);
-        MSAPI.load();
-        MSAPI.currentTime = null;
+        document.body.querySelectorAll("audio").forEach((e) => e.remove());
+
+        MSAPI = new Audio(createSilence(length));
+        document.body.appendChild(MSAPI);
 
         let songLength = document.getElementById("timeInfo").querySelector("#length");
         let queueView = document.getElementById("queueView");
@@ -1024,53 +1027,51 @@ function play(diffSong = false, pageLoad = false) {
         updatePlaying();
     }
 
-    if (MSAPI.paused) {
-        MSAPI.play().then(() => {
-            let player = playlist[playIndex]["player"];
-            player.setVolume(volume);
-            player.playNext(partIndex);
+    MSAPI.play().catch(() => {
+        pauseSong();
+        showConfirmation("Warning", "Your browser is blocking the automatic playback. Do you want to allow it?", () => {
+            play(false, pageLoad);
+        });
+    }).finally(() => {
+        let player = playlist[playIndex]["player"];
+        player.setVolume(volume);
+        player.playNext(partIndex);
 
-            let animation = document.getElementsByClassName("lds-facebook")[0];
-            if (animation) {
-                let divs = animation.querySelectorAll("div");
-                for (let div of divs) {
-                    if (div.style.animationPlayState === "paused") {
-                        div.style.animationPlayState = "running";
-                    }
+        let animation = document.getElementsByClassName("lds-facebook")[0];
+        if (animation) {
+            let divs = animation.querySelectorAll("div");
+            for (let div of divs) {
+                if (div.style.animationPlayState === "paused") {
+                    div.style.animationPlayState = "running";
                 }
             }
+        }
 
-            updateURL();
+        updateURL();
 
-            if (!secondsInterval) {
-                secondsInterval = setInterval(function () {
-                    let timeline = document.getElementById("timeline");
-                    let currentPosition = playlist[playIndex]["player"].getCurrentPartTime();
+        if (!secondsInterval) {
+            secondsInterval = setInterval(function () {
+                let timeline = document.getElementById("timeline");
+                let currentPosition = playlist[playIndex]["player"].getCurrentPartTime();
 
-                    if (currentPosition) {
-                        let songID = playlist[playIndex]["id"];
-                        let position = currentPosition + partlist[songID][partIndex]["from"];
-                        timeline.value = position;
-                        MSAPI.currentTime = position;
-                    }
-                }, 500);
-            }
+                if (currentPosition) {
+                    let songID = playlist[playIndex]["id"];
+                    let position = currentPosition + partlist[songID][partIndex]["from"];
+                    timeline.value = position;
+                    MSAPI.currentTime = position;
+                }
+            }, 500);
+        }
 
-            if (pageLoad) {
-                let angleUp = document.getElementsByClassName("fa-angle-up")[0];
-                angleUp.dispatchEvent(clickEvent);
-            }
-            playerHTML.style.display = "initial";
+        if (pageLoad) {
+            let angleUp = document.getElementsByClassName("fa-angle-up")[0];
+            angleUp.dispatchEvent(clickEvent);
+        }
+        playerHTML.style.display = "initial";
 
-            let title = document.querySelector("title");
-            title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
-        }).catch(() =>  {
-            pauseSong();
-            showConfirmation("Warning", "Your browser is blocking the automatic playback. Do you want to allow it?", () => {
-                play(false, pageLoad);
-            });
-        });
-    }
+        let title = document.querySelector("title");
+        title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
+    });
 }
 
 /*
