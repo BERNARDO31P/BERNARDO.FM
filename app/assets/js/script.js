@@ -159,7 +159,9 @@ function loadPage() {
 
     content.innerHTML = data.body.innerHTML;
 
-    if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]["player"].isPlaying()) {
+    if (typeof playlist[playIndex] === 'undefined'
+    || (typeof playlist[playIndex]["player"] !== 'undefined'
+    && !playlist[playIndex]["player"].isPlaying())) {
         let subpage = (data.querySelector("title")) ? data.querySelector("title").textContent : "error";
         title.textContent = subpage + " - " + title.textContent.split(" - ")[1];
     }
