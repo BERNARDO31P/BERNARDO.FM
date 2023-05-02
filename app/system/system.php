@@ -61,7 +61,7 @@ function loadHashDatabase()
  *
  * Entfernt ein unerwünschter Schlüssel mit den jeweiligen Daten dazu
  */
-function recursive_unset(&$object, $key)
+function recursive_unset(&$object, $key): void
 {
 	unset($object[$key]);
 	foreach ($object as &$value) {
@@ -111,7 +111,7 @@ function sorting_by_category($object): array
 		if (!array_key_exists($key, $parsed))
 			$parsed[$key] = array();
 
-		$parsed[$key][$id] = $song;
+		$parsed[$key][] = $song;
 	}
 	return $parsed;
 }
@@ -242,6 +242,9 @@ function generatePictures(&$db, $hashDB, $hasCategory, $length = 200): string
 	$imagick = new Imagick();
 	$hash = generate_hash($db);
 	$data = array("coverPos" => array());
+
+	error_log(json_encode($db));
+
 	if ($hasCategory) {
 		foreach ($db as &$category) {
 			foreach ($category as &$song) {
