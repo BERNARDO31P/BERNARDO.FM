@@ -120,25 +120,24 @@ function sorting_by_category($object): array
  * Funktion: paging()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  object: (Object) Die Daten, welche manipuliert werden sollen
+ *  &$data: (array) Die Daten, welche manipuliert werden sollen
+ *  $currentPage: (int) Die aktuelle Seitenzahl (beginnend mit 1)
+ *  $itemsPerPage: (int) Die Anzahl der Elemente, die pro Seite angezeigt werden sollen
  *
- * Sortiert die Daten je nach Kategorie
- * Gibt ein neues, sortiertes Objekt zurück
+ * Paginiert die Daten basierend auf der aktuellen Seite und der Anzahl der Elemente pro Seite.
+ * Die Funktion arbeitet sowohl mit sequenziellen Arrays als auch mit assoziativen Arrays, die Unterarrays enthalten.
+ * Manipuliert das Eingabe-Datenarray direkt.
  */
-function paging(&$object, $page, $count): void
+function paging(array &$data, int $currentPage, int $itemsPerPage): void
 {
-	try {
-		if (array_is_list($object)) {
-			$object = array_splice($object, ($page - 1) * $count, $count);
-		} else {
-			foreach ($object as &$elements) {
-				if (array_is_list($elements)) {
-					paging($elements, $page, $count);
-				}
-			}
+	$offset = ($currentPage - 1) * $itemsPerPage;
+
+	if (array_is_list($data)) {
+		$data = array_slice($data, $offset, $itemsPerPage);
+	} else {
+		foreach ($data as $category => $tracks) {
+			$data[$category] = array_slice($tracks, $offset, $itemsPerPage);
 		}
-	} catch (TypeError) {
-		return;
 	}
 }
 
