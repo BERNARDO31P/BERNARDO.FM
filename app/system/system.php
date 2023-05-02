@@ -274,7 +274,7 @@ function generatePictures(&$db, $hashDB, $hasCategory, $length = 200): string
 	}
 
 	$imagick->resetIterator();
-	$out = $imagick->appendImages();
+	$out = $imagick->appendImages(false);
 	$out->setImageFormat("jpg");
 
 	$newImage = "temp/" . uniqid(rand(), true) . ".jpg";
