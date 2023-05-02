@@ -81,7 +81,7 @@ function recursive_unset(&$object, $key)
  * Fügt einen Wert zu einem bestehenden Wert vorne hinzu
  * Dieser Wert wird anhand von einem Schlüssel gefunden
  */
-function recursive_prepend(&$object, $key, $data)
+function recursive_prepend(&$object, $key, $data): void
 {
 	foreach ($object as $loopKey => &$value) {
 		if (is_array($value))
@@ -125,20 +125,21 @@ function sorting_by_category($object): array
  * Sortiert die Daten je nach Kategorie
  * Gibt ein neues, sortiertes Objekt zurück
  */
-function paging($object, $page, $count, $category = null): array
+function paging(&$object, $page, $count): void
 {
-	$new = array();
-
-	if ($category) {
-		$object = array_change_key_case($object);
-		if (isset($object[$category]))
-			$new = array_splice($object[$category], ($page - 1) * $count, $count);
-	} else {
-		foreach ($object as $category => $songs)
-			$new[$category] = array_splice($songs, ($page - 1) * $count, $count);
+	try {
+		if (array_is_list($object)) {
+			$object = array_splice($object, ($page - 1) * $count, $count);
+		} else {
+			foreach ($object as &$elements) {
+				if (array_is_list($elements)) {
+					paging($elements, $page, $count);
+				}
+			}
+		}
+	} catch (TypeError) {
+		return;
 	}
-
-	return $new;
 }
 
 /*
@@ -428,8 +429,8 @@ $router = new Router();
 $router->get("/songs/([\d]+)", function ($count) {
 	$db = loadDatabase();
 	$db = sorting_by_category($db);
-	$db = paging($db, 1, $count);
 
+	paging($db, 1, $count);
 	recursive_unset($db, "fileName");
 
 	if (count($db)) {
@@ -471,9 +472,9 @@ $router->get("/songs/([\d]+)", function ($count) {
  */
 $router->get("/songs/([^\/]*)/([\d]+)/([\d]+)", function ($category, $page, $count) {
 	$db = loadDatabase();
-	$db = sorting_by_category($db);
-	$db = paging($db, $page, $count, strtolower($category));
+	$db = sorting_by_category($db)[$category];
 
+	paging($db, $page, $count);
 	recursive_unset($db, "fileName");
 
 	if (count($db)) {
@@ -515,8 +516,8 @@ $router->get("/songs/([^\/]*)/([\d]+)", function ($search, $count) {
 	$db = loadDatabase();
 	$db = search_songs($search, $db);
 	$db = sorting_by_category($db);
-	$db = paging($db, 1, $count);
 
+	paging($db, 1, $count);
 	recursive_unset($db, "fileName");
 
 	if (count($db)) {
@@ -557,9 +558,9 @@ $router->get("/songs/([^\/]*)/([\d]+)", function ($search, $count) {
 $router->get("/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)", function ($search, $category, $page, $count) {
 	$db = loadDatabase();
 	$db = search_songs($search, $db);
-	$db = sorting_by_category($db);
-	$db = paging($db, $page, $count, strtolower($category));
+	$db = sorting_by_category($db)[$category];
 
+	paging($db, $page, $count);
 	recursive_unset($db, "fileName");
 
 	if (count($db)) {
