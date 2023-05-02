@@ -19,7 +19,7 @@ session_start();
  */
 function loadDatabase()
 {
-	if ($_SESSION["database"] !== null && file_exists($_SESSION["database"]))
+	if (isset($_SESSION["database"]) && file_exists($_SESSION["database"]))
 		$db = json_decode(file_get_contents($_SESSION["database"]), true);
 	else {
 		$db = json_decode(file_get_contents(__DIR__ . "/db/songs.json"), true);
@@ -152,26 +152,27 @@ function paging($object, $page, $count, $category = null): array
  * Mischt die Daten in einem bestimmten Level
  * Behält die Schlüssel bei einem Objekt
  */
-function shuffle_level(&$object, $level, $current = 0)
+function shuffle_level(&$object, $level, $current = 0): void
 {
-	if ($level === $current) {
-		$keys = array_keys($object);
-		shuffle($keys);
+	try {
+		if ($level >= $current) {
+			$keys = array_keys($object);
+			shuffle($keys);
 
-		$new = array();
-		foreach ($keys as $key) {
-			if (is_numeric($key))
-				$new[] = $object[$key];
-			else
-				$new[$key] = $object[$key];
-		}
+			$shuffled = array();
+			foreach ($keys as $key) {
+				shuffle_level($object[$key], $level, $current + 1);
 
-		$object = $new;
-	} else {
-		foreach ($object as $value) {
-			if (is_array($value))
-				shuffle_level($value, $level, $current + 1);
+				if (is_numeric($key)) {
+					$shuffled[] = $object[$key];
+				} else {
+					$shuffled[$key] = $object[$key];
+				}
+			}
+			$object = $shuffled;
 		}
+	} catch (TypeError) {
+		return;
 	}
 }
 
@@ -252,7 +253,7 @@ function generatePictures(&$db, $hashDB, $hasCategory, $length = 200): string
 						$pos = $i * $length;
 						$song["coverPos"] = $pos;
 						$data["coverPos"][$song["id"]] = $pos;
-					} catch (Exception $e) {
+					} catch (Exception) {
 					}
 					$i++;
 				}
@@ -273,7 +274,7 @@ function generatePictures(&$db, $hashDB, $hasCategory, $length = 200): string
 	}
 
 	$imagick->resetIterator();
-	$out = $imagick->appendImages(false);
+	$out = $imagick->appendImages();
 	$out->setImageFormat("jpg");
 
 	$newImage = "temp/" . uniqid(rand(), true) . ".jpg";
@@ -345,7 +346,7 @@ function findExecutable($executableName): ?string
  *
  * Speichert einen Hash (als Schlüssel) und die dazugehörigen Daten (als Wert) ab
  */
-function add_hash($hash, $value, $hashDB)
+function add_hash($hash, $value, $hashDB): void
 {
 	$dbFile = __DIR__ . "/db/hashes.json";
 	$hashDB[$hash] = $value;
@@ -365,7 +366,7 @@ function add_hash($hash, $value, $hashDB)
  *
  * Gibt den Speicherort des Bildes zurück
  */
-function check_hash($db, $hashDB)
+function check_hash($db, $hashDB): ?string
 {
 	$hash = generate_hash($db);
 
@@ -376,7 +377,7 @@ function check_hash($db, $hashDB)
 }
 
 /*
- * Funktion: check_hash()
+ * Funktion: apply_hash()
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  db: (Object) Definiert die Datenbank
@@ -387,7 +388,7 @@ function check_hash($db, $hashDB)
  * Sucht den Hash in der Datenbank
  * Speichert die Position des Covers vom Hash in die Datenbank ab
  */
-function apply_hash(&$db, $hashDB, $hasCategory)
+function apply_hash(&$db, $hashDB, $hasCategory): void
 {
 	$hash = generate_hash($db);
 
@@ -444,7 +445,7 @@ $router->get("/songs/([\d]+)", function ($count) {
 		$db["cover"] = $url;
 	}
 
-	shuffle_level($db, 0);
+	shuffle_level($db, 1);
 
 	header("Content-Type: application/json");
 	echo json_encode($db);
@@ -726,8 +727,8 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
 		header("Content-Type: audio/webm");
 		header("Content-Disposition: attachment; filename=output.webm");
 
-	    echo $webmAudioData;
-    } catch (Exception $ex) {
+		echo $webmAudioData;
+	} catch (Exception $ex) {
 		error_log($ex->getMessage());
 		echo "An error has occurred: " . $ex->getMessage();
 	}
