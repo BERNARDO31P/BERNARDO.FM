@@ -222,6 +222,16 @@ function search_song($id, $db): array
 	return array();
 }
 
+/*
+ * Funktion: array_walk_multi_dimension()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  &$arr: (array) Das Array, welches manipuliert werden soll
+ *  $callback: (callable) Die Funktion, die auf jedes Element angewendet werden soll
+ *  ...$args: (array) Die Argumente, die an die Funktion übergeben werden sollen
+ *
+ * Wendet eine Funktion auf jedes Object eines mehrdimensionalen Arrays an
+ */
 function array_walk_multi_dimension(array &$arr, callable $callback, string ...$args): void
 {
 	foreach ($arr as &$value) {
