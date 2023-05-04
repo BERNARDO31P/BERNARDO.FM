@@ -308,14 +308,10 @@ function generatePictures(array &$db, $hashDB, int $length = 200): void
  */
 function generate_hash($data, &$songs = array()): string
 {
-	foreach ($data as $value) {
-		if (is_array($value) && !isset($value["id"])) {
-			generate_hash($value, $songs);
-		} else {
-			if (isset($value["id"]))
-				$songs[] = $value["id"];
-		}
-	}
+	array_walk_multi_dimension($data, function (array &$value) use (&$songs) {
+		if (isset($value["id"]))
+			$songs[] = $value["id"];
+	});
 
 	sort($songs);
 	return md5(http_build_query($songs));
@@ -380,9 +376,10 @@ function check_hash($db, $hashDB): ?string
 {
 	$hash = generate_hash($db);
 
-	if (isset($hashDB[$hash]))
-		return $hashDB[$hash]["image"];
-
+	if (isset($hashDB[$hash])) {
+		$image = $hashDB[$hash]["image"];
+		return (file_exists($image)) ? $image : null;
+	}
 	return null;
 }
 
@@ -511,6 +508,8 @@ $router->get("/songs/([^\/]*)/([\d]+)", function ($search, $count) {
 	$db = search_songs($search, $db);
 	$db = sorting_by_category($db);
 
+	error_log(json_encode($db));
+
 	paging($db, 1, $count);
 	recursive_unset($db, "fileName");
 
@@ -634,7 +633,7 @@ $router->get("/info/([\w-]*)$", function ($id) {
 
 			echo json_encode($infos);
 
-		} else echo json_encode(array("0" => $infoDB[$song["info"]]));
+		} else echo json_encode(array($infoDB[$song["info"]]));
 	} else echo null;
 });
 
