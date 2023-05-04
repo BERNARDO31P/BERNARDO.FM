@@ -875,8 +875,8 @@ async function nextSong() {
  * Überprüft, ob der vorherige Index in der Playlist verfügbar ist
  * Die Wiedergabe wird gestartet
  */
-async function previousSong() {
-    pauseSong();
+async function previousSong(bypass = false) {
+    if (!bypass) pauseSong();
     playPauseButton("load");
 
 
@@ -893,7 +893,6 @@ async function previousSong() {
         }
 
         playlist[previousIndex]["player"].setOffset(0);
-
-        play(diffIndex);
+        play(bypass || diffIndex);
     }
 }

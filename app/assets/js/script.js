@@ -160,8 +160,8 @@ function loadPage() {
     content.innerHTML = data.body.innerHTML;
 
     if (typeof playlist[playIndex] === 'undefined'
-    || (typeof playlist[playIndex]["player"] !== 'undefined'
-    && !playlist[playIndex]["player"].isPlaying())) {
+        || (typeof playlist[playIndex]["player"] !== 'undefined'
+            && !playlist[playIndex]["player"].isPlaying())) {
         let subpage = (data.querySelector("title")) ? data.querySelector("title").textContent : "error";
         title.textContent = subpage + " - " + title.textContent.split(" - ")[1];
     }
@@ -386,16 +386,31 @@ bindEvent("click", "#queueView .fa-play", async function () {
  *
  * Definiert den PlayIndex neu, da dieser eventuell nicht mehr gleich ist
  */
-bindEvent("click", "#queueView .fa-trash", function () {
-    let id = Number(this.closest(".controlsQueue").dataset.id);
+bindEvent("click", "#queueView .fa-trash", async function () {
+    let id = this.closest(".controlsQueue").dataset.id;
     let current = playlist[playIndex]["id"];
 
-    if (id === current) {
-        let nextIndex = nextSongIndex();
-        if (typeof playlist[nextIndex] !== "undefined") nextSong();
-        else previousSong();
+    const indexes = playlist.map((elm, idx) => elm["id"] === id ? idx : "").filter(String);
+    const nodes = Array.prototype.slice.call(this.closest("tbody").children);
+    const index = nodes.indexOf(this.closest("tr"));
+    const lastOfIndex = indexes.length === 1;
+    const sameIndex = id === current && lastOfIndex;
 
-        current = playlist[playIndex]["id"];
+    if (sameIndex) pauseSong();
+
+    delete playlist[index];
+    playlist = generateNumericalOrder(playlist);
+
+    if (lastOfIndex)
+        delete partlist[id];
+
+    if (sameIndex) {
+        const previousIndex = previousSongIndex();
+        if (typeof playlist[previousIndex] !== 'undefined') {
+            await previousSong(true);
+        }
+    } else if (index < playIndex) {
+        playIndex--;
     }
 
     this.closest("tr").remove();
@@ -405,27 +420,6 @@ bindEvent("click", "#queueView .fa-trash", function () {
 
     if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
     else queue.style.right = "0";
-
-    let interval = setInterval(function () {
-        if (!downloading) {
-            clearInterval(interval);
-
-            for (let [key, value] of Object.entries(playlist)) {
-                if (value["id"] === id) {
-                    playlist = removeKey(playlist, key);
-                    playlist = generateNumericalOrder(playlist);
-
-                    partlist = removeKey(partlist, id);
-                }
-            }
-
-            for (let [key, value] of Object.entries(playlist)) {
-                if (value["id"] === current) {
-                    playIndex = key;
-                }
-            }
-        }
-    }, 50);
 });
 
 /*

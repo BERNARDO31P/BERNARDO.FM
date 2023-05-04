@@ -1420,27 +1420,6 @@ function removeFromObject(object, toRemove = [], recursive = true) {
 }
 
 /*
- * Funktion: removeKey()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  object: (Object): Das zu bearbeitende Objekt
- *  toRemove: (Object/String): Die Schlüssel die entfernt werden sollen
- *
- * Entfernt ein oder mehrere Schlüssel in einem Objekt
- * Generiert die Reihenfolge neu
- */
-function removeKey(object, toRemove = null) {
-    let cleaned = {};
-
-    for (let [key, value] of Object.entries(object)) {
-        if (isNum(toRemove)) key = Number(key);
-        if (key !== toRemove) cleaned[key] = value;
-    }
-
-    return cleaned;
-}
-
-/*
  * Funktion: generateNumericalOrder()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -1450,12 +1429,10 @@ function removeKey(object, toRemove = null) {
  * Generiert den Index neu (zählt um eins hoch)
  */
 function generateNumericalOrder(object) {
-    let cleaned = {};
+    let cleaned = [];
 
-    let i = 0;
     for (let value of Object.values(object)) {
-        cleaned[i] = value;
-        i++;
+        cleaned.push(value);
     }
 
     return cleaned;
