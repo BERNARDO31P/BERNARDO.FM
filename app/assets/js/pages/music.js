@@ -49,7 +49,7 @@ bindEvent("mouseover", "#content tr[data-id]", function () {
  * Ändert die Ansicht zwischen Gitter und Liste
  */
 bindEvent("click", "#view [data-prefix='fas']:not(.active)", function () {
-    setCookie("view", this.dataset.view);
+    setCookie("view", this.dataset.view, getExpireTime(30));
     loadPage();
 });
 
@@ -244,14 +244,7 @@ window.addEventListener("resize", function () {
  *
  * Lädt die Musik Seite und rendert alle notwendigen Dinge
  */
-window["music"] = () => {
-    let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search input");
-    let view = getCookie("view");
-    if (!view) view = "grid";
-
-    setCookie("view", view);
-
-    /*
+window["music"] = () => {    /*
      * Author: Bernardo de Oliveira
      *
      * Die Lautstärke wird in einem Cookie gespeichert
@@ -282,6 +275,7 @@ window["music"] = () => {
      *
      * Je nach Ansicht wird diese generiert
      */
+    let objects = document.querySelectorAll("[data-url]"), search = document.querySelector("#search input");
     for (let object of objects) {
         let data = {};
         count = Math.round(getWidth() / 160) + 2;
@@ -310,6 +304,8 @@ window["music"] = () => {
                 data = removeFromObject(data, "cover", false);
             }
 
+            let view = getCookie("view");
+            if (!view) view = "grid";
             if (view === "list") {
                 document.getElementsByClassName("fa-list")[0].classList.add("active");
 

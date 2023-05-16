@@ -693,7 +693,7 @@ bindEvent("click", ".theme-toggler", function () {
         icon.classList.add("fa-moon");
 
         theme = "light";
-        setCookie("theme", "light");
+        setCookie("theme", "light", getExpireTime(30));
     } else {
         html.setAttribute("data-theme", "dark");
 
@@ -701,7 +701,7 @@ bindEvent("click", ".theme-toggler", function () {
         icon.classList.add("fa-sun");
 
         theme = "dark";
-        setCookie("theme", "dark");
+        setCookie("theme", "dark", getExpireTime(30));
     }
 
     document.getElementById("menu").classList.remove("show");

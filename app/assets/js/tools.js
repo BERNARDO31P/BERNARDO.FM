@@ -6,7 +6,7 @@ let MSAPI = new Audio();
 
 let backgroundProcesses = [];
 let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, downloadTimeout = null, searchTimeout = null, songInterval = null;
-let pageURL = window.location.protocol + "//" + window.location.host + new URL(window.location).pathname;
+let pageURL = window.location.protocol + '//' + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 
 let currentSong = null;
@@ -23,8 +23,8 @@ let clickEvent = new Event('click', {
  * Das Design wird in einem Cookie gespeichert
  * Hier wird dieser ausgelesen und das Design angewendet
  */
-let theme = getCookie("theme");
-if (!theme) theme = "light";
+let theme = getCookie('theme');
+if (!theme) theme = 'light';
 document.getElementsByTagName("html")[0].setAttribute("data-theme", theme);
 
 HTMLElement.prototype.animateCallback = function (keyframes, options, callback) {
@@ -724,6 +724,24 @@ function setCookie(name, value, expiresAt = "") {
 }
 
 /*
+ * Funktion: getExpireTime()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  days: (Integer) Definiert die Anzahl Tage
+ *
+ * Gibt das Ablaufdatum zurück (Cookie) als UTC String
+ */
+function getExpireTime(days) {
+    const now = new Date();
+    const time = now.getTime();
+    const expireTime = time + 1000 * (86400 * days);
+    now.setTime(expireTime);
+
+    return now.toUTCString();
+}
+
+
+/*
  * Funktion: ucFirst()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -900,7 +918,7 @@ function setVolume(volume) {
 
     let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
     setVolumeIcon(volumeIcon, volumeSlider);
-    setCookie("volume", volume);
+    setCookie("volume", volume, getExpireTime(8));
 
     hideVolumeSlider();
 }
@@ -928,13 +946,13 @@ function muteAudio(e = null) {
             setVolumeIcon(volumeIcon, volumeSlider);
             volume = previousVolume;
             previousVolume = null;
-            setCookie("muted", false);
+            setCookie("muted", false, getExpireTime(8));
         } else {
             volumeIcon.classList.remove("fa-volume-*");
             volumeIcon.classList.add("fa-volume-mute");
             previousVolume = volume;
             volumeSlider.value = volume = 0;
-            setCookie("muted", true);
+            setCookie("muted", true, getExpireTime(8));
         }
 
         if (typeof playlist[playIndex] !== 'undefined') playlist[playIndex]["player"].setVolume(volume);
