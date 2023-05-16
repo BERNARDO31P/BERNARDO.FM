@@ -1176,17 +1176,23 @@ function previousSongIndex() {
  * Ändert das Icon von "abspielen/pausieren"
  */
 function playPauseButton(option = "pause") {
-    let player = document.getElementById("player");
-    let button = player.querySelector("#dynamicButton");
-    button.clearChildren();
-
     if (currentButton !== option) {
+        const button = document.getElementById("player").querySelector("#dynamicButton");
+        button.clearChildren();
+
         if (option === "play") {
             button.appendChild(createIconElement('fas fa-pause'));
         } else if (option === "pause") {
             button.appendChild(createIconElement('fas fa-play'));
         } else if (option === "load") {
-            button.innerHTML = "<div class=\"lds-ring\"><div></div><div></div><div></div><div></div></div>";
+            const ldsRing = document.createElement("div");
+            ldsRing.classList.add("lds-ring");
+
+            for (let i = 0; i < 4; i++) {
+                const div = document.createElement("div");
+                ldsRing.appendChild(div);
+            }
+            button.appendChild(ldsRing);
         }
         currentButton = option;
     }
