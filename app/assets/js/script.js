@@ -604,6 +604,12 @@ bindEvent("click", ".volume", function (e) {
     muteAudio(e);
 });
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Versteckt die Wiedergabeliste
+ */
 bindEvent("click", "[data-angle='up']", function () {
     let queueView = document.getElementById("queueView");
     let navbar = document.getElementById("navbar");
@@ -621,6 +627,12 @@ bindEvent("click", "[data-angle='up']", function () {
     removeControls("controlsQueue");
 });
 
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Generiert und zeigt die Wiedergabeliste
+ */
 bindEvent("click", "[data-angle='down']", function () {
     let queueView = document.getElementById("queueView");
     let navbar = document.getElementById("navbar");

@@ -749,6 +749,15 @@ function getReadableTime(time) {
     return date.toISOString().substring(11, 19);
 }
 
+/*
+ * Funktion: createIconElement()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  classes: (String) Definiert die Klassen, welche dem Objekt zugewiesen werden
+ *  title: (String) Definiert den Titel des Objekts
+ *
+ * Erstellt ein Icon Element
+ */
 function createIconElement(classes, title = "") {
     const icon = document.createElement('i');
     icon.className = classes;
