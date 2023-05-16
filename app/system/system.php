@@ -246,7 +246,7 @@ function array_walk_multi_dimension(array &$arr, callable $callback, string ...$
 }
 
 /*
- * Funktion: generatePictures()
+ * Funktion: generate_pictures()
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  db: (Object) Definiert die Datenbank
@@ -259,14 +259,14 @@ function array_walk_multi_dimension(array &$arr, callable $callback, string ...$
  *
  * Gibt den Speicherort des Bildes zurück
  */
-function generatePictures(array &$db, $hashDB, int $length = 200): void
+function generate_pictures(array &$db, $hashDB, int $length = 200): void
 {
 	$i = 0;
 	$imagick = new Imagick();
 	$hash = generate_hash($db);
 	$data = array("coverPos" => array());
 
-	$processSong = function (array &$song) use ($length, &$imagick, &$i, &$data) {
+	array_walk_multi_dimension($db, function (array &$song) use ($length, &$imagick, &$i, &$data) {
 		if (isset($song["id"]) && isset($song["cover"])) {
 			try {
 				$imagick->readImage("img/" . $song["cover"]);
@@ -279,8 +279,7 @@ function generatePictures(array &$db, $hashDB, int $length = 200): void
 			}
 			$i++;
 		}
-	};
-	array_walk_multi_dimension($db, $processSong);
+	});
 
 
 	$imagick->resetIterator();
@@ -377,8 +376,16 @@ function check_hash($db, $hashDB): ?string
 	$hash = generate_hash($db);
 
 	if (isset($hashDB[$hash])) {
-		$image = $hashDB[$hash]["image"];
-		return (file_exists($image)) ? $image : null;
+		$image = str_replace("system/", "", $hashDB[$hash]["image"]);
+
+		if (file_exists(__DIR__ . "/" . $image)) {
+			return $image;
+		} else {
+			unset($hashDB[$hash]);
+
+			$dbFile = __DIR__ . "/db/hashes.json";
+			file_put_contents($dbFile, json_encode($hashDB));
+		}
 	}
 	return null;
 }
@@ -437,7 +444,7 @@ $router->get("/songs/([\d]+)", function ($count) {
 
 		$url = check_hash($db, $hashDB);
 		($url === null)
-			? generatePictures($db, $hashDB)
+			? generate_pictures($db, $hashDB)
 			: apply_hash($db, $hashDB);
 	}
 
@@ -477,7 +484,7 @@ $router->get("/songs/([^\/]*)/([\d]+)/([\d]+)", function ($category, $page, $cou
 
 		$url = check_hash($db, $hashDB);
 		($url === null)
-			? generatePictures($db, $hashDB)
+			? generate_pictures($db, $hashDB)
 			: apply_hash($db, $hashDB);
 	}
 
@@ -508,8 +515,6 @@ $router->get("/songs/([^\/]*)/([\d]+)", function ($search, $count) {
 	$db = search_songs($search, $db);
 	$db = sorting_by_category($db);
 
-	error_log(json_encode($db));
-
 	paging($db, 1, $count);
 	recursive_unset($db, "fileName");
 
@@ -518,7 +523,7 @@ $router->get("/songs/([^\/]*)/([\d]+)", function ($search, $count) {
 
 		$url = check_hash($db, $hashDB);
 		($url === null)
-			? generatePictures($db, $hashDB)
+			? generate_pictures($db, $hashDB)
 			: apply_hash($db, $hashDB);
 	}
 
@@ -557,7 +562,7 @@ $router->get("/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)", function ($search, $cat
 
 		$url = check_hash($db, $hashDB);
 		($url === null)
-			? generatePictures($db, $hashDB)
+			? generate_pictures($db, $hashDB)
 			: apply_hash($db, $hashDB);
 	}
 
@@ -602,6 +607,24 @@ $router->get("/song/([\w-]*)$", function ($id) {
 
 		echo json_encode($song);
 	}
+});
+
+$router->get("/songs/([\w-].*,[\w-].*)$", function ($ids) {
+	$db = loadDatabase();
+	$ids = explode(",", $ids);
+
+	$songs = array();
+	foreach ($ids as $id) {
+		$song = search_song($id, $db);
+
+		recursive_unset($song, "fileName");
+		recursive_prepend($song, "cover", "system/img/");
+
+		$songs[] = $song;
+	}
+
+	header("Content-Type: application/json");
+	echo json_encode($songs);
 });
 
 /*
@@ -715,7 +738,6 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
 
 		echo $webmAudioData;
 	} catch (Exception $ex) {
-		error_log($ex->getMessage());
 		echo "An error has occurred: " . $ex->getMessage();
 	}
 });

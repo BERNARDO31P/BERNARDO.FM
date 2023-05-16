@@ -61,6 +61,13 @@ bindEvent("click", "#view [data-prefix='fas']:not(.active)", function () {
  */
 bindEvent("click", "#content .listAdd", function () {
     addSongToPlaylist(this);
+
+    if (playlist.length === 1) {
+        downloadPart(0, playIndex, partIndex).then(() => {
+            play(true);
+        });
+    }
+
     showNotification("Song added to queue", 3000);
 });
 
@@ -625,7 +632,8 @@ async function prepareNextPart() {
  *
  * Optional kann man auch bis zu einer bestimmten Zeit herunterladen
  */
-async function downloadPart(time, sIndex, pIndex, till = null, callback = () => {}) {
+async function downloadPart(time, sIndex, pIndex, till = null, callback = () => {
+}) {
     let songID = playlist[sIndex]["id"];
 
     if (typeof playlist[sIndex]["player"] === 'undefined') {
@@ -654,25 +662,6 @@ async function downloadPart(time, sIndex, pIndex, till = null, callback = () => 
 }
 
 /*
- * Funktion: generateQueue()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  data: (Object) Die Daten, welche verarbeitet werden sollen
- *
- * Generiert die Wiedergabeliste
- */
-function generateQueue(data) {
-    let listView = document.createElement("table");
-    listView.classList.add("responsive-table");
-
-    let columns = Object.keys(removeFromObject(data[0], ["id", "category", "player", "coverPos", "info"]));
-    listView.appendChild(generateTableHead(columns));
-    listView.appendChild(generateTableBody(data, columns));
-
-    return listView;
-}
-
-/*
  * Funktion: generateBlockView()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -684,31 +673,67 @@ function generateQueue(data) {
  * Generiert auch Playlist Cards
  */
 function generateBlockView(songs, categoryView, cover) {
+    const fragment = document.createDocumentFragment();
+
     for (let arrayID in songs) {
         let song = songs[arrayID];
+        let card;
 
-        let card = document.createElement("div");
-        card.setAttribute("data-id", song["id"]);
+        if (typeof song["playlist"] === "undefined") {
+            card = document.createElement('div');
+            card.className = 'songCard';
+            card.dataset.id = song.id;
 
-        if (typeof song["playlist"] === 'undefined') {
-            card.classList.add("songCard");
-            card.innerHTML = "<div class=\"darker\"></div>" +
-                "<div class=\"cover\" style=\"background-image: url(" + cover + "); background-position-x: -" + song["coverPos"] / 200 * 160 + "px\"></div>" +
-                "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
-                "<span data-title=\"" + song["artist"] + "\" class='artist'>" + song["artist"] + "</span>" +
-                "<span class='length'>" + song["length"] + "</span>";
+            const darker = document.createElement('div');
+            darker.className = 'darker';
+
+            const coverDiv = document.createElement('div');
+            coverDiv.className = 'cover';
+            coverDiv.style.backgroundImage = `url(${cover})`;
+            coverDiv.style.backgroundPositionX = `-${song['coverPos'] / 200 * 160}px`;
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'name';
+            nameSpan.dataset.title = song.name;
+            nameSpan.textContent = song.name;
+
+            const artistSpan = document.createElement('span');
+            artistSpan.className = 'artist';
+            artistSpan.dataset.title = song.artist;
+            artistSpan.textContent = song.artist;
+
+            const lengthSpan = document.createElement('span');
+            lengthSpan.className = 'length';
+            lengthSpan.textContent = song.length;
+
+            card.append(darker, coverDiv, nameSpan, artistSpan, lengthSpan);
         } else {
-            card.classList.add("playlistCard");
-
             let info = generatePlaylistInfo(song);
 
-            card.innerHTML += info["cover"].innerHTML;
-            card.innerHTML += "<span data-title=\"" + song["name"] + "\" class='name'>" + song["name"] + "</span>" +
-                "<span data-title=\"" + info["artists"] + "\" class='artist'>" + info["artists"] + "</span>";
+            card = document.createElement('div');
+            card.className = 'playlistCard';
+            card.dataset.id = song.id;
+
+            const coverDiv = document.createElement('div');
+            coverDiv.appendChild(info.cover);
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'name';
+            nameSpan.dataset.title = song.name;
+            nameSpan.textContent = song.name;
+
+            const artistSpan = document.createElement('span');
+            artistSpan.className = 'artist';
+            artistSpan.dataset.title = info.artists;
+            artistSpan.textContent = info.artists;
+
+            card.append(coverDiv, nameSpan, artistSpan);
         }
 
-        categoryView.appendChild(card);
+        fragment.appendChild(card);
     }
+
+    categoryView.appendChild(fragment);
 }
 
 /*

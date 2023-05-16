@@ -306,20 +306,20 @@ bindEvent("click", "#player .fa-play", async () => {
  * Zeigt bei einem Click eine Benachrichtigung mit dem Songnamen oder Künstlernamen
  * Wenn das Endgerät ein Touchgerät ist, muss man doppelt drücken
  */
-bindEvent("click", "[data-title]", function () {
-    if (!isTouchScreen() || (touched && touchedElement === this)) {
-        let element = this;
-        touched = false;
+bindEvent("mouseup, touchend", "[data-title]", function (e) {
+    const target = e.target;
 
-        setTimeout(function () {
-            if (currentHover === element) {
-                showNotification(element.getAttribute("data-title"), 3000);
-            }
-        }, 200);
-    } else {
-        touchedElement = this;
-        touched = true;
+    e.preventDefault();
+
+    const currentTime = new Date().getTime();
+    const timeDifference = currentTime - touched;
+
+    if (timeDifference < 300 && timeDifference > 0 && touchedElement === target) {
+        showNotification(target.getAttribute("data-title"), 3000);
     }
+
+    touched = currentTime;
+    touchedElement = target;
 });
 
 /*
@@ -568,7 +568,7 @@ bindEvent("click", ".fa-random", function () {
  *
  * Zeigt den Lautstärkeregler an
  */
-bindEvent("mouseover", ".volume", function () {
+bindEvent("mouseover", ".volume, .volumeBackground", function () {
     document.getElementsByClassName("volumeBackground")[0].classList.add("show");
     hideVolumeSlider();
 });
@@ -600,69 +600,66 @@ bindEvent("input", ".volumeSlider", function () {
  *
  * Schaltet die Wiedergabe auf stumm oder setzt die vorherige Lautstärke
  */
-bindEvent("click", ".volume svg", function (e) {
+bindEvent("click", ".volume", function (e) {
     muteAudio(e);
 });
 
-/*
-     * Funktion: Anonym
-     * Autor: Bernardo de Oliveira
-     *
-     * Öffnet die Playlist-Ansicht
-     * Generiert die Playlist-Tabelle
-     *
-     * Rotiert das Icon, damit der Benutzer erkennt, dass man das Menü wieder schliessen kann
-     */
-bindEvent("click", ".fa-angle-up", function () {
+bindEvent("click", "[data-angle='up']", function () {
     let queueView = document.getElementById("queueView");
     let navbar = document.getElementById("navbar");
     let body = document.getElementsByTagName("body")[0];
 
-    if (this.getAttribute("data-angle") === "up") {
-        hidePlaylist(body, queueView, this);
+    hidePlaylist(body, queueView, this);
+    clearInterval(songInterval);
+    songInterval = null;
 
-        clearInterval(songInterval);
-        songInterval = null;
+    clearURL();
 
-        clearURL();
+    if (window.scrollY !== 0) navbar.classList.add("shadow");
 
-        if (window.scrollY !== 0) navbar.classList.add("shadow");
-    } else {
-        navbar.classList.remove("shadow");
-        body.style.overflowY = "hidden";
+    removeControls("controlsContent");
+    removeControls("controlsQueue");
+});
 
-        this.animate([
-            {transform: 'rotate(0deg)'},
-            {transform: 'rotate(-180deg)'}
-        ], {
-            duration: 200,
-            fill: "forwards"
-        });
+bindEvent("click", "[data-angle='down']", function () {
+    let queueView = document.getElementById("queueView");
+    let navbar = document.getElementById("navbar");
+    let body = document.getElementsByTagName("body")[0];
 
-        let queue = queueView.querySelector("#queue");
-        if (changedQueue) {
-            queue.innerHTML = "";
-            queue.appendChild(generateQueue(playlist));
+    navbar.classList.remove("shadow");
+    body.style.overflowY = "hidden";
 
-            changedQueue = false;
-        }
+    this.animate([
+        {transform: 'rotate(0deg)'},
+        {transform: 'rotate(-180deg)'}
+    ], {
+        duration: 200,
+        fill: "forwards"
+    });
 
-        if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
-        else queue.style.right = "0";
+    let queue = queueView.querySelector("#queue");
+    if (changedQueue) {
+        queue.clearChildren();
+        queue.appendChild(generateQueue(playlist));
 
-        queueView.animate([
-            {top: '100%'},
-            {top: '60px'}
-        ], {
-            duration: 300,
-            fill: "forwards"
-        });
-
-        updatePlaying();
-        updateURL();
-
-        this.setAttribute("data-angle", "up");
+        changedQueue = false;
     }
+
+    if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
+    else queue.style.right = "0";
+
+    queueView.animate([
+        {top: '100%'},
+        {top: '60px'}
+    ], {
+        duration: 300,
+        fill: "forwards"
+    });
+
+    updatePlaying();
+    updateURL();
+
+    this.setAttribute("data-angle", "up");
 
     removeControls("controlsContent");
     removeControls("controlsQueue");

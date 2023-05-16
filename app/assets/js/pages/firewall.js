@@ -51,116 +51,44 @@ bindEvent("mouseout", ".comment.show", function () {
  * Öffnet die vorher geöffneten Kommentare
  */
 function generateFirewall(objects) {
-    let toScroll = {};
-
     for (let object of objects) {
-        let firewall = document.createElement("div");
-        firewall.id = "firewall";
+        const data = tryParseJSON(httpGet(object.getAttribute("data-url")));
+        const tempData = removeFromObject(data, ["comment", "dport", "flags", "tcp options", "tcp mss"]);
+        const columns = getColumns(tempData, 3);
 
-        let data = tryParseJSON(httpGet(object.getAttribute("data-url")));
-        let tempData = removeFromObject(data, ["comment", "dport", "flags", "tcp options", "tcp mss"]);
-        let columns = getColumns(tempData, 3);
 
-        for (let [table, chains] of Object.entries(data)) {
-            let h2 = document.createElement("h2");
-            h2.textContent = ucFirst(table);
-
-            firewall.appendChild(h2);
-
-            for (let [chain, rules] of Object.entries(Object(chains))) {
-                let h3 = document.createElement("h3");
-                h3.textContent = chain;
-
-                firewall.appendChild(h3);
-
-                let table = document.createElement("table");
-                table.classList.add("responsive-table");
-
-                table.appendChild(generateTableHead(columns));
-                table.appendChild(generateFirewallBody(rules, columns));
-
-                let container = document.createElement("div");
-                container.classList.add("responsive-container");
-                container.appendChild(table)
-                firewall.appendChild(container);
-            }
-        }
-
-        let comments = {};
-        let oldContainers = object.querySelectorAll(".responsive-container");
-        let i = 0;
-        for (let oldContainer of Object.values(oldContainers)) {
-            if (oldContainer.scrollLeft) toScroll[i] = oldContainer.scrollLeft;
-
-            let commentElements = oldContainer.querySelectorAll(".comment");
-
-            let j = 0;
-            for (let commentElement of Object.values(commentElements)) {
-                if (commentElement.classList.contains("show")) {
-                    if (typeof comments[i] === 'undefined') comments[i] = [];
-                    comments[i].push(j);
+        object.innerHTML = `<div id="firewall">
+            ${(() => {
+                let html = "";
+                for (const [table, chains] of Object.entries(data)) {
+                    html += `<h2>${ucFirst(table)}</h2>
+                        ${(() => {
+                            let html = "";
+                            for (const [chain, rules] of Object.entries(Object(chains))) {
+                                html += `<h3>${chain}</h3>
+                                    <div class="responsive-container">
+                                        <table class="responsive-table">
+                                           <thead>
+                                           ${(() => {
+                                    let html = "";
+                                    for (const column of columns) {
+                                        html += `<th>${column}</th>`;
+                                    }
+                                    return html;
+                                })()}
+                                           </thead>
+                                           ${generateTableBody(rules, columns).innerHTML}
+                                        </table>
+                                    </div>`;
+                            }
+                            return html;
+                    })()}
+                            `;
                 }
-                j++;
-            }
-            i++;
-        }
-
-        object.innerHTML = "";
-        object.appendChild(firewall);
-
-        let newContainers = object.querySelectorAll(".responsive-container");
-        for (let [key, value] of Object.entries(toScroll)) {
-            newContainers[key].scrollLeft = value;
-        }
-
-        i = 0;
-        for (let newContainer of Object.values(newContainers)) {
-            let commentElements = newContainer.querySelectorAll(".comment");
-
-            let j = 0;
-            for (let commentElement of Object.values(commentElements)) {
-                if (typeof comments[i] !== 'undefined' && comments[i].includes(j)) {
-                    commentElement.classList.add("show");
-                }
-                j++;
-            }
-            i++;
-        }
+                return html;
+        })()}
+        </div>`;
     }
-}
-
-/*
- * Funktion: generateFirewallBody()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  data: (Objekt) Die Daten, welche verarbeitet werden sollen
- *  columns: (Array) Definiert die Spaltentitel
- *  tbody: (Objekt) Definiert den Table Body
- *
- * Generiert den Table Body aus den Daten
- * Generiert einzelne Zeilen und verwendet die gleiche Funktion wie bei music.js
- * Generiert noch eine Kommentarzeile
- *
- * Fügt alles zum Table Body hinzu
- */
-function generateFirewallBody(data, columns, tbody = null) {
-    if (!tbody) tbody = document.createElement("tbody");
-
-    for (let row of data) {
-        let tableRow = document.createElement("tr"), comment = "";
-        tableRow.classList.add("csr-pointer");
-
-        if (typeof row["comment"] !== 'undefined') comment = row["comment"];
-
-        row = removeFromObject(row, ["id", "comment"]);
-        generateTableRow(row, tableRow, columns);
-        let commentRow = generateCommentRow(row, comment, columns.length);
-
-        tbody.appendChild(tableRow);
-        tbody.appendChild(commentRow);
-    }
-
-    return tbody;
 }
 
 /*

@@ -1,5 +1,5 @@
 let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], partlist = {},
-    downloading = false, volume = 0, previousVolume = null, repeatMode = 0, touched = false, touchedElement = null,
+    volume = 0, previousVolume = null, repeatMode = 0, touched = null, touchedElement = null,
     currentButton = null, changedQueue = false;
 
 let MSAPI = new Audio();
@@ -35,6 +35,10 @@ HTMLElement.prototype.animateCallback = function (keyframes, options, callback) 
     }
 }
 
+HTMLElement.prototype.clearChildren = function () {
+    while (this.firstChild) this.removeChild(this.lastChild);
+}
+
 /*
  * Funktion: anonym
  * Autor: Bernardo de Oliveira
@@ -57,12 +61,22 @@ document.addEventListener("mousemove", (e) => {
  * Ist das Äquivalent zu .on(eventNames, selector, handler) in jQuery
  */
 const bindEvent = (eventNames, selectors, handler) => {
-    eventNames.split(', ').forEach((eventName) => {
+    if (typeof eventNames !== 'string' || typeof selectors !== 'string' || typeof handler !== 'function') {
+        throw new Error('Invalid arguments: eventNames and selectors must be strings, and handler must be a function.');
+    }
+
+    const eventNameArray = eventNames.split(',').map(eventName => eventName.trim());
+    const selectorArray = selectors.split(',').map(selector => selector.trim());
+
+    eventNameArray.some(eventName => {
         document.addEventListener(eventName, function (event) {
-            selectors.split(', ').forEach((selector) => {
+            selectorArray.some(selector => {
                 if (event.target.matches(selector + ', ' + selector + ' *')) {
-                    let element = event.target.closest(selector);
-                    handler.apply(element, arguments);
+                    const element = event.target.closest(selector);
+                    handler.call(element, event);
+
+                    event.stopImmediatePropagation();
+                    return true;
                 }
             });
         }, false);
@@ -137,14 +151,43 @@ function updateSearch() {
     }
 }
 
-// TODO: Comment
+/*
+ * Funktion: generateQueue()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  data: (Object) Die Daten, welche verarbeitet werden sollen
+ *
+ * Generiert die Wiedergabeliste
+ */
+function generateQueue(data) {
+    let listView = document.createElement("table");
+    listView.classList.add("responsive-table");
+
+    let columns = Object.keys(removeFromObject(data[0], ["id", "category", "player", "coverPos", "info"]));
+    listView.appendChild(generateTableHead(columns));
+    listView.appendChild(generateTableBody(data, columns));
+
+    return listView;
+}
+
+/*
+ * Funktion: clearURL()
+ * Autor: Bernardo de Oliveira
+ *
+ * Löscht alle Parameter aus der URL
+ */
 function clearURL() {
     location.replace(removeGetParameter(location.href, "s"));
     location.replace(removeGetParameter(location.href, "t"));
     location.replace(removeGetParameter(location.href, "p"));
 }
 
-// TODO: Comment
+/*
+ * Funktion: updateURL()
+ * Autor: Bernardo de Oliveira
+ *
+ * Aktualisiert die URL mit den aktuellen Parametern (Song, Timeline)
+ */
 function updateURL() {
     let timeline = document.getElementById("timeline");
     let angleUp = document.getElementsByClassName("fa-angle-up")[0];
@@ -677,7 +720,7 @@ function getCookie(name) {
  * Erstellt einen Cookie und setzt die Werte
  */
 function setCookie(name, value, expiresAt = "") {
-    document.cookie = name + "=" + value + "; Expires=" + expiresAt + "; Path=/; SameSite=Lax";
+    document.cookie = `${name}=${value}; Expires=${expiresAt}; Path=/; SameSite=Lax`;
 }
 
 /*
@@ -706,6 +749,13 @@ function getReadableTime(time) {
     return date.toISOString().substring(11, 19);
 }
 
+function createIconElement(classes, title = "") {
+    const icon = document.createElement('i');
+    icon.className = classes;
+    icon.title = title;
+    return icon;
+}
+
 /*
  * Funktion: createControls()
  * Autor: Bernardo de Oliveira
@@ -716,42 +766,31 @@ function getReadableTime(time) {
  * Generiert die Liedoptionen je nach Parameter
  */
 function createControls(elementClass, actions) {
-    let controls = document.createElement("div");
+    const controls = document.createElement('div');
     controls.classList.add(elementClass);
 
-    for (let action of actions) {
-        let icon;
+    for (const action of actions) {
         switch (action) {
-            case "play":
-
-                icon = document.createElement("i");
-                icon.title = "Play this song";
-                icon.classList.add("fas", "fa-play");
-
+            case 'play':
+                const playIcon = createIconElement('fas fa-play', 'Play this song');
+                controls.appendChild(playIcon);
                 break;
-            case "add":
+            case 'add':
+                const addDiv = document.createElement('div');
+                addDiv.className = 'listAdd';
+                addDiv.title = 'Add this song to the queue';
 
-                icon = document.createElement("div");
-                icon.title = "Add this song to the queue";
-                icon.classList.add("listAdd");
+                const listIcon = createIconElement('fas fa-list');
+                const plusIcon = createIconElement('fas fa-plus');
 
-                let listIcon = document.createElement("i"), plusIcon = document.createElement("i");
-                listIcon.classList.add("fas", "fa-list");
-                plusIcon.classList.add("fas", "fa-plus");
-
-                icon.appendChild(listIcon);
-                icon.appendChild(plusIcon);
-
+                addDiv.append(listIcon, plusIcon);
+                controls.appendChild(addDiv);
                 break;
-            case "delete":
-
-                icon = document.createElement("i");
-                icon.title = "Remove this song";
-                icon.classList.add("fas", "fa-trash");
-
+            case 'delete':
+                const deleteIcon = createIconElement('fas fa-trash', 'Remove this song');
+                controls.appendChild(deleteIcon);
                 break;
         }
-        controls.appendChild(icon);
     }
 
     return controls;
@@ -786,7 +825,12 @@ function removeControls(elementClass, element = null) {
 function setVolumeIcon(volumeIcon, volumeSlider) {
     volumeIcon.classList.remove("fa-volume-*");
 
-    if (volumeSlider.value >= 50) volumeIcon.classList.add("fa-volume-up"); else if (volumeSlider.value >= 1) volumeIcon.classList.add("fa-volume-down"); else volumeIcon.classList.add("fa-volume-off");
+    if (volumeSlider.value >= 50)
+        volumeIcon.classList.add("fa-volume-up");
+    else if (volumeSlider.value >= 1)
+        volumeIcon.classList.add("fa-volume-down");
+    else
+        volumeIcon.classList.add("fa-volume-off");
 }
 
 /*
@@ -997,15 +1041,15 @@ function play(diffSong = false, pageLoad = false) {
             navigator.mediaSession.setActionHandler('nexttrack', () => nextSong());
             navigator.mediaSession.setActionHandler('stop', () => pauseSong());
 
-            navigator.mediaSession.setActionHandler('seekbackward', function () {
+            navigator.mediaSession.setActionHandler('seekbackward', () => {
                 let timeline = document.getElementById("timeline");
                 onTimelineRelease(Number(timeline.value) - 10);
             });
-            navigator.mediaSession.setActionHandler('seekforward', function () {
+            navigator.mediaSession.setActionHandler('seekforward', () => {
                 let timeline = document.getElementById("timeline");
                 onTimelineRelease(Number(timeline.value) + 10);
             });
-            navigator.mediaSession.setActionHandler('seekto', function (details) {
+            navigator.mediaSession.setActionHandler('seekto', (details) => {
                 if ('seekTime' in details) {
                     let time = Math.round(details.seekTime);
                     onTimelineRelease(time);
@@ -1018,7 +1062,7 @@ function play(diffSong = false, pageLoad = false) {
         if (Object.keys(data).length) {
             infoBox.innerHTML = "";
             for (let info of Object.values(data)) {
-                infoBox.innerHTML += "<h3>" + info["name"] + "</h3>" + "<p>" + info["description"] + "</p>";
+                infoBox.innerHTML += `<h3>${info["name"]}</h3><p>${info["description"]}</p>`;
             }
         } else {
             infoBox.innerHTML = "<h3>No description found.</h3>";
@@ -1125,12 +1169,13 @@ function previousSongIndex() {
 function playPauseButton(option = "pause") {
     let player = document.getElementById("player");
     let button = player.querySelector("#dynamicButton");
+    button.clearChildren();
 
     if (currentButton !== option) {
         if (option === "play") {
-            button.innerHTML = "<i class=\"fas fa-pause\"></i>";
+            button.appendChild(createIconElement('fas fa-pause'));
         } else if (option === "pause") {
-            button.innerHTML = "<i class=\"fa fa-play\"></i>";
+            button.appendChild(createIconElement('fas fa-play'));
         } else if (option === "load") {
             button.innerHTML = "<div class=\"lds-ring\"><div></div><div></div><div></div><div></div></div>";
         }
@@ -1247,13 +1292,13 @@ function generatePlaylistInfo(song) {
 
     song["playlist"] = song["playlist"].sort(() => 0.5 - Math.random());
 
-    for (let i = 0; i < (song["playlist"].length >= 4 ? 4 : 1); i++) {
-        let songID = song["playlist"][i];
-        let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
-        info["cover"].innerHTML += "<img src='" + data["cover"] + "' alt='Cover'/>";
+    const data = tryParseJSON(httpGet(pageURL + "system/songs/" + song["playlist"].slice(0, 4).join(",")));
 
-        if (info["artists"].includes(data["artist"])) continue;
-        info["artists"] += data["artist"] + ", ";
+    for (let i = 0; i < data.length; i++) {
+        info["cover"].innerHTML += "<img src='" + data[i]["cover"] + "' alt='Cover'/>";
+
+        if (info["artists"].includes(data[i]["artist"])) continue;
+        info["artists"] += data[i]["artist"] + ", ";
     }
 
     info["artists"] = info["artists"].substring(0, info["artists"].length - 2) + " and more..";
@@ -1270,16 +1315,61 @@ function generatePlaylistInfo(song) {
  * Generiert eine Tabelle aus den Schlüssel (Table head)
  */
 function generateTableHead(columns) {
-    let thead = document.createElement("thead");
-    let row = document.createElement("tr");
+    const fragment = document.createDocumentFragment();
+    const thead = document.createElement("thead");
+    const tr = document.createElement("tr");
 
-    for (let column of columns) {
-        let th = document.createElement("th");
-        th.textContent = ucFirst(column);
-        row.appendChild(th);
+    for (const column of columns) {
+        const th = document.createElement("th");
+        th.textContent = column;
+        tr.appendChild(th);
     }
-    thead.appendChild(row);
-    return thead;
+
+    thead.appendChild(tr);
+    fragment.appendChild(thead);
+
+    return fragment;
+}
+
+/*
+ * Funktion: generateTableBody()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  content: (String) Der Inhalt der Zelle
+ *
+ * Generiert eine Zelle mit dem Inhalt
+ * Je nach Inhalt wird die Zelle zusätzlich grün oder rot
+ * */
+function createCell(content) {
+    const cell = document.createElement('td');
+    const div = document.createElement('div');
+    div.className = 'truncate';
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = `content ${(() => {
+        switch (content) {
+            case 'ACCEPT':
+                return 'green';
+            case 'DROP':
+                return 'red';
+            default:
+                return '';
+        }
+    })()}`;
+    contentDiv.dataset.title = content;
+    contentDiv.textContent = content;
+
+    const spacer = document.createElement('div');
+    spacer.className = 'spacer';
+    spacer.textContent = content;
+
+    const span = document.createElement('span');
+    span.innerHTML = '&nbsp';
+
+    div.append(contentDiv, spacer, span);
+    cell.appendChild(div);
+
+    return cell;
 }
 
 /*
@@ -1294,90 +1384,62 @@ function generateTableHead(columns) {
  * Generiert die Tabellenzeilen aus den Daten
  */
 function generateTableBody(data, columns, tbody = null, cover = null) {
-    if (!tbody) tbody = document.createElement("tbody");
+    if (!tbody) tbody = document.createElement('tbody');
 
-    for (let row of Object.values(data)) {
-        let tableRow = document.createElement("tr");
-        if (typeof row["id"] !== 'undefined') tableRow.setAttribute("data-id", row["id"]);
-        row = removeFromObject(row, ["id", "category", "player"]);
+    const fragment = document.createDocumentFragment();
+    const lowerColumns = columns.map(column => column.toLowerCase());
 
-        generateTableRow(row, tableRow, columns, cover);
+    Object.values(data).forEach(row => {
+        const tr = document.createElement('tr');
+        if (row.id) tr.dataset.id = row.id;
 
-        tbody.appendChild(tableRow);
-    }
+        if (!row['playlist']) {
+            if (cover) {
+                const td = document.createElement('td');
+                const div = document.createElement('div');
 
-    return tbody;
-}
+                div.className = 'cover';
+                div.style.backgroundImage = `url('${cover}')`;
+                div.style.backgroundPositionX = `-${row['coverPos'] / 200 * 35}px`;
 
-/*
- * Funktion: generateTableRow()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  rowData: (Object) Definiert die Reihendaten
- *  tableRow: (Object) Definiert die Tabellenreihe
- *  columns: (Array) Definiert die Spaltentitel
- *  cover: (String) Definiert das Sprites Cover, falls vorhanden
- *
- * Generiert die Tabellenzeilen aus den Daten
- *
- * Diese Funktion wird für die Musik Listenansicht und Firewall benutzt
- */
-function generateTableRow(rowData, tableRow, columns, cover = null) {
-    if (typeof rowData["playlist"] === 'undefined') {
-        for (let column of columns) {
-            column = column.toLowerCase();
+                td.appendChild(div);
+                tr.appendChild(td);
+            } else if (row.cover) {
+                const td = document.createElement('td');
+                const img = document.createElement('img');
 
-            let element = (typeof rowData[column] !== 'undefined') ? rowData[column] : "";
+                img.alt = row.title;
+                img.src = row.cover;
 
-            if (column === "cover") {
-                if (cover !== null) {
-                    tableRow.innerHTML += "<td><div class=\"cover\" style=\"background-image: url(" + cover + "); background-position-x: -" + rowData["coverPos"] / 200 * 35 + "px\"></div></td>";
-                } else {
-                    tableRow.innerHTML += "<td><img src='" + rowData["cover"] + "' alt='cover' /></td>";
-                }
-            } else {
-                let truncate = document.createElement("div");
-                truncate.classList.add("truncate");
-
-                let content = document.createElement("div");
-                content.setAttribute("data-title", element);
-                content.classList.add("content");
-                content.textContent = element;
-
-                switch (element) {
-                    case "ACCEPT":
-                        content.classList.add("green");
-                        break;
-                    case "DROP":
-                        content.classList.add("red");
-                        break;
-                }
-
-                let spacer = document.createElement("div");
-                spacer.classList.add("spacer");
-                spacer.textContent = element;
-
-                let span = document.createElement("span");
-                span.innerHTML = "&nbsp;";
-
-                truncate.appendChild(content);
-                truncate.appendChild(spacer);
-                truncate.appendChild(span);
-
-                let tableData = document.createElement("td");
-                tableData.appendChild(truncate);
-                tableRow.appendChild(tableData);
+                td.appendChild(img);
+                tr.appendChild(td);
             }
-        }
-    } else {
-        let info = generatePlaylistInfo(rowData);
-        let td = document.createElement("td");
-        td.appendChild(info["cover"]);
-        tableRow.appendChild(td);
-        tableRow.classList.add("playlist");
 
-        tableRow.innerHTML += "<td>" + rowData["name"] + "</td>" + "<td colspan='2'>" + "<div class='truncate'>" + "<div class='content' data-title='" + info["artists"] + "'>" + info["artists"] + "</div>" + "<div class='spacer'>" + info["artists"] + "</div>" + "<span>&nbsp;</span>" + "</div>" + "</td>";
-    }
+            lowerColumns.forEach(column => {
+                if (column !== 'cover') {
+                    const content = row[column] !== undefined ? row[column] : '';
+                    const cell = createCell(content, column);
+                    tr.appendChild(cell);
+                }
+            });
+        } else {
+            const info = generatePlaylistInfo(row);
+
+            const coverTd = document.createElement('td');
+            coverTd.appendChild(info.cover);
+
+            const nameTd = createCell(row.name);
+            const artistTd = createCell(info.artists);
+            artistTd.colSpan = 2;
+
+            tr.append(coverTd, nameTd, artistTd);
+        }
+
+        fragment.appendChild(tr);
+    });
+
+    tbody.appendChild(fragment);
+    return tbody;
 }
 
 /*
@@ -1492,33 +1554,6 @@ function getColumns(data, level = 0, start = 0) {
  */
 function getPartLength(index) {
     return playlist[playIndex]["player"].getPartLength(index);
-}
-
-/*
- * Funktion: getPartLengthCallback()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  index: (Integer) Definiert den Teil, von welchem die Länge zurückgegeben werden soll
- *  callback: (Function) Definiert eine Funktion welche anschliessen ausgeführt wird
- *
- * Berechnet sich die Länge vom Teil den man benötigt
- * Dafür da, wenn neue Lieder hinzugefügt sind, dann sind sie nicht sofort verfügbar
- *
- * Sobald die Länge herausgefunden wurde, wird der Callback mit der Länge ausgeführt
- */
-function getPartLengthCallback(index, callback) {
-    let length = 0;
-
-    let interval = setInterval(function () {
-        if (typeof playlist[playIndex]["player"].playlist.sources[index] !== 'undefined') {
-            length = Number((playlist[playIndex]["player"].playlist.sources[index].getLength() / 1000).toFixed());
-
-            if (length) {
-                clearInterval(interval);
-                callback(length);
-            }
-        }
-    }, 50);
 }
 
 /*

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="fc297fd1-5b17-4b93-83d8-60c4426721ac" name="beta.bernardo.fm" url="http://beta.bernardo.fm">
+      <webServer id="fc297fd1-5b17-4b93-83d8-60c4426721ac" name="bernardo.fm" url="http://bernardo.fm">
         <fileTransfer rootFolder="/var/www/beta" accessType="SFTP" host="bernardo.fm" port="22" sshConfigId="6f661251-aa19-4725-8383-5fe1336b6d49" sshConfig="root@bernardo.fm:22 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
