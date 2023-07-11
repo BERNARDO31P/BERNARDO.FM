@@ -1205,11 +1205,8 @@ function playPauseButton(option = "pause") {
         } else if (option === "load") {
             const ldsRing = document.createElement("div");
             ldsRing.classList.add("lds-ring");
-
-            for (let i = 0; i < 4; i++) {
-                const div = document.createElement("div");
-                ldsRing.appendChild(div);
-            }
+            
+            ldsRing.append(...Array.from({length: 4}, () => document.createElement('div')));
             button.appendChild(ldsRing);
         }
         currentButton = option;
