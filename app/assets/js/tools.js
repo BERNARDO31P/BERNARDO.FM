@@ -1101,7 +1101,7 @@ function play(diffSong = false, pageLoad = false) {
 
             navigator.mediaSession.setActionHandler('seekbackward', async () => {
                 let timeline = document.getElementById("timeline");
-                let value = Number(timeline.value) + 10;
+                let value = Number(timeline.value) - 10;
                 timeline.value = value;
                 await onTimelineRelease(value);
             });
