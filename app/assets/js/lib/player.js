@@ -63,7 +63,7 @@ class MultiTrackPlayer extends EventTarget {
                 delete this.#decodingCallbacks[bufferIndex];
             }
 
-            if (bufferIndex === this.#waitIndex) {
+            if (bufferIndex === this.#waitIndex && !this.#playing) {
                 let processedEvent = new CustomEvent("processed", {detail: {index: this.#waitIndex}});
                 this.dispatchEvent(processedEvent);
                 this.#waitIndex = -1;
