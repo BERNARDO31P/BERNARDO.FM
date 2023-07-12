@@ -2,7 +2,6 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
     volume = 0, previousVolume = null, repeatMode = 0, touched = null, touchedElement = null,
     currentButton = null, changedQueue = false;
 
-let MSAPI = new Audio();
 
 let backgroundProcesses = [];
 let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, downloadTimeout = null, searchTimeout = null, songInterval = null;
@@ -38,6 +37,83 @@ HTMLElement.prototype.animateCallback = function (keyframes, options, callback) 
 HTMLElement.prototype.clearChildren = function () {
     while (this.firstChild) this.removeChild(this.lastChild);
 }
+
+/*
+ * Funktion: onkeydown()
+ * Autor: Bernardo de Oliveira
+ *
+ * Zuweisung von verschiedenen Tasten
+ * Somit kann man z.B. die Wiedergabe mit der Leertaste starten/stoppen
+ */
+document.onkeydown = function (e) {
+    let keys = ["K", "Space", "M", "ArrowLeft", "ArrowRight", "J", "L", "R", "S", "ArrowUp", "ArrowDown"];
+    let key = e.code.replace("Key", "");
+
+    if (!(document.activeElement instanceof HTMLInputElement)) {
+        if (keys.includes(key)) {
+            e.preventDefault();
+
+            let playerHTML = document.getElementById("player");
+            let timeline = playerHTML.querySelector("#timeline");
+
+            let mouseUpEvent = new Event('mouseup', {
+                bubbles: true,
+                cancelable: true,
+            });
+
+            switch (key) {
+                case "R":
+                    let repeatButton = playerHTML.querySelector(".repeat");
+                    repeatButton.dispatchEvent(clickEvent);
+
+                    break;
+                case "S":
+                    let shuffleButton = playerHTML.querySelector(".fa-random");
+                    shuffleButton.dispatchEvent(clickEvent);
+
+                    break;
+                case "K":
+                case "Space":
+                    if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]["player"].isPlaying())
+                        pauseSong();
+                    else
+                        play();
+                    break;
+                case "M":
+                    muteAudio();
+                    break;
+                case "ArrowLeft":
+                    timeline.value = Number(timeline.value) - 5;
+                    timeline.dispatchEvent(mouseUpEvent);
+                    break;
+                case "ArrowRight":
+                    timeline.value = Number(timeline.value) + 5;
+                    timeline.dispatchEvent(mouseUpEvent);
+                    break;
+                case "J":
+                    timeline.value = Number(timeline.value) - 10;
+                    timeline.dispatchEvent(mouseUpEvent);
+                    break;
+                case "L":
+                    timeline.value = Number(timeline.value) + 10;
+                    timeline.dispatchEvent(mouseUpEvent);
+                    break;
+                case "ArrowUp":
+                    volume = volume + 0.1;
+                    if (volume > 1) volume = 1;
+
+                    setVolume(volume);
+                    break;
+                case "ArrowDown":
+                    volume = volume - 0.1
+                    if (volume < 0) volume = 0;
+
+                    setVolume(volume);
+                    break;
+            }
+        }
+    }
+};
 
 /*
  * Funktion: anonym
@@ -238,51 +314,6 @@ function updatePlaying() {
         else for (let div of divs) div.style.animationPlayState = "paused";
     }
 
-}
-
-/*
- * Funktion: createSilence()
- * Autor: ktcy (https://gist.github.com/ktcy/1e981cfee7a309beebb33cdab1e29715)
- * Argumente:
- *  seconds: (Integer) Definiert die Dauer des Platzhalters
- *
- * Erstellt einen Platzhalter in der Länge des momentanen Liedes
- * Dafür da, damit die MediaSession API besser und vor allem überall funktioniert
- */
-function createSilence(seconds = 1) {
-    const sampleRate = 8000;
-    const numChannels = 1;
-    const bitsPerSample = 8;
-
-    const blockAlign = numChannels * bitsPerSample / 8;
-    const byteRate = sampleRate * blockAlign;
-    const dataSize = Math.ceil(seconds * sampleRate) * blockAlign;
-    const chunkSize = 36 + dataSize;
-    const byteLength = 8 + chunkSize;
-
-    const buffer = new ArrayBuffer(byteLength);
-    const view = new DataView(buffer);
-
-    view.setUint32(0, 0x52494646, false);    // Chunk ID 'RIFF'
-    view.setUint32(4, chunkSize, true);      // File size
-    view.setUint32(8, 0x57415645, false);    // Format 'WAVE'
-    view.setUint32(12, 0x666D7420, false);   // Sub-chunk 1 ID 'fmt '
-    view.setUint32(16, 16, true);            // Sub-chunk 1 size
-    view.setUint16(20, 1, true);             // Audio format
-    view.setUint16(22, numChannels, true);   // Number of channels
-    view.setUint32(24, sampleRate, true);    // Sample rate
-    view.setUint32(28, byteRate, true);      // Byte rate
-    view.setUint16(32, blockAlign, true);    // Block align
-    view.setUint16(34, bitsPerSample, true); // Bits per sample
-    view.setUint32(36, 0x64617461, false);   // Sub-chunk 2 ID 'data'
-    view.setUint32(40, dataSize, true);      // Sub-chunk 2 size
-
-    for (let offset = 44; offset < byteLength; offset++) {
-        view.setUint8(offset, 128);
-    }
-
-    const blob = new Blob([view], {type: 'audio/wav'});
-    return URL.createObjectURL(blob);
 }
 
 /*
@@ -1014,7 +1045,7 @@ function setPositionState(length, position) {
     if ('mediaSession' in navigator) {
         navigator.mediaSession.setPositionState({
             duration: length,
-            playbackRate: MSAPI.playbackRate,
+            playbackRate: 1,
             position: position
         });
     }
@@ -1035,12 +1066,12 @@ function play(diffSong = false, pageLoad = false) {
     let song = playlist[playIndex];
     currentSong = song["id"];
 
+    let player = playlist[playIndex]["player"];
+    player.setVolume(volume);
+
     let length = getLengthByString(song["length"]);
     if (diffSong) {
         document.body.querySelectorAll("audio").forEach((e) => e.remove());
-
-        MSAPI = new Audio(createSilence(length));
-        document.body.appendChild(MSAPI);
 
         let songLength = document.getElementById("timeInfo").querySelector("#length");
         let queueView = document.getElementById("queueView");
@@ -1068,23 +1099,27 @@ function play(diffSong = false, pageLoad = false) {
             navigator.mediaSession.setActionHandler('nexttrack', () => nextSong());
             navigator.mediaSession.setActionHandler('stop', () => pauseSong());
 
-            navigator.mediaSession.setActionHandler('seekbackward', () => {
+            navigator.mediaSession.setActionHandler('seekbackward', async () => {
                 let timeline = document.getElementById("timeline");
-                onTimelineRelease(Number(timeline.value) - 10);
+                let value = Number(timeline.value) + 10;
+                timeline.value = value;
+                await onTimelineRelease(value);
             });
-            navigator.mediaSession.setActionHandler('seekforward', () => {
+            navigator.mediaSession.setActionHandler('seekforward', async () => {
                 let timeline = document.getElementById("timeline");
-                onTimelineRelease(Number(timeline.value) + 10);
+                let value = Number(timeline.value) + 10;
+                timeline.value = value;
+                await onTimelineRelease(value);
             });
-            navigator.mediaSession.setActionHandler('seekto', (details) => {
+            navigator.mediaSession.setActionHandler('seekto', async (details) => {
                 if ('seekTime' in details) {
                     let time = Math.round(details.seekTime);
-                    onTimelineRelease(time);
+                    await onTimelineRelease(time);
                 }
             });
         }
 
-        let data = tryParseJSON(httpGet(pageURL + "system/info/" + song["id"]));
+        let data = tryParseJSON(httpGet(pageURL + "system/info/" + currentSong));
         let infoBox = queueView.querySelector("#info");
         if (Object.keys(data).length) {
             infoBox.innerHTML = "";
@@ -1098,51 +1133,38 @@ function play(diffSong = false, pageLoad = false) {
         updatePlaying();
     }
 
-    MSAPI.play().catch(() => {
-        pauseSong();
-        showConfirmation("Warning", "Your browser is blocking the automatic playback. Do you want to allow it?", () => {
-            play(false, pageLoad);
-        });
-    }).finally(() => {
-        let player = playlist[playIndex]["player"];
-        player.setVolume(volume);
-        player.playNext(partIndex);
-
-        let animation = document.getElementsByClassName("lds-facebook")[0];
-        if (animation) {
-            let divs = animation.querySelectorAll("div");
-            for (let div of divs) {
-                if (div.style.animationPlayState === "paused") {
-                    div.style.animationPlayState = "running";
-                }
+    player.playNext(partIndex);
+    let animation = document.getElementsByClassName("lds-facebook")[0];
+    if (animation) {
+        let divs = animation.querySelectorAll("div");
+        for (let div of divs) {
+            if (div.style.animationPlayState === "paused") {
+                div.style.animationPlayState = "running";
             }
         }
+    }
 
-        updateURL();
+    updateURL();
 
-        if (!secondsInterval) {
-            secondsInterval = setInterval(function () {
-                let timeline = document.getElementById("timeline");
-                let currentPosition = playlist[playIndex]["player"].getCurrentPartTime();
+    if (!secondsInterval) {
+        secondsInterval = setInterval(() => {
+            let timeline = document.getElementById("timeline");
+            let currentPosition = player.getCurrentPartTime();
 
-                if (currentPosition) {
-                    let songID = playlist[playIndex]["id"];
-                    let position = currentPosition + partlist[songID][partIndex]["from"];
-                    timeline.value = position;
-                    MSAPI.currentTime = position;
-                }
-            }, 500);
-        }
+            if (currentPosition) {
+                timeline.value = currentPosition + partlist[currentSong][partIndex]["from"];
+            }
+        }, 500);
+    }
 
-        if (pageLoad) {
-            let angleUp = document.getElementsByClassName("fa-angle-up")[0];
-            angleUp.dispatchEvent(clickEvent);
-        }
-        playerHTML.style.display = "initial";
+    if (pageLoad) {
+        let angleUp = document.getElementsByClassName("fa-angle-up")[0];
+        angleUp.dispatchEvent(clickEvent);
+    }
+    playerHTML.style.display = "initial";
 
-        let title = document.querySelector("title");
-        title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
-    });
+    let title = document.querySelector("title");
+    title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
 }
 
 /*
@@ -1205,7 +1227,7 @@ function playPauseButton(option = "pause") {
         } else if (option === "load") {
             const ldsRing = document.createElement("div");
             ldsRing.classList.add("lds-ring");
-            
+
             ldsRing.append(...Array.from({length: 4}, () => document.createElement('div')));
             button.appendChild(ldsRing);
         }
@@ -1251,19 +1273,16 @@ function pauseSong() {
     nextPartIndex = partIndex;
 
     const player = playlist[playIndex]["player"];
-    if (player.isPlaying()) {
-        playlist[playIndex]["player"].pause();
-        MSAPI.pause();
+    if (player.isPlaying()) player.pause();
 
-        clearIntervals();
+    clearIntervals();
 
-        let animation = document.getElementsByClassName("lds-facebook")[0];
-        if (animation) {
-            let divs = animation.querySelectorAll("div");
-            for (let div of divs) {
-                if (div.style.animationPlayState === "running") {
-                    div.style.animationPlayState = "paused";
-                }
+    let animation = document.getElementsByClassName("lds-facebook")[0];
+    if (animation) {
+        let divs = animation.querySelectorAll("div");
+        for (let div of divs) {
+            if (div.style.animationPlayState === "running") {
+                div.style.animationPlayState = "paused";
             }
         }
     }
@@ -1481,7 +1500,7 @@ function generateTableBody(data, columns, tbody = null, cover = null) {
  *
  * Entfernt ein oder mehrere Schlüssel in einem Objekt, rekursiv
  */
-function removeFromObject(object, toRemove = [], recursive = true) {
+function removeFromObject(object, toRemove = null, recursive = true) {
     let cleaned;
 
     if (object instanceof Object && object instanceof Array) {
@@ -1536,7 +1555,7 @@ function generateNumericalOrder(object) {
  * Argumente:
  *  val: (String) Definiert die Zeichenkette welche überprüft werden soll
  *
- * isNaN überprüft ob eine Zeichenkette keine Zahl ist
+ * isNaN überprüft, ob eine Zeichenkette keine Zahl ist
  * Falls es keine ist, wird TRUE zurückgegeben
  * Falls es eine ist, wird FALSE zurückgegeben
  *

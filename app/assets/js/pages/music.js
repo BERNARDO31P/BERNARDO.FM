@@ -106,7 +106,7 @@ bindEvent("click", "#content .fa-play", function () {
  *
  * Diverse Funktionen welche durch Benutzereingaben ausgelöst werden
  */
-bindEvent("mouseup, touchend", "#timeline", (e) => onTimelineRelease(e.target.value));
+bindEvent("mouseup, touchend", "#timeline", async (e) => await onTimelineRelease(e.target.value));
 bindEvent("click", "#player .fa-step-forward", () => nextSong());
 bindEvent("click", "#player .fa-step-backward", () => previousSong());
 bindEvent("mouseout", ".songCard", function () {
@@ -521,8 +521,9 @@ function addEvents(player) {
         }
     });
 
-    player.addEventListener("processed", () => {
-        if (!player.isPlaying()) play();
+    player.addEventListener("processed", (e) => {
+        partIndex = e.detail.index;
+        play();
     });
 }
 
@@ -630,22 +631,25 @@ async function prepareNextPart() {
  */
 async function downloadPart(time, sIndex, pIndex, till = null, callback = () => {
 }) {
-    let songID = playlist[sIndex]["id"];
+    let song = playlist[sIndex];
+    let songID = song["id"];
 
-    if (typeof playlist[sIndex]["player"] === 'undefined') {
-        let player = new MultiTrackPlayer();
+    if (typeof song["player"] === 'undefined') {
+        let length = getLengthByString(song["length"]);
+        let player = new MultiTrackPlayer(length);
+
         addEvents(player);
 
-        playlist[sIndex]["player"] = player;
+        song["player"] = player;
     }
 
     if (typeof partlist[songID] === 'undefined') partlist[songID] = {};
 
     partlist[songID][pIndex] = {};
 
-    return await playlist[sIndex]["player"].addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
+    return await song["player"].addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
         if (typeof partlist[songID] !== 'undefined') {
-            let length = playlist[sIndex]["player"].getPartLength(pIndex);
+            let length = song["player"].getPartLength(pIndex);
 
             partlist[songID][pIndex] = {
                 "from": time,
@@ -853,9 +857,8 @@ async function onTimelineRelease(value) {
         player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
     }
 
-    MSAPI.currentTime = value;
     partIndex = nextPartIndex;
-    setPositionState(MSAPI.duration, value);
+    setPositionState(player.getDuration(), value);
 
     if (nextPartIndexCopy !== nextPartIndex || decoding) return;
     play();
