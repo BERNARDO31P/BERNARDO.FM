@@ -41,7 +41,7 @@ class MultiTrackPlayer extends EventTarget {
         });
 
         this.#audioTag.addEventListener("play", () => {
-            if (!this.isPlaying()) this.playNext(this.#currentTrackIndex, this.#offset);
+            if (!this.isPlaying()) this.playNext(this.#currentTrackIndex, 0);
         });
 
         document.body.append(this.#audioTag);
