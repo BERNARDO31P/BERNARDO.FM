@@ -809,7 +809,6 @@ function showControlsCard(card) {
 function removeControlsCard(card) {
     controlsTimeout = setTimeout(function () {
         if (card !== currentHover) {
-            touched = false;
             let controls = card.querySelector(".controlsContent");
             if (controls) controls.remove();
         }

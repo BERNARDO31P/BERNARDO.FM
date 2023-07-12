@@ -752,9 +752,3 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
-
-// TODO: Comment
-document.addEventListener("touchstart", function (e) {
-    if (e.pageX > 10 && e.pageY < window.innerWidth - 10) return;
-    e.preventDefault();
-})

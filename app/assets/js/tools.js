@@ -966,7 +966,7 @@ function setVolume(volume) {
  * Wenn man auf einem Touchgerät ist, muss man zweimal drücken
  */
 function muteAudio(e = null) {
-    if (!isTouchScreen() || touched) {
+    if (!isTouchScreen() || touched === true) {
         let volumeSlider = document.getElementById("player").querySelector(".volumeSlider"),
             volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
 
