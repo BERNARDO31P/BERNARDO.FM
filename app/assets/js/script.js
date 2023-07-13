@@ -17,21 +17,22 @@ window.addEventListener("scroll", () => {
     if (menu.classList.contains("show")) menu.classList.remove("show");
 });
 
-window.onblur = () => {
-    clearInterval(secondsInterval);
-    secondsInterval = null;
-}
+document.addEventListener("visibilitychange", function() {
+    const minimized = document.hidden;
 
-window.onfocus = () => {
-    if (typeof playlist[playIndex] !== 'undefined' && typeof playlist[playIndex]["player"] !== 'undefined') {
-        updateTimeline();
+    if (minimized) {
+        clearInterval(secondsInterval);
+        secondsInterval = null;
+    } else {
+        if (typeof playlist[playIndex] !== 'undefined' && typeof playlist[playIndex]["player"] !== 'undefined') {
+            updateTimeline();
 
-        playlist[playIndex]["player"].isPlaying()
-            ? playPauseButton("play")
-            : playPauseButton("pause");
+            playlist[playIndex]["player"].isPlaying()
+                ? playPauseButton("play")
+                : playPauseButton("pause");
+        }
     }
-
-}
+});
 
 /*
  * Funktion: Anonym

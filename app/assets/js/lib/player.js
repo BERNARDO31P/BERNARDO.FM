@@ -117,14 +117,12 @@ class MultiTrackPlayer extends EventTarget {
                 }
             }
 
-            this.#startTimeouts[index] = setTimeout(() => {
+            this.#startTimeouts[index] = setTimeout(async () => {
                 this.#executedTask = true;
 
                 if (this.#audioTag.paused) {
                     this.#audioTag.currentTime = when;
-
                     this.#setPositionState(this.getDuration(), this.#currentTime);
-                    this.#audioTag.play();
                 }
 
                 this.#playing = true;

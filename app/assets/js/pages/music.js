@@ -597,8 +597,6 @@ async function prepareNextPart() {
         nextPlayIndex = nextSongIndex();
 
         if (typeof playlist[nextPlayIndex] !== 'undefined') {
-            console.log("next song");
-
             nextSong = true;
             nextSongID = playlist[nextPlayIndex]["id"];
             nextPartIndex = 0;
