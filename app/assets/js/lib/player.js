@@ -123,9 +123,12 @@ class MultiTrackPlayer extends EventTarget {
                 if (this.#audioTag.paused) {
                     this.#audioTag.currentTime = when;
                     this.#setPositionState(this.getDuration(), this.#currentTime);
+
+                    this.#audioTag.play().finally(() => {
+                        this.#playing = true;
+                    });
                 }
 
-                this.#playing = true;
                 this.#currentTrackIndex = index;
 
                 this.#startTime = when;
@@ -140,9 +143,8 @@ class MultiTrackPlayer extends EventTarget {
 
         if (!this.#audioTag.paused) {
             this.#audioTag.pause();
+            this.#playing = false;
         }
-
-        this.#playing = false;
 
         this.#audioSources.forEach((source) => {
             this.#killSource(source);
