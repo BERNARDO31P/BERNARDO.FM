@@ -242,6 +242,8 @@ bindEvent("mouseup, touchend", "[data-title]", function (e) {
 
     touched = currentTime;
     touchedElement = target;
+
+    mouseover(null, target.closest("[data-id]"));
 });
 
 /*
@@ -250,26 +252,29 @@ bindEvent("mouseup, touchend", "[data-title]", function (e) {
  *
  * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
  */
-bindEvent("mouseover", "#queueView tr[data-id]", function () {
-    let controls = this.querySelector(".controlsQueue");
+bindEvent("mouseover", "#queueView tr[data-id]", mouseover);
+function mouseover (e, element) {
+    element = (element) ? element : this;
+
+    let controls = element.querySelector(".controlsQueue");
     removeControls("controlsQueue", controls);
 
     if (!controls) {
         controls = createControls("controlsQueue", ["play", "delete"]);
-        let pos = this.getBoundingClientRect();
+        let pos = element.getBoundingClientRect();
 
         controls.style.top = "3px";
         controls.style.right = "0";
         controls.style.height = pos.height - 6 + "px";
         controls.style.lineHeight = pos.height - 6 + "px";
-        controls.setAttribute("data-id", this.getAttribute("data-id"));
+        controls.setAttribute("data-id", element.getAttribute("data-id"));
 
         setTimeout(() => {
-            this.querySelector("td:last-of-type").appendChild(controls);
+            element.querySelector("td:last-of-type").appendChild(controls);
             controls.classList.add("show");
         }, 50);
     }
-});
+}
 
 /*
  * Funktion: Anonym
