@@ -870,6 +870,8 @@ async function onTimelineRelease(value) {
     }
 
     player.setCurrentTime(value);
+    if (player.isPlaying()) return;
+
     partIndex = nextPartIndex;
 
     if (nextPartIndexCopy !== nextPartIndex || decoding) return;

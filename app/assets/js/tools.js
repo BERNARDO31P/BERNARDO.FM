@@ -952,6 +952,7 @@ function setVolume(volume) {
     let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
     setVolumeIcon(volumeIcon, volumeSlider);
     setCookie("volume", volume, getExpireTime(8));
+    setCookie("muted", false, getExpireTime(8));
 
     hideVolumeSlider();
 }
