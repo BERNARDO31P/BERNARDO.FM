@@ -22,9 +22,14 @@ document.addEventListener("visibilitychange", function() {
 
     if (minimized) {
         clearInterval(secondsInterval);
+        clearInterval(songInterval);
+
         secondsInterval = null;
+        songInterval = null;
     } else {
         if (typeof playlist[playIndex] !== 'undefined' && typeof playlist[playIndex]["player"] !== 'undefined') {
+            updateSongData();
+            updateURL();
             updateTimeline();
 
             playlist[playIndex]["player"].isPlaying()

@@ -1042,6 +1042,39 @@ function getLengthByString(stringTime) {
     return length;
 }
 
+// TODO: Comment
+function updateSongData() {
+    let song = playlist[playIndex];
+    let length = getLengthByString(song["length"]);
+
+    let songLength = document.getElementById("timeInfo").querySelector("#length");
+    let queueView = document.getElementById("queueView");
+    let cover = queueView.querySelector("#playingCover").querySelector("img");
+
+    cover.src = String(song["cover"]);
+    songLength.textContent = song["length"];
+
+    let playerHTML = document.getElementById("player");
+    playerHTML.querySelector("#timeline").max = length;
+    playerHTML.querySelector("#name").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" + "<div class='spacer'>" + song["name"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
+    playerHTML.querySelector("#artist").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" + "<div class='spacer'>" + song["artist"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
+    playerHTML.style.display = "initial";
+
+    let data = tryParseJSON(httpGet(pageURL + "system/info/" + song["id"]));
+    let infoBox = queueView.querySelector("#info");
+
+    if (Object.keys(data).length) {
+        infoBox.innerHTML = "";
+        for (let info of Object.values(data)) {
+            infoBox.innerHTML += `<h3>${info["name"]}</h3><p>${info["description"]}</p>`;
+        }
+    } else {
+        infoBox.innerHTML = "<h3>No description found.</h3>";
+    }
+
+    updatePlaying();
+}
+
 /*
  * Funktion: play()
  * Autor: Bernardo de Oliveira
@@ -1052,31 +1085,19 @@ function getLengthByString(stringTime) {
  * Startet eine Schleife, welche jede Sekunde den Fortschritt des Liedes abruft und ins Tooltip speichert
  */
 function play(diffSong = false, pageLoad = false) {
-    let playerHTML = document.getElementById("player");
-
-    let song = playlist[playIndex];
     let player = playlist[playIndex]["player"];
-    let length = getLengthByString(song["length"]);
-
     player.setVolume(volume);
 
     if (diffSong) {
         document.body.querySelectorAll("audio").forEach((e) => e.remove());
 
-        let songLength = document.getElementById("timeInfo").querySelector("#length");
-        let queueView = document.getElementById("queueView");
-        let cover = queueView.querySelector("#playingCover").querySelector("img");
+        let song = playlist[playIndex];
+        let title = document.querySelector("title");
+        title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
 
-        cover.src = String(song["cover"]);
-        songLength.textContent = song["length"];
-
-        playerHTML.querySelector("#timeline").max = length;
-        playerHTML.querySelector("#name").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" + "<div class='spacer'>" + song["name"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
-        playerHTML.querySelector("#artist").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" + "<div class='spacer'>" + song["artist"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
+        if (!document.hidden) updateSongData();
 
         if ('mediaSession' in navigator) {
-            let song = playlist[playIndex];
-
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song["name"], artist: song["artist"], artwork: [{src: song["cover"], type: 'image/png'},]
             });
@@ -1106,19 +1127,6 @@ function play(diffSong = false, pageLoad = false) {
                 }
             });
         }
-
-        let data = tryParseJSON(httpGet(pageURL + "system/info/" + song["id"]));
-        let infoBox = queueView.querySelector("#info");
-        if (Object.keys(data).length) {
-            infoBox.innerHTML = "";
-            for (let info of Object.values(data)) {
-                infoBox.innerHTML += `<h3>${info["name"]}</h3><p>${info["description"]}</p>`;
-            }
-        } else {
-            infoBox.innerHTML = "<h3>No description found.</h3>";
-        }
-
-        updatePlaying();
     }
 
     if (!player.isPlaying()) {
@@ -1135,17 +1143,16 @@ function play(diffSong = false, pageLoad = false) {
         player.playNext(partIndex);
     }
 
-    updateURL();
-    updateTimeline();
+    if (!document.hidden) {
+        updateURL();
+        updateTimeline();
+    }
 
     if (pageLoad) {
         let angleUp = document.getElementsByClassName("fa-angle-up")[0];
         angleUp.dispatchEvent(clickEvent);
     }
-    playerHTML.style.display = "initial";
 
-    let title = document.querySelector("title");
-    title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
 }
 
 function updateTimeline() {
