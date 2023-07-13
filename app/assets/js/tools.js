@@ -1,6 +1,7 @@
 let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], partlist = {},
     volume = 0, previousVolume = null, repeatMode = 0, touched = null, touchedElement = null,
     currentButton = null, changedQueue = false;
+let audioTimeout = null;
 
 
 let backgroundProcesses = [];

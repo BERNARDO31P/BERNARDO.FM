@@ -17,7 +17,6 @@ class MultiTrackPlayer extends EventTarget {
     #decodingCallbacks = [];
 
     #currentTrackIndex = 0;
-    #previousTrackIndex = 0;
 
     #startTime = 0;
     #startTimeouts = {};
@@ -123,8 +122,8 @@ class MultiTrackPlayer extends EventTarget {
                 }
 
                 this.#playing = true;
+                clearTimeout(audioTimeout);
 
-                this.#previousTrackIndex = this.#currentTrackIndex;
                 this.#currentTrackIndex = index;
 
                 this.#startTime = when;
@@ -134,8 +133,6 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     pause() {
-        this.#currentTrackIndex = this.#previousTrackIndex;
-
         this.#clearTimeouts();
         this.setOffset(this.getCurrentPartTime());
 
@@ -149,7 +146,9 @@ class MultiTrackPlayer extends EventTarget {
             this.#killSource(source);
         });
 
-        audioContext.suspend();
+        audioTimeout = setTimeout(() => {
+            audioContext.suspend();
+        }, 15000);
     }
 
     queueTrack(index, startTime = null) {
