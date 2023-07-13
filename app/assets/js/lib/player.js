@@ -2,6 +2,7 @@ class MultiTrackPlayer extends EventTarget {
     #waitIndex = -1;
 
     #audioTag = new Audio();
+    #initialPlay = true;
 
     #volume = 1;
     #gainNode = null;
@@ -38,11 +39,13 @@ class MultiTrackPlayer extends EventTarget {
         this.#audioTag = new Audio(this.#createSilence(length));
 
         this.#audioTag.addEventListener("pause", () => {
-            if (this.isPlaying()) this.pause();
+            if (this.isPlaying() && !this.#initialPlay)
+                this.pause();
         });
 
         this.#audioTag.addEventListener("play", () => {
-            if (!this.isPlaying()) this.playNext(this.#currentTrackIndex, 0);
+            if (!this.isPlaying() && !this.#initialPlay)
+                this.playNext(this.#currentTrackIndex, 0);
         });
 
         document.body.append(this.#audioTag);
@@ -121,14 +124,17 @@ class MultiTrackPlayer extends EventTarget {
                 this.#executedTask = true;
 
                 if (this.#audioTag.paused) {
-                    this.#audioTag.currentTime = when;
+                    this.#playing = true;
+
+                    await this.#audioTag.play();
+
+                    this.#audioTag.currentTime = this.#currentTime;
                     this.#setPositionState(this.getDuration(), this.#currentTime);
                 }
 
-                this.#playing = true;
                 this.#currentTrackIndex = index;
-
                 this.#startTime = when;
+
                 this.dispatchEvent(new Event("play"));
             }, startTime * 1000);
         }
@@ -140,9 +146,8 @@ class MultiTrackPlayer extends EventTarget {
 
         if (!this.#audioTag.paused) {
             this.#audioTag.pause();
+            this.#playing = false;
         }
-
-        this.#playing = false;
 
         this.#audioSources.forEach((source) => {
             this.#killSource(source);
@@ -156,6 +161,8 @@ class MultiTrackPlayer extends EventTarget {
 
             if (this.#executedTask) {
                 this.#executedTask = false;
+                this.#initialPlay = false;
+
                 this.setOffset(0);
                 this.playNext(index, startTime);
             }
