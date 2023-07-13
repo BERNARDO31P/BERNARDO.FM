@@ -19,6 +19,7 @@ window.addEventListener("scroll", () => {
 
 window.onblur = () => {
     clearInterval(secondsInterval);
+    secondsInterval = null;
 }
 
 window.onfocus = () => {
