@@ -64,9 +64,9 @@ class MultiTrackPlayer extends EventTarget {
                 let processedEvent = new CustomEvent("processed", {detail: {index: this.#waitIndex}});
                 this.dispatchEvent(processedEvent);
                 this.#waitIndex = -1;
-            } else {
-                await this.#processDecodeQueue();
             }
+
+            await this.#processDecodeQueue();
         }
         this.#isDecoding = false;
     }
@@ -104,7 +104,6 @@ class MultiTrackPlayer extends EventTarget {
             } catch (e) {
                 source.start(when, this.#offset);
             }
-            this.#audioTag.currentTime = when;
             source.when = when;
 
             source.onended = () => {
@@ -118,6 +117,7 @@ class MultiTrackPlayer extends EventTarget {
 
             this.#startTimeouts[index] = setTimeout(() => {
                 if (this.#audioTag.paused) {
+                    this.#audioTag.currentTime = when;
                     this.#audioTag.play();
                 }
 
