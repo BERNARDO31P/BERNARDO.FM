@@ -883,16 +883,19 @@ async function nextSong() {
     let nextIndex = nextSongIndex();
     if (typeof playlist[nextIndex] !== 'undefined') {
         let diffIndex = (playIndex !== nextIndex);
+        let song = playlist[nextIndex];
 
         playIndex = nextIndex;
         partIndex = 0;
         nextPartIndex = 0;
-        if (typeof playlist[nextIndex]["player"] === 'undefined') {
+        if (typeof song["player"] === 'undefined') {
             partlist[nextIndex] = {};
             await downloadPart(0, playIndex, partIndex);
         }
 
-        playlist[nextIndex]["player"].setOffset(0);
+        song["player"].setOffset(0);
+        song["player"].setCurrentTime(0);
+
         play(diffIndex);
     }
 }
