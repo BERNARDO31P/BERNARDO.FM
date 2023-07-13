@@ -45,8 +45,6 @@ class MultiTrackPlayer extends EventTarget {
         });
 
         document.body.append(this.#audioTag);
-
-        audioContext.suspend();
     }
 
     async #processDecodeQueue() {

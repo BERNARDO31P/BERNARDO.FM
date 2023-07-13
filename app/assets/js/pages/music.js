@@ -474,8 +474,9 @@ window["music"] = () => {    /*
         addSongToPlaylist(null, songID);
         if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]) {
             playPauseButton("load");
-            downloadPart(time, playIndex, partIndex);
-            play(true, true);
+            downloadPart(time, playIndex, partIndex, null, () => {
+                play(true, true);
+            });
         }
     }
 }
@@ -506,7 +507,7 @@ function addEvents(player) {
         prepareNextPart();
     });
 
-    player.addEventListener("end", () => {
+    player.addEventListener("end", async function trackEnd (e, retry = false) {
         pauseSong();
 
         let diffIndex = (playIndex !== nextPlayIndex);
@@ -518,6 +519,12 @@ function addEvents(player) {
 
             player.setOffset(0);
             play(diffIndex);
+            return;
+        }
+
+        if (!retry) {
+            await prepareNextPart();
+            trackEnd(e, !retry);
         }
     });
 
@@ -606,8 +613,9 @@ async function prepareNextPart() {
 
             let missingLength = findMissingLengthByCurrentPart();
             await downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength, () => {
-                if (playIndex === nextPlayIndex && playlist[nextPlayIndex]["player"].isPlaying())
+                if (playIndex === nextPlayIndex && playlist[nextPlayIndex]["player"].isPlaying()) {
                     playlist[nextPlayIndex]["player"].queueTrack(nextPartIndex);
+                }
             });
         }
     } else if (typeof partlist[nextSongID] === 'undefined' && typeof playlist[nextPlayIndex] !== 'undefined') {
