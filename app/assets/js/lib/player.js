@@ -26,6 +26,8 @@ class MultiTrackPlayer extends EventTarget {
 
     #playing = false;
 
+    #executedTask = true;
+
     constructor(length) {
         super();
 
@@ -116,6 +118,8 @@ class MultiTrackPlayer extends EventTarget {
             }
 
             this.#startTimeouts[index] = setTimeout(() => {
+                this.#executedTask = true;
+
                 if (this.#audioTag.paused) {
                     this.#audioTag.currentTime = when;
 
@@ -152,8 +156,11 @@ class MultiTrackPlayer extends EventTarget {
             && this.#audioBuffers[index] !== null) {
             if (startTime === null) startTime = (this.#audioBuffers[this.#currentTrackIndex].duration - this.#offset) - this.getStartTime();
 
-            this.setOffset(0);
-            this.playNext(index, startTime);
+            if (this.#executedTask) {
+                this.#executedTask = false;
+                this.setOffset(0);
+                this.playNext(index, startTime);
+            }
         }
     }
 

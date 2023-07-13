@@ -1124,18 +1124,35 @@ function play(diffSong = false, pageLoad = false) {
         updatePlaying();
     }
 
-    player.playNext(partIndex);
-    let animation = document.getElementsByClassName("lds-facebook")[0];
-    if (animation) {
-        let divs = animation.querySelectorAll("div");
-        for (let div of divs) {
-            if (div.style.animationPlayState === "paused") {
-                div.style.animationPlayState = "running";
+    if (!player.isPlaying()) {
+        let animation = document.getElementsByClassName("lds-facebook")[0];
+        if (animation) {
+            let divs = animation.querySelectorAll("div");
+            for (let div of divs) {
+                if (div.style.animationPlayState === "paused") {
+                    div.style.animationPlayState = "running";
+                }
             }
         }
+
+        player.playNext(partIndex);
     }
 
     updateURL();
+    updateTimeline();
+
+    if (pageLoad) {
+        let angleUp = document.getElementsByClassName("fa-angle-up")[0];
+        angleUp.dispatchEvent(clickEvent);
+    }
+    playerHTML.style.display = "initial";
+
+    let title = document.querySelector("title");
+    title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
+}
+
+function updateTimeline() {
+    let player = playlist[playIndex]["player"];
 
     if (!secondsInterval) {
         secondsInterval = setInterval(() => {
@@ -1147,15 +1164,6 @@ function play(diffSong = false, pageLoad = false) {
             }
         }, 500);
     }
-
-    if (pageLoad) {
-        let angleUp = document.getElementsByClassName("fa-angle-up")[0];
-        angleUp.dispatchEvent(clickEvent);
-    }
-    playerHTML.style.display = "initial";
-
-    let title = document.querySelector("title");
-    title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
 }
 
 /*

@@ -17,6 +17,21 @@ window.addEventListener("scroll", () => {
     if (menu.classList.contains("show")) menu.classList.remove("show");
 });
 
+window.onblur = () => {
+    clearInterval(secondsInterval);
+}
+
+window.onfocus = () => {
+    if (typeof playlist[playIndex] !== 'undefined' && typeof playlist[playIndex]["player"] !== 'undefined') {
+        updateTimeline();
+
+        playlist[playIndex]["player"].isPlaying()
+            ? playPauseButton("play")
+            : playPauseButton("pause");
+    }
+
+}
+
 /*
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
