@@ -36,7 +36,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#gainNode.connect(audioContext.destination);
         this.#gainNode.gain.value = this.#volume;
 
-        this.#audioTag = new Audio(this.#createSilence(length));
+        this.#audioTag = new Audio(this.#createSilence(length + 1));
 
         this.#audioTag.addEventListener("pause", () => {
             if (this.isPlaying() && !this.#initialPlay)

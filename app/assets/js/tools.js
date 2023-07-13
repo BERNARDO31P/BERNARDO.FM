@@ -10,9 +10,6 @@ let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timeli
 let pageURL = window.location.protocol + '//' + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 
-let currentSong = null;
-
-
 let clickEvent = new Event('click', {
     bubbles: true,
     cancelable: true,
@@ -269,11 +266,12 @@ function clearURL() {
 function updateURL() {
     let timeline = document.getElementById("timeline");
     let angleUp = document.getElementsByClassName("fa-angle-up")[0];
+    let songID = playlist[playIndex]["id"];
 
     if (!songInterval) {
         songInterval = setInterval(function () {
             if (angleUp.getAttribute("data-angle") === "up") {
-                location.replace(setGetParameter(location.href, "s", currentSong));
+                location.replace(setGetParameter(location.href, "s", songID));
                 location.replace(setGetParameter(location.href, "t", timeline.value));
             }
         }, 1000);
@@ -1057,12 +1055,11 @@ function play(diffSong = false, pageLoad = false) {
     let playerHTML = document.getElementById("player");
 
     let song = playlist[playIndex];
-    currentSong = song["id"];
-
     let player = playlist[playIndex]["player"];
+    let length = getLengthByString(song["length"]);
+
     player.setVolume(volume);
 
-    let length = getLengthByString(song["length"]);
     if (diffSong) {
         document.body.querySelectorAll("audio").forEach((e) => e.remove());
 
@@ -1110,7 +1107,7 @@ function play(diffSong = false, pageLoad = false) {
             });
         }
 
-        let data = tryParseJSON(httpGet(pageURL + "system/info/" + currentSong));
+        let data = tryParseJSON(httpGet(pageURL + "system/info/" + song["id"]));
         let infoBox = queueView.querySelector("#info");
         if (Object.keys(data).length) {
             infoBox.innerHTML = "";
@@ -1152,7 +1149,8 @@ function play(diffSong = false, pageLoad = false) {
 }
 
 function updateTimeline() {
-    let player = playlist[playIndex]["player"];
+    let song = playlist[playIndex];
+    let player = song["player"];
 
     if (!secondsInterval) {
         secondsInterval = setInterval(() => {
@@ -1160,7 +1158,7 @@ function updateTimeline() {
             let currentPosition = player.getCurrentPartTime();
 
             if (currentPosition) {
-                timeline.value = currentPosition + partlist[currentSong][partIndex]["from"];
+                timeline.value = currentPosition + partlist[song["id"]][partIndex]["from"];
             }
         }, 500);
     }
