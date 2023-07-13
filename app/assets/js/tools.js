@@ -1,3 +1,5 @@
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
 let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], partlist = {},
     volume = 0, previousVolume = null, repeatMode = 0, touched = null, touchedElement = null,
     currentButton = null, changedQueue = false;
@@ -1477,6 +1479,17 @@ function generateTableBody(data, columns, tbody = null, cover = null) {
 
     tbody.appendChild(fragment);
     return tbody;
+}
+
+// TODO: Comment
+function setPositionState(length, position) {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.setPositionState({
+            duration: length,
+            playbackRate: 1,
+            position: position
+        });
+    }
 }
 
 /*

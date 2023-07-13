@@ -183,19 +183,22 @@ bindEvent("click", "#player .fa-play", async () => {
     let timeline = document.getElementById("timeline");
     if (timeline.max === timeline.value) {
         let nextIndex = nextSongIndex();
+        let diffIndex = false;
         partIndex = 0;
 
         if (typeof playlist[nextIndex] !== 'undefined') {
             if (typeof playlist[nextIndex]["player"] === 'undefined')
                 await downloadPart(0, nextIndex, partIndex);
 
-            let diffIndex = (playIndex !== nextIndex);
-
+            diffIndex = (playIndex !== nextIndex);
             playIndex = nextIndex;
-            playlist[playIndex]["player"].setOffset(0);
-
-            play(diffIndex);
         }
+
+        let player = playlist[playIndex]["player"];
+        player.setOffset(0);
+        player.setCurrentTime(0);
+
+        play(diffIndex);
     }
 
     play();

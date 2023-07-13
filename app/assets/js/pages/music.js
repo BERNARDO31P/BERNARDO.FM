@@ -1,5 +1,7 @@
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
+setPositionState(0, 0);
+
 let count = 0,
     resizeTimeout = null,
     errorTimeout = null,
@@ -505,25 +507,28 @@ function addEvents(player) {
         prepareNextPart();
     });
 
-    player.addEventListener("end", async function trackEnd (e, retry = false) {
+    player.addEventListener("end", async () => {
         pauseSong();
 
-        let diffIndex = (playIndex !== nextPlayIndex);
-        if (diffIndex || repeatMode !== 0) {
-            playIndex = nextPlayIndex;
+        async function trackEvent(retry = false) {
+            let diffIndex = (playIndex !== nextPlayIndex);
+            if (diffIndex || repeatMode !== 0) {
+                playIndex = nextPlayIndex;
 
-            partIndex = 0;
-            nextPartIndex = 0
+                partIndex = 0;
+                nextPartIndex = 0
 
-            player.setOffset(0);
-            play(diffIndex);
-            return;
+                player.setOffset(0);
+                play(diffIndex);
+                return;
+            }
+
+            if (!retry) {
+                await prepareNextPart();
+                await trackEvent(true);
+            }
         }
-
-        if (!retry) {
-            await prepareNextPart();
-            trackEnd(e, !retry);
-        }
+        await trackEvent();
     });
 
     player.addEventListener("processed", (e) => {
@@ -592,6 +597,8 @@ async function prepareNextPart() {
         nextPlayIndex = nextSongIndex();
 
         if (typeof playlist[nextPlayIndex] !== 'undefined') {
+            console.log("next song");
+
             nextSong = true;
             nextSongID = playlist[nextPlayIndex]["id"];
             nextPartIndex = 0;
