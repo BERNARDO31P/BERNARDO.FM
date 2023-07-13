@@ -1,7 +1,5 @@
 if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
-setPositionState(0, 0);
-
 let count = 0,
     resizeTimeout = null,
     errorTimeout = null,
@@ -864,8 +862,8 @@ async function onTimelineRelease(value) {
         player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
     }
 
+    player.setCurrentTime(value);
     partIndex = nextPartIndex;
-    setPositionState(player.getDuration(), value);
 
     if (nextPartIndexCopy !== nextPartIndex || decoding) return;
     play();
@@ -914,16 +912,20 @@ async function previousSong(bypass = false) {
     let previousIndex = previousSongIndex();
     if (typeof playlist[previousIndex] !== 'undefined') {
         let diffIndex = (playIndex !== previousIndex);
+        let song = playlist[previousIndex];
 
         playIndex = previousIndex;
         partIndex = 0;
         nextPartIndex = 0;
-        if (typeof playlist[previousIndex]["player"] === 'undefined') {
+        if (typeof song["player"] === 'undefined') {
             partlist[previousIndex] = {};
             await downloadPart(0, playIndex, partIndex);
         }
 
-        playlist[previousIndex]["player"].setOffset(0);
+
+        song["player"].setOffset(0);
+        song["player"].setCurrentTime(0);
+
         play(bypass || diffIndex);
     }
 }

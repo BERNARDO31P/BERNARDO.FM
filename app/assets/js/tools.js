@@ -1,7 +1,6 @@
 let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], partlist = {},
     volume = 0, previousVolume = null, repeatMode = 0, touched = null, touchedElement = null,
     currentButton = null, changedQueue = false;
-let audioTimeout = null;
 
 
 let backgroundProcesses = [];
@@ -1042,16 +1041,6 @@ function getLengthByString(stringTime) {
     return length;
 }
 
-function setPositionState(length, position) {
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.setPositionState({
-            duration: length,
-            playbackRate: 1,
-            position: position
-        });
-    }
-}
-
 /*
  * Funktion: play()
  * Autor: Bernardo de Oliveira
@@ -1091,8 +1080,6 @@ function play(diffSong = false, pageLoad = false) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song["name"], artist: song["artist"], artwork: [{src: song["cover"], type: 'image/png'},]
             });
-
-            setPositionState(length, 0);
 
             navigator.mediaSession.setActionHandler('play', () => play());
             navigator.mediaSession.setActionHandler('pause', () => pauseSong());

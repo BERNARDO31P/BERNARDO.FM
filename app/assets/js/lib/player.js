@@ -24,6 +24,8 @@ class MultiTrackPlayer extends EventTarget {
     #offset = 0;
     #currentOffset = 0;
 
+    #currentTime = 0;
+
     #playing = false;
 
     constructor(length) {
@@ -118,12 +120,12 @@ class MultiTrackPlayer extends EventTarget {
             this.#startTimeouts[index] = setTimeout(() => {
                 if (this.#audioTag.paused) {
                     this.#audioTag.currentTime = when;
+
+                    this.#setPositionState(this.getDuration(), this.#currentTime);
                     this.#audioTag.play();
                 }
 
                 this.#playing = true;
-                clearTimeout(audioTimeout);
-
                 this.#currentTrackIndex = index;
 
                 this.#startTime = when;
@@ -145,10 +147,6 @@ class MultiTrackPlayer extends EventTarget {
         this.#audioSources.forEach((source) => {
             this.#killSource(source);
         });
-
-        audioTimeout = setTimeout(() => {
-            audioContext.suspend();
-        }, 15000);
     }
 
     queueTrack(index, startTime = null) {
@@ -185,6 +183,10 @@ class MultiTrackPlayer extends EventTarget {
     setOffset(offset) {
         this.#currentOffset = this.#offset;
         this.#offset = (offset >= 0) ? offset : 0;
+    }
+
+    setCurrentTime(time) {
+        this.#currentTime = time;
     }
 
     isPlaying() {
@@ -256,5 +258,15 @@ class MultiTrackPlayer extends EventTarget {
 
         const blob = new Blob([view], {type: 'audio/wav'});
         return URL.createObjectURL(blob);
+    }
+
+    #setPositionState(length, position) {
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.setPositionState({
+                duration: length,
+                playbackRate: 1,
+                position: position
+            });
+        }
     }
 }
