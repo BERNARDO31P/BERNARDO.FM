@@ -536,7 +536,7 @@ function addEvents(player) {
         play();
     });
 
-    player.addEventListener("interrupt", () => {
+    player.addEventListener("pause", () => {
         nextPartIndex = partIndex;
     });
 }

@@ -44,7 +44,6 @@ class MultiTrackPlayer extends EventTarget {
                 this.#interrupted = true;
 
                 this.pause();
-                this.dispatchEvent(new Event("interrupt"));
             }
         });
 
@@ -162,6 +161,8 @@ class MultiTrackPlayer extends EventTarget {
         this.#audioSources.forEach((source) => {
             this.#killSource(source);
         });
+
+        this.dispatchEvent(new Event("pause"));
     }
 
     queueTrack(index, startTime = null) {
