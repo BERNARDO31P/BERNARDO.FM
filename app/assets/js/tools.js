@@ -1099,7 +1099,7 @@ function play(diffSong = false, pageLoad = false) {
 
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
-                title: song["name"], artist: song["artist"], artwork: [{src: song["cover"], type: 'image/png'},]
+                title: song["name"], artist: song["artist"], artwork: [{src: song["cover"].toString(), type: 'image/png'},]
             });
 
             navigator.mediaSession.setActionHandler('play', () => play());
