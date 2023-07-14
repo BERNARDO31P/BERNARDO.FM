@@ -6,7 +6,7 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
 
 
 let backgroundProcesses = [];
-let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, downloadTimeout = null, searchTimeout = null, songInterval = null;
+let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, releaseTimeout = null, downloadTimeout = null, searchTimeout = null, songInterval = null;
 let pageURL = window.location.protocol + '//' + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 
@@ -1112,18 +1112,18 @@ function play(diffSong = false, pageLoad = false) {
                 let timeline = document.getElementById("timeline");
                 let value = Number(timeline.value) - 10;
                 timeline.value = value;
-                await onTimelineRelease(value);
+                onTimelineRelease(value);
             });
             navigator.mediaSession.setActionHandler('seekforward', async () => {
                 let timeline = document.getElementById("timeline");
                 let value = Number(timeline.value) + 10;
                 timeline.value = value;
-                await onTimelineRelease(value);
+                onTimelineRelease(value);
             });
             navigator.mediaSession.setActionHandler('seekto', async (details) => {
                 if ('seekTime' in details) {
                     let time = Math.round(details.seekTime);
-                    await onTimelineRelease(time);
+                    onTimelineRelease(time);
                 }
             });
         }

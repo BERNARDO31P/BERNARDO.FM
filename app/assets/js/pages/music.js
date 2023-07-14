@@ -106,7 +106,7 @@ bindEvent("click", "#content .fa-play", function () {
  *
  * Diverse Funktionen welche durch Benutzereingaben ausgelöst werden
  */
-bindEvent("mouseup, touchend", "#timeline", async (e) => await onTimelineRelease(e.target.value));
+bindEvent("mouseup, touchend", "#timeline", (e) => onTimelineRelease(e.target.value));
 bindEvent("click", "#player .fa-step-forward", () => nextSong());
 bindEvent("click", "#player .fa-step-backward", () => previousSong());
 bindEvent("mouseout", ".songCard", function () {
@@ -514,11 +514,12 @@ function addEvents(player) {
             let diffIndex = (playIndex !== nextPlayIndex);
             if (diffIndex || repeatMode !== 0) {
                 playIndex = nextPlayIndex;
-
                 partIndex = 0;
-                nextPartIndex = 0
+                nextPartIndex = 0;
 
                 player.setOffset(0);
+                player.setCurrentTime(0);
+
                 play(diffIndex);
                 return;
             }
@@ -547,8 +548,8 @@ function addEvents(player) {
  * Argumente:
  *  element: (Object) Das Element, welches überprüft werden soll
  *
- * Liesst die Lied ID aus den Objekt-Eigenschaften aus
- * Lädt die Liedinformationen herunter und fügt diese zur Wiedergabenliste hinzu
+ * Liest die ID vom Lied aus den Objekt-Eigenschaften aus
+ * Lädt die Informationen vom Lied herunter und fügt diese zur Wiedergabenliste hinzu
  */
 function addSongToPlaylist(element, id = 0) {
     let songID = id;
@@ -819,7 +820,7 @@ function showControlsCard(card) {
  * Argumente:
  *  card: (Object) Definiert das Objekt welches verlassen wurde
  *
- * Entfernt die Liedoptionen
+ * Entfernt die Lied Optionen
  */
 function removeControlsCard(card) {
     controlsTimeout = setTimeout(function () {
@@ -843,41 +844,45 @@ function removeControlsCard(card) {
  *
  * Die Wiedergabe beginnt
  */
-async function onTimelineRelease(value) {
+function onTimelineRelease(value) {
+    clearTimeout(releaseTimeout);
+
     pauseSong();
     playPauseButton("load");
 
-    let timeInfo = document.getElementById("timeInfo");
-    timeInfo.style.display = "none";
+    releaseTimeout = setTimeout(async () => {
+        let timeInfo = document.getElementById("timeInfo");
+        timeInfo.style.display = "none";
 
-    let songID = playlist[playIndex]["id"];
-    let partInfo = getPartIndexByTime(value);
+        let songID = playlist[playIndex]["id"];
+        let partInfo = getPartIndexByTime(value);
 
-    nextPartIndex = partInfo[2];
-    usedTimeline = true;
+        nextPartIndex = partInfo[2];
+        usedTimeline = true;
 
-    const player = playlist[playIndex]["player"];
+        const player = playlist[playIndex]["player"];
 
-    let nextPartIndexCopy = nextPartIndex;
-    let decoding = false;
-    if (nextPartIndex === null) {
-        nextPartIndex = Object.keys(partlist[songID]).length;
+        let nextPartIndexCopy = nextPartIndex;
+        let decoding = false;
+        if (nextPartIndex === null) {
+            nextPartIndex = Object.keys(partlist[songID]).length;
 
-        nextPartIndexCopy = nextPartIndex;
-        decoding = await downloadPart(Number(value), playIndex, nextPartIndex);
+            nextPartIndexCopy = nextPartIndex;
+            decoding = await downloadPart(Number(value), playIndex, nextPartIndex);
 
-        player.setOffset(0);
-    } else {
-        player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
-    }
+            player.setOffset(0);
+        } else {
+            player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
+        }
 
-    player.setCurrentTime(value);
-    if (player.isPlaying()) return;
+        player.setCurrentTime(value);
+        if (player.isPlaying()) return;
 
-    partIndex = nextPartIndex;
+        partIndex = nextPartIndex;
 
-    if (nextPartIndexCopy !== nextPartIndex || decoding) return;
-    play();
+        if (nextPartIndexCopy !== nextPartIndex || decoding) return;
+        play();
+    }, 100);
 }
 
 /*
