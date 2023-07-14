@@ -535,6 +535,10 @@ function addEvents(player) {
         partIndex = e.detail.index;
         play();
     });
+
+    player.addEventListener("interrupt", () => {
+        nextPartIndex = partIndex;
+    });
 }
 
 /*

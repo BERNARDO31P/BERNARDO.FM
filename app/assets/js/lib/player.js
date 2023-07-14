@@ -3,6 +3,7 @@ class MultiTrackPlayer extends EventTarget {
 
     #audioTag = new Audio();
     #initialPlay = true;
+    #interrupted = false;
 
     #volume = 1;
     #gainNode = null;
@@ -39,8 +40,12 @@ class MultiTrackPlayer extends EventTarget {
         this.#audioTag = new Audio(this.#createSilence(length + 1));
 
         this.#audioTag.addEventListener("pause", () => {
-            if (this.isPlaying() && !this.#initialPlay)
+            if (this.isPlaying() && !this.#initialPlay) {
+                this.#interrupted = true;
+
                 this.pause();
+                this.dispatchEvent(new Event("interrupt"));
+            }
         });
 
         this.#audioTag.addEventListener("play", () => {
@@ -129,6 +134,11 @@ class MultiTrackPlayer extends EventTarget {
 
                     this.#audioTag.currentTime = this.#currentTime;
                     this.#setPositionState(this.getDuration(), this.#currentTime);
+                }
+
+                if (this.#interrupted) {
+                    this.#interrupted = false;
+                    this.#setPositionState(this.getDuration(), this.#audioTag.currentTime);
                 }
 
                 this.#currentTrackIndex = index;
