@@ -773,6 +773,7 @@ a.button {
     .message {
       color: var(--text-color);
       display: block;
+      margin: 0 0 15px 0;
 
       p {
         margin: 0;
@@ -789,7 +790,7 @@ a.button {
     }
 
     .details {
-      transition: 0.3s ease-in-out, padding 0.6s;
+      transition: 0.4s ease-in-out, padding 0.8s;
 
       color: var(--text-color);
 
@@ -800,13 +801,12 @@ a.button {
       box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -5px -5px 7px var(--shadow-light);
       border-radius: 5px;
 
-      margin: 5px 0 0 0;
+      margin: 0;
       padding: 0 20px;
       opacity: 0;
 
       &.show {
         padding: 20px;
-        margin: 20px 0 0 0;
         max-height: 1000px;
 
         opacity: 1;
@@ -816,13 +816,16 @@ a.button {
     .detailsButton {
       transition: 0.3s;
 
-      margin: 10px 0 0 0;
+      margin: 5px 0 0 0;
       padding: 7px;
+
+      height: 35px;
 
       background-color: transparent;
       border: none;
       color: #8eb6ff;
       font-size: 15px;
+
       cursor: pointer;
 
       &:hover {

@@ -8,7 +8,7 @@
   "changelog": [
     {
       "title": "Version 1.1",
-      "message": "After a long and stressful time, I have finally managed to code my own player!<br/> It is still in beta, but it works better than ever before.<br/> I will be adding more features soon.<br/> I hope you enjoy it!",
+      "message": "I've finally managed to code my own player, after a long and stressful time!<br/> Feel free to report any errors. It hasn't been fully tested yet.<br/> I hope you enjoy it!",
       "details": "+Gapless5 player has been replaced by my own player<br/> +Audero-Wav-Extractor has been replaced by my own audio-cut system.<br/> +Audio is now streamed in the WebM format, which is much more efficient.",
       "author": "Bernardo de Oliveira",
       "date": "27. Apr. 2023"
