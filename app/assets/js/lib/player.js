@@ -122,10 +122,9 @@ class MultiTrackPlayer extends EventTarget {
 
             this.#startTimeouts[index] = setTimeout(async () => {
                 this.#executedTask = true;
+                this.#playing = true;
 
                 if (this.#audioTag.paused) {
-                    this.#playing = true;
-
                     await this.#audioTag.play();
 
                     this.#audioTag.currentTime = this.#currentTime;
@@ -146,8 +145,9 @@ class MultiTrackPlayer extends EventTarget {
 
         if (!this.#audioTag.paused) {
             this.#audioTag.pause();
-            this.#playing = false;
         }
+
+        this.#playing = false;
 
         this.#audioSources.forEach((source) => {
             this.#killSource(source);
