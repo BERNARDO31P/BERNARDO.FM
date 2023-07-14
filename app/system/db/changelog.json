@@ -9,7 +9,7 @@
     {
       "title": "Version 1.1",
       "message": "I've finally managed to code my own player, after a long and stressful time!<br/> Feel free to report any errors. It hasn't been fully tested yet.<br/> I hope you enjoy it!",
-      "details": "+Gapless5 player has been replaced by my own player<br/> +Audero-Wav-Extractor has been replaced by my own audio-cut system.<br/> +Audio is now streamed in the WebM format, which is much more efficient.",
+      "details": "+<a href='https://github.com/regosen/Gapless-5'>Gapless5</a> player has been replaced by my own player<br/> +<a href='https://github.com/BERNARDO31P/Audero-Wav-Extractor'>Audero-Wav-Extractor</a> has been replaced by my own audio-cut system.<br/> +Audio is now streamed in the WebM format, which is much more efficient.",
       "author": "Bernardo de Oliveira",
       "date": "Updated: 14. Jul. 2023"
     },
