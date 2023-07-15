@@ -680,7 +680,7 @@ async function downloadPart(time, sIndex, pIndex, till = null, callback = () => 
 
     if (typeof song["player"] === 'undefined') {
         let length = getLengthByString(song["length"]);
-        let player = new MultiTrackPlayer(length, suspendTimeout);
+        let player = new MultiTrackPlayer(length);
 
         addEvents(player);
 
