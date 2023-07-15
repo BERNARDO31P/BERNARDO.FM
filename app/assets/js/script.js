@@ -205,14 +205,13 @@ bindEvent("click", "#player .fa-play", async () => {
     let timeline = document.getElementById("timeline");
     if (timeline.max === timeline.value) {
         let nextIndex = nextSongIndex();
-        let diffIndex = false;
+        let diffIndex = (playIndex !== nextIndex);
         partIndex = 0;
 
         if (typeof playlist[nextIndex] !== 'undefined') {
             if (typeof playlist[nextIndex]["player"] === 'undefined')
                 await downloadPart(0, nextIndex, partIndex);
 
-            diffIndex = (playIndex !== nextIndex);
             playIndex = nextIndex;
         }
 

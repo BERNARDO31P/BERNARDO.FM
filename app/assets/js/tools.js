@@ -1,12 +1,14 @@
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], partlist = {},
+let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [],
+    partlist = {},
     volume = 0, previousVolume = null, repeatMode = 0, touched = null, touchedElement = null,
-    currentButton = null, changedQueue = false;
+    currentButton = null, changedQueue = false, suspendTimeout = () => {};
 
 
 let backgroundProcesses = [];
-let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, releaseTimeout = null, downloadTimeout = null, searchTimeout = null, songInterval = null;
+let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, releaseTimeout = null,
+    downloadTimeout = null, searchTimeout = null, songInterval = null;
 let pageURL = window.location.protocol + '//' + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 
@@ -1097,36 +1099,7 @@ function play(diffSong = false, pageLoad = false) {
 
         if (!document.hidden) updateSongData();
 
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: song["name"], artist: song["artist"], artwork: [{src: song["cover"].toString(), type: 'image/png'},]
-            });
-
-            navigator.mediaSession.setActionHandler('play', () => play());
-            navigator.mediaSession.setActionHandler('pause', () => pauseSong());
-            navigator.mediaSession.setActionHandler('previoustrack', () => previousSong());
-            navigator.mediaSession.setActionHandler('nexttrack', () => nextSong());
-            navigator.mediaSession.setActionHandler('stop', () => pauseSong());
-
-            navigator.mediaSession.setActionHandler('seekbackward', async () => {
-                let timeline = document.getElementById("timeline");
-                let value = Number(timeline.value) - 10;
-                timeline.value = value;
-                onTimelineRelease(value);
-            });
-            navigator.mediaSession.setActionHandler('seekforward', async () => {
-                let timeline = document.getElementById("timeline");
-                let value = Number(timeline.value) + 10;
-                timeline.value = value;
-                onTimelineRelease(value);
-            });
-            navigator.mediaSession.setActionHandler('seekto', async (details) => {
-                if ('seekTime' in details) {
-                    let time = Math.round(details.seekTime);
-                    onTimelineRelease(time);
-                }
-            });
-        }
+        player.setMetadata(song["name"], song["artist"], song["cover"]);
     }
 
     if (!player.isPlaying()) {
@@ -1247,7 +1220,8 @@ function playPauseButton(option = "pause") {
  */
 function clearSongs() {
     for (let index of Object.keys(playlist)) {
-        if (typeof playlist[index]["player"] !== 'undefined') playlist[index]["player"].pause();
+        if (typeof playlist[index]["player"] !== 'undefined')
+            playlist[index]["player"].clear();
     }
 
     playIndex = 0;

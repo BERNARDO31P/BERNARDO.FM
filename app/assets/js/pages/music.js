@@ -96,6 +96,34 @@ bindEvent("click", "#content .fa-play", function () {
     playPauseButton("load");
 
     downloadPart(0, playIndex, partIndex).then(() => {
+        let player = playlist[playIndex]["player"];
+
+        player.setActionHandlers({
+            "play": () => play(),
+            "pause": () => pauseSong(),
+            "previoustrack": () => previousSong(),
+            "nexttrack": () => nextSong(),
+            "stop": () => pauseSong(),
+            "seekbackward": () => {
+                let timeline = document.getElementById("timeline");
+                let value = Number(timeline.value) - 10;
+                timeline.value = value;
+                onTimelineRelease(value);
+            },
+            "seekforward": () => {
+                let timeline = document.getElementById("timeline");
+                let value = Number(timeline.value) + 10;
+                timeline.value = value;
+                onTimelineRelease(value);
+            },
+            "seekto": (details) => {
+                if ('seekTime' in details) {
+                    let time = Math.round(details.seekTime);
+                    onTimelineRelease(time);
+                }
+            }
+        });
+
         play(true);
     });
 });
@@ -652,7 +680,7 @@ async function downloadPart(time, sIndex, pIndex, till = null, callback = () => 
 
     if (typeof song["player"] === 'undefined') {
         let length = getLengthByString(song["length"]);
-        let player = new MultiTrackPlayer(length);
+        let player = new MultiTrackPlayer(length, suspendTimeout);
 
         addEvents(player);
 
@@ -870,14 +898,14 @@ function onTimelineRelease(value) {
             nextPartIndexCopy = nextPartIndex;
             decoding = await downloadPart(Number(value), playIndex, nextPartIndex);
 
+            if (player.isPlaying()) return;
             player.setOffset(0);
         } else {
+            if (player.isPlaying()) return;
             player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
         }
 
         player.setCurrentTime(value);
-        if (player.isPlaying()) return;
-
         partIndex = nextPartIndex;
 
         if (nextPartIndexCopy !== nextPartIndex || decoding) return;

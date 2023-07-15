@@ -55,31 +55,6 @@ class MultiTrackPlayer extends EventTarget {
         document.body.append(this.#audioTag);
     }
 
-    async #processDecodeQueue() {
-        if (this.#decodingQueue.length) {
-            this.#isDecoding = true;
-            const url = this.#decodingQueue.pop();
-            const bufferIndex = this.#urls.indexOf(url);
-            const response = await fetch(url);
-            const arrayBuffer = await response.arrayBuffer();
-            this.#audioBuffers[bufferIndex] = await audioContext.decodeAudioData(arrayBuffer);
-
-            if (typeof this.#decodingCallbacks[bufferIndex] === "function") {
-                this.#decodingCallbacks[bufferIndex]();
-                delete this.#decodingCallbacks[bufferIndex];
-            }
-
-            if (bufferIndex === this.#waitIndex && !this.#playing) {
-                let processedEvent = new CustomEvent("processed", {detail: {index: this.#waitIndex}});
-                this.dispatchEvent(processedEvent);
-                this.#waitIndex = -1;
-            }
-
-            await this.#processDecodeQueue();
-        }
-        this.#isDecoding = false;
-    }
-
     async addTrack(url, callback) {
         let index = this.#urls.push(url) - 1;
         this.#audioBuffers[index] = null
@@ -162,7 +137,9 @@ class MultiTrackPlayer extends EventTarget {
             this.#killSource(source);
         });
 
-        this.dispatchEvent(new Event("pause"));
+        audioContext.suspend().finally(() => {
+            this.dispatchEvent(new Event("pause"));
+        });
     }
 
     queueTrack(index, startTime = null) {
@@ -216,6 +193,56 @@ class MultiTrackPlayer extends EventTarget {
 
     getDuration() {
         return this.#audioTag.duration;
+    }
+
+    setMetadata(title, artist, cover) {
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: title, artist: artist, artwork: [{src: cover, type: 'image/png'},]
+            });
+
+        }
+    }
+
+    setActionHandlers(data) {
+        if ('mediaSession' in navigator) {
+            for (const [action, handler] of Object.entries(data)) {
+                navigator.mediaSession.setActionHandler(action, handler);
+            }
+        }
+    }
+
+    clear() {
+        this.pause();
+
+        this.#audioBuffers = [];
+        this.#audioSources = [];
+        this.#urls = [];
+    }
+
+    async #processDecodeQueue() {
+        if (this.#decodingQueue.length) {
+            this.#isDecoding = true;
+            const url = this.#decodingQueue.pop();
+            const bufferIndex = this.#urls.indexOf(url);
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            this.#audioBuffers[bufferIndex] = await audioContext.decodeAudioData(arrayBuffer);
+
+            if (typeof this.#decodingCallbacks[bufferIndex] === "function") {
+                this.#decodingCallbacks[bufferIndex]();
+                delete this.#decodingCallbacks[bufferIndex];
+            }
+
+            if (bufferIndex === this.#waitIndex && !this.#playing) {
+                let processedEvent = new CustomEvent("processed", {detail: {index: this.#waitIndex}});
+                this.dispatchEvent(processedEvent);
+                this.#waitIndex = -1;
+            }
+
+            await this.#processDecodeQueue();
+        }
+        this.#isDecoding = false;
     }
 
     #clearTimeouts() {
