@@ -1320,9 +1320,14 @@ function generatePlaylistInfo(song) {
 
     const data = tryParseJSON(httpGet(pageURL + "system/songs/" + song["playlist"].slice(0, 4).join(",")));
 
-    for (let i = 0; i < data.length; i++) {
-        info["cover"].innerHTML += "<img src='" + data[i]["cover"] + "' alt='Cover'/>";
+    if (!song["cover"]) {
+        for (let i = 0; i < data.length; i++)
+            info["cover"].innerHTML += "<img src='" + data[i]["cover"] + "' alt='Cover'/>";
+    } else {
+        info["cover"].innerHTML += "<img src='system/img/" + song["cover"] + "' alt='Cover'/>";
+    }
 
+    for (let i = 0; i < data.length; i++) {
         if (info["artists"].includes(data[i]["artist"])) continue;
         info["artists"] += data[i]["artist"] + ", ";
     }
