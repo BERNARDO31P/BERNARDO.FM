@@ -18,14 +18,8 @@ window.addEventListener("scroll", () => {
 });
 
 document.addEventListener("visibilitychange", function () {
-    const minimized = document.hidden;
-
-    if (minimized) {
-        clearInterval(secondsInterval);
-        clearInterval(songInterval);
-
-        secondsInterval = null;
-        songInterval = null;
+    if (document.hidden) {
+        clearIntervals();
     } else {
         if (typeof playlist[playIndex] !== 'undefined' && typeof playlist[playIndex]["player"] !== 'undefined') {
             updateSongData();

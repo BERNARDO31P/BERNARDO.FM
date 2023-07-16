@@ -70,14 +70,14 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     async initialize() {
-        if (this.#audioTag.paused) {
-            this.#initialPlay = true;
+        this.#initialPlay = true;
+        this.#playing = true;
 
+        if (this.#audioTag.paused)
             await this.#audioTag.play();
 
-            this.#audioTag.currentTime = this.#currentTime;
-            this.#setPositionState(this.getDuration(), this.#currentTime);
-        }
+        this.#audioTag.currentTime = this.#currentTime;
+        this.#setPositionState(this.getDuration(), this.#currentTime);
     }
 
     playNext(index = 0, startTime = 0) {
@@ -115,7 +115,6 @@ class MultiTrackPlayer extends EventTarget {
 
             this.#startTimeouts[index] = setTimeout(async () => {
                 this.#executedTask = true;
-                this.#playing = true;
 
                 if (this.#interrupted) {
                     this.#interrupted = false;
@@ -131,14 +130,14 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     pause() {
-        this.#clearTimeouts();
-        this.setOffset(this.getCurrentPartTime());
+        this.#playing = false;
 
         if (!this.#audioTag.paused) {
             this.#audioTag.pause();
         }
 
-        this.#playing = false;
+        this.#clearTimeouts();
+        this.setOffset(this.getCurrentPartTime());
 
         this.#audioSources.forEach((source) => {
             this.#killSource(source);
@@ -169,7 +168,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     getCurrentPartTime() {
-        return audioContext.currentTime - this.#startTime + this.#currentOffset;
+        return (!this.#initialPlay) ? this.getStartTime() + this.#currentOffset : 0;
     }
 
     getPartLength(partIndex) {
@@ -178,6 +177,10 @@ class MultiTrackPlayer extends EventTarget {
             return this.#audioBuffers[partIndex].duration;
         }
         return 0;
+    }
+
+    getCurrentTime() {
+        return this.#audioTag.currentTime;
     }
 
     setVolume(volume) {
@@ -242,16 +245,7 @@ class MultiTrackPlayer extends EventTarget {
             const response = await fetch(url);
             const arrayBuffer = await response.arrayBuffer();
 
-            try {
-                this.#audioBuffers[bufferIndex] = await audioContext.decodeAudioData(arrayBuffer);
-            } catch (e) {
-                this.#urls.splice(bufferIndex, 1);
-
-                delete this.#audioBuffers[bufferIndex];
-                delete this.#decodingCallbacks[bufferIndex];
-
-                return;
-            }
+            this.#audioBuffers[bufferIndex] = await audioContext.decodeAudioData(arrayBuffer);
 
             if (typeof this.#decodingCallbacks[bufferIndex] === "function") {
                 this.#decodingCallbacks[bufferIndex]();

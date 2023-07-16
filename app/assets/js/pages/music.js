@@ -4,7 +4,6 @@ setPositionState(0, 0);
 
 let count = 0,
     resizeTimeout = null,
-    errorTimeout = null,
     width = getWidth(),
     error = false,
     hadError = false,
@@ -83,15 +82,6 @@ bindEvent("click", "#content .listAdd", function () {
 bindEvent("click", "#content .fa-play", function () {
     clearSongs();
 
-    clearInterval(songInterval);
-    clearInterval(secondsInterval);
-    secondsInterval = null;
-
-    clearTimeout(errorTimeout);
-    clearTimeout(downloadTimeout);
-    clearTimeout(timelineTimeout);
-    clearTimeout(sliderTimeout);
-
     addSongToPlaylist(this);
     playPauseButton("load");
 
@@ -105,16 +95,20 @@ bindEvent("click", "#content .fa-play", function () {
             "nexttrack": () => nextSong(),
             "stop": () => pauseSong(),
             "seekbackward": () => {
-                let timeline = document.getElementById("timeline");
-                let value = Number(timeline.value) - 10;
-                timeline.value = value;
-                onTimelineRelease(value);
+                seekValue -= 10;
+
+                let currentTime = playlist[playIndex]["player"].getCurrentTime();
+                let seekTime = Math.round(currentTime) + seekValue;
+
+                onTimelineRelease(seekTime);
             },
             "seekforward": () => {
-                let timeline = document.getElementById("timeline");
-                let value = Number(timeline.value) + 10;
-                timeline.value = value;
-                onTimelineRelease(value);
+                seekValue += 10;
+
+                let currentTime = playlist[playIndex]["player"].getCurrentTime();
+                let seekTime = Math.round(currentTime) + seekValue;
+
+                onTimelineRelease(seekTime);
             },
             "seekto": (details) => {
                 if ('seekTime' in details) {

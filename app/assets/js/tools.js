@@ -7,10 +7,11 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
 
 
 let backgroundProcesses = [];
-let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, secondsTimeout = null, timelineTimeout = null, releaseTimeout = null,
-    downloadTimeout = null, searchTimeout = null, songInterval = null;
+let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, releaseTimeouts = [],
+    searchTimeout = null, songInterval = null;
 let pageURL = window.location.protocol + '//' + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
+let seekValue = 0;
 
 let clickEvent = new Event('click', {
     bubbles: true,
@@ -1083,10 +1084,8 @@ function updateSongData() {
  * Funktion: play()
  * Autor: Bernardo de Oliveira
  *
- * Fügt die neuen Liedinformationen in den Player und in die MediaSession API ein
+ * Fügt die neuen Informationen vom Lied in den Player ein und in die MediaSession API ein
  * Beginnt die Wiedergabe
- *
- * Startet eine Schleife, welche jede Sekunde den Fortschritt des Liedes abruft und ins Tooltip speichert
  */
 function play(diffSong = false, pageLoad = false) {
     let player = playlist[playIndex]["player"];
@@ -1103,27 +1102,27 @@ function play(diffSong = false, pageLoad = false) {
     }
 
     if (!player.isPlaying()) {
-        let animation = document.getElementsByClassName("lds-facebook")[0];
-        if (animation) {
-            let divs = animation.querySelectorAll("div");
-            for (let div of divs) {
-                if (div.style.animationPlayState === "paused") {
-                    div.style.animationPlayState = "running";
-                }
-            }
-        }
-
         player.initialize().then(() => {
             player.playNext(partIndex);
 
             if (!document.hidden) {
+                let animation = document.getElementsByClassName("lds-facebook")[0];
+                if (animation) {
+                    let divs = animation.querySelectorAll("div");
+                    for (let div of divs) {
+                        if (div.style.animationPlayState === "paused") {
+                            div.style.animationPlayState = "running";
+                        }
+                    }
+                }
+
                 updateURL();
                 updateTimeline();
-            }
 
-            if (pageLoad) {
-                let angleUp = document.getElementsByClassName("fa-angle-up")[0];
-                angleUp.dispatchEvent(clickEvent);
+                if (pageLoad) {
+                    let angleUp = document.getElementsByClassName("fa-angle-up")[0];
+                    angleUp.dispatchEvent(clickEvent);
+                }
             }
         });
     }
@@ -1134,16 +1133,17 @@ function updateTimeline() {
     let player = song["player"];
 
     if (!secondsInterval) {
-        secondsTimeout = setTimeout(() => {
-            secondsInterval = setInterval(() => {
-                let timeline = document.getElementById("timeline");
-                let currentPosition = player.getCurrentPartTime();
+        secondsInterval = setInterval(() => {
+            if (!player.isPlaying())
+                clearInterval(secondsInterval);
 
-                if (currentPosition) {
-                    timeline.value = currentPosition + partlist[song["id"]][partIndex]["from"];
-                }
-            }, 500);
-        }, 250);
+            let timeline = document.getElementById("timeline");
+            let currentPosition = player.getCurrentPartTime();
+
+            if (currentPosition) {
+                timeline.value = currentPosition + partlist[song["id"]][partIndex]["from"];
+            }
+        }, 500);
     }
 }
 
@@ -1151,7 +1151,7 @@ function updateTimeline() {
  * Funktion: nextSongIndex()
  * Autor: Bernardo de Oliveira
  *
- * Holt sich die Array ID des nächsten Liedes
+ * Holt sich die Array-ID des nächsten Liedes
  */
 function nextSongIndex() {
     let nextIndex = Number(playIndex) + 1;
@@ -1172,7 +1172,7 @@ function nextSongIndex() {
  * Funktion: previousSongIndex()
  * Autor: Bernardo de Oliveira
  *
- * Holt sich die Array ID des vorherigen Liedes
+ * Holt sich die Array-ID des vorherigen Liedes
  */
 function previousSongIndex() {
     let previousIndex = Number(playIndex) - 1;
@@ -1227,6 +1227,8 @@ function clearSongs() {
             playlist[index]["player"].clear();
     }
 
+    clearIntervals();
+
     playIndex = 0;
     partIndex = 0;
     nextPlayIndex = 0;
@@ -1252,20 +1254,21 @@ function clearIntervals() {
 function pauseSong() {
     playPauseButton("pause");
 
+    nextPartIndex = partIndex;
+
     const player = playlist[playIndex]["player"];
     if (player.isPlaying()) player.pause();
 
-    nextPartIndex = partIndex;
-
-    clearTimeout(secondsTimeout);
     clearIntervals();
 
-    let animation = document.getElementsByClassName("lds-facebook")[0];
-    if (animation) {
-        let divs = animation.querySelectorAll("div");
-        for (let div of divs) {
-            if (div.style.animationPlayState === "running") {
-                div.style.animationPlayState = "paused";
+    if (!document.hidden) {
+        let animation = document.getElementsByClassName("lds-facebook")[0];
+        if (animation) {
+            let divs = animation.querySelectorAll("div");
+            for (let div of divs) {
+                if (div.style.animationPlayState === "running") {
+                    div.style.animationPlayState = "paused";
+                }
             }
         }
     }
@@ -1286,6 +1289,20 @@ function onTimelinePress() {
 }
 
 /*
+ * Funktion: clearTimeouts()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  timeouts: (Array) Definiert die Timeouts, welche gestoppt werden sollen
+ *
+ * Löscht alle Timeouts
+ */
+function clearTimeouts(timeouts) {
+    for (let timeout of timeouts) {
+        clearTimeout(timeout);
+    }
+}
+
+/*
  * Funktion: onTimelineRelease()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -1299,44 +1316,50 @@ function onTimelinePress() {
  * Die Wiedergabe beginnt
  */
 function onTimelineRelease(value) {
-    clearTimeout(releaseTimeout);
+    clearTimeouts(releaseTimeouts);
+    releaseTimeouts = [];
 
     pauseSong();
     playPauseButton("load");
 
-    releaseTimeout = setTimeout(async () => {
-        let timeInfo = document.getElementById("timeInfo");
-        timeInfo.style.display = "none";
+    releaseTimeouts.push(
+        setTimeout(async () => {
+            if (!document.hidden) {
+                let timeInfo = document.getElementById("timeInfo");
+                timeInfo.style.display = "none";
+            }
 
-        let songID = playlist[playIndex]["id"];
-        let partInfo = getPartIndexByTime(value);
+            let songID = playlist[playIndex]["id"];
+            let partInfo = getPartIndexByTime(value);
 
-        nextPartIndex = partInfo[2];
-        usedTimeline = true;
+            seekValue = 0;
+            nextPartIndex = partInfo[2];
+            usedTimeline = true;
 
-        const player = playlist[playIndex]["player"];
+            const player = playlist[playIndex]["player"];
 
-        let nextPartIndexCopy = nextPartIndex;
-        let decoding = false;
-        if (nextPartIndex === null) {
-            nextPartIndex = Object.keys(partlist[songID]).length;
+            let nextPartIndexCopy = nextPartIndex;
+            let decoding = false;
+            if (nextPartIndex === null) {
+                nextPartIndex = Object.keys(partlist[songID]).length;
 
-            nextPartIndexCopy = nextPartIndex;
-            decoding = await downloadPart(Number(value), playIndex, nextPartIndex);
+                nextPartIndexCopy = nextPartIndex;
+                decoding = await downloadPart(Number(value), playIndex, nextPartIndex);
 
-            if (player.isPlaying()) return;
-            player.setOffset(0);
-        } else {
-            if (player.isPlaying()) return;
-            player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
-        }
+                if (player.isPlaying()) return;
+                player.setOffset(0);
+            } else {
+                if (player.isPlaying()) return;
+                player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
+            }
 
-        player.setCurrentTime(value);
-        partIndex = nextPartIndex;
+            player.setCurrentTime(value);
+            partIndex = nextPartIndex;
 
-        if (nextPartIndexCopy !== nextPartIndex || decoding) return;
-        play();
-    }, 100);
+            if (nextPartIndexCopy !== nextPartIndex || decoding) return;
+            play();
+        }, 100)
+    );
 }
 
 /*
@@ -1556,6 +1579,7 @@ function addEvents(player) {
                 await trackEvent(true);
             }
         }
+
         await trackEvent();
     });
 
