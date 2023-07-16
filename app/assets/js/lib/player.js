@@ -36,6 +36,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#gainNode.gain.value = this.#volume;
 
         this.#audioTag = new Audio(this.#createSilence(length + 1));
+        this.#audioTag.controls = true;
 
         this.#audioTag.addEventListener("pause", () => {
             if (this.isPlaying() && !this.#initialPlay) {
@@ -66,6 +67,15 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         return this.#isDecoding;
+    }
+
+    async initialize() {
+        if (this.#audioTag.paused) {
+            await this.#audioTag.play();
+
+            this.#audioTag.currentTime = this.#currentTime;
+            this.#setPositionState(this.getDuration(), this.#currentTime);
+        }
     }
 
     playNext(index = 0, startTime = 0) {
@@ -100,13 +110,6 @@ class MultiTrackPlayer extends EventTarget {
             this.#startTimeouts[index] = setTimeout(async () => {
                 this.#executedTask = true;
                 this.#playing = true;
-
-                if (this.#audioTag.paused) {
-                    await this.#audioTag.play();
-
-                    this.#audioTag.currentTime = this.#currentTime;
-                    this.#setPositionState(this.getDuration(), this.#currentTime);
-                }
 
                 if (this.#interrupted) {
                     this.#interrupted = false;
@@ -196,7 +199,14 @@ class MultiTrackPlayer extends EventTarget {
     setMetadata(title, artist, cover) {
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
-                title: title, artist: artist, artwork: [{src: cover, type: 'image/png'},]
+                title: title, artist: artist, artwork: [
+                    {src: cover + "size=96", type: "image/png", sizes: "96x96"},
+                    {src: cover + "size=128", type: "image/png", sizes: "128x128"},
+                    {src: cover + "size=192", type: "image/png", sizes: "192x192"},
+                    {src: cover + "size=256", type: "image/png", sizes: "256x256"},
+                    {src: cover + "size=384", type: "image/png", sizes: "384x384"},
+                    {src: cover + "size=512", type: "image/png", sizes: "512x512"},
+                ]
             });
 
         }

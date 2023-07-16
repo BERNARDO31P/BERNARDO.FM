@@ -6,6 +6,14 @@ include_once __DIR__ . "/vendor/autoload.php";
 ini_set("memory_limit", "256M");
 session_start();
 
+$queryString = explode("?", $_SERVER["REQUEST_URI"])[1];
+$parameters = explode("&", $queryString);
+
+foreach ($parameters as $parameter) {
+    $parameter = explode("=", $parameter);
+    $_GET[$parameter[0]] = $parameter[1];
+}
+
 /*
  * Funktion: loadDatabase()
  * Autor: Bernardo de Oliveira
@@ -785,14 +793,23 @@ $router->get("/changelog", function () {
 $router->get("/img/(.*)", function ($image) {
 	$imageUrl = __DIR__ . "/img/" . $image;
 
-	if (file_exists($imageUrl)) {
-		$contentType = mime_content_type($imageUrl);
+    if (isset($_GET["size"]) && file_exists($imageUrl)) {
+        $length = intval($_GET["size"]);
 
-		header("Content-Type: " . $contentType);
+        if ($length < 64 || $length > 1024) {
+            header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
+            exit("Forbidden");
+        }
 
-		echo file_get_contents($imageUrl);
+        $imagick = new Imagick();
+        $imagick->readImage($imageUrl);
+        $imagick->scaleImage($length, $length);
+
+        header("Content-Type: image/" . $imagick->getImageFormat());
+        echo $imagick;
 	} else {
-		echo "";
+        header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
+        exit("Forbidden");
 	}
 });
 

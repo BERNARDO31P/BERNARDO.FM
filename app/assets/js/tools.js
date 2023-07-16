@@ -1053,7 +1053,9 @@ function updateSongData() {
     let queueView = document.getElementById("queueView");
     let cover = queueView.querySelector("#playingCover").querySelector("img");
 
-    cover.src = String(song["cover"]);
+    let size = Math.round(window.innerWidth / 100 * 80);
+    size = (size < 1024) ? size : 1024
+    cover.src = String(song["cover"] + "?size=" + size);
     songLength.textContent = song["length"];
 
     let playerHTML = document.getElementById("player");
@@ -1113,7 +1115,7 @@ function play(diffSong = false, pageLoad = false) {
             }
         }
 
-        player.playNext(partIndex);
+        player.initialize().then(() => player.playNext(partIndex));
 
         if (!document.hidden) {
             updateURL();
@@ -1322,9 +1324,9 @@ function generatePlaylistInfo(song) {
 
     if (!song["cover"]) {
         for (let i = 0; i < data.length; i++)
-            info["cover"].innerHTML += "<img src='" + data[i]["cover"] + "' alt='Cover'/>";
+            info["cover"].innerHTML += "<img src='" + data[i]["cover"] + "?size=80' alt='Cover'/>";
     } else {
-        info["cover"].innerHTML += "<img src='system/img/" + song["cover"] + "' alt='Cover'/>";
+        info["cover"].innerHTML += "<img src='system/img/" + song["cover"] + "?size=200' alt='Cover'/>";
     }
 
     for (let i = 0; i < data.length; i++) {
@@ -1440,7 +1442,7 @@ function generateTableBody(data, columns, tbody = null, cover = null) {
                 const img = document.createElement('img');
 
                 img.alt = row.title;
-                img.src = row.cover;
+                img.src = row.cover + "?size=64";
 
                 td.appendChild(img);
                 tr.appendChild(td);

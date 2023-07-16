@@ -701,6 +701,16 @@ a.button {
     .cover {
       max-width: 35px;
 
+      img:only-of-type {
+        width: 35px;
+        height: 35px;
+
+        max-width: 35px;
+        max-height: 35px;
+
+        border-radius: 5px;
+      }
+
       img {
         max-width: 17.5px;
         max-height: 17.5px;

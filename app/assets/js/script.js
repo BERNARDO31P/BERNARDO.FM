@@ -17,7 +17,7 @@ window.addEventListener("scroll", () => {
     if (menu.classList.contains("show")) menu.classList.remove("show");
 });
 
-document.addEventListener("visibilitychange", function() {
+document.addEventListener("visibilitychange", function () {
     const minimized = document.hidden;
 
     if (minimized) {
@@ -76,6 +76,7 @@ if ('orientation' in screen) {
  */
 function loadPage() {
     location.href = setGetParameter(location.href, "page", page);
+    window.scrollTo({top: 0, left: 0, behavior: "smooth"});
 
     let content = document.querySelector("#content"), title = document.querySelector("title");
     let data = htmlToElement(httpGet("./pages/" + page + ".html"));
@@ -257,7 +258,8 @@ bindEvent("mouseup, touchend", "[data-title]", function (e) {
  * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
  */
 bindEvent("mouseover", "#queueView tr[data-id]", mouseover);
-function mouseover (e, element) {
+
+function mouseover(e, element) {
     element = (element) ? element : this;
 
     let controls = element.querySelector(".controlsQueue");
@@ -304,6 +306,10 @@ bindEvent("click", "#queueView .fa-play", async function () {
 
     if (typeof playlist[playIndex]["player"] === 'undefined')
         await downloadPart(0, playIndex, partIndex);
+
+    let player = playlist[playIndex]["player"];
+    player.setOffset(0);
+    player.setCurrentTime(0);
 
     play(true);
 });
