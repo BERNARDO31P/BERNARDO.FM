@@ -7,7 +7,7 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
 
 
 let backgroundProcesses = [];
-let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, timelineTimeout = null, releaseTimeout = null,
+let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, secondsTimeout = null, timelineTimeout = null, releaseTimeout = null,
     downloadTimeout = null, searchTimeout = null, songInterval = null;
 let pageURL = window.location.protocol + '//' + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
@@ -49,6 +49,8 @@ HTMLElement.prototype.clearChildren = function () {
 document.onkeydown = function (e) {
     let keys = ["K", "Space", "M", "ArrowLeft", "ArrowRight", "J", "L", "R", "S", "ArrowUp", "ArrowDown"];
     let key = e.code.replace("Key", "");
+
+    console.log("event");
 
     if (!(document.activeElement instanceof HTMLInputElement)) {
         if (keys.includes(key)) {
@@ -1113,19 +1115,20 @@ function play(diffSong = false, pageLoad = false) {
             }
         }
 
-        player.initialize().then(() => player.playNext(partIndex));
+        player.initialize().then(() => {
+            player.playNext(partIndex);
 
-        if (!document.hidden) {
-            updateURL();
-            updateTimeline();
-        }
+            if (!document.hidden) {
+                updateURL();
+                updateTimeline();
+            }
+
+            if (pageLoad) {
+                let angleUp = document.getElementsByClassName("fa-angle-up")[0];
+                angleUp.dispatchEvent(clickEvent);
+            }
+        });
     }
-
-    if (pageLoad) {
-        let angleUp = document.getElementsByClassName("fa-angle-up")[0];
-        angleUp.dispatchEvent(clickEvent);
-    }
-
 }
 
 function updateTimeline() {
@@ -1133,14 +1136,16 @@ function updateTimeline() {
     let player = song["player"];
 
     if (!secondsInterval) {
-        secondsInterval = setInterval(() => {
-            let timeline = document.getElementById("timeline");
-            let currentPosition = player.getCurrentPartTime();
+        secondsTimeout = setTimeout(() => {
+            secondsInterval = setInterval(() => {
+                let timeline = document.getElementById("timeline");
+                let currentPosition = player.getCurrentPartTime();
 
-            if (currentPosition) {
-                timeline.value = currentPosition + partlist[song["id"]][partIndex]["from"];
-            }
-        }, 500);
+                if (currentPosition) {
+                    timeline.value = currentPosition + partlist[song["id"]][partIndex]["from"];
+                }
+            }, 500);
+        }, 250);
     }
 }
 
@@ -1252,6 +1257,9 @@ function pauseSong() {
     const player = playlist[playIndex]["player"];
     if (player.isPlaying()) player.pause();
 
+    nextPartIndex = partIndex;
+
+    clearTimeout(secondsTimeout);
     clearIntervals();
 
     let animation = document.getElementsByClassName("lds-facebook")[0];
@@ -1278,6 +1286,291 @@ function onTimelinePress() {
 
     clearIntervals();
 }
+
+/*
+ * Funktion: onTimelineRelease()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  value: (Integer) Definiert die Zeit, zu welcher gesprungen wurde
+ *
+ * Berechnet den Part, welcher die Zeit beinhaltet
+ * Falls kein Part verfügbar ist, wird dieser heruntergeladen
+ *
+ * Falls verfügbar, wird die Position in diesem Part berechnet und gesetzt
+ *
+ * Die Wiedergabe beginnt
+ */
+function onTimelineRelease(value) {
+    clearTimeout(releaseTimeout);
+
+    pauseSong();
+    playPauseButton("load");
+
+    releaseTimeout = setTimeout(async () => {
+        let timeInfo = document.getElementById("timeInfo");
+        timeInfo.style.display = "none";
+
+        let songID = playlist[playIndex]["id"];
+        let partInfo = getPartIndexByTime(value);
+
+        nextPartIndex = partInfo[2];
+        usedTimeline = true;
+
+        const player = playlist[playIndex]["player"];
+
+        let nextPartIndexCopy = nextPartIndex;
+        let decoding = false;
+        if (nextPartIndex === null) {
+            nextPartIndex = Object.keys(partlist[songID]).length;
+
+            nextPartIndexCopy = nextPartIndex;
+            decoding = await downloadPart(Number(value), playIndex, nextPartIndex);
+
+            if (player.isPlaying()) return;
+            player.setOffset(0);
+        } else {
+            if (player.isPlaying()) return;
+            player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
+        }
+
+        player.setCurrentTime(value);
+        partIndex = nextPartIndex;
+
+        if (nextPartIndexCopy !== nextPartIndex || decoding) return;
+        play();
+    }, 100);
+}
+
+/*
+ * Funktion: nextSong()
+ * Autor: Bernardo de Oliveira
+ *
+ * Überprüft, ob der nächste Index in der Playlist verfügbar ist
+ * Die Wiedergabe wird gestartet
+ */
+async function nextSong() {
+    pauseSong();
+    playPauseButton("load");
+
+    let nextIndex = nextSongIndex();
+    if (typeof playlist[nextIndex] !== 'undefined') {
+        let diffIndex = (playIndex !== nextIndex);
+        let song = playlist[nextIndex];
+
+        playIndex = nextIndex;
+        partIndex = 0;
+        nextPartIndex = 0;
+        if (typeof song["player"] === 'undefined') {
+            partlist[nextIndex] = {};
+            await downloadPart(0, playIndex, partIndex);
+        }
+
+        song["player"].setOffset(0);
+        song["player"].setCurrentTime(0);
+
+        play(diffIndex);
+    }
+}
+
+/*
+ * Funktion: previousSong()
+ * Autor: Bernardo de Oliveira
+ *
+ * Überprüft, ob der vorherige Index in der Playlist verfügbar ist
+ * Die Wiedergabe wird gestartet
+ */
+async function previousSong(bypass = false) {
+    if (!bypass) pauseSong();
+    playPauseButton("load");
+
+
+    let previousIndex = previousSongIndex();
+    if (typeof playlist[previousIndex] !== 'undefined') {
+        let diffIndex = (playIndex !== previousIndex);
+        let song = playlist[previousIndex];
+
+        playIndex = previousIndex;
+        partIndex = 0;
+        nextPartIndex = 0;
+        if (typeof song["player"] === 'undefined') {
+            partlist[previousIndex] = {};
+            await downloadPart(0, playIndex, partIndex);
+        }
+
+
+        song["player"].setOffset(0);
+        song["player"].setCurrentTime(0);
+
+        play(bypass || diffIndex);
+    }
+}
+
+/*
+ * Funktion: prepareNextPart()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  callback: (Function) Definiert eine Funktion welche anschliessen ausgeführt wird
+ *
+ * Überprüft, ob es einen nächsten Teil gibt
+ * Sonst lädt es den ersten Teil des nächsten Liedes
+ *
+ * Falls weitere Teile verfügbar sind
+ * Wird überprüft, ob diese bereits heruntergeladen wurden
+ *
+ * Falls nicht, wird überprüft, ob irgendwo später im Lied bereits Teile heruntergeladen wurden
+ * Falls nicht, wird einfach der nächste Teil heruntergeladen
+ *
+ * Falls die länge zum nächsten Teil unter der Länge des jetzigen Teils ist, wird dieser heruntergeladen
+ * Beispiel:
+ *  - Teil 60 - 70 Sekunden wurde heruntergeladen
+ *  - Teil 75 - 85 Sekunden wurde heruntergeladen
+ *  - Jetzt fehlt ein 5 Sekunden langer Teil, dieser wird heruntergeladen (anstatt 10 Sekunden)
+ */
+async function prepareNextPart() {
+    let songEnded = false, nextSong = false, nextSongID = null;
+    let timeline = document.getElementById("timeline"), nextTime;
+    let songID = playlist[playIndex]["id"];
+
+    nextTime = Math.round(partlist[songID][partIndex]["till"]);
+
+    if (!(Number(timeline.max) - nextTime > 1)) {
+        songEnded = true;
+        nextPlayIndex = nextSongIndex();
+
+        if (typeof playlist[nextPlayIndex] !== 'undefined') {
+            nextSong = true;
+            nextSongID = playlist[nextPlayIndex]["id"];
+            nextPartIndex = 0;
+            nextTime = 0;
+        }
+    }
+
+    if (!nextSong && !songEnded) {
+        nextPlayIndex = playIndex;
+
+        let partInfo = getPartIndexByStartTime(nextTime);
+        if (partInfo[2]) {
+            nextPartIndex = partInfo[2];
+            playlist[nextPlayIndex]["player"].queueTrack(nextPartIndex);
+        } else {
+            nextPartIndex = Object.keys(partlist[songID]).length;
+
+            let missingLength = findMissingLengthByCurrentPart();
+            await downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength);
+
+            if (playIndex === nextPlayIndex && playlist[nextPlayIndex]["player"].isPlaying()) {
+                playlist[nextPlayIndex]["player"].queueTrack(nextPartIndex);
+            }
+        }
+    } else if (typeof partlist[nextSongID] === 'undefined' && typeof playlist[nextPlayIndex] !== 'undefined') {
+        await downloadPart(0, nextPlayIndex, nextPartIndex);
+    }
+}
+
+/*
+ * Funktion: downloadPart()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  time: (Integer) Definiert die Zeit, ab wann der nächste Teil beginnt
+ *  sIndex: (Integer) Definiert den Index des Songs (auch playIndex)
+ *  pIndex: (Integer) Definiert den Index des Teils (auch partIndex)
+ *  till: (Integer) Definiert die Zeit, bis wann der nächste Teil gehen soll
+ *
+ * Lädt ein Teilstück von einem Lied herunter, ab einer bestimmten Zeit
+ * Fügt die Informationen zur partlist hinzu
+ *
+ * Optional kann man auch bis zu einer bestimmten Zeit herunterladen
+ */
+async function downloadPart(time, sIndex, pIndex, till = null) {
+    let song = playlist[sIndex];
+    let songID = song["id"];
+
+    if (typeof song["player"] === 'undefined') {
+        let length = getLengthByString(song["length"]);
+        let player = new MultiTrackPlayer(length);
+
+        addEvents(player);
+
+        song["player"] = player;
+    }
+
+    if (typeof partlist[songID] === 'undefined') partlist[songID] = {};
+
+    partlist[songID][pIndex] = {};
+
+    return await song["player"].addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
+        if (typeof partlist[songID] !== 'undefined') {
+            let length = song["player"].getPartLength(pIndex);
+
+            partlist[songID][pIndex] = {
+                "from": time,
+                "till": time + length
+            };
+        }
+    });
+}
+
+/*
+ * Funktion: addEvents()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  player: (Object) Der Player, welchem die Events zugewiesen werden
+ *
+ * Fügt Events zum Player hinzu
+ */
+function addEvents(player) {
+    /*
+     * Funktion: onplay()
+     * Autor: Bernardo de Oliveira
+     *
+     * Sobald die Wiedergabe beginnt, soll der nächste Teil im Hintergrund heruntergeladen werden
+     */
+    player.addEventListener("play", () => {
+        playPauseButton("play");
+
+        partIndex = nextPartIndex;
+
+        hadError = false;
+        finished = false;
+
+        prepareNextPart();
+    });
+
+    player.addEventListener("end", async () => {
+        pauseSong();
+
+        async function trackEvent(retry = false) {
+            let diffIndex = (playIndex !== nextPlayIndex);
+            if (diffIndex || repeatMode !== 0) {
+                playIndex = nextPlayIndex;
+                partIndex = 0;
+                nextPartIndex = 0;
+
+                player.setOffset(0);
+                player.setCurrentTime(0);
+
+                play(diffIndex);
+                return;
+            }
+
+            if (!retry) {
+                await prepareNextPart();
+                await trackEvent(true);
+            }
+        }
+        await trackEvent();
+    });
+
+    player.addEventListener("processed", (e) => {
+        partIndex = e.detail.index;
+        play();
+    });
+
+    player.addEventListener("pause", () => {
+        nextPartIndex = partIndex;
+    });
+}
+
 
 /*
  * Funktion: onTimelineMove()

@@ -71,6 +71,8 @@ class MultiTrackPlayer extends EventTarget {
 
     async initialize() {
         if (this.#audioTag.paused) {
+            this.#initialPlay = true;
+
             await this.#audioTag.play();
 
             this.#audioTag.currentTime = this.#currentTime;
@@ -200,12 +202,12 @@ class MultiTrackPlayer extends EventTarget {
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: title, artist: artist, artwork: [
-                    {src: cover + "size=96", type: "image/png", sizes: "96x96"},
-                    {src: cover + "size=128", type: "image/png", sizes: "128x128"},
-                    {src: cover + "size=192", type: "image/png", sizes: "192x192"},
-                    {src: cover + "size=256", type: "image/png", sizes: "256x256"},
-                    {src: cover + "size=384", type: "image/png", sizes: "384x384"},
-                    {src: cover + "size=512", type: "image/png", sizes: "512x512"},
+                    {src: cover + "?size=96", type: "image/png", sizes: "96x96"},
+                    {src: cover + "?size=128", type: "image/png", sizes: "128x128"},
+                    {src: cover + "?size=192", type: "image/png", sizes: "192x192"},
+                    {src: cover + "?size=256", type: "image/png", sizes: "256x256"},
+                    {src: cover + "?size=384", type: "image/png", sizes: "384x384"},
+                    {src: cover + "?size=512", type: "image/png", sizes: "512x512"},
                 ]
             });
 
