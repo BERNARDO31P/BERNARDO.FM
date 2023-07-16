@@ -81,6 +81,10 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     playNext(index = 0, startTime = 0) {
+        if (this.#audioTag.paused) {
+            throw new Error("Player needs to be initialized first!");
+        }
+
         if (typeof this.#audioBuffers[index] !== "undefined") {
             if (audioContext.state !== "running")
                 audioContext.resume();
