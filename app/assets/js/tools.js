@@ -1093,8 +1093,6 @@ function play(diffSong = false, pageLoad = false) {
     player.setVolume(volume);
 
     if (diffSong) {
-        document.body.querySelectorAll("audio").forEach((e) => e.remove());
-
         let song = playlist[playIndex];
         let title = document.querySelector("title");
         title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
