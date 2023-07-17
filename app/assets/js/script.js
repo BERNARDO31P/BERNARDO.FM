@@ -24,7 +24,6 @@ document.addEventListener("visibilitychange", function () {
         if (typeof playlist[playIndex] !== 'undefined' && typeof playlist[playIndex]["player"] !== 'undefined') {
             updateSongData();
             updateURL();
-            updateTimeline();
 
             playlist[playIndex]["player"].isPlaying()
                 ? playPauseButton("play")

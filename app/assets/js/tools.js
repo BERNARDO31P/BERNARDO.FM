@@ -1117,7 +1117,6 @@ function play(diffSong = false, pageLoad = false) {
                 }
 
                 updateURL();
-                updateTimeline();
 
                 if (pageLoad) {
                     let angleUp = document.getElementsByClassName("fa-angle-up")[0];
@@ -1127,23 +1126,6 @@ function play(diffSong = false, pageLoad = false) {
         }).catch(() => {
             showConfirmation("Confirmation", "An error occurred while trying to automatically start the playback. Confirm to play the song.", () => play(diffSong, pageLoad), pauseSong);
         });
-    }
-}
-
-function updateTimeline() {
-    let song = playlist[playIndex];
-    let player = song["player"];
-
-    if (!secondsInterval) {
-        secondsInterval = setInterval(() => {
-            if (!player.isPlaying()) clearInterval(secondsInterval);
-
-            let timeline = document.getElementById("timeline");
-            let currentPosition = player.getCurrentPartTime();
-
-            if (!document.hidden && currentPosition)
-                timeline.value = currentPosition + partlist[song["id"]][partIndex]["from"];
-        }, 500);
     }
 }
 
@@ -1595,6 +1577,13 @@ function addEvents(player) {
         setTimeout(() => {
             prepareNextPart();
         }, 2000);
+    });
+
+    player.addEventListener("timeupdate", (e) => {
+        if (!document.hidden) {
+            const timeline = document.getElementById("timeline");
+            timeline.value = e.detail.index;
+        }
     });
 }
 

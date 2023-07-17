@@ -3,7 +3,6 @@ class MultiTrackPlayer extends EventTarget {
 
     #audioTag = new Audio();
     #initialPlay = true;
-    #interrupted = false;
 
     #volume = 1;
     #gainNode = null;
@@ -42,23 +41,28 @@ class MultiTrackPlayer extends EventTarget {
 
         this.#audioTag.addEventListener("pause", () => {
             if (this.isPlaying() && !this.#initialPlay) {
-                this.#interrupted = true;
-
                 this.pause();
-            }
 
-            if (audioContext.state === "running") this.pause();
+                if ("mediaSession" in navigator && navigator.mediaSession.playbackState !== "paused")
+                    navigator.mediaSession.playbackState = "paused";
+            }
         });
 
         this.#audioTag.addEventListener("play", () => {
-            if (!this.isPlaying() && !this.#initialPlay)
+            if (!this.isPlaying() && !this.#initialPlay) {
                 this.playNext(this.#currentTrackIndex, 0);
+
+                if ("mediaSession" in navigator && navigator.mediaSession.playbackState !== "playing")
+                    navigator.mediaSession.playbackState = "playing";
+            }
         });
 
         this.#audioTag.addEventListener("timeupdate", () => {
             if (this.#audioTag.currentTime !== this.#currentTime) {
                 // TODO: Trigger event for UI (Apple)
             }
+
+            this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.#audioTag.currentTime}}));
         });
 
         document.body.append(this.#audioTag);
@@ -80,16 +84,15 @@ class MultiTrackPlayer extends EventTarget {
         this.#initialPlay = true;
 
         if (this.#audioTag.paused) await this.#audioTag.play();
-        this.#playing = true;
 
         this.#audioTag.currentTime = this.#currentTime;
         this.#setPositionState(this.getDuration(), this.#currentTime);
     }
 
     playNext(index = 0, startTime = 0) {
-        if (this.#audioTag.paused) this.initialize();
+        this.#playing = true;
 
-        if (typeof this.#audioBuffers[index] !== "undefined") {
+        if (!this.#hadError) {
             if (audioContext.state !== "running")
                 audioContext.resume();
 
@@ -118,12 +121,6 @@ class MultiTrackPlayer extends EventTarget {
 
             this.#startTimeouts[index] = setTimeout(async () => {
                 this.#executedTask = true;
-
-                if (this.#interrupted) {
-                    this.#interrupted = false;
-                    this.#setPositionState(this.getDuration(), this.#audioTag.currentTime);
-                }
-
                 this.#currentTrackIndex = index;
                 this.#startTime = when;
 
@@ -133,8 +130,10 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     pause() {
-        if (!this.#audioTag.paused) this.#audioTag.pause();
         this.#playing = false;
+        this.#currentTime = this.#audioTag.currentTime;
+
+        if (!this.#audioTag.paused) this.#audioTag.pause();
 
         this.#clearTimeouts();
         this.setOffset(this.getCurrentPartTime());
