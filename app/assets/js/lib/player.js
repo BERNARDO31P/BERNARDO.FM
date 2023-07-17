@@ -23,6 +23,7 @@ class MultiTrackPlayer extends EventTarget {
     #offset = 0;
     #currentOffset = 0;
     #currentTime = 0;
+    #timeUpdateHandler = null;
 
     #playing = false;
     #executedTask = true;
@@ -40,32 +41,30 @@ class MultiTrackPlayer extends EventTarget {
         this.#audioTag.controls = true;
 
         this.#audioTag.addEventListener("pause", () => {
-            if (this.isPlaying() && !this.#initialPlay) {
+            if (this.isPlaying() && !this.#initialPlay)
                 this.pause();
-
-                if ("mediaSession" in navigator && navigator.mediaSession.playbackState !== "paused")
-                    navigator.mediaSession.playbackState = "paused";
-            }
         });
 
         this.#audioTag.addEventListener("play", () => {
-            if (!this.isPlaying() && !this.#initialPlay) {
+            if (!this.isPlaying() && !this.#initialPlay)
                 this.playNext(this.#currentTrackIndex, 0);
-
-                if ("mediaSession" in navigator && navigator.mediaSession.playbackState !== "playing")
-                    navigator.mediaSession.playbackState = "playing";
-            }
-        });
-
-        this.#audioTag.addEventListener("timeupdate", () => {
-            if (this.#audioTag.currentTime !== this.#currentTime) {
-                // TODO: Trigger event for UI (Apple)
-            }
-
-            this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.#audioTag.currentTime}}));
         });
 
         document.body.append(this.#audioTag);
+    }
+
+    addTimeUpdate() {
+        this.#timeUpdateHandler = () => this.#dispatchTimeUpdate();
+        this.#audioTag.addEventListener("timeupdate", this.#timeUpdateHandler);
+    }
+
+    removeTimeUpdate() {
+        if (this.#timeUpdateHandler)
+            this.#audioTag.removeEventListener("timeupdate", this.#timeUpdateHandler);
+    }
+
+    #dispatchTimeUpdate() {
+        this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.#audioTag.currentTime}}));
     }
 
     async addTrack(url, callback) {
@@ -87,12 +86,14 @@ class MultiTrackPlayer extends EventTarget {
 
         this.#audioTag.currentTime = this.#currentTime;
         this.#setPositionState(this.getDuration(), this.#currentTime);
+
+        this.addTimeUpdate();
     }
 
     playNext(index = 0, startTime = 0) {
-        this.#playing = true;
+        if (!this.#hadError && !(startTime === 0 && this.isPlaying())) {
+            this.#playing = true;
 
-        if (!this.#hadError) {
             if (audioContext.state !== "running")
                 audioContext.resume();
 
@@ -137,6 +138,8 @@ class MultiTrackPlayer extends EventTarget {
 
         this.#clearTimeouts();
         this.setOffset(this.getCurrentPartTime());
+
+        this.removeTimeUpdate();
 
         this.#audioSources.forEach((source) => {
             this.#killSource(source);

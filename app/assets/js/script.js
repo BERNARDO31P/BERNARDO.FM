@@ -18,16 +18,23 @@ window.addEventListener("scroll", () => {
 });
 
 document.addEventListener("visibilitychange", function () {
-    if (document.hidden) {
-        clearIntervals();
-    } else {
-        if (typeof playlist[playIndex] !== 'undefined' && typeof playlist[playIndex]["player"] !== 'undefined') {
-            updateSongData();
-            updateURL();
+    if (typeof playlist[playIndex] === 'undefined' || typeof playlist[playIndex]["player"] === 'undefined') return;
+    const player = playlist[playIndex]["player"];
 
-            playlist[playIndex]["player"].isPlaying()
-                ? playPauseButton("play")
-                : playPauseButton("pause");
+    if (document.hidden) {
+        player.removeTimeUpdate();
+
+        clearInterval(songInterval);
+        songInterval = null;
+    } else {
+        updateSongData();
+        updateURL();
+
+        if (player.isPlaying()) {
+            player.addTimeUpdate();
+            playPauseButton("play");
+        } else {
+            playPauseButton("pause");
         }
     }
 });
@@ -187,6 +194,9 @@ bindEvent("click", "#navbar-toggler", function () {
 bindEvent("click", "#player .fa-pause", () => pauseSong());
 bindEvent("mousedown, touchstart", "#timeline", () => onTimelinePress());
 bindEvent("input", "#timeline", (e) => onTimelineMove(e));
+bindEvent("mouseup, touchend", "#timeline", (e) => onTimelineRelease(e.target.value));
+bindEvent("click", "#player .fa-step-forward", () => nextSong());
+bindEvent("click", "#player .fa-step-backward", () => previousSong());
 
 /*
  * Funktion: Anonym

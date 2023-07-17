@@ -6,7 +6,7 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
 
 
 let backgroundProcesses = [];
-let sliderTimeout = null, controlsTimeout = null, secondsInterval = null, releaseTimeouts = [],
+let sliderTimeout = null, controlsTimeout = null, releaseTimeouts = [],
     searchTimeout = null, songInterval = null;
 let pageURL = window.location.protocol + '//' + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
@@ -1211,7 +1211,8 @@ function clearSongs() {
             playlist[index]["player"].clear();
     }
 
-    clearIntervals();
+    clearInterval(songInterval);
+    songInterval = null;
 
     playIndex = 0;
     partIndex = 0;
@@ -1222,13 +1223,6 @@ function clearSongs() {
     partlist = [];
 }
 
-function clearIntervals() {
-    clearInterval(songInterval);
-    clearInterval(secondsInterval);
-    songInterval = null;
-    secondsInterval = null;
-}
-
 /*
  * Funktion: pauseSong()
  * Autor: Bernardo de Oliveira
@@ -1236,12 +1230,15 @@ function clearIntervals() {
  * Pausiert die Wiedergabe
  */
 function pauseSong() {
-    playPauseButton("pause");
-
     const player = playlist[playIndex]["player"];
-    if (player.isPlaying()) player.pause();
+    if (player.isPlaying()) {
+        player.pause();
 
-    clearIntervals();
+        playPauseButton("pause");
+    }
+
+    clearInterval(songInterval);
+    songInterval = null;
 
     if (!document.hidden) {
         let animation = document.getElementsByClassName("lds-facebook")[0];
@@ -1264,10 +1261,13 @@ function pauseSong() {
  * Die Wiedergabe wird pausiert
  */
 function onTimelinePress() {
-    let timeInfo = document.getElementById("timeInfo");
+    const timeInfo = document.getElementById("timeInfo");
     timeInfo.style.display = "initial";
 
-    clearIntervals();
+    playlist[playIndex]["player"].removeTimeUpdate();
+
+    clearInterval(songInterval);
+    songInterval = null;
 }
 
 /*
@@ -1298,11 +1298,11 @@ function clearTimeouts(timeouts) {
  * Die Wiedergabe beginnt
  */
 function onTimelineRelease(value) {
-    clearTimeouts(releaseTimeouts);
-    releaseTimeouts = [];
-
     pauseSong();
     playPauseButton("load");
+
+    clearTimeouts(releaseTimeouts);
+    releaseTimeouts = [];
 
     releaseTimeouts.push(
         setTimeout(async () => {
@@ -1588,7 +1588,6 @@ function addEvents(player) {
         }
     });
 }
-
 
 /*
  * Funktion: onTimelineMove()
