@@ -1298,11 +1298,11 @@ function clearTimeouts(timeouts) {
  * Die Wiedergabe beginnt
  */
 function onTimelineRelease(value) {
-    pauseSong();
-    playPauseButton("load");
-
     clearTimeouts(releaseTimeouts);
     releaseTimeouts = [];
+
+    pauseSong();
+    playPauseButton("load");
 
     releaseTimeouts.push(
         setTimeout(async () => {
