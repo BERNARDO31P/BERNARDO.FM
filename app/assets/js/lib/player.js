@@ -44,11 +44,19 @@ class MultiTrackPlayer extends EventTarget {
 
                 this.pause();
             }
+
+            if (audioContext.state === "running") this.pause();
         });
 
         this.#audioTag.addEventListener("play", () => {
             if (!this.isPlaying() && !this.#initialPlay)
                 this.playNext(this.#currentTrackIndex, 0);
+        });
+
+        this.#audioTag.addEventListener("timeupdate", () => {
+            if (this.#audioTag.currentTime !== this.#currentTime) {
+                // TODO: Trigger event for UI (Apple)
+            }
         });
 
         document.body.append(this.#audioTag);
@@ -60,30 +68,24 @@ class MultiTrackPlayer extends EventTarget {
         this.#decodingQueue.push(url);
         this.#decodingCallbacks[index] = callback;
 
-        if (!this.#isDecoding) {
-            await this.#processDecodeQueue();
-        } else {
-            this.#waitIndex = index;
-        }
+        if (!this.#isDecoding) await this.#processDecodeQueue();
+        else this.#waitIndex = index;
 
         return this.#isDecoding;
     }
 
     async initialize() {
         this.#initialPlay = true;
-        this.#playing = true;
 
-        if (this.#audioTag.paused)
-            await this.#audioTag.play();
+        if (this.#audioTag.paused) await this.#audioTag.play();
+        this.#playing = true;
 
         this.#audioTag.currentTime = this.#currentTime;
         this.#setPositionState(this.getDuration(), this.#currentTime);
     }
 
     playNext(index = 0, startTime = 0) {
-        if (this.#audioTag.paused) {
-            this.initialize();
-        }
+        if (this.#audioTag.paused) this.initialize();
 
         if (typeof this.#audioBuffers[index] !== "undefined") {
             if (audioContext.state !== "running")
@@ -108,9 +110,8 @@ class MultiTrackPlayer extends EventTarget {
                 delete this.#startTimeouts[index];
                 this.#currentOffset = 0;
 
-                if (!Object.keys(this.#startTimeouts).length) {
+                if (!Object.keys(this.#startTimeouts).length)
                     this.dispatchEvent(new Event("end"));
-                }
             }
 
             this.#startTimeouts[index] = setTimeout(async () => {
@@ -130,11 +131,8 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     pause() {
+        if (!this.#audioTag.paused) this.#audioTag.pause();
         this.#playing = false;
-
-        if (!this.#audioTag.paused) {
-            this.#audioTag.pause();
-        }
 
         this.#clearTimeouts();
         this.setOffset(this.getCurrentPartTime());
@@ -186,6 +184,8 @@ class MultiTrackPlayer extends EventTarget {
     setVolume(volume) {
         this.#volume = volume;
         this.#gainNode.gain.value = volume;
+
+        this.#audioTag.volume = volume;
     }
 
     setOffset(offset) {

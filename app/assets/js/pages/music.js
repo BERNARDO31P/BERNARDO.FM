@@ -496,7 +496,7 @@ window["music"] = () => {    /*
         addSongToPlaylist(null, songID);
         if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]) {
             playPauseButton("load");
-            downloadPart(time, playIndex, partIndex, null).then(() => {
+            downloadPart(time, playIndex, partIndex).then(() => {
                 play(true, true);
             });
         }

@@ -990,7 +990,8 @@ function muteAudio(e = null) {
             setCookie("muted", true, getExpireTime(8));
         }
 
-        if (typeof playlist[playIndex] !== 'undefined') playlist[playIndex]["player"].setVolume(volume);
+        if (typeof playlist[playIndex] !== 'undefined')
+            playlist[playIndex]["player"].setVolume(volume);
 
         hideVolumeSlider();
     } else touched = true;
@@ -1124,6 +1125,8 @@ function play(diffSong = false, pageLoad = false) {
                     angleUp.dispatchEvent(clickEvent);
                 }
             }
+        }).catch(() => {
+            showConfirmation("Confirmation", "An error occurred while trying to automatically start the playback. Confirm to play the song.", () => play(diffSong, pageLoad), pauseSong);
         });
     }
 }
@@ -1134,15 +1137,13 @@ function updateTimeline() {
 
     if (!secondsInterval) {
         secondsInterval = setInterval(() => {
-            if (!player.isPlaying())
-                clearInterval(secondsInterval);
+            if (!player.isPlaying()) clearInterval(secondsInterval);
 
             let timeline = document.getElementById("timeline");
             let currentPosition = player.getCurrentPartTime();
 
-            if (currentPosition) {
+            if (!document.hidden && currentPosition)
                 timeline.value = currentPosition + partlist[song["id"]][partIndex]["from"];
-            }
         }, 500);
     }
 }
@@ -1448,13 +1449,11 @@ async function previousSong(bypass = false) {
  *  - Jetzt fehlt ein 5 Sekunden langer Teil, dieser wird heruntergeladen (anstatt 10 Sekunden)
  */
 async function prepareNextPart() {
+    const currentSong = playlist[playIndex], songID = currentSong["id"];
+
+    let nextTime = Math.round(partlist[songID][partIndex]["till"]);
     let songEnded = false, nextSong = false, nextSongID = null;
-    let timeline = document.getElementById("timeline"), nextTime;
-    let songID = playlist[playIndex]["id"];
-
-    nextTime = Math.round(partlist[songID][partIndex]["till"]);
-
-    if (!(Number(timeline.max) - nextTime > 1)) {
+    if (!(currentSong["player"].getDuration() - nextTime > 1)) {
         songEnded = true;
         nextPlayIndex = nextSongIndex();
 
