@@ -1136,7 +1136,7 @@ function play(diffSong = false, pageLoad = false) {
  * Holt sich die Array-ID des nächsten Liedes
  */
 function nextSongIndex() {
-    let nextIndex = Number(playIndex) + 1;
+    const nextIndex = Number(playIndex) + 1;
     switch (repeatMode) {
         case 0:
             if (typeof playlist[nextIndex] === 'undefined') return playIndex;
@@ -1157,7 +1157,7 @@ function nextSongIndex() {
  * Holt sich die Array-ID des vorherigen Liedes
  */
 function previousSongIndex() {
-    let previousIndex = Number(playIndex) - 1;
+    const previousIndex = Number(playIndex) - 1;
     switch (repeatMode) {
         case 0:
         case 1:
@@ -1166,6 +1166,8 @@ function previousSongIndex() {
         case 2:
             return playIndex;
     }
+
+    if (playlist[playIndex]["player"].getCurrentTime() > 10) return playIndex;
     return previousIndex;
 }
 
