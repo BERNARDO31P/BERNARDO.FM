@@ -1476,9 +1476,12 @@ async function prepareNextPart() {
             await downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength);
 
             if (playIndex === nextPlayIndex && !player.hadError()) {
-                if (player.isPlaying())
+                if (player.isPlaying()) {
                     player.queueTrack(nextPartIndex);
-                else play();
+                } else {
+                    player.setOffset(0);
+                    play();
+                }
             }
         }
     } else if (typeof partlist[nextSongID] === 'undefined' && typeof playlist[nextPlayIndex] !== 'undefined') {
