@@ -1479,7 +1479,6 @@ async function prepareNextPart() {
                 if (player.isPlaying()) {
                     player.queueTrack(nextPartIndex);
                 } else {
-                    player.setOffset(0);
                     play();
                 }
             }

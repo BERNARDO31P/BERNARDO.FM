@@ -258,6 +258,9 @@ class MultiTrackPlayer extends EventTarget {
                 this.#hadError = true;
                 this.#isDecoding = false;
 
+                this.#offset = 0;
+                this.#currentOffset = 0;
+
                 this.#urls.splice(bufferIndex, 1);
 
                 this.dispatchEvent(new Event("downloadError"));
