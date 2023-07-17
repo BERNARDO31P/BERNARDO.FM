@@ -1,9 +1,8 @@
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [],
-    partlist = {},
-    volume = 0, previousVolume = null, repeatMode = 0, touched = null, touchedElement = null,
-    currentButton = null, changedQueue = false;
+    partlist = {}, volume = 0, previousVolume = null, repeatMode = 0, touched = null, touchedElement = null,
+    currentButton = null, changedQueue = false, width = getWidth();
 
 
 let backgroundProcesses = [];
@@ -1055,7 +1054,7 @@ function updateSongData() {
     let queueView = document.getElementById("queueView");
     let cover = queueView.querySelector("#playingCover").querySelector("img");
 
-    let size = Math.round(window.innerWidth / 100 * 80);
+    let size = Math.round(width / 100 * 80);
     size = (size < 1024) ? size : 1024
     cover.src = String(song["cover"] + "?size=" + size);
     songLength.textContent = song["length"];
@@ -1255,8 +1254,6 @@ function clearIntervals() {
 function pauseSong() {
     playPauseButton("pause");
 
-    nextPartIndex = partIndex;
-
     const player = playlist[playIndex]["player"];
     if (player.isPlaying()) player.pause();
 
@@ -1335,7 +1332,6 @@ function onTimelineRelease(value) {
 
             seekValue = 0;
             nextPartIndex = partInfo[2];
-            usedTimeline = true;
 
             const player = playlist[playIndex]["player"];
 
@@ -1468,18 +1464,21 @@ async function prepareNextPart() {
     if (!nextSong && !songEnded) {
         nextPlayIndex = playIndex;
 
+        const player = playlist[nextPlayIndex]["player"];
         let partInfo = getPartIndexByStartTime(nextTime);
         if (partInfo[2]) {
             nextPartIndex = partInfo[2];
-            playlist[nextPlayIndex]["player"].queueTrack(nextPartIndex);
+            player.queueTrack(nextPartIndex);
         } else {
             nextPartIndex = Object.keys(partlist[songID]).length;
 
             let missingLength = findMissingLengthByCurrentPart();
             await downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength);
 
-            if (playIndex === nextPlayIndex && playlist[nextPlayIndex]["player"].isPlaying()) {
-                playlist[nextPlayIndex]["player"].queueTrack(nextPartIndex);
+            if (playIndex === nextPlayIndex && !player.hadError()) {
+                if (player.isPlaying())
+                    player.queueTrack(nextPartIndex);
+                else play();
             }
         }
     } else if (typeof partlist[nextSongID] === 'undefined' && typeof playlist[nextPlayIndex] !== 'undefined') {
@@ -1550,9 +1549,6 @@ function addEvents(player) {
 
         partIndex = nextPartIndex;
 
-        hadError = false;
-        finished = false;
-
         prepareNextPart();
     });
 
@@ -1589,6 +1585,17 @@ function addEvents(player) {
 
     player.addEventListener("pause", () => {
         nextPartIndex = partIndex;
+    });
+
+    player.addEventListener("downloadError", () => {
+        delete partlist[playlist[playIndex]["id"]][nextPartIndex];
+
+        pauseSong();
+        playPauseButton("load");
+
+        setTimeout(() => {
+            prepareNextPart();
+        }, 2000);
     });
 }
 

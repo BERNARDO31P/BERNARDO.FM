@@ -2,13 +2,7 @@ if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde
 
 setPositionState(0, 0);
 
-let count = 0,
-    resizeTimeout = null,
-    width = getWidth(),
-    error = false,
-    hadError = false,
-    usedTimeline = false,
-    finished = false;
+let count = 0, resizeTimeout = null;
 
 /*
  * Funktion: Anonym

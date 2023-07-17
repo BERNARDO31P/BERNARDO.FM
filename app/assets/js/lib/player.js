@@ -28,6 +28,8 @@ class MultiTrackPlayer extends EventTarget {
     #playing = false;
     #executedTask = true;
 
+    #hadError = false;
+
     constructor(length) {
         super();
 
@@ -205,6 +207,10 @@ class MultiTrackPlayer extends EventTarget {
         return this.#audioTag.duration;
     }
 
+    hadError() {
+        return this.#hadError;
+    }
+
     setMetadata(title, artist, cover) {
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
@@ -242,10 +248,22 @@ class MultiTrackPlayer extends EventTarget {
             this.#isDecoding = true;
             const url = this.#decodingQueue.pop();
             const bufferIndex = this.#urls.indexOf(url);
-            const response = await fetch(url);
-            const arrayBuffer = await response.arrayBuffer();
 
-            this.#audioBuffers[bufferIndex] = await audioContext.decodeAudioData(arrayBuffer);
+            try {
+                const response = await fetch(url);
+                const arrayBuffer = await response.arrayBuffer();
+                this.#audioBuffers[bufferIndex] = await audioContext.decodeAudioData(arrayBuffer);
+
+                this.#hadError = false;
+            } catch (e) {
+                this.#hadError = true;
+                this.#isDecoding = false;
+
+                this.#urls.splice(bufferIndex, 1);
+
+                this.dispatchEvent(new Event("downloadError"));
+                return;
+            }
 
             if (typeof this.#decodingCallbacks[bufferIndex] === "function") {
                 this.#decodingCallbacks[bufferIndex]();
@@ -253,8 +271,7 @@ class MultiTrackPlayer extends EventTarget {
             }
 
             if (bufferIndex === this.#waitIndex && !this.#playing) {
-                let processedEvent = new CustomEvent("processed", {detail: {index: this.#waitIndex}});
-                this.dispatchEvent(processedEvent);
+                this.dispatchEvent(new CustomEvent("processed", {detail: {index: this.#waitIndex}}));
                 this.#waitIndex = -1;
             }
 
