@@ -249,8 +249,22 @@ class MultiTrackPlayer extends EventTarget {
             const url = this.#decodingQueue.pop();
             const bufferIndex = this.#urls.indexOf(url);
 
+            let response = null;
             try {
-                const response = await fetch(url);
+                response = await fetch(url);
+
+                this.#hadError = false;
+            } catch (e) {
+                this.#hadError = true;
+                this.#isDecoding = false;
+
+                this.#urls.splice(bufferIndex, 1);
+
+                this.dispatchEvent(new Event("downloadError"));
+                return;
+            }
+
+            try {
                 const arrayBuffer = await response.arrayBuffer();
                 this.#audioBuffers[bufferIndex] = await audioContext.decodeAudioData(arrayBuffer);
 
@@ -261,7 +275,7 @@ class MultiTrackPlayer extends EventTarget {
 
                 this.#urls.splice(bufferIndex, 1);
 
-                this.dispatchEvent(new Event("downloadError"));
+                this.dispatchEvent(new Event("decodeError"));
                 return;
             }
 
