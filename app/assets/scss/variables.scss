@@ -6,6 +6,7 @@
   --notification-background: #ededed;
   --shadow-light: #efefef;
   --shadow-dark: #d2d2d2;
+  --shadow-cover: #282828;
   --border-color: #e6e6e6;
   --border-blockquote: rgba(137, 161, 255, 0.16);
   --text-color: #5b5b5b;
@@ -26,6 +27,7 @@
   --notification-background: #2c2c2c;
   --shadow-light: #1a1a1a;
   --shadow-dark: #0e0e0e;
+  --shadow-cover: var(--shadow-dark);
   --border-color: var(--shadow-dark);
   --border-blockquote: rgba(137, 161, 255, 0.30);
   --text-color: #9d9d9d;

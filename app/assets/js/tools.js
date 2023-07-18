@@ -290,32 +290,36 @@ function updateURL() {
  * Scrollt zum Lied, welches momentan abgespielt wird
  */
 function updatePlaying() {
-    let queueView = document.getElementById("queueView");
-    let animation = queueView.querySelector(".lds-facebook");
-    if (animation) animation.remove();
+    const queueView = document.getElementById("queueView");
 
     const song = playlist[playIndex];
     const id = song["id"];
-    let row = queueView.querySelector("[data-id='" + id + "']");
+    const row = queueView.querySelector("[data-id='" + id + "']");
 
 
     if (row) {
-        let queue = queueView.querySelector("#queue");
+        const animation = queueView.querySelector(".lds-facebook");
+        const animationRow = row.querySelector(".lds-facebook");
+        if (!animationRow && animation || !animation) {
+            if (animation) animation.remove();
 
-        let queueBounding = queue.getBoundingClientRect();
-        let rowBounding = row.getBoundingClientRect();
-        let top = rowBounding.height + queueBounding.top;
+            row.querySelector("td").innerHTML += "<div class=\"lds-facebook\"><div></div><div></div><div></div></div>";
+        }
 
-        let scroll = rowBounding.top - top;
+        const divs = row.querySelector(".lds-facebook").querySelectorAll("div");
+        if (song["player"].isPlaying()) for (const div of divs) div.style.animationPlayState = "running";
+        else for (const div of divs) div.style.animationPlayState = "paused";
+
+        const queue = queueView.querySelector("#queue");
+        const imageStyle = window.getComputedStyle(row.querySelector("img"));
+
+        const queueBounding = queue.getBoundingClientRect(), rowBounding = row.getBoundingClientRect();
+        const top = rowBounding.height + queueBounding.top;
+
+        const marginTop = Number(imageStyle.marginTop.replace("px", ""));
+        const scroll = rowBounding.top - top - marginTop;
         queue.scrollBy(0, scroll);
-
-        row.querySelector("td").innerHTML += "<div class=\"lds-facebook\"><div></div><div></div><div></div></div>";
-        let divs = row.querySelector(".lds-facebook").querySelectorAll("div");
-
-        if (song["player"].isPlaying()) for (let div of divs) div.style.animationPlayState = "running";
-        else for (let div of divs) div.style.animationPlayState = "paused";
     }
-
 }
 
 /*

@@ -570,9 +570,6 @@ async function generateBlockView(songs, categoryView, cover) {
         } else {
             let info = await generatePlaylistInfo(song);
 
-            console.log(song);
-            console.log(info);
-
             card = document.createElement('div');
             card.className = 'playlistCard';
             card.dataset.id = song.id;
