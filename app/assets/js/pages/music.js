@@ -257,7 +257,7 @@ window.addEventListener("resize", function () {
  *
  * Lädt die Musik Seite und rendert alle notwendigen Dinge
  */
-window["music"] = () => {    /*
+window["music"] = async () => {    /*
      * Author: Bernardo de Oliveira
      *
      * Die Lautstärke wird in einem Cookie gespeichert
@@ -379,7 +379,7 @@ window["music"] = () => {    /*
                      * Lädt neue Lieder nach, sobald mehr 60% gescrollt wurde
                      * Wenn kein Touchgerät, dann werden die Knöpfe je nach Scroll-Position angepasst
                      */
-                    div.addEventListener("scroll", function handler(e) {
+                    div.addEventListener("scroll", async function handler(e) {
                         let element = e.target;
                         let scrolled = Math.round(100 * element.scrollLeft / (element.scrollWidth - element.clientWidth));
 
@@ -403,7 +403,7 @@ window["music"] = () => {    /*
 
                             if (Object.keys(data).length > 0) {
                                 element.setAttribute("data-page", String(catPage));
-                                generateBlockView(data, element.querySelector(".songCategory"), cover);
+                                await generateBlockView(data, element.querySelector(".songCategory"), cover);
                             } else {
                                 element.removeEventListener("scroll", handler);
                             }
@@ -427,7 +427,7 @@ window["music"] = () => {    /*
                         }
                     });
 
-                    generateBlockView(songs, categoryView, cover);
+                    await generateBlockView(songs, categoryView, cover);
 
                     let parent = document.createElement("div");
 
@@ -532,7 +532,7 @@ function addSongToPlaylist(element, id = 0) {
  * Generiert aus den Daten -> Cards 
  * Generiert auch Playlist Cards
  */
-function generateBlockView(songs, categoryView, cover) {
+async function generateBlockView(songs, categoryView, cover) {
     const fragment = document.createDocumentFragment();
 
     for (let arrayID in songs) {
@@ -568,14 +568,18 @@ function generateBlockView(songs, categoryView, cover) {
 
             card.append(darker, coverDiv, nameSpan, artistSpan, lengthSpan);
         } else {
-            let info = generatePlaylistInfo(song);
+            let info = await generatePlaylistInfo(song);
+
+            console.log(song);
+            console.log(info);
 
             card = document.createElement('div');
             card.className = 'playlistCard';
             card.dataset.id = song.id;
 
             const coverDiv = document.createElement('div');
-            coverDiv.appendChild(info.cover);
+            coverDiv.className = 'cover';
+            coverDiv.style.backgroundImage = `url('${info.cover}')`;
 
             const nameSpan = document.createElement('span');
             nameSpan.className = 'name';

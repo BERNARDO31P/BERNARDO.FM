@@ -1622,19 +1622,35 @@ function onTimelineMove(rangeEvent) {
  * Generiert ein Cover aus vier Liedern für eine Playlist
  * Generiert die Künstler für die Playlist
  */
-function generatePlaylistInfo(song) {
-    let info = {"cover": document.createElement("div"), "artists": ""};
-    info["cover"].classList.add("cover");
+async function generatePlaylistInfo(song) {
+    let info = {"cover": null, "artists": ""};
 
     song["playlist"] = song["playlist"].sort(() => 0.5 - Math.random());
 
     const data = tryParseJSON(httpGet(pageURL + "system/songs/" + song["playlist"].slice(0, 4).join(",")));
-
     if (!song["cover"]) {
-        for (let i = 0; i < data.length; i++)
-            info["cover"].innerHTML += "<img src='" + data[i]["cover"] + "?size=80' alt='Cover'/>";
+        const canvas= document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        context.canvas.width = 160;
+        context.canvas.height = 160;
+
+        for (let i = 0, j = 0; i < data.length; i++) {
+            if (i % 2 === 0 && i !== 0) j++;
+
+            const image = new Image();
+            image.src = data[i]["cover"].toString() + "?size=80";
+
+            await new Promise((resolve) => {
+                image.onload = () => {
+                    context.drawImage(image, (i % 2) * 80, (j % 2) * 80, 80, 80);
+                    resolve();
+                };
+            });
+        }
+
+        info["cover"] = context.canvas.toDataURL("image/png");
     } else {
-        info["cover"].innerHTML += "<img src='system/img/" + song["cover"] + "?size=200' alt='Cover'/>";
+        info["cover"] = "system/img/" + song["cover"] + "?size=200";
     }
 
     for (let i = 0; i < data.length; i++) {

@@ -541,26 +541,20 @@ a.button {
       .songCategory {
         display: inline-flex;
 
-        .songCard {
+        .songCard, .playlistCard {
           display: flex;
           justify-content: center;
           align-items: center;
 
           position: relative;
+          margin: 0 10px 55px 0;
+          width: 160px;
+          height: 160px;
 
-          &:hover {
-            .darker {
-              opacity: 0.6;
-            }
+          color: var(--text-color);
 
-            .length {
-              padding: 2px 5px;
-              border-radius: 4px;
-
-              background-color: black;
-              opacity: 1;
-            }
-          }
+          background-color: black;
+          border-radius: 5px;
 
           .darker {
             transition: 0.2s;
@@ -586,69 +580,28 @@ a.button {
             border-radius: 5px;
             user-select: none;
 
+            box-shadow: 0 0 10px 3px var(--shadow-dark) inset;
+
             background-size: auto 160px;
             background-color: black;
           }
-        }
-
-        .playlistCard {
-          &:hover > img {
-            filter: brightness(50%);
-          }
-
-          img:not(:only-of-type) {
-            width: 80px;
-            height: 80px;
-
-            &:nth-child(1) {
-              border-top-left-radius: 5px;
-            }
-
-            &:nth-child(2) {
-              left: 80px;
-              border-top-right-radius: 5px;
-            }
-
-            &:nth-child(3) {
-              top: 80px;
-              border-bottom-left-radius: 5px;
-            }
-
-            &:nth-child(4) {
-              top: 80px;
-              left: 80px;
-              border-bottom-right-radius: 5px;
-            }
-          }
-
-          img:only-of-type {
-            width: 160px;
-            height: 160px;
-
-            border-radius: 5px;
-          }
-
-          img {
-            transition: 0.2s;
-            position: absolute;
-
-            user-select: none;
-          }
-        }
-
-        .songCard, .playlistCard {
-          position: relative;
-          margin: 0 10px 55px 0;
-          width: 160px;
-          height: 160px;
-
-          color: var(--text-color);
-
-          background-color: black;
-          border-radius: 5px;
 
           &:hover > .name, &:hover > .artist {
             text-decoration: underline;
+          }
+
+          &:hover {
+            .darker {
+              opacity: 0.6;
+            }
+
+            .length {
+              padding: 2px 5px;
+              border-radius: 4px;
+
+              background-color: black;
+              opacity: 1;
+            }
           }
 
           span {
