@@ -605,6 +605,8 @@ $router->get("/song/([\w-]*)$", function ($id) {
 			$playlist[] = search_song($songID, $db);
 		}
 
+		$playlist["count"] = count($playlist);
+
 		if (isset($song["shuffle"]) && $song["shuffle"]) {
 			shuffle_level($playlist, 0);
 		} else {

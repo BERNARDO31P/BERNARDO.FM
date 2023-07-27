@@ -235,14 +235,19 @@ bindEvent("click", "#player .fa-play", async () => {
  */
 bindEvent("mouseup, touchend", "[data-title]", function (e) {
     const target = e.target;
+    clearTimeout(touchTimeout);
 
     e.preventDefault();
 
     const currentTime = new Date().getTime();
     const timeDifference = currentTime - touched;
 
-    if (timeDifference < 300 && timeDifference > 0 && touchedElement === target) {
+    if (timeDifference < defaultDelay && timeDifference > 0 && touchedElement === target) {
         showNotification(target.getAttribute("data-title"), 3000);
+    } else {
+        touchTimeout = setTimeout(() => {
+            target.closest("tr").dispatchEvent(clickEvent);
+        }, defaultDelay);
     }
 
     touched = currentTime;
@@ -350,7 +355,7 @@ bindEvent("input", "#search input", function () {
 
         window.location.href = "#!page=" + page;
         loadPage();
-    }, 500);
+    }, defaultDelay);
 });
 
 /*
@@ -558,10 +563,11 @@ bindEvent("click", "[data-angle='down']", function () {
 
             if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
             else queue.style.right = "0";
+
+            updatePlaying();
         });
 
         changedQueue = false;
-        updatePlaying();
     } else {
         updatePlaying();
     }
@@ -669,7 +675,7 @@ bindEvent("focusout", "#search", function () {
 
     setTimeout(function () {
         input.readOnly = false;
-    }, 500);
+    }, defaultDelay);
 });
 
 /*

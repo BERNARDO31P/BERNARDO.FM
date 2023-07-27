@@ -96,10 +96,13 @@ bindEvent("touchstart", ".card .darker, .songList tr[data-id]", function (e) {
     if (isTouchScreen()) {
         touchTimeout = setTimeout(() => {
             showContext(e, this.closest(".card") ?? this);
-        }, 500);
+        }, defaultDelay);
     }
 });
 bindEvent("touchend", ".card .darker, .songList tr[data-id]", function () {
+    if (isTouchScreen()) clearTimeout(touchTimeout);
+});
+bindEvent("touchmove", ".card .darker, .songList tr[data-id]", function () {
     if (isTouchScreen()) clearTimeout(touchTimeout);
 });
 
@@ -129,14 +132,17 @@ function showContext(e, card) {
         }
     }
 
-    const data = tryParseJSON(httpGet(pageURL + "system/song/" + card.dataset.id));
     const songName = document.createElement("div");
     songName.classList.add("songName");
-    songName.textContent = data["name"];
+    songName.textContent = card.querySelector(".name").textContent;
 
     const songArtist = document.createElement("div");
     songArtist.classList.add("songArtist");
-    songArtist.textContent = data["artist"] ?? "Album/Playlist";
+    songArtist.textContent = card.querySelector(".artist").textContent;
+
+    const data = tryParseJSON(httpGet(pageURL + "system/song/" + card.dataset.id));
+    if (typeof data["count"] !== "undefined")
+        songArtist.textContent += " • " + data["count"] + " Tracks";
 
     const row = document.createElement("div");
     row.classList.add("row");
@@ -303,7 +309,7 @@ bindEvent("click", ".scrollForward", function () {
     setTimeout(function () {
         let scrolled = Math.round(100 * categoryView.scrollLeft / (categoryView.scrollWidth - categoryView.clientWidth));
         if (scrolled === 100) element.style.display = "none";
-    }, 500);
+    }, defaultDelay);
 });
 
 /*
@@ -323,7 +329,7 @@ bindEvent("click", ".scrollBack", function () {
     setTimeout(function () {
         let scrolled = Math.round(100 * categoryView.scrollLeft / (categoryView.scrollWidth - categoryView.clientWidth));
         if (scrolled === 0) element.style.display = "none";
-    }, 500);
+    }, defaultDelay);
 });
 
 /*

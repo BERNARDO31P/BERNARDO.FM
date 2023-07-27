@@ -5,6 +5,7 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
     touched = null, touchTimeout = null, touchedElement = null, currentButton = null,
     changedQueue = false, width = getWidth();
 
+const defaultDelay = 500;
 
 let backgroundProcesses = [];
 let sliderTimeout = null, controlsTimeout = null, releaseTimeouts = [],
@@ -1596,12 +1597,20 @@ async function generatePlaylistInfo(song) {
         info["cover"] = "system/img/" + song["cover"] + "?size=200";
     }
 
+    let artistCount = 0;
     for (let i = 0; i < data.length; i++) {
-        if (info["artists"].includes(data[i]["artist"])) continue;
-        info["artists"] += data[i]["artist"] + ", ";
+        if (artistCount >= 5) break;
+        const artists = data[i]["artist"].split(/[,&]+/).map(artist => artist.trim());
+        for (let artist of artists) {
+            if (info["artists"].includes(artist)) continue;
+            info["artists"] += artist + ", ";
+            artistCount++;
+        }
     }
 
-    info["artists"] = info["artists"].substring(0, info["artists"].length - 2) + " and more..";
+    info["artists"] = info["artists"].substring(0, info["artists"].length - 2)
+    if (artistCount !== 1)
+         info["artists"] += " and more..";
 
     return info;
 }
