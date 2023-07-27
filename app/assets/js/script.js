@@ -448,6 +448,7 @@ bindEvent("click", ".fa-random", function () {
             queue.appendChild(listView);
         });
 
+        playlist[playIndex]["player"].setCurrentTime(0);
         playlist[playIndex]["player"].setOffset(0);
 
         play();

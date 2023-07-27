@@ -4,6 +4,8 @@ setPositionState(0, 0);
 
 let count = 0, resizeTimeout = null;
 
+document.addEventListener("click", hideContext);
+
 /*
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
@@ -83,57 +85,35 @@ function playAction(card) {
  *
  * Diverse Funktionen welche durch Benutzereingaben ausgelöst werden
  */
-bindEvent("click", ".card .darker", function () {
-    playAction(this.closest(".card"));
+bindEvent("click", ".card .darker, .songList tr[data-id]", function () {
+    playAction(this.closest(".card") ?? this);
 });
-bindEvent("click", ".songList tr[data-id]", function () {
-    playAction(this);
-});
-bindEvent("contextmenu", ".card .darker", function (e) {
+bindEvent("contextmenu", ".card .darker, .songList tr[data-id]", function (e) {
     e.preventDefault();
-
-    if (!isTouchScreen()) {
-        showContext(e, this.closest(".songCard"));
-    }
+    if (!isTouchScreen()) showContext(e, this.closest(".card") ?? this);
 });
-bindEvent("contextmenu", ".songList tr[data-id]", function (e) {
-    e.preventDefault();
-
-    if (!isTouchScreen()) {
-        showContext(e, this);
-    }
-});
-bindEvent("touchstart", ".songList tr[data-id]", function (e) {
+bindEvent("touchstart", ".card .darker, .songList tr[data-id]", function (e) {
     if (isTouchScreen()) {
         touchTimeout = setTimeout(() => {
-            navigator.vibrate(200);
-            showContext(e, this);
+            showContext(e, this.closest(".card") ?? this);
         }, 500);
     }
 });
-bindEvent("touchend", ".songList tr[data-id]", function () {
-    if (isTouchScreen()) {
-        clearTimeout(touchTimeout);
-    }
+bindEvent("touchend", ".card .darker, .songList tr[data-id]", function () {
+    if (isTouchScreen()) clearTimeout(touchTimeout);
 });
-bindEvent("touchstart", ".card .darker", function (e) {
-    if (isTouchScreen()) {
-        touchTimeout = setTimeout(() => {
-            navigator.vibrate(200);
-            showContext(e, this.closest(".card"));
-        }, 500);
-    }
-});
-bindEvent("touchend", ".card .darker", function () {
-    if (isTouchScreen()) {
-        clearTimeout(touchTimeout);
-    }
-});
+
+function hideContext() {
+    const contextMenu = document.getElementById("contextMenu");
+
+    contextMenu.style.display = "none";
+    contextMenu.innerHTML = "";
+}
 
 function showContext(e, card) {
-    const contextMenu = document.getElementById("contextMenu");
-    contextMenu.innerHTML = "";
+    hideContext();
 
+    const contextMenu = document.getElementById("contextMenu");
     if (!isTouchScreen()) {
         const computedStyle = window.getComputedStyle(contextMenu);
         const contextPadding = Number(computedStyle.padding.replace("px", "")) * 2;
@@ -261,12 +241,6 @@ function showContext(e, card) {
     }
 
     contextMenu.appendChild(menu);
-
-    document.addEventListener("click", function hideContext() {
-        document.removeEventListener("click", hideContext);
-        contextMenu.style.display = "none";
-    });
-
     contextMenu.style.display = "block";
 }
 

@@ -571,7 +571,8 @@ function hideNotification(notification) {
  * Überprüft, ob ein Gerät touch-fähig ist
  */
 function isTouchScreen() {
-    return Boolean(window.matchMedia("(pointer: coarse)").matches);
+    return 'ontouchstart' in window
+        || navigator.maxTouchPoints;
 }
 
 /*
