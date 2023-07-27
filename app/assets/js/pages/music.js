@@ -83,29 +83,51 @@ function playAction(card) {
  *
  * Diverse Funktionen welche durch Benutzereingaben ausgelöst werden
  */
-bindEvent("click", ".songCard .darker", function () {
-    playAction(this.closest(".songCard"));
-});
-bindEvent("click", ".playlistCard .darker", function () {
-    playAction(this.closest(".playlistCard"));
+bindEvent("click", ".card .darker", function () {
+    playAction(this.closest(".card"));
 });
 bindEvent("click", ".songList tr[data-id]", function () {
     playAction(this);
 });
-bindEvent("contextmenu", ".songCard .darker", function (e) {
+bindEvent("contextmenu", ".card .darker", function (e) {
     e.preventDefault();
 
-    showContext(e, this.closest(".songCard"));
-});
-bindEvent("contextmenu", ".playlistCard .darker", function (e) {
-    e.preventDefault();
-
-    showContext(e, this.closest(".playlistCard"));
+    if (!isTouchScreen()) {
+        showContext(e, this.closest(".songCard"));
+    }
 });
 bindEvent("contextmenu", ".songList tr[data-id]", function (e) {
     e.preventDefault();
 
-    showContext(e, this);
+    if (!isTouchScreen()) {
+        showContext(e, this);
+    }
+});
+bindEvent("touchstart", ".songList tr[data-id]", function (e) {
+    if (isTouchScreen()) {
+        touchTimeout = setTimeout(() => {
+            navigator.vibrate(200);
+            showContext(e, this);
+        }, 500);
+    }
+});
+bindEvent("touchend", ".songList tr[data-id]", function () {
+    if (isTouchScreen()) {
+        clearTimeout(touchTimeout);
+    }
+});
+bindEvent("touchstart", ".card .darker", function (e) {
+    if (isTouchScreen()) {
+        touchTimeout = setTimeout(() => {
+            navigator.vibrate(200);
+            showContext(e, this.closest(".card"));
+        }, 500);
+    }
+});
+bindEvent("touchend", ".card .darker", function () {
+    if (isTouchScreen()) {
+        clearTimeout(touchTimeout);
+    }
 });
 
 function showContext(e, card) {
@@ -142,7 +164,13 @@ function showContext(e, card) {
 
     const cover = document.createElement("div");
     cover.classList.add("cover");
-    cover.style.backgroundImage = "url('" + data["cover"] + "?size=64" + "')";
+    if (typeof data["cover"] !== "undefined") {
+        cover.style.backgroundImage = "url('" + data["cover"] + "?size=64" + "')";
+    } else {
+        const coverElement = card.querySelector(".cover");
+        cover.style.backgroundImage = coverElement.style.backgroundImage;
+        cover.style.backgroundSize = "64px";
+    }
 
     const songInfo = document.createElement("div");
     songInfo.classList.add("songInfo");
@@ -637,7 +665,7 @@ async function generateBlockView(songs, categoryView, cover) {
 
         if (typeof song["playlist"] === "undefined") {
             card = document.createElement('div');
-            card.className = 'songCard';
+            card.classList.add("songCard", "card");
             card.dataset.id = song.id;
 
             const darker = document.createElement('div');
@@ -667,7 +695,7 @@ async function generateBlockView(songs, categoryView, cover) {
             let info = await generatePlaylistInfo(song);
 
             card = document.createElement('div');
-            card.className = 'playlistCard';
+            card.classList.add("playlistCard", "card");
             card.dataset.id = song.id;
 
             const darkerDiv = document.createElement('div');

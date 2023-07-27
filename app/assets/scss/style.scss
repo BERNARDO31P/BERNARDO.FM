@@ -27,11 +27,6 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 
-*:not(input):not(textarea) {
-  -webkit-user-select: none; /* disable selection/Copy of UIWebView */
-  -webkit-touch-callout: none; /* disable the IOS popup when long-press on a link */
-}
-
 h2 {
   margin: 30px 0 5px 0;
 }
@@ -572,6 +567,9 @@ a.button {
 
             background-color: black;
             border-radius: 5px;
+
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
 
             opacity: 0;
           }
@@ -1454,6 +1452,11 @@ a.button {
     tr:last-of-type {
       border-bottom-left-radius: 10px;
       border-bottom-right-radius: 10px;
+    }
+
+    tr[data-id] {
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
 
     tr[data-id]:hover {
