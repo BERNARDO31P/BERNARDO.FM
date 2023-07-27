@@ -46,9 +46,6 @@ document.addEventListener("visibilitychange", function () {
  * Wenn der Benutzer die Fenstergrösse verändert, werden die Controls versteckt
  */
 window.addEventListener("resize", function () {
-    removeControls("controlsContent");
-    removeControls("controlsQueue");
-
     updateSearch();
 });
 
@@ -250,40 +247,7 @@ bindEvent("mouseup, touchend", "[data-title]", function (e) {
 
     touched = currentTime;
     touchedElement = target;
-
-    mouseover(null, target.closest("[data-id]"));
 });
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
- */
-bindEvent("mouseover", "#queueView tr[data-id]", mouseover);
-
-function mouseover(e, element) {
-    element = (element) ? element : this;
-
-    let controls = element.querySelector(".controlsQueue");
-    removeControls("controlsQueue", controls);
-
-    if (!controls) {
-        controls = createControls("controlsQueue", ["play", "delete"]);
-        let pos = element.getBoundingClientRect();
-
-        controls.style.top = "3px";
-        controls.style.right = "0";
-        controls.style.height = pos.height - 6 + "px";
-        controls.style.lineHeight = pos.height - 6 + "px";
-        controls.setAttribute("data-id", element.getAttribute("data-id"));
-
-        setTimeout(() => {
-            element.querySelector("td:last-of-type").appendChild(controls);
-            controls.classList.add("show");
-        }, 50);
-    }
-}
 
 /*
  * Funktion: Anonym
@@ -292,11 +256,11 @@ function mouseover(e, element) {
  * Findet heraus welches Lied abgespielt werden soll
  * Spielt das Lied ab
  */
-bindEvent("click", "#queueView .fa-play", async function () {
+bindEvent("click", "#queueView tr[data-id]", async function () {
     pauseSong();
     playPauseButton("load");
 
-    let id = this.closest(".controlsQueue").dataset.id;
+    let id = this.dataset.id;
 
     for (let [key, value] of Object.entries(playlist)) {
         if (value["id"] === id) playIndex = Number(key);
@@ -360,20 +324,6 @@ bindEvent("click", "#queueView .fa-trash", async function () {
 
     if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
     else queue.style.right = "0";
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Wenn die Wiedergabenliste verlassen wird, werden die Liedoptionen entfernt
- */
-bindEvent("mouseout", "#queue", function () {
-    setTimeout(function () {
-        if (currentHover.closest("#queue") === null) {
-            removeControls("controlsQueue");
-        }
-    }, 50);
 });
 
 /*
@@ -490,11 +440,13 @@ bindEvent("click", ".fa-random", function () {
         partIndex = 0;
         nextPartIndex = 0;
 
-        let queueView = document.getElementById("queueView");
-        let queue = queueView.querySelector("#queue");
+        generateListView(playlist).then((listView) => {
+            let queueView = document.getElementById("queueView");
+            let queue = queueView.querySelector("#queue");
 
-        queue.innerHTML = "";
-        queue.appendChild(generateListView(playlist));
+            queue.innerHTML = "";
+            queue.appendChild(listView);
+        });
 
         playlist[playIndex]["player"].setOffset(0);
 
@@ -512,6 +464,17 @@ bindEvent("mouseover", ".volume, .volumeBackground", function () {
     document.getElementsByClassName("volumeBackground")[0].classList.add("show");
     hideVolumeSlider();
 });
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Dafür da um auch in JavaScript zu wissen, auf welchem Element man sich momentan befindet
+ */
+document.addEventListener("mouseover", function (e) {
+    currentHover = e.target;
+});
+
 
 /*
  * Funktion: Anonym
@@ -562,9 +525,6 @@ bindEvent("click", "[data-angle='up']", function () {
     clearURL();
 
     if (window.scrollY !== 0) navbar.classList.add("shadow");
-
-    removeControls("controlsContent");
-    removeControls("controlsQueue");
 });
 
 /*
@@ -591,14 +551,19 @@ bindEvent("click", "[data-angle='down']", function () {
 
     let queue = queueView.querySelector("#queue");
     if (changedQueue) {
-        queue.clearChildren();
-        queue.appendChild(generateQueue(playlist));
+        generateQueue(playlist).then(listView => {
+            queue.innerHTML = "";
+            queue.appendChild(listView);
+
+            if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
+            else queue.style.right = "0";
+        });
 
         changedQueue = false;
+        updatePlaying();
+    } else {
+        updatePlaying();
     }
-
-    if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
-    else queue.style.right = "0";
 
     queueView.animate([
         {top: '100%'},
@@ -608,13 +573,7 @@ bindEvent("click", "[data-angle='down']", function () {
         fill: "forwards"
     });
 
-    updatePlaying();
-    updateURL();
-
     this.setAttribute("data-angle", "up");
-
-    removeControls("controlsContent");
-    removeControls("controlsQueue");
 });
 
 /*

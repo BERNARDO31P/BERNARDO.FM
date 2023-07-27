@@ -27,6 +27,7 @@ let theme = getCookie('theme');
 if (!theme) theme = 'light';
 document.getElementsByTagName("html")[0].setAttribute("data-theme", theme);
 
+// TODO: Comment
 HTMLElement.prototype.animateCallback = function (keyframes, options, callback) {
     let animation = this.animate(keyframes, options);
 
@@ -35,8 +36,11 @@ HTMLElement.prototype.animateCallback = function (keyframes, options, callback) 
     }
 }
 
-HTMLElement.prototype.clearChildren = function () {
-    while (this.firstChild) this.removeChild(this.lastChild);
+// TODO: Comment
+function deleteMultiple(object, toDelete) {
+    for (const id of toDelete) {
+        delete object[id];
+    }
 }
 
 /*
@@ -161,16 +165,6 @@ const bindEvent = (eventNames, selectors, handler) => {
 };
 
 /*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Dafür da um auch in JavaScript zu wissen, auf welchem Element man sich momentan befindet
- */
-document.addEventListener("mouseover", function (e) {
-    currentHover = e.target;
-});
-
-/*
  * Funktion: prev()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -236,13 +230,13 @@ function updateSearch() {
  *
  * Generiert die Wiedergabeliste
  */
-function generateQueue(data) {
+async function generateQueue(data) {
     let listView = document.createElement("table");
     listView.classList.add("responsive-table");
 
     let columns = Object.keys(removeFromObject(data[0], ["id", "category", "player", "coverPos", "info"]));
     listView.appendChild(generateTableHead(columns));
-    listView.appendChild(generateTableBody(data, columns));
+    listView.appendChild(await generateTableBody(data, columns));
 
     return listView;
 }
@@ -821,63 +815,6 @@ function createIconElement(classes, title = "") {
 }
 
 /*
- * Funktion: createControls()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  elementClass: (String) Defineirt die Klasse, welche dem Objekt zugewiesen wird
- *  actions: (Array) Definiert die Liedoptionen welche angezeigt werden sollen
- *
- * Generiert die Liedoptionen je nach Parameter
- */
-function createControls(elementClass, actions) {
-    const controls = document.createElement('div');
-    controls.classList.add(elementClass);
-
-    for (const action of actions) {
-        switch (action) {
-            case 'play':
-                const playIcon = createIconElement('fas fa-play', 'Play this song');
-                controls.appendChild(playIcon);
-                break;
-            case 'add':
-                const addDiv = document.createElement('div');
-                addDiv.className = 'listAdd';
-                addDiv.title = 'Add this song to the queue';
-
-                const listIcon = createIconElement('fas fa-list');
-                const plusIcon = createIconElement('fas fa-plus');
-
-                addDiv.append(listIcon, plusIcon);
-                controls.appendChild(addDiv);
-                break;
-            case 'delete':
-                const deleteIcon = createIconElement('fas fa-trash', 'Remove this song');
-                controls.appendChild(deleteIcon);
-                break;
-        }
-    }
-
-    return controls;
-}
-
-/*
- * Funktion: removeControls()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  elementClass: (String) Defineirt die Objekte durch die Klasse
- *  element: (Object) Definiert das Element, welches nicht gelöscht werden soll
- *
- * Entfernt die Liedoptionen
- */
-function removeControls(elementClass, element = null) {
-    let controls = document.getElementsByClassName(elementClass);
-
-    for (let control of controls) {
-        if (element !== control) control.remove();
-    }
-}
-
-/*
  * Funktion: setVolumeIcon()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -1186,7 +1123,7 @@ function previousSongIndex() {
 function playPauseButton(option = "pause") {
     if (currentButton !== option) {
         const button = document.getElementById("player").querySelector("#dynamicButton");
-        button.clearChildren();
+        button.innerHTML = "";
 
         if (option === "play") {
             button.appendChild(createIconElement('fas fa-pause'));
@@ -1633,7 +1570,7 @@ async function generatePlaylistInfo(song) {
 
     const data = tryParseJSON(httpGet(pageURL + "system/songs/" + song["playlist"].slice(0, 4).join(",")));
     if (!song["cover"]) {
-        const canvas= document.createElement("canvas");
+        const canvas = document.createElement("canvas");
         const context = canvas.getContext("2d");
         context.canvas.width = 160;
         context.canvas.height = 160;
@@ -1744,13 +1681,14 @@ function createCell(content) {
  * Erstellt einen Table Body, wenn keiner mitgesendet wird
  * Generiert die Tabellenzeilen aus den Daten
  */
-function generateTableBody(data, columns, tbody = null, cover = null) {
+async function generateTableBody(data, columns, tbody = null, cover = null) {
     if (!tbody) tbody = document.createElement('tbody');
 
     const fragment = document.createDocumentFragment();
     const lowerColumns = columns.map(column => column.toLowerCase());
+    const rows = Object.values(data);
 
-    Object.values(data).forEach(row => {
+    for (const row of rows) {
         const tr = document.createElement('tr');
         if (row.id) tr.dataset.id = row.id;
 
@@ -1784,10 +1722,14 @@ function generateTableBody(data, columns, tbody = null, cover = null) {
                 }
             });
         } else {
-            const info = generatePlaylistInfo(row);
+            const info = await generatePlaylistInfo(row);
+
+            const coverDiv = document.createElement('div');
+            coverDiv.className = 'cover';
+            coverDiv.style.backgroundImage = `url('${info.cover}')`;
 
             const coverTd = document.createElement('td');
-            coverTd.appendChild(info.cover);
+            coverTd.appendChild(coverDiv);
 
             const nameTd = createCell(row.name);
             const artistTd = createCell(info.artists);
@@ -1797,7 +1739,7 @@ function generateTableBody(data, columns, tbody = null, cover = null) {
         }
 
         fragment.appendChild(tr);
-    });
+    }
 
     tbody.appendChild(fragment);
     return tbody;

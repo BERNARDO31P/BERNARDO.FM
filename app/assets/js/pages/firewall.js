@@ -1,11 +1,11 @@
 if (typeof window["firewall"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
-window["firewall"] = () => {
+window["firewall"] = async () => {
     let objects = document.querySelectorAll("[data-url]");
 
-    generateFirewall(objects);
-    backgroundProcesses[0] = setInterval(function () {
-        generateFirewall(objects);
+    await generateFirewall(objects);
+    backgroundProcesses[0] = setInterval(async () => {
+        await generateFirewall(objects);
     }, 2000);
 
 }
@@ -50,44 +50,51 @@ bindEvent("mouseout", ".comment.show", function () {
  * Scrollt an die gleiche Position in der Tabelle wie vor dem Aktualisieren der Daten
  * Öffnet die vorher geöffneten Kommentare
  */
-function generateFirewall(objects) {
+async function generateFirewall(objects) {
     for (let object of objects) {
         const data = tryParseJSON(httpGet(object.getAttribute("data-url")));
         const tempData = removeFromObject(data, ["comment", "dport", "flags", "tcp options", "tcp mss"]);
         const columns = getColumns(tempData, 3);
 
+        const fragment = document.createDocumentFragment();
 
-        object.innerHTML = `<div id="firewall">
-            ${(() => {
-                let html = "";
-                for (const [table, chains] of Object.entries(data)) {
-                    html += `<h2>${ucFirst(table)}</h2>
-                        ${(() => {
-                            let html = "";
-                            for (const [chain, rules] of Object.entries(Object(chains))) {
-                                html += `<h3>${chain}</h3>
-                                    <div class="responsive-container">
-                                        <table class="responsive-table">
-                                           <thead>
-                                           ${(() => {
-                                    let html = "";
-                                    for (const column of columns) {
-                                        html += `<th>${column}</th>`;
-                                    }
-                                    return html;
-                                })()}
-                                           </thead>
-                                           ${generateTableBody(rules, columns).innerHTML}
-                                        </table>
-                                    </div>`;
-                            }
-                            return html;
-                    })()}
-                            `;
+        const firewall = document.createElement("div");
+        firewall.classList.add("firewall");
+
+        fragment.appendChild(firewall);
+
+        for (const [table, chains] of Object.entries(data)) {
+            const title = document.createElement("h2");
+            title.innerText = ucFirst(table);
+            firewall.appendChild(title);
+
+            for (const [chain, rules] of Object.entries(Object(chains))) {
+                const title = document.createElement("h3");
+                title.innerText = chain;
+                firewall.appendChild(title);
+
+                const table = document.createElement("table");
+                table.classList.add("responsive-table");
+
+                const thead = document.createElement("thead");
+                const tr = document.createElement("tr");
+
+                for (const column of columns) {
+                    const th = document.createElement("th");
+                    th.innerText = column;
+                    tr.appendChild(th);
                 }
-                return html;
-        })()}
-        </div>`;
+
+                thead.appendChild(tr);
+
+                table.appendChild(thead);
+                table.appendChild(await generateTableBody(rules, columns));
+
+                firewall.appendChild(table);
+            }
+        }
+
+        object.appendChild(fragment);
     }
 }
 

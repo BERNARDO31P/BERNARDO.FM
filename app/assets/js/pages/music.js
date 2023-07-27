@@ -8,37 +8,6 @@ let count = 0, resizeTimeout = null;
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
- */
-bindEvent("mouseover", "#content tr[data-id]", function () {
-    let controls = this.querySelector(".controlsContent");
-    removeControls("controlsContent", controls);
-
-    if (!controls) {
-        if (!this.classList.contains("playlist"))
-            controls = createControls("controlsContent", ["play", "add"]);
-        else
-            controls = createControls("controlsContent", ["play"]);
-
-        let pos = this.getBoundingClientRect();
-
-        controls.style.top = "3px";
-        controls.style.right = "0";
-        controls.style.height = pos.height - 6 + "px";
-        controls.style.lineHeight = pos.height - 6 + "px";
-        controls.setAttribute("data-id", this.dataset.id);
-
-        setTimeout(() => {
-            this.querySelector("td:last-of-type").appendChild(controls);
-            controls.classList.add("show");
-        }, 0);
-    }
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
  * Ändert die Ansicht zwischen Gitter und Liste
  */
 bindEvent("click", "#view [data-prefix='fas']:not(.active)", function () {
@@ -64,19 +33,11 @@ bindEvent("click", "#content .listAdd", function () {
     showNotification("Song added to queue", 3000);
 });
 
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Setzt die Wiedergabenliste zurück
- * Fügt das Lied zur Wiedergabenliste hinzu
- * Lädt den ersten Teil herunter
- * Spielt das Lied ab
- */
-bindEvent("click", "#content .fa-play", function () {
+// TODO: Comment
+function playAction(card) {
     clearSongs();
 
-    addSongToPlaylist(this);
+    addSongToPlaylist(card);
     playPauseButton("load");
 
     downloadPart(0, playIndex, partIndex).then(() => {
@@ -114,7 +75,7 @@ bindEvent("click", "#content .fa-play", function () {
 
         play(true);
     });
-});
+}
 
 /*
  * Funktion: Diverse Funktionen
@@ -122,24 +83,164 @@ bindEvent("click", "#content .fa-play", function () {
  *
  * Diverse Funktionen welche durch Benutzereingaben ausgelöst werden
  */
-bindEvent("mouseout", ".songCard", function () {
-    removeControlsCard(this);
+bindEvent("click", ".songCard .darker", function () {
+    playAction(this.closest(".songCard"));
 });
-bindEvent("mouseout", ".playlistCard", function () {
-    removeControlsCard(this);
+bindEvent("click", ".playlistCard .darker", function () {
+    playAction(this.closest(".playlistCard"));
 });
-bindEvent("mouseover", ".songCard", function () {
-    showControlsCard(this);
+bindEvent("click", ".songList tr[data-id]", function () {
+    playAction(this);
 });
-bindEvent("mouseover", ".playlistCard", function () {
-    showControlsCard(this);
+bindEvent("contextmenu", ".songCard .darker", function (e) {
+    e.preventDefault();
+
+    showContext(e, this.closest(".songCard"));
 });
-bindEvent("click", ".songCard", function () {
-    showControlsCard(this);
+bindEvent("contextmenu", ".playlistCard .darker", function (e) {
+    e.preventDefault();
+
+    showContext(e, this.closest(".playlistCard"));
 });
-bindEvent("click", ".playlistCard", function () {
-    showControlsCard(this);
+bindEvent("contextmenu", ".songList tr[data-id]", function (e) {
+    e.preventDefault();
+
+    showContext(e, this);
 });
+
+function showContext(e, card) {
+    const contextMenu = document.getElementById("contextMenu");
+    contextMenu.innerHTML = "";
+
+    if (!isTouchScreen()) {
+        const computedStyle = window.getComputedStyle(contextMenu);
+        const contextPadding = Number(computedStyle.padding.replace("px", "")) * 2;
+        const contextWidth = Number(computedStyle.width.replace("px", "")) + contextPadding;
+        const coords = [e.clientX, e.clientY];
+
+        if (width - e.clientX > contextWidth) {
+            contextMenu.style.left = coords[0] - 10 + "px";
+            contextMenu.style.top = coords[1] - 10 + "px";
+        } else {
+            contextMenu.style.left = width - contextWidth + 10 + "px";
+            contextMenu.style.top = coords[1] - 10 + "px";
+        }
+    }
+
+    const data = tryParseJSON(httpGet(pageURL + "system/song/" + card.dataset.id));
+    const songName = document.createElement("div");
+    songName.classList.add("songName");
+    songName.textContent = data["name"];
+
+    const songArtist = document.createElement("div");
+    songArtist.classList.add("songArtist");
+    songArtist.textContent = data["artist"] ?? "Album/Playlist";
+
+    const row = document.createElement("div");
+    row.classList.add("row");
+    row.append(songName, songArtist);
+
+    const cover = document.createElement("div");
+    cover.classList.add("cover");
+    cover.style.backgroundImage = "url('" + data["cover"] + "?size=64" + "')";
+
+    const songInfo = document.createElement("div");
+    songInfo.classList.add("songInfo");
+    songInfo.append(cover, row);
+
+    contextMenu.appendChild(songInfo);
+    const divider = document.createElement("div");
+    divider.classList.add("divider");
+
+    contextMenu.appendChild(divider);
+
+    const menuItems = [
+        {
+            "name": "Add to queue",
+            "icon": () => {
+                const addDiv = document.createElement('div');
+                addDiv.classList.add("icon", "listAdd");
+                addDiv.title = 'Add this song to the queue';
+
+                const listIcon = createIconElement('fas fa-list');
+                const plusIcon = createIconElement('fas fa-plus');
+
+                addDiv.append(listIcon, plusIcon);
+                return addDiv;
+            },
+            "action": () => {
+                addSongToPlaylist(card);
+                showNotification("Song added to queue", 3000);
+            }
+        },
+        {
+            "name": "Play as next",
+            "icon": () => {
+                const addDiv = document.createElement('div');
+                addDiv.classList.add("icon", "listAdd");
+                addDiv.title = 'Add this song to the queue';
+
+                const listIcon = createIconElement('fas fa-list');
+                const plusIcon = createIconElement('fas fa-play');
+
+                addDiv.append(listIcon, plusIcon);
+                return addDiv;
+            },
+            "action": () => {
+                addSongToPlaylist(card, 0, true);
+                showNotification("Song will be played next", 3000);
+            }
+        },
+        {
+            "name": "Share",
+            "icon": () => {
+                const addDiv = document.createElement('div');
+                addDiv.classList.add("icon", "listAdd");
+                addDiv.title = 'Share this song';
+
+                const listIcon = createIconElement('fas fa-share');
+
+                addDiv.append(listIcon);
+                return addDiv;
+            },
+            "action": () => {
+                const url = pageURL + "#!page=music&s=" + card.dataset.id;
+                const title = "Share " + data["name"] + " by " + data["artist"];
+                const text = "Check out this song on BERNARDO.FM!";
+
+                navigator.share({title: title, text: text, url: url});
+            }
+        }
+    ];
+
+    const menu = document.createElement("div");
+    menu.classList.add("menu");
+
+    for (let menuItem of menuItems) {
+        const item = document.createElement("div");
+        item.classList.add("item");
+
+        const text = document.createElement("span");
+        text.textContent = menuItem["name"];
+
+        item.append(menuItem["icon"](), text);
+        item.addEventListener("click", () => {
+            menuItem["action"]();
+            contextMenu.style.display = "none";
+        });
+
+        menu.appendChild(item);
+    }
+
+    contextMenu.appendChild(menu);
+
+    document.addEventListener("click", function hideContext() {
+        document.removeEventListener("click", hideContext);
+        contextMenu.style.display = "none";
+    });
+
+    contextMenu.style.display = "block";
+}
 
 /*
  * Funktion: Anonym
@@ -227,20 +328,11 @@ bindEvent("click", ".scrollBack", function () {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * Versteckt beim Scrollen die Liedoptionen
- */
-window.addEventListener("scroll", () => {
-    removeControls("controlsContent");
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
  * Bei einer Veränderung der Grösse wird die Seite neu generiert
  * Dazu da damit genug viele Lieder angezeigt werden
  */
 window.addEventListener("resize", function () {
+    // TODO: Update logic to only download the other songs if needed
     let newWidth = getWidth();
     if (width !== newWidth) {
         width = newWidth;
@@ -331,7 +423,7 @@ window["music"] = async () => {    /*
                     title.textContent = category;
                     listView.appendChild(title);
 
-                    let table = generateListView(songs, cover);
+                    let table = await generateListView(songs, cover);
                     table.setAttribute("data-page", "1");
                     table.setAttribute("data-url", object.dataset.url);
 
@@ -408,8 +500,6 @@ window["music"] = async () => {    /*
                                 element.removeEventListener("scroll", handler);
                             }
                         }
-
-                        removeControls("controlsContent");
                     });
 
                     div.addEventListener("scroll", function (e) {
@@ -503,20 +593,26 @@ window["music"] = async () => {    /*
  * Liest die ID vom Lied aus den Objekt-Eigenschaften aus
  * Lädt die Informationen vom Lied herunter und fügt diese zur Wiedergabenliste hinzu
  */
-function addSongToPlaylist(element, id = 0) {
+function addSongToPlaylist(element, id = 0, next = false) {
     let songID = id;
-
-    if (element) {
-        let controls = element.closest(".controlsContent");
-        songID = controls.dataset.id;
-    }
+    if (element) songID = element.dataset.id;
 
     let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
 
-    if (typeof data.length !== 'number') {
-        let id = playlist.length;
-        playlist[id] = data;
-    } else playlist = data;
+    if (typeof data[0] === "undefined") data = [data];
+    else deleteMultiple(data, ["cover", "name", "artist"]);
+
+    const songs = Object.values(data);
+
+    if (!next) {
+        playlist = [...playlist, ...songs];
+    } else {
+        playlist = [
+            ...playlist.slice(0, playIndex + 1),
+            ...songs,
+            ...playlist.slice(playIndex + 1)
+        ]
+    }
 
     changedQueue = true;
 }
@@ -574,6 +670,9 @@ async function generateBlockView(songs, categoryView, cover) {
             card.className = 'playlistCard';
             card.dataset.id = song.id;
 
+            const darkerDiv = document.createElement('div');
+            darkerDiv.className = 'darker';
+
             const coverDiv = document.createElement('div');
             coverDiv.className = 'cover';
             coverDiv.style.backgroundImage = `url('${info.cover}')`;
@@ -588,7 +687,7 @@ async function generateBlockView(songs, categoryView, cover) {
             artistSpan.dataset.title = info.artists;
             artistSpan.textContent = info.artists;
 
-            card.append(coverDiv, nameSpan, artistSpan);
+            card.append(darkerDiv, coverDiv, nameSpan, artistSpan);
         }
 
         fragment.appendChild(card);
@@ -606,7 +705,7 @@ async function generateBlockView(songs, categoryView, cover) {
  *
  * Generiert eine Tabelle aus den Daten (Table body) und Schlüssel (Table head)
  */
-function generateListView(data, cover) {
+async function generateListView(data, cover) {
     let table = document.createElement("table");
     table.classList.add("responsive-table");
 
@@ -621,57 +720,6 @@ function generateListView(data, cover) {
     }
 
     table.appendChild(generateTableHead(columns));
-
-    let tbody = document.createElement("tbody");
-    tbody.onscroll = () => {
-        removeControls("controlsQueue");
-    };
-
-    generateTableBody(data, columns, tbody, cover);
-
-    table.appendChild(tbody);
+    table.appendChild(await generateTableBody(data, columns, null, cover));
     return table;
-}
-
-/*
- * Funktion: showControlsCard()
- * Autor: Bernardo de Oliveira
- *
- * Zeigt die Optionen von einem Lied (Abspielen, zur Wiedergabeliste hinzufügen usw)
- */
-function showControlsCard(card) {
-    let controls = card.querySelector(".controlsContent");
-    if (!controls) {
-        removeControls("controlsContent");
-        if (card.classList.contains("songCard"))
-            controls = createControls("controlsContent", ["play", "add"]);
-        else
-            controls = createControls("controlsContent", ["play"]);
-
-        controls.setAttribute("data-id", card.dataset.id);
-        controls.style.bottom = "0";
-        controls.style.left = "0";
-
-        setTimeout(function () {
-            card.appendChild(controls);
-            controls.classList.add("show");
-        }, 0);
-    } else clearTimeout(controlsTimeout);
-}
-
-/*
- * Funktion: removeControlsCard()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  card: (Object) Definiert das Objekt welches verlassen wurde
- *
- * Entfernt die Lied Optionen
- */
-function removeControlsCard(card) {
-    controlsTimeout = setTimeout(function () {
-        if (card !== currentHover) {
-            let controls = card.querySelector(".controlsContent");
-            if (controls) controls.remove();
-        }
-    }, 0);
 }

@@ -259,6 +259,7 @@
     "id": "vKWsC017XIr7kf6bDzk",
     "name": "Full-On",
     "category": "Playlists",
+    "shuffle": true,
     "playlist": [
       "dQVjRxdFQ3e_36p3s9w",
       "O0Rd-k9nbhr8vilp8UM",
@@ -302,6 +303,7 @@
     "id": "XOaBmUtmTQ4znYZODeE",
     "name": "Old-School",
     "category": "Playlists",
+    "shuffle": true,
     "playlist": [
       "cRRkdrBJ5YtYdq1guvQ",
       "4AA5RHUxJOWUeCHirXE",
@@ -959,11 +961,13 @@
     "id": "8SEG0pWs4JpgqrdI4Y0",
     "name": "cosmicode mixes",
     "category": "Playlists",
+    "shuffle": true,
     "playlist": [
       "096gUnWl7z534S62io0",
       "ZKZjV3i5kgNwgRsGEnw",
       "IhLZ8z0APV0TX2iHhy7",
-      "mipu2dzj66xBGfUlQkT"
+      "mipu2dzj66xBGfUlQkT",
+      "qukdYFqJLhFB5HNJh9g"
     ]
   },
   {
@@ -1627,5 +1631,15 @@
     "fileName": "Ovnimoon - Galactic Mantra (Killerwatts Remix).wav",
     "category": "Psytrance",
     "info": ["X0mQFlT6sdTGRNRCE6x", "6hRKEhBhH9F__U7iRsp"]
+  },
+  {
+    "id": "qukdYFqJLhFB5HNJh9g",
+    "cover": "cosmicode @ Solar Shift 2023.jpg",
+    "name": "Solar Shift 2023",
+    "artist": "cosmicode",
+    "length": "1:52:38",
+    "fileName": "cosmicode @ Solar Shift 2023.wav",
+    "category": "Psytrance",
+    "info": "4tcUX7loPqUwI9ahI9E"
   }
 ]

@@ -604,10 +604,19 @@ $router->get("/song/([\w-]*)$", function ($id) {
 		foreach ($song["playlist"] as $songID) {
 			$playlist[] = search_song($songID, $db);
 		}
+
+		if (isset($song["shuffle"]) && $song["shuffle"]) {
+			shuffle_level($playlist, 0);
+		} else {
+			$playlist["cover"] = $song["cover"];
+		}
+
+		$playlist["name"] = $song["name"];
+		$playlist["artist"] = $song["artist"];
+
 		recursive_unset($playlist, "fileName");
 		recursive_prepend($playlist, "cover", "system/img/");
 
-		shuffle_level($playlist, 0);
 		echo json_encode($playlist);
 	} else {
 		recursive_unset($song, "fileName");

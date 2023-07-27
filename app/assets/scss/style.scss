@@ -7,12 +7,12 @@
 }
 
 audio {
-    opacity: 0;
-    position: absolute;
-    width: 0;
-    height: 0;
-    top: 0;
-    left: 0;
+  opacity: 0;
+  position: absolute;
+  width: 0;
+  height: 0;
+  top: 0;
+  left: 0;
 }
 
 html, body {
@@ -878,23 +878,123 @@ a.button {
     display: inline-block;
     vertical-align: middle;
   }
+}
 
-  .listAdd {
-    position: relative;
-    display: initial;
+#contextMenu {
+  font-family: "Roboto Regular", sans-serif;
+  color: var(--text-color);
 
-    padding: 0;
+  position: fixed;
 
-    .fa-plus {
-      background-color: var(--primary-color);
+  width: 300px;
+  height: auto;
 
-      padding: 0 !important;
-      margin: 5px 0 0 -15px;
+  padding: 10px;
+  border-radius: 5px;
 
-      font-size: 10px;
-      z-index: 1;
+  background-color: var(--body-background);
+  box-shadow: -2px -2px 3px var(--shadow-light), 2px 2px 3px var(--shadow-dark);
+
+  z-index: 2;
+
+  display: none;
+
+  .songInfo {
+    display: inline-flex;
+    padding: 10px;
+
+    .row {
+      padding: 0 0 0 15px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      .songName {
+        color: var(--text-color);
+        font-size: 20px;
+      }
+
+      .songArtist {
+        color: var(--text-color-artist);
+      }
+    }
+
+    .cover {
+      width: 64px;
+      height: 64px;
+
+      border-radius: 5px;
     }
   }
+
+  .divider {
+    height: 1px;
+    width: 100%;
+
+    background-color: var(--text-color-author);
+
+    opacity: 0.5;
+    margin: 2px;
+  }
+
+  .menu {
+    padding: 10px;
+
+    .item:hover {
+      background-color: var(--active-background);
+    }
+
+    .item {
+      transition: 0.2s;
+      cursor: pointer;
+
+      padding: 5px 20px;
+      display: flex;
+
+      border-radius: 5px;
+
+      .icon {
+        margin: 2px 0 0 0;
+        width: 25px;
+        height: 25px;
+      }
+
+      .listAdd {
+        position: relative;
+        display: initial;
+
+        padding: 0;
+
+        .fa-plus {
+          background-color: var(--primary-color);
+
+          padding: 0 !important;
+          margin: 0 0 -3px -5px;
+
+          font-size: 10px;
+          z-index: 1;
+        }
+
+        .fa-play {
+          background-color: var(--primary-color);
+
+          padding: 0 !important;
+          margin: 0 0 -3px -5px;
+
+          font-size: 10px;
+          z-index: 1;
+        }
+      }
+
+      span {
+        line-height: 25px;
+
+        margin: 0 0 0 25px;
+      }
+    }
+  }
+
 }
 
 #queueView {
@@ -1599,6 +1699,17 @@ a.button {
 }
 
 @media screen and (max-width: 850px) {
+  #contextMenu {
+    width: 100%;
+
+    left: 0;
+    bottom: 0;
+
+    padding: 0;
+
+    border-radius: 0;
+  }
+
   #content {
     .graph {
       width: 754px;
