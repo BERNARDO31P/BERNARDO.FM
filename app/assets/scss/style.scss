@@ -27,6 +27,11 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 
+*:not(input):not(textarea) {
+  -webkit-user-select: none; /* disable selection/Copy of UIWebView */
+  -webkit-touch-callout: none; /* disable the IOS popup when long-press on a link */
+}
+
 h2 {
   margin: 30px 0 5px 0;
 }
@@ -889,7 +894,6 @@ a.button {
   width: 300px;
   height: auto;
 
-  padding: 10px;
   border-radius: 5px;
 
   background-color: var(--body-background);
@@ -935,7 +939,7 @@ a.button {
     background-color: var(--text-color-author);
 
     opacity: 0.5;
-    margin: 2px;
+    margin: 2px 2px 2px -1px;
   }
 
   .menu {
