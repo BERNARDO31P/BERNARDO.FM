@@ -96,48 +96,52 @@ class MultiTrackPlayer extends EventTarget {
         if (this.#audioTag.paused) await this.#audioTag.play();
 
         this.#audioTag.currentTime = this.#currentTime;
-        this.#setPositionState(this.getDuration(), this.#currentTime);
+        this.#setPositionState();
 
         this.addTimeUpdate();
     }
 
     playNext(index = 0, startTime = 0) {
         if (!this.#hadError && !(startTime === 0 && this.isPlaying())) {
-            this.#playing = true;
+            if (typeof this.#audioBuffers[index] !== "undefined") {
+                this.#playing = true;
 
-            if (audioContext.state !== "running")
-                audioContext.resume();
+                if (audioContext.state !== "running")
+                    audioContext.resume();
 
-            const source = audioContext.createBufferSource();
-            this.#audioSources[index] = source;
+                const source = audioContext.createBufferSource();
+                this.#audioSources[index] = source;
 
-            source.buffer = this.#audioBuffers[index];
-            source.connect(this.#gainNode);
+                source.buffer = this.#audioBuffers[index];
+                source.connect(this.#gainNode);
 
-            let when = audioContext.currentTime;
-            try {
-                source.start(startTime + when, this.#offset);
-                when = startTime + when;
-            } catch (e) {
-                source.start(when, this.#offset);
+                let when = audioContext.currentTime;
+                try {
+                    source.start(startTime + when, this.#offset);
+                    when = startTime + when;
+                } catch (e) {
+                    source.start(when, this.#offset);
+                }
+                source.when = when;
+
+                source.onended = () => {
+                    delete this.#startTimeouts[index];
+                    this.#currentOffset = 0;
+
+                    if (!Object.keys(this.#startTimeouts).length)
+                        this.dispatchEvent(new Event("end"));
+                }
+
+                this.#startTimeouts[index] = setTimeout(async () => {
+                    this.#executedTask = true;
+                    this.#currentTrackIndex = index;
+                    this.#startTime = when;
+
+                    this.dispatchEvent(new Event("play"));
+                }, startTime * 1000);
+            } else {
+                this.#waitIndex = index;
             }
-            source.when = when;
-
-            source.onended = () => {
-                delete this.#startTimeouts[index];
-                this.#currentOffset = 0;
-
-                if (!Object.keys(this.#startTimeouts).length)
-                    this.dispatchEvent(new Event("end"));
-            }
-
-            this.#startTimeouts[index] = setTimeout(async () => {
-                this.#executedTask = true;
-                this.#currentTrackIndex = index;
-                this.#startTime = when;
-
-                this.dispatchEvent(new Event("play"));
-            }, startTime * 1000);
         }
     }
 
@@ -168,7 +172,7 @@ class MultiTrackPlayer extends EventTarget {
 
     #playEvent() {
         if (!this.isPlaying() && !this.#initialPlay) {
-            this.#setPositionState(this.#length, this.#currentTime);
+            this.#setPositionState();
             this.playNext(this.#currentTrackIndex, 0);
         }
     }
@@ -390,12 +394,12 @@ class MultiTrackPlayer extends EventTarget {
         return URL.createObjectURL(blob);
     }
 
-    #setPositionState(length, position) {
+    #setPositionState() {
         if ('mediaSession' in navigator) {
             navigator.mediaSession.setPositionState({
-                duration: length,
+                duration: this.#audioTag.duration,
                 playbackRate: 1,
-                position: position
+                position: this.#audioTag.currentTime
             });
         }
     }
