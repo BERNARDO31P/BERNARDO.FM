@@ -294,7 +294,7 @@ function updatePlaying() {
         const top = rowBounding.height + queueBounding.top;
 
         const marginTop = Number(imageStyle.marginTop.replace("px", ""));
-        const scroll = rowBounding.top - top - marginTop;
+        const scroll = rowBounding.top - top - (marginTop * 2);
         queue.scrollBy(0, scroll);
     }
 }
