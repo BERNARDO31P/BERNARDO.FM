@@ -120,7 +120,7 @@ function showContext(e, card) {
     if (!isTouchScreen()) {
         const computedStyle = window.getComputedStyle(contextMenu);
         const contextPadding = Number(computedStyle.padding.replace("px", "")) * 2;
-        const contextWidth = Number(computedStyle.width.replace("px", "")) + contextPadding;
+        const contextWidth = Number(computedStyle.maxWidth.replace("px", "")) + contextPadding;
         const coords = [e.clientX, e.clientY];
 
         if (width - e.clientX > contextWidth) {
@@ -132,9 +132,13 @@ function showContext(e, card) {
         }
     }
 
+    const marquee = document.createElement("div");
+    marquee.classList.add("marquee");
+
     const songName = document.createElement("div");
     songName.classList.add("songName");
     songName.textContent = card.querySelector(".name").textContent;
+    marquee.append(songName);
 
     const songArtist = document.createElement("div");
     songArtist.classList.add("songArtist");
@@ -146,7 +150,7 @@ function showContext(e, card) {
 
     const row = document.createElement("div");
     row.classList.add("row");
-    row.append(songName, songArtist);
+    row.append(marquee, songArtist);
 
     const cover = document.createElement("div");
     cover.classList.add("cover");
@@ -248,6 +252,15 @@ function showContext(e, card) {
 
     contextMenu.appendChild(menu);
     contextMenu.style.display = "block";
+
+    setTimeout(() => {
+        const computedStyle = window.getComputedStyle(songName);
+        const textWidth = getTextWidth(songName.textContent, computedStyle.font, computedStyle.fontSize) + 25;
+
+        if (textWidth >= marquee.offsetWidth) {
+            marquee.classList.add("scrolling");
+        }
+    }, defaultDelay);
 }
 
 /*
@@ -608,7 +621,7 @@ function addSongToPlaylist(element, id = 0, next = false) {
     let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
 
     if (typeof data[0] === "undefined") data = [data];
-    else deleteMultiple(data, ["cover", "name", "artist"]);
+    else deleteMultiple(data, ["cover", "name", "artist", "count"]);
 
     const songs = Object.values(data);
 

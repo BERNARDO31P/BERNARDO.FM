@@ -1599,9 +1599,10 @@ async function generatePlaylistInfo(song) {
 
     let artistCount = 0;
     for (let i = 0; i < data.length; i++) {
-        if (artistCount >= 5) break;
+        if (artistCount >= 4) break;
         const artists = data[i]["artist"].split(/[,&]+/).map(artist => artist.trim());
         for (let artist of artists) {
+            if (artistCount >= 4) break;
             if (info["artists"].includes(artist)) continue;
             info["artists"] += artist + ", ";
             artistCount++;
@@ -1613,6 +1614,24 @@ async function generatePlaylistInfo(song) {
          info["artists"] += " and more..";
 
     return info;
+}
+
+// TODO: Comment
+function getTextWidth(text, font, size) {
+    const tempElement = document.createElement("span");
+    tempElement.innerHTML = text;
+    tempElement.style.font = font;
+    tempElement.style.fontSize = size;
+    tempElement.style.visibility = "hidden";
+    tempElement.style.whiteSpace = "nowrap";
+
+    document.body.appendChild(tempElement);
+
+    const textWidth = tempElement.offsetWidth;
+
+    document.body.removeChild(tempElement);
+
+    return textWidth;
 }
 
 /*

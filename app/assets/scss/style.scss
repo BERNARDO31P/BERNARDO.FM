@@ -888,11 +888,11 @@ a.button {
   color: var(--text-color);
 
   position: fixed;
-
-  width: 300px;
-  height: auto;
+  max-width: 350px;
+  min-width: 275px;
 
   border-radius: 5px;
+  padding: 10px;
 
   background-color: var(--body-background);
   box-shadow: -2px -2px 3px var(--shadow-light), 2px 2px 3px var(--shadow-dark);
@@ -903,14 +903,54 @@ a.button {
 
   .songInfo {
     display: inline-flex;
-    padding: 10px;
+    width: 100%;
+    overflow: hidden;
 
     .row {
-      padding: 0 0 0 15px;
-
       display: flex;
       flex-direction: column;
       justify-content: center;
+
+      min-width: 0;
+      width: 100%;
+
+      .marquee {
+        padding: 0 0 0 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .marquee:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 10px;
+        height: 25px;
+        background-color: var(--body-background);
+        z-index: 1;
+      }
+
+      .scrolling div {
+        display: inline-block;
+        padding-left: 100%;
+        animation: marquee 10s linear infinite;
+      }
+
+      .scrolling div:nth-child(2) {
+        animation-delay: 1s;
+      }
+
+      @keyframes marquee {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-100%);
+        }
+      }
 
       .songName {
         color: var(--text-color);
@@ -919,6 +959,7 @@ a.button {
 
       .songArtist {
         color: var(--text-color-artist);
+        padding: 0 0 0 10px;
       }
     }
 
@@ -933,18 +974,18 @@ a.button {
   }
 
   .divider {
+    position: relative;
+
     height: 1px;
-    width: 100%;
+    width: calc(100% + 20px);
 
     background-color: var(--text-color-author);
+    opacity: .5;
 
-    opacity: 0.5;
-    margin: 2px 2px 2px -1px;
+    left: -10px;
   }
 
   .menu {
-    padding: 10px;
-
     .item:hover {
       background-color: var(--active-background);
     }
@@ -994,7 +1035,7 @@ a.button {
       span {
         line-height: 25px;
 
-        margin: 0 0 0 25px;
+        margin: 0 0 0 30px;
       }
     }
   }
@@ -1709,12 +1750,10 @@ a.button {
 
 @media screen and (max-width: 850px) {
   #contextMenu {
-    width: 100%;
+    width: calc(100% - 20px);
 
     left: 0;
     bottom: 0;
-
-    padding: 0;
 
     border-radius: 0;
   }
