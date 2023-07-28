@@ -1613,8 +1613,6 @@ async function generatePlaylistInfo(song) {
         if (artistCount >= 4) break;
         const artists = data[i]["artist"].split(/[,&]+/).map(artist => artist.trim());
         for (let artist of artists) {
-            console.log(artist);
-            console.log(artistCount);
             if (artistCount >= 4) break;
             if (info["artists"].includes(artist)) continue;
             info["artists"] += artist + ", ";
