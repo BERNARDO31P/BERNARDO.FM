@@ -141,14 +141,16 @@ class MultiTrackPlayer extends EventTarget {
         }
     }
 
-    pause() {
+    pause(bypass = false) {
         this.#playing = false;
         this.#currentTime = this.#audioTag.currentTime;
 
-        if (!this.#audioTag.paused) this.#audioTag.pause();
+        if (!bypass) {
+            this.#audioTag.removeEventListener("play", this.#playEventBind);
+            this.#audioTag.removeEventListener("pause", this.#pauseEventBind);
+        }
 
-        this.#audioTag.removeEventListener("play", this.#playEventBind);
-        this.#audioTag.removeEventListener("pause", this.#pauseEventBind);
+        if (!this.#audioTag.paused) this.#audioTag.pause();
 
         this.#clearTimeouts();
         this.setOffset(this.getCurrentPartTime());
@@ -171,7 +173,7 @@ class MultiTrackPlayer extends EventTarget {
 
     #pauseEvent() {
         if (this.isPlaying() && !this.#initialPlay)
-            this.pause();
+            this.pause(true);
     }
 
     queueTrack(index, startTime = null) {
