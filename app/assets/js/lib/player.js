@@ -24,15 +24,15 @@ class MultiTrackPlayer extends EventTarget {
     #offset = 0;
     #currentOffset = 0;
     #currentTime = 0;
-    #timeUpdateHandler = null;
 
     #playing = false;
     #executedTask = true;
 
     #hadError = false;
 
-    #playEventBind = null;
-    #pauseEventBind = null;
+    #timeUpdateHandler = null;
+    #playEventHandler = null;
+    #pauseEventHandler = null;
 
     constructor(length) {
         super();
@@ -53,8 +53,8 @@ class MultiTrackPlayer extends EventTarget {
             document.body.append(this.#audioTag);
         }
 
-        this.#playEventBind = this.#playEvent.bind(this);
-        this.#pauseEventBind = this.#pauseEvent.bind(this);
+        this.#playEventHandler = this.#playEvent.bind(this);
+        this.#pauseEventHandler = this.#pauseEvent.bind(this);
     }
 
     addTimeUpdate() {
@@ -90,8 +90,8 @@ class MultiTrackPlayer extends EventTarget {
             this.#audioTag.src = this.#createSilence(this.#length);
         }
 
-        this.#audioTag.addEventListener("play", this.#playEventBind);
-        this.#audioTag.addEventListener("pause", this.#pauseEventBind);
+        this.#audioTag.addEventListener("play", this.#playEventHandler);
+        this.#audioTag.addEventListener("pause", this.#pauseEventHandler);
 
         if (this.#audioTag.paused) await this.#audioTag.play();
 
@@ -145,8 +145,8 @@ class MultiTrackPlayer extends EventTarget {
         this.#playing = false;
 
         if (!bypass) {
-            this.#audioTag.removeEventListener("play", this.#playEventBind);
-            this.#audioTag.removeEventListener("pause", this.#pauseEventBind);
+            this.#audioTag.removeEventListener("play", this.#playEventHandler);
+            this.#audioTag.removeEventListener("pause", this.#pauseEventHandler);
 
             this.removeTimeUpdate();
         }
