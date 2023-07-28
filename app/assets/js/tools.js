@@ -2,7 +2,7 @@ const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [],
     partlist = {}, volume = 0, previousVolume = null, repeatMode = 0,
-    touched = null, touchTimeout = null, touchedElement = null, currentButton = null,
+    touched = null, contextTimeout = null, touchTimeout = null, touchedElement = null, currentButton = null,
     changedQueue = false, width = getWidth(), height = getHeight() + 100;
 
 const defaultDelay = 500;
@@ -1579,16 +1579,17 @@ function onTimelineMove(rangeEvent) {
 async function generatePlaylistInfo(song) {
     let info = {"cover": null, "artists": ""};
 
-    song["playlist"] = song["playlist"].sort(() => 0.5 - Math.random());
+    let data = tryParseJSON(httpGet(pageURL + "system/song/" + song["id"]));
+    const count = data["count"];
+    deleteMultiple(data, ["cover", "name", "count"])
 
-    const data = tryParseJSON(httpGet(pageURL + "system/songs/" + song["playlist"].slice(0, 4).join(",")));
     if (!song["cover"]) {
         const canvas = document.createElement("canvas");
         const context = canvas.getContext("2d");
         context.canvas.width = 160;
         context.canvas.height = 160;
 
-        for (let i = 0, j = 0; i < data.length; i++) {
+        for (let i = 0, j = 0; i < 4; i++) {
             if (i % 2 === 0 && i !== 0) j++;
 
             const image = new Image();
@@ -1608,10 +1609,12 @@ async function generatePlaylistInfo(song) {
     }
 
     let artistCount = 0;
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < count; i++) {
         if (artistCount >= 4) break;
         const artists = data[i]["artist"].split(/[,&]+/).map(artist => artist.trim());
         for (let artist of artists) {
+            console.log(artist);
+            console.log(artistCount);
             if (artistCount >= 4) break;
             if (info["artists"].includes(artist)) continue;
             info["artists"] += artist + ", ";
@@ -1620,7 +1623,7 @@ async function generatePlaylistInfo(song) {
     }
 
     info["artists"] = info["artists"].substring(0, info["artists"].length - 2)
-    if (artistCount !== 1)
+    if (artistCount > 4)
         info["artists"] += " and more..";
 
     return info;

@@ -227,10 +227,10 @@ bindEvent("click", "#player .fa-play", async () => {
  * Wenn das Endgerät ein Touchgerät ist, muss man doppelt drücken
  */
 bindEvent("click", "[data-title]", function (e) {
+    e.preventDefault();
+
     const target = e.target;
     clearTimeout(touchTimeout);
-
-    e.preventDefault();
 
     const currentTime = new Date().getTime();
     const timeDifference = currentTime - touched;

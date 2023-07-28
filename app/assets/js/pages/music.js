@@ -256,14 +256,14 @@ bindEvent("contextmenu", ".songList tr[data-id]", function (e) {
 });
 bindEvent("touchstart", ".card .darker", function (e) {
     if (isTouchScreen()) {
-        touchTimeout = setTimeout(() => {
+        contextTimeout = setTimeout(() => {
             showContext(e, this.closest(".card"), ["play", "queue", "next", "share"]);
         }, defaultDelay);
     }
 });
 bindEvent("touchstart", ".songList tr[data-id]", function (e) {
     if (isTouchScreen()) {
-        touchTimeout = setTimeout(() => {
+        contextTimeout = setTimeout(() => {
             showContext(e, this, ["play", "queue", "next", "share"]);
         }, defaultDelay);
     }
@@ -274,16 +274,16 @@ bindEvent("contextmenu", "#queueView tr[data-id]", function (e) {
 });
 bindEvent("touchstart", "#queueView tr[data-id]", function (e) {
     if (isTouchScreen()) {
-        touchTimeout = setTimeout(() => {
+        contextTimeout = setTimeout(() => {
             showContext(e, this, ["delete", "share"]);
         }, defaultDelay);
     }
 });
 bindEvent("touchend", ".card .darker, .songList tr[data-id], #queueView tr[data-id]", function () {
-    if (isTouchScreen()) clearTimeout(touchTimeout);
+    if (isTouchScreen()) clearTimeout(contextTimeout);
 });
 bindEvent("touchmove", ".card .darker, .songList tr[data-id], #queueView tr[data-id]", function () {
-    if (isTouchScreen()) clearTimeout(touchTimeout);
+    if (isTouchScreen()) clearTimeout(contextTimeout);
 });
 
 function hideContext() {
@@ -861,7 +861,7 @@ function addSongToPlaylist(element, id = 0, next = false) {
     let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
 
     if (typeof data[0] === "undefined") data = [data];
-    else deleteMultiple(data, ["cover", "name", "artist", "count"]);
+    else deleteMultiple(data, ["cover", "name", "count"]);
 
     const songs = Object.values(data);
 
@@ -971,7 +971,7 @@ async function generateListView(data, cover) {
     table.classList.add("responsive-table");
 
     let columns = getColumns(data, 1);
-    columns = removeFromObject(columns, ["id", "category", "player", "coverPos", "info"]);
+    columns = removeFromObject(columns, ["id", "category", "player", "coverPos", "info", "shuffle"]);
 
     if (columns.includes("playlist")) {
         columns.unshift("cover");

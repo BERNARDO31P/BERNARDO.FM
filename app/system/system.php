@@ -614,7 +614,6 @@ $router->get("/song/([\w-]*)$", function ($id) {
 		}
 
 		$playlist["name"] = $song["name"];
-		$playlist["artist"] = $song["artist"];
 
 		recursive_unset($playlist, "fileName");
 		recursive_prepend($playlist, "cover", "system/img/");
@@ -626,24 +625,6 @@ $router->get("/song/([\w-]*)$", function ($id) {
 
 		echo json_encode($song);
 	}
-});
-
-$router->get("/songs/([\w-].*,[\w-].*)$", function ($ids) {
-	$db = loadDatabase();
-	$ids = explode(",", $ids);
-
-	$songs = array();
-	foreach ($ids as $id) {
-		$song = search_song($id, $db);
-
-		recursive_unset($song, "fileName");
-		recursive_prepend($song, "cover", "system/img/");
-
-		$songs[] = $song;
-	}
-
-	header("Content-Type: application/json");
-	echo json_encode($songs);
 });
 
 /*
