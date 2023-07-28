@@ -147,8 +147,6 @@ class MultiTrackPlayer extends EventTarget {
                 this.#pauseTimeout = setTimeout(() => {
                     this.pause();
                 }, startTime * 1000);
-
-                if (!this.#isDecoding) this.dispatchEvent(new Event("downloadError"));
             }
         }
     }
