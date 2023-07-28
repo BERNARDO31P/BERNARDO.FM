@@ -58,7 +58,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     addTimeUpdate() {
-        this.#timeUpdateHandler = () => this.#dispatchTimeUpdate();
+        this.#timeUpdateHandler = this.#dispatchTimeUpdate.bind(this);
         this.#audioTag.addEventListener("timeupdate", this.#timeUpdateHandler);
     }
 
@@ -145,8 +145,6 @@ class MultiTrackPlayer extends EventTarget {
         this.#playing = false;
 
         if (!bypass) {
-            this.#currentTime = this.#audioTag.currentTime;
-
             this.#audioTag.removeEventListener("play", this.#playEventBind);
             this.#audioTag.removeEventListener("pause", this.#pauseEventBind);
 
@@ -156,6 +154,7 @@ class MultiTrackPlayer extends EventTarget {
         if (!this.#audioTag.paused) this.#audioTag.pause();
 
         this.#clearTimeouts();
+        this.setCurrentTime(this.#audioTag.currentTime);
         this.setOffset(this.getCurrentPartTime());
 
         this.#audioSources.forEach((source) => {
@@ -168,8 +167,10 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #playEvent() {
-        if (!this.isPlaying() && !this.#initialPlay)
+        if (!this.isPlaying() && !this.#initialPlay) {
+            this.#setPositionState(this.#length, this.#currentTime);
             this.playNext(this.#currentTrackIndex, 0);
+        }
     }
 
     #pauseEvent() {
