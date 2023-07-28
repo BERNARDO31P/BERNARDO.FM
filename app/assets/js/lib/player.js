@@ -103,10 +103,10 @@ class MultiTrackPlayer extends EventTarget {
 
     playNext(index = 0, startTime = 0) {
         if (!this.#hadError && !(startTime === 0 && this.isPlaying())) {
+            clearTimeout(this.#pauseTimeout);
+
             if (typeof this.#audioBuffers[index] !== "undefined") {
                 this.#playing = true;
-
-                clearTimeout(this.#pauseTimeout);
 
                 if (audioContext.state !== "running")
                     audioContext.resume();
