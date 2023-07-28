@@ -3,7 +3,7 @@ const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [],
     partlist = {}, volume = 0, previousVolume = null, repeatMode = 0,
     touched = null, touchTimeout = null, touchedElement = null, currentButton = null,
-    changedQueue = false, width = getWidth(), height = getHeight();
+    changedQueue = false, width = getWidth(), height = getHeight() + 100;
 
 const defaultDelay = 500;
 
@@ -873,19 +873,21 @@ function hidePlaylist() {
         body = document.getElementsByTagName("body")[0],
         angleIcon = document.getElementsByClassName("fa-angle-up")[0];
 
-    body.style.overflowY = "initial";
+    if (angleIcon.getAttribute("data-angle") !== "down") {
+        body.style.overflowY = "initial";
 
-    angleIcon.animate([{transform: 'rotate(-180deg)'}, {transform: 'rotate(0deg)'}], {
-        duration: 200, fill: "forwards"
-    });
+        angleIcon.animate([{transform: 'rotate(-180deg)'}, {transform: 'rotate(0deg)'}], {
+            duration: 200, fill: "forwards"
+        });
 
-    queueView.animateCallback([{top: '60px'}, {top: '100%'}], {
-        duration: 300, fill: "forwards",
-    }, function () {
-        queueView.classList.remove("show");
-    });
+        queueView.animateCallback([{top: '60px'}, {top: '100%'}], {
+            duration: 300, fill: "forwards",
+        }, function () {
+            queueView.classList.remove("show");
+        });
 
-    angleIcon.setAttribute("data-angle", "down");
+        angleIcon.setAttribute("data-angle", "down");
+    }
 }
 
 /*
@@ -1008,9 +1010,13 @@ function updateSongData() {
     let songLength = document.querySelector("#timeInfo #length");
     let queueView = document.getElementById("queueView");
     let cover = queueView.querySelector("#playingCover .cover");
-
     let size = Math.round(width / 100 * 90);
-    size = (size < 1024 && height / 2 > size) ? size : Math.round(height / 2);
+
+    let heightCalc;
+    if (height + 100 < width) heightCalc = height / 2 + 100;
+    else heightCalc = height / 2 - 100;
+
+    size = (size < 1024 && heightCalc > size) ? size : Math.round(heightCalc);
 
     cover.style.backgroundImage = "url('" + song["cover"] + "?size=" + size + "')";
     cover.style.width = size + "px";
