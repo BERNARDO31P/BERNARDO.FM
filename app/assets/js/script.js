@@ -388,7 +388,7 @@ bindEvent("input", ".volumeSlider", function () {
  *
  * Schaltet die Wiedergabe auf stumm oder setzt die vorherige Lautstärke
  */
-bindEvent("click", ".volume", function (e) {
+bindEvent("click", ".volume svg", function (e) {
     muteAudio(e);
 });
 

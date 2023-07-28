@@ -1278,8 +1278,9 @@ a.button {
 
     .volume {
       svg {
-        pointer-events: none;
         width: 18px;
+
+        z-index: 1;
       }
     }
 
