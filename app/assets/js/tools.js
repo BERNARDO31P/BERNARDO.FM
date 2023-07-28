@@ -1121,7 +1121,9 @@ function previousSongIndex() {
             return playIndex;
     }
 
-    if (playlist[playIndex]["player"].getCurrentTime() > 10) return playIndex;
+    if (typeof playlist[playlist] !== 'undefined') {
+        if (playlist[playIndex]["player"].getCurrentTime() > 10) return playIndex;
+    }
     return previousIndex;
 }
 
@@ -1304,8 +1306,8 @@ function onTimelineRelease(value) {
  * Überprüft, ob der nächste Index in der Playlist verfügbar ist
  * Die Wiedergabe wird gestartet
  */
-async function nextSong() {
-    pauseSong();
+async function nextSong(bypass = false) {
+    if (!bypass) pauseSong();
     playPauseButton("load");
 
     let nextIndex = nextSongIndex();

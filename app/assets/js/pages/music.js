@@ -93,28 +93,27 @@ const menuItems = {
         "action": async (card) => {
             const id = card.dataset.id;
             let current = playlist[playIndex]["id"];
-
-            const indexes = playlist.map((elm, idx) => elm["id"] === id ? idx : "").filter(String);
-            const nodes = Array.prototype.slice.call(card.closest("tbody").children);
-            const index = nodes.indexOf(card);
-            const lastOfIndex = indexes.length === 1;
-            const sameIndex = id === current && lastOfIndex;
+            const sameIndex = id === current;
 
             if (sameIndex) pauseSong();
 
-            delete playlist[index];
-            playlist = generateNumericalOrder(playlist);
+            let index = 0;
+            for (let i = 0; i < playlist.length; i++) {
+                if (playlist[i]["id"] === id) {
+                    playlist.splice(i, 1);
 
-            if (lastOfIndex)
-                delete partlist[id];
-
-            if (sameIndex) {
-                const previousIndex = previousSongIndex();
-                if (typeof playlist[previousIndex] !== 'undefined') {
-                    await previousSong(true);
+                    index = i;
+                    break;
                 }
-            } else if (index < playIndex) {
-                playIndex--;
+            }
+
+            playlist = generateNumericalOrder(playlist);
+            delete partlist[id];
+
+            if (index <= playIndex && index < playlist.length) playIndex--;
+            if (sameIndex) {
+                if (playIndex === -1) await nextSong(true);
+                else await previousSong(true);
             }
 
             card.closest("tr").remove();
