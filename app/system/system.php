@@ -807,7 +807,7 @@ $router->get("/img/(.*)", function ($image) {
     if (isset($_GET["size"]) && file_exists($imageUrl)) {
         $length = intval($_GET["size"]);
 
-        if ($length < 64 || $length > 1024) {
+        if ($length < 32 || $length > 1024) {
             header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
             exit("Forbidden");
         }

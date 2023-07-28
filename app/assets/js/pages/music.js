@@ -4,6 +4,20 @@ setPositionState(0, 0);
 
 let count = 0, resizeTimeout = null;
 const menuItems = {
+    "play": {
+        "name": "Play",
+        "icon": () => {
+            const playDiv = document.createElement('div');
+            playDiv.classList.add("icon");
+            playDiv.title = 'Play this song';
+
+            const playIcon = createIconElement('fas fa-play');
+
+            playDiv.append(playIcon);
+            return playDiv;
+        },
+        "action": (card) => playAction(card)
+    },
     "queue": {
         "name": "Add to queue",
         "icon": () => {
@@ -44,7 +58,7 @@ const menuItems = {
         "name": "Share",
         "icon": () => {
             const addDiv = document.createElement('div');
-            addDiv.classList.add("icon", "listAdd");
+            addDiv.classList.add("icon");
             addDiv.title = 'Share this song';
 
             const listIcon = createIconElement('fas fa-share');
@@ -52,10 +66,13 @@ const menuItems = {
             addDiv.append(listIcon);
             return addDiv;
         },
-        "action": (card, data) => {
+        "action": (card) => {
             const url = pageURL + "#!page=music&s=" + card.dataset.id;
-            const title = "Share " + data["name"] + " by " + data["artist"];
-            const text = "Check out " + data["name"] + " by " + data["artist"] + " on BERNARDO.FM!";
+            const nameElement = card.querySelector(".name") ?? card.querySelector("td:nth-child(2) .content");
+            const artistElement = card.querySelector(".artist") ?? card.querySelector("td:nth-child(3) .content");
+
+            const title = "Share " + nameElement.textContent + " by " + artistElement.textContent;
+            const text = "Check out " + nameElement.textContent + " by " + artistElement.textContent + " on BERNARDO.FM!";
 
             navigator.share({title: title, text: text, url: url});
         }
@@ -232,16 +249,23 @@ bindEvent("click", ".songList tr[data-id]", function () {
 });
 bindEvent("contextmenu", ".card .darker", function (e) {
     e.preventDefault();
-    if (!isTouchScreen()) showContext(e, this.closest(".card"), ["queue", "next", "share"]);
+    if (!isTouchScreen()) showContext(e, this.closest(".card"), ["play", "queue", "next", "share"]);
 });
 bindEvent("contextmenu", ".songList tr[data-id]", function (e) {
     e.preventDefault();
-    if (!isTouchScreen()) showContext(e, this, ["queue", "next", "share"]);
+    if (!isTouchScreen()) showContext(e, this, ["play", "queue", "next", "share"]);
 });
 bindEvent("touchstart", ".card .darker", function (e) {
     if (isTouchScreen()) {
         touchTimeout = setTimeout(() => {
-            showContext(e, this.closest(".card"), ["queue", "next", "share"]);
+            showContext(e, this.closest(".card"), ["play", "queue", "next", "share"]);
+        }, defaultDelay);
+    }
+});
+bindEvent("touchstart", ".songList tr[data-id]", function (e) {
+    if (isTouchScreen()) {
+        touchTimeout = setTimeout(() => {
+            showContext(e, this, ["play", "queue", "next", "share"]);
         }, defaultDelay);
     }
 });
@@ -249,10 +273,10 @@ bindEvent("contextmenu", "#queueView tr[data-id]", function (e) {
     e.preventDefault();
     if (!isTouchScreen()) showContext(e, this, ["delete", "share"]);
 });
-bindEvent("touchstart", ".songList tr[data-id]", function (e) {
+bindEvent("touchstart", "#queueView tr[data-id]", function (e) {
     if (isTouchScreen()) {
         touchTimeout = setTimeout(() => {
-            showContext(e, this, ["queue", "next", "share"]);
+            showContext(e, this, ["delete", "share"]);
         }, defaultDelay);
     }
 });
@@ -261,13 +285,6 @@ bindEvent("touchend", ".card .darker, .songList tr[data-id], #queueView tr[data-
 });
 bindEvent("touchmove", ".card .darker, .songList tr[data-id], #queueView tr[data-id]", function () {
     if (isTouchScreen()) clearTimeout(touchTimeout);
-});
-bindEvent("touchstart", "#queueView tr[data-id]", function (e) {
-    if (isTouchScreen()) {
-        touchTimeout = setTimeout(() => {
-            showContext(e, this, ["delete", "share"]);
-        }, defaultDelay);
-    }
 });
 
 function hideContext() {
@@ -352,7 +369,7 @@ function showContext(e, card, items) {
 
         item.append(menuItem["icon"](), text);
         item.addEventListener("click", () => {
-            menuItem["action"](card, data);
+            menuItem["action"](card);
             contextMenu.style.display = "none";
         });
 
@@ -371,6 +388,115 @@ function showContext(e, card, items) {
         }
     }, defaultDelay);
 }
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Generiert und zeigt die Wiedergabeliste
+ */
+bindEvent("click", "[data-angle='down']", function () {
+    let queueView = document.getElementById("queueView");
+    let navbar = document.getElementById("navbar");
+    let body = document.getElementsByTagName("body")[0];
+
+    navbar.classList.remove("shadow");
+    body.style.overflowY = "hidden";
+
+    this.animate([
+        {transform: 'rotate(0deg)'},
+        {transform: 'rotate(-180deg)'}
+    ], {
+        duration: 200,
+        fill: "forwards"
+    });
+
+    let queue = queueView.querySelector("#queue");
+    if (changedQueue) {
+        generateListView(playlist).then(listView => {
+            queue.innerHTML = "";
+            queue.appendChild(listView);
+
+            if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
+            else queue.style.right = "0";
+
+            updatePlaying();
+        });
+
+        changedQueue = false;
+    } else {
+        updatePlaying();
+    }
+
+    queueView.animate([
+        {top: '100%'},
+        {top: '60px'}
+    ], {
+        duration: 300,
+        fill: "forwards"
+    });
+
+    this.setAttribute("data-angle", "up");
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Versteckt die Wiedergabeliste
+ */
+bindEvent("click", "[data-angle='up']", function () {
+    let navbar = document.getElementById("navbar");
+
+    hidePlaylist();
+    clearInterval(songInterval);
+    songInterval = null;
+
+    clearURL();
+
+    if (window.scrollY !== 0) navbar.classList.add("shadow");
+});
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Mischt die Playlist durch und aktualisiert die Playlist-Ansicht
+ */
+bindEvent("click", ".fa-random", function () {
+    let currentSong = playlist[playIndex];
+
+    if (currentSong) {
+        pauseSong();
+        playPauseButton("load");
+
+        delete playlist[playIndex];
+        playlist.splice(playIndex, 1);
+        playlist = playlist.sort(() => 0.5 - Math.random());
+        playlist.unshift(currentSong);
+
+        playIndex = 0;
+        nextPlayIndex = 0;
+
+        partIndex = 0;
+        nextPartIndex = 0;
+
+        generateListView(playlist).then((listView) => {
+            let queueView = document.getElementById("queueView");
+            let queue = queueView.querySelector("#queue");
+
+            queue.innerHTML = "";
+            queue.appendChild(listView);
+
+            updatePlaying();
+        });
+
+        playlist[playIndex]["player"].setCurrentTime(0);
+        playlist[playIndex]["player"].setOffset(0);
+
+        play();
+    }
+});
 
 /*
  * Funktion: Anonym

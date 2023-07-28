@@ -225,25 +225,6 @@ function updateSearch() {
 }
 
 /*
- * Funktion: generateQueue()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  data: (Object) Die Daten, welche verarbeitet werden sollen
- *
- * Generiert die Wiedergabeliste
- */
-async function generateQueue(data) {
-    let listView = document.createElement("table");
-    listView.classList.add("responsive-table");
-
-    let columns = Object.keys(removeFromObject(data[0], ["id", "category", "player", "coverPos", "info"]));
-    listView.appendChild(generateTableHead(columns));
-    listView.appendChild(await generateTableBody(data, columns));
-
-    return listView;
-}
-
-/*
  * Funktion: clearURL()
  * Autor: Bernardo de Oliveira
  *
@@ -289,17 +270,17 @@ function updatePlaying() {
     const queueView = document.getElementById("queueView");
 
     const song = playlist[playIndex];
-    const id = song["id"];
-    const row = queueView.querySelector("[data-id='" + id + "']");
-
+    const row = queueView.querySelector("[data-id='" + song["id"] + "']");
 
     if (row) {
-        const animation = queueView.querySelector(".lds-facebook");
-        const animationRow = row.querySelector(".lds-facebook");
-        if (!animationRow && animation || !animation) {
+        let animation = queueView.querySelector(".lds-facebook");
+        const animationRow = animation ? animation.closest("tr") : null;
+
+        if (animationRow !== row) {
             if (animation) animation.remove();
 
-            row.querySelector("td").innerHTML += "<div class=\"lds-facebook\"><div></div><div></div><div></div></div>";
+            animation = createElementFromHTML("<div class=\"lds-facebook\"><div></div><div></div><div></div></div>");
+            row.querySelector("td").appendChild(animation);
         }
 
         const divs = row.querySelector(".lds-facebook").querySelectorAll("div");
@@ -307,7 +288,7 @@ function updatePlaying() {
         else for (const div of divs) div.style.animationPlayState = "paused";
 
         const queue = queueView.querySelector("#queue");
-        const imageStyle = window.getComputedStyle(row.querySelector("img"));
+        const imageStyle = window.getComputedStyle(row.querySelector(".cover"));
 
         const queueBounding = queue.getBoundingClientRect(), rowBounding = row.getBoundingClientRect();
         const top = rowBounding.height + queueBounding.top;
@@ -458,6 +439,14 @@ function showConfirmation(title, message, acceptCallback = () => {
 
         cancelCallback();
     });
+}
+
+// TODO: Comment
+function createElementFromHTML(htmlString) {
+    const div = document.createElement('div');
+    div.innerHTML = htmlString.trim();
+
+    return div.firstChild;
 }
 
 /*
@@ -1756,12 +1745,12 @@ async function generateTableBody(data, columns, tbody = null, cover = null) {
                 tr.appendChild(td);
             } else if (row.cover) {
                 const td = document.createElement('td');
-                const img = document.createElement('img');
+                const div = document.createElement('div');
 
-                img.alt = row.title;
-                img.src = row.cover + "?size=64";
+                div.className = 'cover';
+                div.style.backgroundImage = `url('${row.cover + "?size=35"}')`;
 
-                td.appendChild(img);
+                td.appendChild(div);
                 tr.appendChild(td);
             }
 

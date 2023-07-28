@@ -1130,10 +1130,16 @@ a.button {
       height: 45px;
     }
 
-    img {
+    .cover {
+      display: inline-block;
+
       border-radius: 5px;
-      margin: 6px 0 0 0;
+      margin: 3px 0 0 0;
+
       width: 35px;
+      height: 35px;
+
+      background-size: 35px;
     }
   }
 
@@ -1582,7 +1588,7 @@ a.button {
   width: 35px;
   height: 35px;
 
-  margin: 6px 0 0 0;
+  margin: 3px 0 0 0;
 
   left: 10px;
 

@@ -343,45 +343,6 @@ bindEvent("click", ".repeat", function () {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * Mischt die Playlist durch und aktualisiert die Playlist-Ansicht
- */
-bindEvent("click", ".fa-random", function () {
-    let currentSong = playlist[playIndex];
-
-    if (currentSong) {
-        pauseSong();
-        playPauseButton("load");
-
-        delete playlist[playIndex];
-        playlist.splice(playIndex, 1);
-        playlist = playlist.sort(() => 0.5 - Math.random());
-        playlist.unshift(currentSong);
-
-        playIndex = 0;
-        nextPlayIndex = 0;
-
-        partIndex = 0;
-        nextPartIndex = 0;
-
-        generateListView(playlist).then((listView) => {
-            let queueView = document.getElementById("queueView");
-            let queue = queueView.querySelector("#queue");
-
-            queue.innerHTML = "";
-            queue.appendChild(listView);
-        });
-
-        playlist[playIndex]["player"].setCurrentTime(0);
-        playlist[playIndex]["player"].setOffset(0);
-
-        play();
-    }
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
  * Zeigt den Lautstärkeregler
  */
 bindEvent("mouseover, touchend", ".volume, .volumeBackground", function () {
@@ -429,74 +390,6 @@ bindEvent("input", ".volumeSlider", function () {
  */
 bindEvent("click", ".volume", function (e) {
     muteAudio(e);
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Versteckt die Wiedergabeliste
- */
-bindEvent("click", "[data-angle='up']", function () {
-    let navbar = document.getElementById("navbar");
-
-    hidePlaylist();
-    clearInterval(songInterval);
-    songInterval = null;
-
-    clearURL();
-
-    if (window.scrollY !== 0) navbar.classList.add("shadow");
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Generiert und zeigt die Wiedergabeliste
- */
-bindEvent("click", "[data-angle='down']", function () {
-    let queueView = document.getElementById("queueView");
-    let navbar = document.getElementById("navbar");
-    let body = document.getElementsByTagName("body")[0];
-
-    navbar.classList.remove("shadow");
-    body.style.overflowY = "hidden";
-
-    this.animate([
-        {transform: 'rotate(0deg)'},
-        {transform: 'rotate(-180deg)'}
-    ], {
-        duration: 200,
-        fill: "forwards"
-    });
-
-    let queue = queueView.querySelector("#queue");
-    if (changedQueue) {
-        generateQueue(playlist).then(listView => {
-            queue.innerHTML = "";
-            queue.appendChild(listView);
-
-            if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
-            else queue.style.right = "0";
-
-            updatePlaying();
-        });
-
-        changedQueue = false;
-    } else {
-        updatePlaying();
-    }
-
-    queueView.animate([
-        {top: '100%'},
-        {top: '60px'}
-    ], {
-        duration: 300,
-        fill: "forwards"
-    });
-
-    this.setAttribute("data-angle", "up");
 });
 
 /*
