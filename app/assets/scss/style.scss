@@ -1750,7 +1750,9 @@ a.button {
 
 @media screen and (max-width: 850px) {
   #contextMenu {
-    width: 100%;
+    width: calc(100% - 20px);
+    max-width: unset;
+    min-width: unset;
 
     left: 0;
     bottom: 0;
