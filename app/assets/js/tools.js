@@ -1258,6 +1258,9 @@ function onTimelineRelease(value) {
     pauseSong();
     playPauseButton("load");
 
+    const player = playlist[playIndex]["player"];
+    player.setMediaSessionPosition(value);
+
     releaseTimeouts.push(
         setTimeout(async () => {
             if (!document.hidden) {
@@ -1270,8 +1273,6 @@ function onTimelineRelease(value) {
 
             seekValue = 0;
             nextPartIndex = partInfo[2];
-
-            const player = playlist[playIndex]["player"];
 
             let nextPartIndexCopy = nextPartIndex;
             let decoding = false;
@@ -1288,7 +1289,6 @@ function onTimelineRelease(value) {
                 player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
             }
 
-            player.setCurrentTime(value);
             partIndex = nextPartIndex;
 
             if (nextPartIndexCopy !== nextPartIndex || decoding) return;
@@ -1321,8 +1321,7 @@ async function nextSong(bypass = false) {
             await downloadPart(0, playIndex, partIndex);
         }
 
-        song["player"].setOffset(0);
-        song["player"].setCurrentTime(0);
+        song["player"].reset();
 
         play(diffIndex);
     }
@@ -1354,8 +1353,7 @@ async function previousSong(bypass = false) {
         }
 
 
-        song["player"].setOffset(0);
-        song["player"].setCurrentTime(0);
+        song["player"].reset();
 
         play(bypass || diffIndex);
     }
@@ -1499,8 +1497,7 @@ function addEvents(player) {
                 partIndex = 0;
                 nextPartIndex = 0;
 
-                player.setOffset(0);
-                player.setCurrentTime(0);
+                player.reset();
 
                 play(diffIndex);
                 return;

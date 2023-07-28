@@ -209,9 +209,7 @@ bindEvent("click", "#player .fa-play", async () => {
             playIndex = nextIndex;
         }
 
-        let player = playlist[playIndex]["player"];
-        player.setOffset(0);
-        player.setCurrentTime(0);
+        playlist[playIndex]["player"].reset();
 
         play(diffIndex);
     }

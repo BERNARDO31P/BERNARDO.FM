@@ -227,9 +227,7 @@ bindEvent("click", "#queueView tr[data-id]", async function () {
     if (typeof playlist[playIndex]["player"] === 'undefined')
         await downloadPart(0, playIndex, partIndex);
 
-    let player = playlist[playIndex]["player"];
-    player.setOffset(0);
-    player.setCurrentTime(0);
+    playlist[playIndex]["player"].reset();
 
     play(true);
 });
@@ -490,8 +488,7 @@ bindEvent("click", ".fa-random", function () {
             updatePlaying();
         });
 
-        playlist[playIndex]["player"].setCurrentTime(0);
-        playlist[playIndex]["player"].setOffset(0);
+        playlist[playIndex]["player"].reset();
 
         play();
     }

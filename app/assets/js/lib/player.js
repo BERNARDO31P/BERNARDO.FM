@@ -20,6 +20,7 @@ class MultiTrackPlayer extends EventTarget {
 
     #startTime = 0;
     #startTimeouts = {};
+    #pauseTimeout = null;
 
     #offset = 0;
     #currentOffset = 0;
@@ -68,7 +69,8 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #dispatchTimeUpdate() {
-        this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.#audioTag.currentTime}}));
+        this.#currentTime = this.#audioTag.currentTime;
+        this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.#currentTime}}));
     }
 
     async addTrack(url, callback) {
@@ -95,9 +97,7 @@ class MultiTrackPlayer extends EventTarget {
 
         if (this.#audioTag.paused) await this.#audioTag.play();
 
-        this.#audioTag.currentTime = this.#currentTime;
         this.#setPositionState();
-
         this.addTimeUpdate();
     }
 
@@ -105,6 +105,8 @@ class MultiTrackPlayer extends EventTarget {
         if (!this.#hadError && !(startTime === 0 && this.isPlaying())) {
             if (typeof this.#audioBuffers[index] !== "undefined") {
                 this.#playing = true;
+
+                clearTimeout(this.#pauseTimeout);
 
                 if (audioContext.state !== "running")
                     audioContext.resume();
@@ -141,6 +143,12 @@ class MultiTrackPlayer extends EventTarget {
                 }, startTime * 1000);
             } else {
                 this.#waitIndex = index;
+
+                this.#pauseTimeout = setTimeout(() => {
+                    this.pause();
+                }, startTime * 1000);
+
+                if (!this.#isDecoding) this.dispatchEvent(new Event("downloadError"));
             }
         }
     }
@@ -158,7 +166,6 @@ class MultiTrackPlayer extends EventTarget {
         if (!this.#audioTag.paused) this.#audioTag.pause();
 
         this.#clearTimeouts();
-        this.setCurrentTime(this.#audioTag.currentTime);
         this.setOffset(this.getCurrentPartTime());
 
         this.#audioSources.forEach((source) => {
@@ -168,6 +175,11 @@ class MultiTrackPlayer extends EventTarget {
         audioContext.suspend().finally(() => {
             this.dispatchEvent(new Event("pause"));
         });
+    }
+
+    reset() {
+        this.setCurrentTime(0);
+        this.setOffset(0);
     }
 
     #playEvent() {
@@ -214,7 +226,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     getCurrentTime() {
-        return this.#audioTag.currentTime;
+        return this.#currentTime;
     }
 
     setVolume(volume) {
@@ -231,6 +243,7 @@ class MultiTrackPlayer extends EventTarget {
 
     setCurrentTime(time) {
         this.#currentTime = time;
+        this.#audioTag.currentTime = time;
     }
 
     isPlaying() {
@@ -238,7 +251,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     getDuration() {
-        return this.#audioTag.duration;
+        return this.#length;
     }
 
     hadError() {
@@ -329,6 +342,11 @@ class MultiTrackPlayer extends EventTarget {
             await this.#processDecodeQueue();
         }
         this.#isDecoding = false;
+    }
+
+    setMediaSessionPosition(value) {
+        this.setCurrentTime(value);
+        this.#setPositionState();
     }
 
     #clearTimeouts() {
