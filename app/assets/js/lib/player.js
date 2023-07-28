@@ -143,19 +143,20 @@ class MultiTrackPlayer extends EventTarget {
 
     pause(bypass = false) {
         this.#playing = false;
-        this.#currentTime = this.#audioTag.currentTime;
 
         if (!bypass) {
+            this.#currentTime = this.#audioTag.currentTime;
+
             this.#audioTag.removeEventListener("play", this.#playEventBind);
             this.#audioTag.removeEventListener("pause", this.#pauseEventBind);
+
+            this.removeTimeUpdate();
         }
 
         if (!this.#audioTag.paused) this.#audioTag.pause();
 
         this.#clearTimeouts();
         this.setOffset(this.getCurrentPartTime());
-
-        this.removeTimeUpdate();
 
         this.#audioSources.forEach((source) => {
             this.#killSource(source);
