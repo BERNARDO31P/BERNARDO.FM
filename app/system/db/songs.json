@@ -1630,7 +1630,10 @@
     "length": "8:12",
     "fileName": "Ovnimoon - Galactic Mantra (Killerwatts Remix).wav",
     "category": "Psytrance",
-    "info": ["X0mQFlT6sdTGRNRCE6x", "6hRKEhBhH9F__U7iRsp"]
+    "info": [
+      "X0mQFlT6sdTGRNRCE6x",
+      "6hRKEhBhH9F__U7iRsp"
+    ]
   },
   {
     "id": "qukdYFqJLhFB5HNJh9g",
@@ -1641,5 +1644,348 @@
     "fileName": "cosmicode @ Solar Shift 2023.wav",
     "category": "Psytrance",
     "info": "4tcUX7loPqUwI9ahI9E"
+  },
+  {
+    "id": "uMskuMmJ26VDtTiVyum",
+    "cover": "Ajja - Oddular - Album Cover.jpg",
+    "name": "Aria 51",
+    "artist": "Ajja",
+    "length": "7:00",
+    "fileName": "Ajja - Aria 51.wav",
+    "category": "Psytrance",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "8qT4DHAJkuX07ubVhAq",
+    "cover": "Ajja - Oddular - Album Cover.jpg",
+    "name": "Context High",
+    "artist": "Ajja",
+    "length": "7:23",
+    "fileName": "Ajja - Context High.wav",
+    "category": "Psytrance",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "pufNQCQvVyFz9DoWXN7",
+    "cover": "Ajja - Oddular - Album Cover.jpg",
+    "name": "Disco Bunny",
+    "artist": "Ajja",
+    "length": "8:18",
+    "fileName": "Ajja - Disco Bunny.wav",
+    "category": "Psytrance",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "QOT4Q-No9tly3WMxmlq",
+    "cover": "Ajja - Oddular - Album Cover.jpg",
+    "name": "Forest Cure",
+    "artist": "Ajja",
+    "length": "7:56",
+    "fileName": "Ajja - Forest Cure.wav",
+    "category": "Psytrance",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "9CAvlXXgxz2QexjGL2q",
+    "cover": "Ajja - Oddular - Album Cover.jpg",
+    "name": "Goa Head Ted",
+    "artist": "Ajja",
+    "length": "7:51",
+    "fileName": "Ajja - Goa Head Ted.wav",
+    "category": "Psytrance",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "d24-GFOBfRPD94xXkIy",
+    "cover": "Ajja - Oddular - Album Cover.jpg",
+    "name": "Ninja Wobble",
+    "artist": "Ajja",
+    "length": "8:36",
+    "fileName": "Ajja - Ninja Wobble.wav",
+    "category": "Psytrance",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "UfMlqgga-g9UwUUsbCs",
+    "cover": "Ajja - Oddular - Album Cover.jpg",
+    "name": "Not What",
+    "artist": "Ajja",
+    "length": "8:16",
+    "fileName": "Ajja - Not What.wav",
+    "category": "Psytrance",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "w3qb15NYmI-q7yK4mvI",
+    "cover": "Ajja - Oddular - Album Cover.jpg",
+    "name": "Original Spin",
+    "artist": "Ajja",
+    "length": "8:06",
+    "fileName": "Ajja - Original Spin.wav",
+    "category": "Psytrance",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "PMZw-wsWv-JqHPYFWXF",
+    "cover": "Ajja - Oddular - Album Cover.jpg",
+    "name": "Wibblefish",
+    "artist": "Ajja",
+    "length": "7:50",
+    "fileName": "Ajja - Wibblefish.wav",
+    "category": "Psytrance",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "etxyJEU6KFg--5ys_SM",
+    "cover": "Ajja - Oddular - Album Cover.jpg",
+    "name": "Shamanic Tea (Ajja Remix)",
+    "artist": "Tripswitch",
+    "length": "6:37",
+    "fileName": "Tripswitch - Shamanic Tea (Ajja Remix).wav",
+    "category": "Psytrance",
+    "info": [
+      "VoZ5hr6puNcN9Ve5uCv",
+      "gXXgbAQBofIl0mh22iA"
+    ]
+  },
+  {
+    "id": "Koq_pe9RQXmenh_bZXd",
+    "cover": "Ajja - Oddular - Album Cover.jpg",
+    "name": "Ajja - Oddular",
+    "category": "Albums",
+    "playlist": [
+      "uMskuMmJ26VDtTiVyum",
+      "8qT4DHAJkuX07ubVhAq",
+      "pufNQCQvVyFz9DoWXN7",
+      "QOT4Q-No9tly3WMxmlq",
+      "9CAvlXXgxz2QexjGL2q",
+      "d24-GFOBfRPD94xXkIy",
+      "UfMlqgga-g9UwUUsbCs",
+      "w3qb15NYmI-q7yK4mvI",
+      "PMZw-wsWv-JqHPYFWXF",
+      "etxyJEU6KFg--5ys_SM"
+    ]
+  },
+  {
+    "id": "2FerhyUzyja2Fyxgqb0",
+    "cover": "A-Tech - Dream Of Reality.jpeg",
+    "name": "Dream Of Reality",
+    "artist": "A-Tech",
+    "length": "7:06",
+    "fileName": "A-Tech - Dream Of Reality.wav",
+    "category": "Psytrance",
+    "info": "kXsdVDWY5CacDlU3ERc"
+  },
+  {
+    "id": "pMaNosskKHKWt5d1pAk",
+    "cover": "A-Tech & Overdrive - Shiva Dance.jpg",
+    "name": "Shiva Dance",
+    "artist": "A-Tech & Overdrive",
+    "length": "6:47",
+    "fileName": "A-Tech & Overdrive - Shiva Dance.wav",
+    "category": "Psytrance",
+    "info": [
+      "kXsdVDWY5CacDlU3ERc",
+      "zyj8k2ALSUNp8sAqdHE"
+    ]
+  },
+  {
+    "id": "uR2OXHLWCb-4R6Pv8QO",
+    "cover": "Braincell - Spacesnake - Album Cover.jpg",
+    "name": "Spacesnake",
+    "artist": "Braincell",
+    "length": "7:20",
+    "fileName": "Braincell - Spacesnake.wav",
+    "category": "Psytrance",
+    "info": "_UQqYlKOGEdWs5S28zx"
+  },
+  {
+    "id": "wAhULeBZR2vy4moEHna",
+    "cover": "Braincell - Spacesnake - Album Cover.jpg",
+    "name": "Stomp on Dust",
+    "artist": "Braincell",
+    "length": "7:28",
+    "fileName": "Braincell - Stomp on Dust.wav",
+    "category": "Psytrance",
+    "info": "_UQqYlKOGEdWs5S28zx"
+  },
+  {
+    "id": "PxcmfDHexBckG22lYug",
+    "cover": "Braincell - Spacesnake - Album Cover.jpg",
+    "name": "Braincell - Spacesnake",
+    "category": "Albums",
+    "playlist": [
+      "uR2OXHLWCb-4R6Pv8QO",
+      "wAhULeBZR2vy4moEHna"
+    ]
+  },
+  {
+    "id": "l6oU-1Iu223efH5Jzub",
+    "cover": "Burn In Noise & Ajja - Image of Yourself (NoFace Remix).jpg",
+    "name": "Image of Yourself (NoFace Remix)",
+    "artist": "Burn In Noise & Ajja",
+    "length": "9:26",
+    "fileName": "Burn In Noise & Ajja - Image of Yourself (NoFace Remix).wav",
+    "category": "Psytrance",
+    "info": [
+      "Bj0tK88PaKdXFh14cKn",
+      "gXXgbAQBofIl0mh22iA",
+      "2p9c2wokOHgWNPH-Rmg"
+    ]
+  },
+  {
+    "id": "yjiA3yvRF00Ja9B0mPp",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "name": "Forces Of Nature",
+    "artist": "Electric Universe",
+    "length": "6:38",
+    "fileName": "Electric Universe - Forces Of Nature.wav",
+    "category": "Psytrance",
+    "info": "y6LGrGyVuDDQPb4c82i"
+  },
+  {
+    "id": "rPc4LrooSccTIe_68UU",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "name": "Fractals",
+    "artist": "Electric Universe",
+    "length": "8:03",
+    "fileName": "Electric Universe - Fractals.wav",
+    "category": "Psytrance",
+    "info": "y6LGrGyVuDDQPb4c82i"
+  },
+  {
+    "id": "6bvMtMTt5X0EXjxQiEt",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "name": "Himalaya",
+    "artist": "Electric Universe",
+    "length": "7:53",
+    "fileName": "Electric Universe - Himalaya.wav",
+    "category": "Psytrance",
+    "info": "y6LGrGyVuDDQPb4c82i"
+  },
+  {
+    "id": "csQ_05qp0GrcjzUJV3v",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "name": "Magic Carpet",
+    "artist": "Electric Universe",
+    "length": "8:23",
+    "fileName": "Electric Universe - Magic Carpet.wav",
+    "category": "Psytrance",
+    "info": "y6LGrGyVuDDQPb4c82i"
+  },
+  {
+    "id": "oVCAVADTC8Kld7xhXrz",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "name": "Time Bender",
+    "artist": "Electric Universe",
+    "length": "8:08",
+    "fileName": "Electric Universe - Time Bender.wav",
+    "category": "Psytrance",
+    "info": "y6LGrGyVuDDQPb4c82i"
+  },
+  {
+    "id": "jYKiKGuzIBZ3jM-s0U_",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "name": "Vibration",
+    "artist": "Electric Universe",
+    "length": "6:57",
+    "fileName": "Electric Universe - Vibration.wav",
+    "category": "Psytrance",
+    "info": "y6LGrGyVuDDQPb4c82i"
+  },
+  {
+    "id": "oztuSmxotw9XdnlhB0O",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "name": "World Of Waves",
+    "artist": "Electric Universe",
+    "length": "7:43",
+    "fileName": "Electric Universe - World Of Waves.wav",
+    "category": "Psytrance",
+    "info": "y6LGrGyVuDDQPb4c82i"
+  },
+  {
+    "id": "qbkQGmfGMwQGoJtMp39",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "name": "Ancient Aum",
+    "artist": "Electric Universe & Ace Ventura",
+    "length": "8:00",
+    "fileName": "Electric Universe & Ace Ventura - Ancient Aum.wav",
+    "category": "Psytrance",
+    "info": [
+      "y6LGrGyVuDDQPb4c82i",
+      "Ri1N-jefJDXIcHCW1dJ"
+    ]
+  },
+  {
+    "id": "Bn7YsJ2a28ixTSX8v2o",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "name": "Calling For Peace",
+    "artist": "Electric Universe & Faders",
+    "length": "8:59",
+    "fileName": "Electric Universe & Faders - Calling For Peace.wav",
+    "category": "Psytrance",
+    "info": [
+      "y6LGrGyVuDDQPb4c82i",
+      "DC2hJ0Ql6x2-HIai9XE"
+    ]
+  },
+  {
+    "id": "dZwzdFEiY3__ESlDrxY",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "name": "Party Planners 2.1",
+    "artist": "Electric Universe & Mad Tribe",
+    "length": "8:35",
+    "fileName": "Electric Universe & Mad Tribe - Party Planners 2.1.wav",
+    "category": "Psytrance",
+    "info": [
+      "y6LGrGyVuDDQPb4c82i",
+      "xchjR7U9ug2bI7wZCII"
+    ]
+  },
+  {
+    "id": "4pMm5L7MjvMFdCDvgwE",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "name": "Satory",
+    "artist": "Electric Universe & Raja Ram",
+    "length": "8:32",
+    "fileName": "Electric Universe & Raja Ram - Satory.wav",
+    "category": "Psytrance",
+    "info": [
+      "y6LGrGyVuDDQPb4c82i",
+      "CZ9_dFT-LIyBwU2zpEo"
+    ]
+  },
+  {
+    "id": "1IKIe6m5__Grkhza00f",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "name": "Shiva Nataraja",
+    "artist": "Electric Universe & Sitarsonic",
+    "length": "8:53",
+    "fileName": "Electric Universe & Sitarsonic - Shiva Nataraja.wav",
+    "category": "Psytrance",
+    "info": [
+      "y6LGrGyVuDDQPb4c82i",
+      "VHbmWlrJVIRtvqAJ6-Z"
+    ]
+  },
+  {
+    "id": "akOx4wdokGEtoRTAlAj",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "name": "Electric Universe - Sacred Geometry",
+    "category": "Albums",
+    "playlist": [
+      "yjiA3yvRF00Ja9B0mPp",
+      "rPc4LrooSccTIe_68UU",
+      "6bvMtMTt5X0EXjxQiEt",
+      "csQ_05qp0GrcjzUJV3v",
+      "oVCAVADTC8Kld7xhXrz",
+      "jYKiKGuzIBZ3jM-s0U_",
+      "oztuSmxotw9XdnlhB0O",
+      "qbkQGmfGMwQGoJtMp39",
+      "Bn7YsJ2a28ixTSX8v2o",
+      "dZwzdFEiY3__ESlDrxY",
+      "4pMm5L7MjvMFdCDvgwE",
+      "1IKIe6m5__Grkhza00f"
+    ]
   }
 ]
