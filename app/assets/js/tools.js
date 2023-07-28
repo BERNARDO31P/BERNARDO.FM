@@ -3,7 +3,7 @@ const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [],
     partlist = {}, volume = 0, previousVolume = null, repeatMode = 0,
     touched = null, touchTimeout = null, touchedElement = null, currentButton = null,
-    changedQueue = false, width = getWidth();
+    changedQueue = false, width = getWidth(), height = getHeight();
 
 const defaultDelay = 500;
 
@@ -587,6 +587,16 @@ function getWidth() {
 }
 
 /*
+ * Funktion: getHeight()
+ * Autor: Bernardo de Oliveira
+ *
+ * Gibt die Browser Höhe zurück
+ */
+function getHeight() {
+    return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.documentElement.clientHeight);
+}
+
+/*
  * Funktion: hasGetParameter()
  * Autor: Bernardo de Oliveira
  * Argumente:
@@ -855,13 +865,14 @@ function hideVolumeSlider(timeout = 2000) {
  * Funktion: hidePlaylist()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  body: (Object) Definiert das Body-Objekt
- *  playlistView: (Object) Definiert die Playlist
- *  angleIcon: (Object) Definiert das Icon von der Playlist
  *
  * Versteckt die Playlist-Ansicht
  */
-function hidePlaylist(body, queueView, angleIcon) {
+function hidePlaylist() {
+    const queueView = document.getElementById("queueView"),
+        body = document.getElementsByTagName("body")[0],
+        angleIcon = document.getElementsByClassName("fa-angle-up")[0];
+
     body.style.overflowY = "initial";
 
     angleIcon.animate([{transform: 'rotate(-180deg)'}, {transform: 'rotate(0deg)'}], {
@@ -994,13 +1005,17 @@ function updateSongData() {
     let song = playlist[playIndex];
     let length = getLengthByString(song["length"]);
 
-    let songLength = document.getElementById("timeInfo").querySelector("#length");
+    let songLength = document.querySelector("#timeInfo #length");
     let queueView = document.getElementById("queueView");
-    let cover = queueView.querySelector("#playingCover").querySelector("img");
+    let cover = queueView.querySelector("#playingCover .cover");
 
-    let size = Math.round(width / 100 * 80);
-    size = (size < 1024) ? size : 1024
-    cover.src = String(song["cover"] + "?size=" + size);
+    let size = Math.round(width / 100 * 90);
+    size = (size < 1024 && height / 2 > size) ? size : Math.round(height / 2);
+
+    cover.style.backgroundImage = "url('" + song["cover"] + "?size=" + size + "')";
+    cover.style.width = size + "px";
+    cover.style.height = size + "px";
+
     songLength.textContent = song["length"];
 
     let playerHTML = document.getElementById("player");
@@ -1611,7 +1626,7 @@ async function generatePlaylistInfo(song) {
 
     info["artists"] = info["artists"].substring(0, info["artists"].length - 2)
     if (artistCount !== 1)
-         info["artists"] += " and more..";
+        info["artists"] += " and more..";
 
     return info;
 }

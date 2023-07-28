@@ -107,6 +107,8 @@ function loadPage() {
         if (typeof window[page] !== 'undefined') {
             clearInterval(pageLoad);
             window[page]();
+
+            hidePlaylist();
         } else if (i > 3) {
             clearInterval(pageLoad);
             showNotification("Page not implemented yet.", 3000);
@@ -148,12 +150,7 @@ bindEvent("click", "#navbar [data-page]", function (e) {
 
     let queueView = document.querySelector("#queueView");
     let clientRect = queueView.getBoundingClientRect();
-    if (clientRect.top === 60) {
-        let body = document.getElementsByTagName("body")[0];
-        let angleIcon = document.getElementsByClassName("fa-angle-up")[0];
-
-        hidePlaylist(body, queueView, angleIcon);
-    }
+    if (clientRect.top === 60) hidePlaylist();
 
     page = this.getAttribute("data-page");
     prevPage = undefined;
@@ -233,7 +230,7 @@ bindEvent("click", "#player .fa-play", async () => {
  * Zeigt bei einem Click eine Benachrichtigung mit dem Songnamen oder Künstlernamen
  * Wenn das Endgerät ein Touchgerät ist, muss man doppelt drücken
  */
-bindEvent("mouseup, touchend", "[data-title]", function (e) {
+bindEvent("click", "[data-title]", function (e) {
     const target = e.target;
     clearTimeout(touchTimeout);
 
@@ -252,83 +249,6 @@ bindEvent("mouseup, touchend", "[data-title]", function (e) {
 
     touched = currentTime;
     touchedElement = target;
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Findet heraus welches Lied abgespielt werden soll
- * Spielt das Lied ab
- */
-bindEvent("click", "#queueView tr[data-id]", async function () {
-    pauseSong();
-    playPauseButton("load");
-
-    let id = this.dataset.id;
-
-    for (let [key, value] of Object.entries(playlist)) {
-        if (value["id"] === id) playIndex = Number(key);
-    }
-
-    nextPlayIndex = playIndex;
-
-    partIndex = 0;
-    nextPartIndex = 0;
-
-    if (typeof playlist[playIndex]["player"] === 'undefined')
-        await downloadPart(0, playIndex, partIndex);
-
-    let player = playlist[playIndex]["player"];
-    player.setOffset(0);
-    player.setCurrentTime(0);
-
-    play(true);
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Findet heraus welches Lied gelöscht werden soll
- * Löscht das Lied aus der Wiedergabenliste und der Liste mit den Teilen
- *
- * Definiert den PlayIndex neu, da dieser eventuell nicht mehr gleich ist
- */
-bindEvent("click", "#queueView .fa-trash", async function () {
-    let id = this.closest(".controlsQueue").dataset.id;
-    let current = playlist[playIndex]["id"];
-
-    const indexes = playlist.map((elm, idx) => elm["id"] === id ? idx : "").filter(String);
-    const nodes = Array.prototype.slice.call(this.closest("tbody").children);
-    const index = nodes.indexOf(this.closest("tr"));
-    const lastOfIndex = indexes.length === 1;
-    const sameIndex = id === current && lastOfIndex;
-
-    if (sameIndex) pauseSong();
-
-    delete playlist[index];
-    playlist = generateNumericalOrder(playlist);
-
-    if (lastOfIndex)
-        delete partlist[id];
-
-    if (sameIndex) {
-        const previousIndex = previousSongIndex();
-        if (typeof playlist[previousIndex] !== 'undefined') {
-            await previousSong(true);
-        }
-    } else if (index < playIndex) {
-        playIndex--;
-    }
-
-    this.closest("tr").remove();
-
-    let queueView = document.getElementById("queueView");
-    let queue = queueView.querySelector("#queue");
-
-    if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
-    else queue.style.right = "0";
 });
 
 /*
@@ -464,9 +384,9 @@ bindEvent("click", ".fa-random", function () {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * Zeigt den Lautstärkeregler an
+ * Zeigt den Lautstärkeregler
  */
-bindEvent("mouseover", ".volume, .volumeBackground", function () {
+bindEvent("mouseover, touchend", ".volume, .volumeBackground", function () {
     document.getElementsByClassName("volumeBackground")[0].classList.add("show");
     hideVolumeSlider();
 });
@@ -520,11 +440,9 @@ bindEvent("click", ".volume", function (e) {
  * Versteckt die Wiedergabeliste
  */
 bindEvent("click", "[data-angle='up']", function () {
-    let queueView = document.getElementById("queueView");
     let navbar = document.getElementById("navbar");
-    let body = document.getElementsByTagName("body")[0];
 
-    hidePlaylist(body, queueView, this);
+    hidePlaylist();
     clearInterval(songInterval);
     songInterval = null;
 

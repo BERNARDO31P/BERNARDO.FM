@@ -897,7 +897,7 @@ a.button {
   background-color: var(--body-background);
   box-shadow: -2px -2px 3px var(--shadow-light), 2px 2px 3px var(--shadow-dark);
 
-  z-index: 2;
+  z-index: 4;
 
   display: none;
 
@@ -970,6 +970,8 @@ a.button {
       height: 64px;
 
       border-radius: 5px;
+
+      box-shadow: 0 0 10px 3px var(--shadow-cover) inset;
     }
   }
 
@@ -1011,17 +1013,7 @@ a.button {
 
         padding: 0;
 
-        .fa-plus {
-          background-color: var(--primary-color);
-
-          padding: 0 !important;
-          margin: 0 0 -3px -5px;
-
-          font-size: 10px;
-          z-index: 1;
-        }
-
-        .fa-play {
+        .fa-plus, .fa-play, .fa-times {
           background-color: var(--primary-color);
 
           padding: 0 !important;
@@ -1077,12 +1069,13 @@ a.button {
     display: flex;
     width: 50%;
 
-    img {
+    div {
       margin: auto;
       border-radius: 5px;
 
-      max-width: 75%;
-      max-height: 75%;
+      background-repeat: no-repeat;
+
+      box-shadow: 0 0 10px 3px var(--shadow-cover) inset;
     }
   }
 

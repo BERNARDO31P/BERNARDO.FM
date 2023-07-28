@@ -3,6 +3,113 @@ if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde
 setPositionState(0, 0);
 
 let count = 0, resizeTimeout = null;
+const menuItems = {
+    "queue": {
+        "name": "Add to queue",
+        "icon": () => {
+            const addDiv = document.createElement('div');
+            addDiv.classList.add("icon", "listAdd");
+            addDiv.title = 'Add this song to the queue';
+
+            const listIcon = createIconElement('fas fa-list');
+            const plusIcon = createIconElement('fas fa-plus');
+
+            addDiv.append(listIcon, plusIcon);
+            return addDiv;
+        },
+        "action": (card) => {
+            addSongToPlaylist(card);
+            showNotification("Song added to queue", 3000);
+        }
+    },
+    "next": {
+        "name": "Play as next",
+        "icon": () => {
+            const addDiv = document.createElement('div');
+            addDiv.classList.add("icon", "listAdd");
+            addDiv.title = 'Add this song to the queue';
+
+            const listIcon = createIconElement('fas fa-list');
+            const plusIcon = createIconElement('fas fa-play');
+
+            addDiv.append(listIcon, plusIcon);
+            return addDiv;
+        },
+        "action": (card) => {
+            addSongToPlaylist(card, 0, true);
+            showNotification("Song will be played next", 3000);
+        }
+    },
+    "share": {
+        "name": "Share",
+        "icon": () => {
+            const addDiv = document.createElement('div');
+            addDiv.classList.add("icon", "listAdd");
+            addDiv.title = 'Share this song';
+
+            const listIcon = createIconElement('fas fa-share');
+
+            addDiv.append(listIcon);
+            return addDiv;
+        },
+        "action": (card, data) => {
+            const url = pageURL + "#!page=music&s=" + card.dataset.id;
+            const title = "Share " + data["name"] + " by " + data["artist"];
+            const text = "Check out " + data["name"] + " by " + data["artist"] + " on BERNARDO.FM!";
+
+            navigator.share({title: title, text: text, url: url});
+        }
+    },
+    "delete": {
+        "name": "Remove from queue",
+        "icon": () => {
+            const addDiv = document.createElement('div');
+            addDiv.classList.add("icon", "listAdd");
+            addDiv.title = 'Remove this song from the queue';
+
+            const listIcon = createIconElement('fas fa-list');
+            const plusIcon = createIconElement('fas fa-times');
+
+            addDiv.append(listIcon, plusIcon);
+            return addDiv;
+        },
+        "action": async (card) => {
+            const id = card.dataset.id;
+            let current = playlist[playIndex]["id"];
+
+            const indexes = playlist.map((elm, idx) => elm["id"] === id ? idx : "").filter(String);
+            const nodes = Array.prototype.slice.call(card.closest("tbody").children);
+            const index = nodes.indexOf(card);
+            const lastOfIndex = indexes.length === 1;
+            const sameIndex = id === current && lastOfIndex;
+
+            if (sameIndex) pauseSong();
+
+            delete playlist[index];
+            playlist = generateNumericalOrder(playlist);
+
+            if (lastOfIndex)
+                delete partlist[id];
+
+            if (sameIndex) {
+                const previousIndex = previousSongIndex();
+                if (typeof playlist[previousIndex] !== 'undefined') {
+                    await previousSong(true);
+                }
+            } else if (index < playIndex) {
+                playIndex--;
+            }
+
+            card.closest("tr").remove();
+
+            let queueView = document.getElementById("queueView");
+            let queue = queueView.querySelector("#queue");
+
+            if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
+            else queue.style.right = "0";
+        }
+    }
+};
 
 document.addEventListener("click", hideContext);
 
@@ -80,30 +187,87 @@ function playAction(card) {
 }
 
 /*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Findet heraus welches Lied abgespielt werden soll
+ * Spielt das Lied ab
+ */
+bindEvent("click", "#queueView tr[data-id]", async function () {
+    pauseSong();
+    playPauseButton("load");
+
+    let id = this.dataset.id;
+
+    for (let [key, value] of Object.entries(playlist)) {
+        if (value["id"] === id) playIndex = Number(key);
+    }
+
+    nextPlayIndex = playIndex;
+
+    partIndex = 0;
+    nextPartIndex = 0;
+
+    if (typeof playlist[playIndex]["player"] === 'undefined')
+        await downloadPart(0, playIndex, partIndex);
+
+    let player = playlist[playIndex]["player"];
+    player.setOffset(0);
+    player.setCurrentTime(0);
+
+    play(true);
+});
+
+/*
  * Funktion: Diverse Funktionen
  * Autor: Bernardo de Oliveira
  *
  * Diverse Funktionen welche durch Benutzereingaben ausgelöst werden
  */
-bindEvent("click", ".card .darker, .songList tr[data-id]", function () {
-    playAction(this.closest(".card") ?? this);
+bindEvent("click", ".card .darker", function () {
+    playAction(this.closest(".card"));
 });
-bindEvent("contextmenu", ".card .darker, .songList tr[data-id]", function (e) {
+bindEvent("click", ".songList tr[data-id]", function () {
+    playAction(this);
+});
+bindEvent("contextmenu", ".card .darker", function (e) {
     e.preventDefault();
-    if (!isTouchScreen()) showContext(e, this.closest(".card") ?? this);
+    if (!isTouchScreen()) showContext(e, this.closest(".card"), ["queue", "next", "share"]);
 });
-bindEvent("touchstart", ".card .darker, .songList tr[data-id]", function (e) {
+bindEvent("contextmenu", ".songList tr[data-id]", function (e) {
+    e.preventDefault();
+    if (!isTouchScreen()) showContext(e, this, ["queue", "next", "share"]);
+});
+bindEvent("touchstart", ".card .darker", function (e) {
     if (isTouchScreen()) {
         touchTimeout = setTimeout(() => {
-            showContext(e, this.closest(".card") ?? this);
+            showContext(e, this.closest(".card"), ["queue", "next", "share"]);
         }, defaultDelay);
     }
 });
-bindEvent("touchend", ".card .darker, .songList tr[data-id]", function () {
+bindEvent("contextmenu", "#queueView tr[data-id]", function (e) {
+    e.preventDefault();
+    if (!isTouchScreen()) showContext(e, this, ["delete", "share"]);
+});
+bindEvent("touchstart", ".songList tr[data-id]", function (e) {
+    if (isTouchScreen()) {
+        touchTimeout = setTimeout(() => {
+            showContext(e, this, ["queue", "next", "share"]);
+        }, defaultDelay);
+    }
+});
+bindEvent("touchend", ".card .darker, .songList tr[data-id], #queueView tr[data-id]", function () {
     if (isTouchScreen()) clearTimeout(touchTimeout);
 });
-bindEvent("touchmove", ".card .darker, .songList tr[data-id]", function () {
+bindEvent("touchmove", ".card .darker, .songList tr[data-id], #queueView tr[data-id]", function () {
     if (isTouchScreen()) clearTimeout(touchTimeout);
+});
+bindEvent("touchstart", "#queueView tr[data-id]", function (e) {
+    if (isTouchScreen()) {
+        touchTimeout = setTimeout(() => {
+            showContext(e, this, ["delete", "share"]);
+        }, defaultDelay);
+    }
 });
 
 function hideContext() {
@@ -113,7 +277,7 @@ function hideContext() {
     contextMenu.innerHTML = "";
 }
 
-function showContext(e, card) {
+function showContext(e, card, items) {
     hideContext();
 
     const contextMenu = document.getElementById("contextMenu");
@@ -132,19 +296,21 @@ function showContext(e, card) {
         }
     }
 
+    const data = tryParseJSON(httpGet(pageURL + "system/song/" + card.dataset.id));
     const marquee = document.createElement("div");
     marquee.classList.add("marquee");
 
+    const nameElement = card.querySelector(".name") ?? card.querySelector("td:nth-child(2) .content");
     const songName = document.createElement("div");
     songName.classList.add("songName");
-    songName.textContent = card.querySelector(".name").textContent;
+    songName.textContent = nameElement.textContent;
     marquee.append(songName);
 
+    const artistElement = card.querySelector(".artist") ?? card.querySelector("td:nth-child(3) .content");
     const songArtist = document.createElement("div");
     songArtist.classList.add("songArtist");
-    songArtist.textContent = card.querySelector(".artist").textContent;
+    songArtist.textContent = artistElement.textContent;
 
-    const data = tryParseJSON(httpGet(pageURL + "system/song/" + card.dataset.id));
     if (typeof data["count"] !== "undefined")
         songArtist.textContent += " • " + data["count"] + " Tracks";
 
@@ -172,69 +338,12 @@ function showContext(e, card) {
 
     contextMenu.appendChild(divider);
 
-    const menuItems = [
-        {
-            "name": "Add to queue",
-            "icon": () => {
-                const addDiv = document.createElement('div');
-                addDiv.classList.add("icon", "listAdd");
-                addDiv.title = 'Add this song to the queue';
-
-                const listIcon = createIconElement('fas fa-list');
-                const plusIcon = createIconElement('fas fa-plus');
-
-                addDiv.append(listIcon, plusIcon);
-                return addDiv;
-            },
-            "action": () => {
-                addSongToPlaylist(card);
-                showNotification("Song added to queue", 3000);
-            }
-        },
-        {
-            "name": "Play as next",
-            "icon": () => {
-                const addDiv = document.createElement('div');
-                addDiv.classList.add("icon", "listAdd");
-                addDiv.title = 'Add this song to the queue';
-
-                const listIcon = createIconElement('fas fa-list');
-                const plusIcon = createIconElement('fas fa-play');
-
-                addDiv.append(listIcon, plusIcon);
-                return addDiv;
-            },
-            "action": () => {
-                addSongToPlaylist(card, 0, true);
-                showNotification("Song will be played next", 3000);
-            }
-        },
-        {
-            "name": "Share",
-            "icon": () => {
-                const addDiv = document.createElement('div');
-                addDiv.classList.add("icon", "listAdd");
-                addDiv.title = 'Share this song';
-
-                const listIcon = createIconElement('fas fa-share');
-
-                addDiv.append(listIcon);
-                return addDiv;
-            },
-            "action": () => {
-                const url = pageURL + "#!page=music&s=" + card.dataset.id;
-                const title = "Share " + data["name"] + " by " + data["artist"];
-                const text = "Check out this song on BERNARDO.FM!";
-
-                navigator.share({title: title, text: text, url: url});
-            }
-        }
-    ];
-
     const menu = document.createElement("div");
     menu.classList.add("menu");
 
-    for (let menuItem of menuItems) {
+    for (let menuItem of items) {
+        menuItem = menuItems[menuItem];
+
         const item = document.createElement("div");
         item.classList.add("item");
 
@@ -243,7 +352,7 @@ function showContext(e, card) {
 
         item.append(menuItem["icon"](), text);
         item.addEventListener("click", () => {
-            menuItem["action"]();
+            menuItem["action"](card, data);
             contextMenu.style.display = "none";
         });
 
@@ -255,7 +364,7 @@ function showContext(e, card) {
 
     setTimeout(() => {
         const computedStyle = window.getComputedStyle(songName);
-        const textWidth = getTextWidth(songName.textContent, computedStyle.font, computedStyle.fontSize) + 25;
+        const textWidth = getTextWidth(songName.textContent, computedStyle.font, computedStyle.fontSize) + 20;
 
         if (textWidth >= marquee.offsetWidth) {
             marquee.classList.add("scrolling");
