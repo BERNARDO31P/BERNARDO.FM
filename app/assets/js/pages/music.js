@@ -110,7 +110,7 @@ const menuItems = {
             playlist = generateNumericalOrder(playlist);
             delete partlist[id];
 
-            if (index <= playIndex && index < playlist.length) playIndex--;
+            if (index <= playIndex && !sameIndex) playIndex--;
             if (sameIndex) {
                 if (playIndex === -1) await nextSong(true);
                 else await previousSong(true);
