@@ -466,9 +466,13 @@ window.addEventListener("resize", function () {
     let newWidth = getWidth();
     if (width !== newWidth) {
         width = newWidth;
+
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(function () {
-            if (getGetParameter(location.href, "page") === "music") loadPage();
+            if (getGetParameter(location.href, "page") === "music") {
+                loadPage();
+                updateSongData();
+            }
         }, 200);
     }
 });
@@ -689,6 +693,8 @@ window["music"] = async () => {    /*
 
         object.remove();
     }
+
+    if (typeof playlist[playIndex] !== "undefined") return;
 
     /*
      * Funktion: Keine

@@ -107,8 +107,6 @@ function loadPage() {
         if (typeof window[page] !== 'undefined') {
             clearInterval(pageLoad);
             window[page]();
-
-            hidePlaylist();
         } else if (i > 3) {
             clearInterval(pageLoad);
             showNotification("Page not implemented yet.", 3000);
@@ -148,14 +146,12 @@ bindEvent("click", "#navbar [data-page]", function (e) {
     if (navigation.classList.contains("show"))
         navigation.classList.remove("show");
 
-    let queueView = document.querySelector("#queueView");
-    let clientRect = queueView.getBoundingClientRect();
-    if (clientRect.top === 60) hidePlaylist();
-
     page = this.getAttribute("data-page");
     prevPage = undefined;
 
     clearURL();
+    hidePlaylist();
+
     loadPage();
     setActiveNavbar();
 });
@@ -274,6 +270,8 @@ bindEvent("input", "#search input", function () {
         }
 
         window.location.href = "#!page=" + page;
+
+        hidePlaylist();
         loadPage();
     }, defaultDelay);
 });

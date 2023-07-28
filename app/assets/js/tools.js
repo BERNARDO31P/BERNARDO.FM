@@ -1014,7 +1014,7 @@ function updateSongData() {
 
     let heightCalc;
     if (height + 100 < width) heightCalc = height / 2 + 100;
-    else heightCalc = height / 2 - 100;
+    else heightCalc = height / 2 - 200;
 
     size = (size < 1024 && heightCalc > size) ? size : Math.round(heightCalc);
 
