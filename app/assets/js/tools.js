@@ -1402,6 +1402,7 @@ async function prepareNextPart() {
 
         const player = playlist[nextPlayIndex]["player"];
         let partInfo = getPartIndexByStartTime(nextTime);
+
         if (partInfo[2]) {
             nextPartIndex = partInfo[2];
             player.queueTrack(nextPartIndex);
@@ -1411,12 +1412,14 @@ async function prepareNextPart() {
             let missingLength = findMissingLengthByCurrentPart();
             await downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength);
 
-            if (playIndex === nextPlayIndex && !player.hadError()) {
-                if (player.isPlaying()) player.queueTrack(nextPartIndex);
-                else {
-                    partIndex = nextPartIndex;
-                    play();
-                }
+            if (playIndex !== nextPlayIndex
+                || player.hadError()
+                || player.isDecoding()) return;
+
+            if (player.isPlaying()) player.queueTrack(nextPartIndex);
+            else {
+                partIndex = nextPartIndex;
+                play();
             }
         }
     } else if (typeof partlist[nextSongID] === 'undefined' && typeof playlist[nextPlayIndex] !== 'undefined') {
@@ -1441,28 +1444,30 @@ async function prepareNextPart() {
 async function downloadPart(time, sIndex, pIndex, till = null) {
     let song = playlist[sIndex];
     let songID = song["id"];
+    let player = song["player"];
 
-    if (typeof song["player"] === 'undefined') {
+    if (typeof player === 'undefined') {
         let length = getLengthByString(song["length"]);
-        let player = new MultiTrackPlayer(length);
+        player = song["player"] = new MultiTrackPlayer(length);
 
         addEvents(player);
-
-        song["player"] = player;
     }
 
     if (typeof partlist[songID] === 'undefined') partlist[songID] = {};
 
-    partlist[songID][pIndex] = {};
-
-    return await song["player"].addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
+    return await player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
         if (typeof partlist[songID] !== 'undefined') {
-            let length = song["player"].getPartLength(pIndex);
 
-            partlist[songID][pIndex] = {
-                "from": time,
-                "till": time + length
-            };
+            if (typeof partlist[songID][pIndex] === "undefined") {
+                let length = player.getPartLength(pIndex);
+
+                partlist[songID][pIndex] = {
+                    "from": time,
+                    "till": time + length
+                };
+            } else {
+                player.removePart(pIndex);
+            }
         }
     });
 }
@@ -1506,10 +1511,12 @@ function addEvents(player) {
                 return;
             }
 
-            if (!retry) {
-                await prepareNextPart();
-                await trackEvent(true);
-            }
+            if (!player.isDecoding()) {
+                if (!retry) {
+                    await prepareNextPart();
+                    await trackEvent(true);
+                }
+            } else playPauseButton("load");
         }
 
         await trackEvent();
@@ -1523,6 +1530,18 @@ function addEvents(player) {
             partIndex = nextPartIndex;
             play();
         }
+    });
+
+    player.addEventListener("downloadError", () => {
+        if (partIndex !== nextPartIndex)
+            delete partlist[playlist[playIndex]["id"]][nextPartIndex];
+
+        if (!player.isPlaying())
+            playPauseButton("load");
+
+        setTimeout(() => {
+            prepareNextPart();
+        }, 2000);
     });
 
     player.addEventListener("pause", () => {

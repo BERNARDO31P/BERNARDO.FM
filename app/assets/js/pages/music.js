@@ -168,6 +168,9 @@ function playAction(card) {
     downloadPart(0, playIndex, partIndex).then(() => {
         let player = playlist[playIndex]["player"];
 
+        player.setCurrentTime(0);
+        play(true);
+
         player.setActionHandlers({
             "play": () => play(),
             "pause": () => pauseSong(),
@@ -197,8 +200,6 @@ function playAction(card) {
                 }
             }
         });
-
-        play(true);
     });
 }
 
@@ -475,8 +476,9 @@ bindEvent("click", ".fa-random", function () {
         playIndex = 0;
         nextPlayIndex = 0;
 
-        partIndex = 0;
-        nextPartIndex = 0;
+        nextPartIndex = partIndex;
+
+        showNotification("Playlist has been shuffled", 2000);
 
         generateListView(playlist).then((listView) => {
             let queueView = document.getElementById("queueView");
@@ -487,8 +489,6 @@ bindEvent("click", ".fa-random", function () {
 
             updatePlaying();
         });
-
-        playlist[playIndex]["player"].reset();
 
         play();
     }
@@ -593,7 +593,9 @@ window.addEventListener("resize", function () {
         resizeTimeout = setTimeout(function () {
             if (getGetParameter(location.href, "page") === "music") {
                 loadPage();
-                updateSongData();
+
+                if (typeof playlist[playIndex] !== "undefined")
+                    updateSongData();
             }
         }, 200);
     }
