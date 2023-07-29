@@ -237,7 +237,8 @@ bindEvent("click", "[data-title]", function (e) {
         showNotification(target.getAttribute("data-title"), 3000);
     } else {
         touchTimeout = setTimeout(() => {
-            target.closest("tr").dispatchEvent(clickEvent);
+            const tr = target.closest("tr");
+            if (tr) tr.dispatchEvent(clickEvent);
         }, defaultDelay);
     }
 

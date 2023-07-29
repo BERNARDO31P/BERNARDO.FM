@@ -1261,40 +1261,37 @@ function onTimelineRelease(value) {
     const player = playlist[playIndex]["player"];
     player.setMediaSessionPosition(value);
 
-    releaseTimeouts.push(
-        setTimeout(async () => {
-            if (!document.hidden) {
-                let timeInfo = document.getElementById("timeInfo");
-                timeInfo.style.display = "none";
-            }
+    releaseTimeouts.push(setTimeout(async () => {
+        if (!document.hidden) {
+            let timeInfo = document.getElementById("timeInfo");
+            timeInfo.style.display = "none";
+        }
 
-            let songID = playlist[playIndex]["id"];
-            let partInfo = getPartIndexByTime(value);
+        let songID = playlist[playIndex]["id"];
+        let partInfo = getPartIndexByTime(value);
 
-            seekValue = 0;
-            nextPartIndex = partInfo[2];
+        seekValue = 0;
+        nextPartIndex = partInfo[2];
 
-            let nextPartIndexCopy = nextPartIndex;
-            let decoding = false;
-            if (nextPartIndex === null) {
-                nextPartIndex = Object.keys(partlist[songID]).length;
+        let nextPartIndexCopy = nextPartIndex;
+        if (nextPartIndex === null) {
+            nextPartIndex = Object.keys(partlist[songID]).length;
 
-                nextPartIndexCopy = nextPartIndex;
-                decoding = await downloadPart(Number(value), playIndex, nextPartIndex);
+            nextPartIndexCopy = nextPartIndex;
+            await downloadPart(Number(value), playIndex, nextPartIndex);
 
-                if (player.isPlaying()) return;
-                player.setOffset(0);
-            } else {
-                if (player.isPlaying()) return;
-                player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
-            }
+            if (player.isPlaying()) return;
+            player.setOffset(0);
+        } else {
+            if (player.isPlaying()) return;
+            player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
+        }
 
-            partIndex = nextPartIndex;
+        partIndex = nextPartIndex;
 
-            if (nextPartIndexCopy !== nextPartIndex || decoding) return;
-            play();
-        }, 100)
-    );
+        if (nextPartIndexCopy !== nextPartIndex || player.isDecoding()) return;
+        play();
+    }, 250));
 }
 
 /*
@@ -1382,8 +1379,13 @@ async function previousSong(bypass = false) {
  */
 async function prepareNextPart() {
     const currentSong = playlist[playIndex], songID = currentSong["id"];
+    const currentPart = partlist[songID][partIndex];
 
-    let nextTime = Math.round(partlist[songID][partIndex]["till"]);
+    let nextTime;
+    if (typeof currentPart !== "undefined" && currentPart["till"])
+        nextTime = Math.round(currentPart["till"]);
+    else return
+
     let songEnded = false, nextSong = false, nextSongID = null;
     if (!(currentSong["player"].getDuration() - nextTime > 1)) {
         songEnded = true;
@@ -1409,7 +1411,7 @@ async function prepareNextPart() {
         } else {
             nextPartIndex = Object.keys(partlist[songID]).length;
 
-            let missingLength = findMissingLengthByCurrentPart();
+            let missingLength = findMissingLengthByCurrentPart(nextTime);
             await downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength);
 
             if (playIndex !== nextPlayIndex
@@ -1417,10 +1419,7 @@ async function prepareNextPart() {
                 || player.isDecoding()) return;
 
             if (player.isPlaying()) player.queueTrack(nextPartIndex);
-            else {
-                partIndex = nextPartIndex;
-                play();
-            }
+            else play();
         }
     } else if (typeof partlist[nextSongID] === 'undefined' && typeof playlist[nextPlayIndex] !== 'undefined') {
         await downloadPart(0, nextPlayIndex, nextPartIndex);
@@ -1455,19 +1454,16 @@ async function downloadPart(time, sIndex, pIndex, till = null) {
 
     if (typeof partlist[songID] === 'undefined') partlist[songID] = {};
 
-    return await player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
-        if (typeof partlist[songID] !== 'undefined') {
+    partlist[songID][pIndex] = {};
 
-            if (typeof partlist[songID][pIndex] === "undefined") {
-                let length = player.getPartLength(pIndex);
+    await player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
+        if (typeof partlist[songID] !== "undefined" && typeof partlist[songID][pIndex] !== "undefined") {
+            const length = player.getPartLength(pIndex);
 
-                partlist[songID][pIndex] = {
-                    "from": time,
-                    "till": time + length
-                };
-            } else {
-                player.removePart(pIndex);
-            }
+            partlist[songID][pIndex] = {
+                "from": time,
+                "till": time + length
+            };
         }
     });
 }
@@ -1511,15 +1507,17 @@ function addEvents(player) {
                 return;
             }
 
-            if (!player.isDecoding()) {
-                if (!retry) {
-                    await prepareNextPart();
-                    await trackEvent(true);
-                }
-            } else playPauseButton("load");
+            if (!retry) {
+                await prepareNextPart();
+                await trackEvent(true);
+            }
         }
 
         await trackEvent();
+    });
+
+    player.addEventListener("decoding", () => {
+        playPauseButton("load");
     });
 
     player.addEventListener("processed", (e) => {
@@ -1532,20 +1530,24 @@ function addEvents(player) {
         }
     });
 
-    player.addEventListener("downloadError", () => {
-        if (partIndex !== nextPartIndex)
+    ["downloadError", "decodeError"].forEach((event) => {
+        player.addEventListener(event, () => {
             delete partlist[playlist[playIndex]["id"]][nextPartIndex];
 
-        if (!player.isPlaying())
-            playPauseButton("load");
+            nextPartIndex = partIndex;
 
-        setTimeout(() => {
-            prepareNextPart();
-        }, 2000);
+            if (!player.isPlaying())
+                playPauseButton("load");
+
+            setTimeout(() => {
+                prepareNextPart();
+            }, 2000);
+        });
     });
 
     player.addEventListener("pause", () => {
-        nextPartIndex = partIndex;
+        if (!player.hadError() && !player.isDecoding())
+            nextPartIndex = partIndex;
     });
 
     player.addEventListener("timeupdate", (e) => {
@@ -1969,14 +1971,13 @@ function getPartIndexByStartTime(time) {
  * Falls kein nächster Teil verfügbar ist oder es länger geht als der jetzige Teil selbst
  * Wird null zurückgegeben, sonst die Zeit in Sekunden
  */
-function findMissingLengthByCurrentPart() {
+function findMissingLengthByCurrentPart(time) {
     let currentLength = getPartLength(partIndex);
     let songID = playlist[playIndex]["id"];
-    let currentEnding = Math.round(partlist[songID][partIndex]["till"]);
 
     for (let part of Object.values(partlist[songID])) {
-        if (part["from"] - currentEnding > 1 && part["from"] - currentEnding <= currentLength)
-            return part["from"] - currentEnding;
+        if (part["from"] - time > 1 && part["from"] - time <= currentLength)
+            return part["from"] - time;
     }
     return null;
 }
