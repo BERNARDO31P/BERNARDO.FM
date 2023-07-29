@@ -1521,17 +1521,6 @@ function addEvents(player) {
         nextPartIndex = partIndex;
     });
 
-    player.addEventListener("downloadError", () => {
-        delete partlist[playlist[playIndex]["id"]][nextPartIndex];
-
-        pauseSong();
-        playPauseButton("load");
-
-        setTimeout(() => {
-            prepareNextPart();
-        }, 2000);
-    });
-
     player.addEventListener("timeupdate", (e) => {
         if (!document.hidden) {
             const timeline = document.getElementById("timeline");

@@ -24,7 +24,6 @@ class MultiTrackPlayer extends EventTarget {
 
     #offset = 0;
     #currentOffset = 0;
-    #currentTime = 0;
 
     #playing = false;
     #executedTask = true;
@@ -69,8 +68,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #dispatchTimeUpdate() {
-        this.#currentTime = this.#audioTag.currentTime;
-        this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.#currentTime}}));
+        this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.#audioTag.currentTime}}));
     }
 
     async addTrack(url, callback) {
@@ -231,7 +229,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     getCurrentTime() {
-        return this.#currentTime;
+        return this.#audioTag.currentTime;
     }
 
     setVolume(volume) {
@@ -247,7 +245,6 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     setCurrentTime(time) {
-        this.#currentTime = time;
         this.#audioTag.currentTime = time;
     }
 
