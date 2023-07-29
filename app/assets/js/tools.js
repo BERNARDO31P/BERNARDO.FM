@@ -1413,7 +1413,10 @@ async function prepareNextPart() {
 
             if (playIndex === nextPlayIndex && !player.hadError()) {
                 if (player.isPlaying()) player.queueTrack(nextPartIndex);
-                else play();
+                else {
+                    partIndex = nextPartIndex;
+                    play();
+                }
             }
         }
     } else if (typeof partlist[nextSongID] === 'undefined' && typeof playlist[nextPlayIndex] !== 'undefined') {
@@ -1513,8 +1516,13 @@ function addEvents(player) {
     });
 
     player.addEventListener("processed", (e) => {
-        partIndex = e.detail.index;
-        play();
+        nextPartIndex = e.detail.index;
+
+        if (player.isPlaying()) player.queueTrack(nextPartIndex);
+        else {
+            partIndex = nextPartIndex;
+            play();
+        }
     });
 
     player.addEventListener("pause", () => {

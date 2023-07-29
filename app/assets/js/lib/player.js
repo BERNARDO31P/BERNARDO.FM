@@ -20,7 +20,6 @@ class MultiTrackPlayer extends EventTarget {
 
     #startTime = 0;
     #startTimeouts = {};
-    #pauseTimeout = null;
 
     #offset = 0;
     #currentOffset = 0;
@@ -101,58 +100,41 @@ class MultiTrackPlayer extends EventTarget {
 
     playNext(index = 0, startTime = 0) {
         if (!this.#hadError && !(startTime === 0 && this.isPlaying())) {
-            clearTimeout(this.#pauseTimeout);
+            this.#playing = true;
 
-            if (typeof this.#audioBuffers[index] !== "undefined") {
-                if (this.#audioTag.paused) {
-                    this.initialize().then(() => {
-                        this.playNext(index, startTime);
-                    });
-                    return;
-                }
+            if (audioContext.state !== "running")
+                audioContext.resume();
 
-                this.#playing = true;
+            const source = audioContext.createBufferSource();
+            this.#audioSources[index] = source;
 
-                if (audioContext.state !== "running")
-                    audioContext.resume();
+            source.buffer = this.#audioBuffers[index];
+            source.connect(this.#gainNode);
 
-                const source = audioContext.createBufferSource();
-                this.#audioSources[index] = source;
-
-                source.buffer = this.#audioBuffers[index];
-                source.connect(this.#gainNode);
-
-                let when = audioContext.currentTime;
-                try {
-                    source.start(startTime + when, this.#offset);
-                    when = startTime + when;
-                } catch (e) {
-                    source.start(when, this.#offset);
-                }
-                source.when = when;
-
-                source.onended = () => {
-                    delete this.#startTimeouts[index];
-                    this.#currentOffset = 0;
-
-                    if (!Object.keys(this.#startTimeouts).length)
-                        this.dispatchEvent(new Event("end"));
-                }
-
-                this.#startTimeouts[index] = setTimeout(async () => {
-                    this.#executedTask = true;
-                    this.#currentTrackIndex = index;
-                    this.#startTime = when;
-
-                    this.dispatchEvent(new Event("play"));
-                }, startTime * 1000);
-            } else {
-                this.#waitIndex = index;
-
-                this.#pauseTimeout = setTimeout(() => {
-                    this.pause();
-                }, startTime * 1000);
+            let when = audioContext.currentTime;
+            try {
+                source.start(startTime + when, this.#offset);
+                when = startTime + when;
+            } catch (e) {
+                source.start(when, this.#offset);
             }
+            source.when = when;
+
+            source.onended = () => {
+                delete this.#startTimeouts[index];
+                this.#currentOffset = 0;
+
+                if (!Object.keys(this.#startTimeouts).length)
+                    this.dispatchEvent(new Event("end"));
+            }
+
+            this.#startTimeouts[index] = setTimeout(async () => {
+                this.#executedTask = true;
+                this.#currentTrackIndex = index;
+                this.#startTime = when;
+
+                this.dispatchEvent(new Event("play"));
+            }, startTime * 1000);
         }
     }
 
@@ -336,7 +318,7 @@ class MultiTrackPlayer extends EventTarget {
                 delete this.#decodingCallbacks[bufferIndex];
             }
 
-            if (bufferIndex === this.#waitIndex && !this.#playing) {
+            if (bufferIndex === this.#waitIndex) {
                 this.dispatchEvent(new CustomEvent("processed", {detail: {index: this.#waitIndex}}));
                 this.#waitIndex = -1;
             }
@@ -417,7 +399,7 @@ class MultiTrackPlayer extends EventTarget {
     #setPositionState() {
         if ('mediaSession' in navigator) {
             navigator.mediaSession.setPositionState({
-                duration: this.#audioTag.duration,
+                duration: this.#length,
                 playbackRate: 1,
                 position: this.#audioTag.currentTime
             });
