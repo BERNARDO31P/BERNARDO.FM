@@ -61,8 +61,10 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     addTimeUpdate() {
-        this.#timeUpdateHandler = this.#dispatchTimeUpdate.bind(this);
-        this.#audioTag.addEventListener("timeupdate", this.#timeUpdateHandler);
+        if (!this.#timeUpdateHandler) {
+            this.#timeUpdateHandler = this.#dispatchTimeUpdate.bind(this);
+            this.#audioTag.addEventListener("timeupdate", this.#timeUpdateHandler);
+        }
     }
 
     removeTimeUpdate() {
