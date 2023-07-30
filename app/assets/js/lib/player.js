@@ -380,10 +380,24 @@ class MultiTrackPlayer extends EventTarget {
             if (bufferIndex === this.#waitIndex) {
                 this.#clearTimeouts();
 
-                this.dispatchEvent(new CustomEvent("processed", {detail: {index: this.#waitIndex, set: true}}));
+                this.dispatchEvent(new CustomEvent("processed", {
+                    detail: {
+                        index: this.#waitIndex,
+                        set: true,
+                        initialPlay: false
+                    }
+                }));
+
                 this.#waitIndex = null;
             } else {
-                this.dispatchEvent(new CustomEvent("processed", {detail: {index: bufferIndex, set: !this.#nextTrackIndex}}));
+                this.dispatchEvent(new CustomEvent("processed", {
+                    detail: {
+                        index: bufferIndex,
+                        set: !this.#nextTrackIndex,
+                        initialPlay: this.#urls.length === 1
+                    }
+                }));
+
                 this.#isDecoding = false;
             }
 

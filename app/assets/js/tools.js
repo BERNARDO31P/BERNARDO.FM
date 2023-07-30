@@ -1040,6 +1040,36 @@ function play(diffSong = false, pageLoad = false) {
         if (!document.hidden) updateSongData();
 
         player.setMetadata(song["name"], song["artist"], song["cover"]);
+        player.setActionHandlers({
+            "play": () => play(),
+            "pause": () => pauseSong(),
+            "previoustrack": () => previousSong(),
+            "nexttrack": () => nextSong(),
+            "stop": () => pauseSong(),
+            "seekbackward": () => {
+                seekValue -= 10;
+
+                let currentTime = playlist[playIndex]["player"].getCurrentTime();
+                let seekTime = Math.round(currentTime) + seekValue;
+
+                onTimelineRelease(seekTime);
+            },
+            "seekforward": () => {
+                seekValue += 10;
+
+                let currentTime = playlist[playIndex]["player"].getCurrentTime();
+                let seekTime = Math.round(currentTime) + seekValue;
+
+                onTimelineRelease(seekTime);
+            },
+            "seekto": (details) => {
+                if ('seekTime' in details) {
+                    let time = Math.round(details.seekTime);
+                    onTimelineRelease(time);
+                }
+            }
+        });
+
         player.setVolume(volume);
         player.reset();
     }
@@ -1483,7 +1513,7 @@ function addEvents(player) {
             if (player.isPlaying()) player.queueTrack(nextPartIndex);
             else {
                 partIndex = nextPartIndex;
-                play();
+                play(e.detail.initialPlay);
             }
         }
     });
@@ -1512,36 +1542,6 @@ function addEvents(player) {
         if (!document.hidden) {
             const timeline = document.getElementById("timeline");
             timeline.value = e.detail.index;
-        }
-    });
-
-    player.setActionHandlers({
-        "play": () => play(),
-        "pause": () => pauseSong(),
-        "previoustrack": () => previousSong(),
-        "nexttrack": () => nextSong(),
-        "stop": () => pauseSong(),
-        "seekbackward": () => {
-            seekValue -= 10;
-
-            let currentTime = playlist[playIndex]["player"].getCurrentTime();
-            let seekTime = Math.round(currentTime) + seekValue;
-
-            onTimelineRelease(seekTime);
-        },
-        "seekforward": () => {
-            seekValue += 10;
-
-            let currentTime = playlist[playIndex]["player"].getCurrentTime();
-            let seekTime = Math.round(currentTime) + seekValue;
-
-            onTimelineRelease(seekTime);
-        },
-        "seekto": (details) => {
-            if ('seekTime' in details) {
-                let time = Math.round(details.seekTime);
-                onTimelineRelease(time);
-            }
         }
     });
 }
