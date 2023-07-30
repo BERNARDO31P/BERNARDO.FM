@@ -1,6 +1,9 @@
 class MultiTrackPlayer extends EventTarget {
     #waitIndex = null;
 
+    #abortController = new AbortController();
+    #abortSignal = this.#abortController.signal;
+
     #audioTag = new Audio();
     #initialPlay = true;
 
@@ -9,14 +12,15 @@ class MultiTrackPlayer extends EventTarget {
     #gainNode = null;
 
     #urls = [];
-    #audioBuffers = [];
-    #audioSources = [];
+    #audioBuffers = {};
+    #audioSources = {};
 
     #isDecoding = false;
-    #decodingQueue = [];
+    #decodingQueue = {};
     #decodingCallbacks = [];
 
     #currentTrackIndex = 0;
+    #nextTrackIndex = false;
 
     #startTime = 0;
     #startTimeouts = {};
@@ -70,16 +74,21 @@ class MultiTrackPlayer extends EventTarget {
         this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.#audioTag.currentTime}}));
     }
 
-    async addTrack(url, callback) {
+    addTrack(url, callback) {
         if (this.#urls.includes(url)) return;
+        this.#nextTrackIndex = false;
 
-        let index = this.#urls.push(url) - 1;
-        this.#audioBuffers[index] = null
-        this.#decodingQueue.push(url);
+        const index = this.#urls.push(url) - 1;
+        this.#audioBuffers[index] = null;
         this.#decodingCallbacks[index] = callback;
+        this.#decodingQueue[index] = url;
 
-        if (!this.isDecoding()) await this.#processDecodeQueue();
-        else this.#waitIndex = index;
+        if (!this.isDecoding())
+            this.#processDecodeQueue();
+        else {
+            this.#waitIndex = index;
+            this.#abortDownload();
+        }
     }
 
     async initialize() {
@@ -100,7 +109,11 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     playNext(index = 0, startTime = 0) {
-        if (!this.hadError() && !(startTime === 0 && this.isPlaying())) {
+        if (!this.hadError()
+            && !(startTime !== 0 && !this.isPlaying())
+            && !(startTime === 0 && this.isPlaying())
+            && (this.#waitIndex === null || this.#waitIndex === index)) {
+
             this.#playing = true;
 
             if (audioContext.state !== "running")
@@ -143,6 +156,7 @@ class MultiTrackPlayer extends EventTarget {
 
     pause(bypass = false) {
         this.#playing = false;
+        this.#nextTrackIndex = false;
 
         if (!bypass) {
             this.#audioTag.removeEventListener("play", this.#playEventHandler);
@@ -156,7 +170,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#clearTimeouts();
         this.setOffset(this.getCurrentPartTime());
 
-        this.#audioSources.forEach((source) => {
+        Object.values(this.#audioSources).forEach((source) => {
             this.#killSource(source);
         });
 
@@ -190,6 +204,8 @@ class MultiTrackPlayer extends EventTarget {
                 this.#executedTask = false;
                 this.#initialPlay = false;
 
+                this.#nextTrackIndex = true;
+
                 this.setOffset(0);
                 this.playNext(index, startTime);
             }
@@ -217,8 +233,8 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #removePart(index) {
-        this.#audioBuffers.splice(index, 1);
-        this.#audioSources.splice(index, 1);
+        delete this.#audioBuffers[index];
+        delete this.#audioSources[index];
         this.#urls.splice(index, 1);
     }
 
@@ -280,9 +296,11 @@ class MultiTrackPlayer extends EventTarget {
 
     clear() {
         this.pause();
+        this.reset();
+        this.#abortDownload();
 
-        this.#audioBuffers = [];
-        this.#audioSources = [];
+        this.#audioBuffers = {};
+        this.#audioSources = {};
         this.#urls = [];
     }
 
@@ -291,16 +309,25 @@ class MultiTrackPlayer extends EventTarget {
         this.setOffset(0);
     }
 
+    #abortDownload() {
+        this.#abortController.abort();
+
+        this.#abortController = new AbortController();
+        this.#abortSignal = this.#abortController.signal;
+    }
+
     async #processDecodeQueue() {
-        if (this.#decodingQueue.length) {
+        if (Object.values(this.#decodingQueue).length) {
             this.#isDecoding = true;
 
             let url;
             if (this.#waitIndex !== null) {
                 url = this.#decodingQueue[this.#waitIndex];
-                this.#decodingQueue.splice(this.#waitIndex, 1);
+                delete this.#decodingQueue[this.#waitIndex];
             } else {
-                url = this.#decodingQueue.pop();
+                const lastKey = Object.keys(this.#decodingQueue).pop();
+                url = this.#decodingQueue[lastKey];
+                delete this.#decodingQueue[lastKey];
             }
             const bufferIndex = this.#urls.indexOf(url);
 
@@ -308,18 +335,25 @@ class MultiTrackPlayer extends EventTarget {
             try {
                 if (typeof url === "undefined") throw new Error();
 
-                response = await fetch(url);
+                response = await fetch(url, {
+                    signal: this.#abortSignal
+                });
 
                 if (!response.ok) throw new Error();
 
                 this.#hadError = false;
             } catch (e) {
-                this.#hadError = true;
-                this.#isDecoding = false;
+                if (!e.toString().includes("AbortError")) {
+                    this.#hadError = true;
+                    this.#isDecoding = false;
 
-                this.#removePart(bufferIndex);
+                    this.#removePart(bufferIndex);
+                    this.dispatchEvent(new Event("downloadError"));
+                } else if (this.#urls.indexOf(url)) {
+                    this.#decodingQueue[bufferIndex] = url;
 
-                this.dispatchEvent(new Event("downloadError"));
+                    this.#processDecodeQueue();
+                }
                 return;
             }
 
@@ -339,20 +373,22 @@ class MultiTrackPlayer extends EventTarget {
             }
 
             if (typeof this.#decodingCallbacks[bufferIndex] === "function") {
-                this.#decodingCallbacks[bufferIndex](true);
+                this.#decodingCallbacks[bufferIndex]();
                 delete this.#decodingCallbacks[bufferIndex];
             }
 
             if (bufferIndex === this.#waitIndex) {
-                this.dispatchEvent(new CustomEvent("processed", {detail: {index: this.#waitIndex}}));
-                this.#waitIndex = null;
-
                 this.#clearTimeouts();
+
+                this.dispatchEvent(new CustomEvent("processed", {detail: {index: this.#waitIndex, set: true}}));
+                this.#waitIndex = null;
+            } else {
+                this.dispatchEvent(new CustomEvent("processed", {detail: {index: bufferIndex, set: !this.#nextTrackIndex}}));
+                this.#isDecoding = false;
             }
 
-            await this.#processDecodeQueue();
+            this.#processDecodeQueue();
         }
-        this.#isDecoding = false;
     }
 
     setMediaSessionPosition(value) {

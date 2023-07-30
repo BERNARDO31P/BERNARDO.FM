@@ -8,8 +8,7 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
 const defaultDelay = 500;
 
 let backgroundProcesses = [];
-let sliderTimeout = null, controlsTimeout = null, releaseTimeouts = [],
-    searchTimeout = null, songInterval = null;
+let sliderTimeout = null, searchTimeout = null;
 let pageURL = window.location.protocol + '//' + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 let seekValue = 0;
@@ -60,14 +59,13 @@ document.onkeydown = function (e) {
         if (keys.includes(key)) {
             e.preventDefault();
 
-            let playerHTML = document.getElementById("player");
-            let timeline = playerHTML.querySelector("#timeline");
+            const playerHTML = document.getElementById("player");
+            const timeline = playerHTML.querySelector("#timeline");
+            const song = playlist[playIndex];
 
-            let mouseUpEvent = new Event('mouseup', {
-                bubbles: true,
-                cancelable: true,
-            });
+            if (typeof song === "undefined") return;
 
+            const player = song["player"];
             switch (key) {
                 case "R":
                     let repeatButton = playerHTML.querySelector(".repeat");
@@ -81,7 +79,7 @@ document.onkeydown = function (e) {
                     break;
                 case "K":
                 case "Space":
-                    if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]["player"].isPlaying())
+                    if (player.isPlaying())
                         pauseSong();
                     else
                         play();
@@ -90,20 +88,16 @@ document.onkeydown = function (e) {
                     muteAudio();
                     break;
                 case "ArrowLeft":
-                    timeline.value = Number(timeline.value) - 5;
-                    timeline.dispatchEvent(mouseUpEvent);
+                    onTimelineRelease(player.getCurrentTime() - 5);
                     break;
                 case "ArrowRight":
-                    timeline.value = Number(timeline.value) + 5;
-                    timeline.dispatchEvent(mouseUpEvent);
+                    onTimelineRelease(player.getCurrentTime() + 5);
                     break;
                 case "J":
-                    timeline.value = Number(timeline.value) - 10;
-                    timeline.dispatchEvent(mouseUpEvent);
+                    onTimelineRelease(player.getCurrentTime() - 10);
                     break;
                 case "L":
-                    timeline.value = Number(timeline.value) + 10;
-                    timeline.dispatchEvent(mouseUpEvent);
+                    onTimelineRelease(player.getCurrentTime() + 10);
                     break;
                 case "ArrowUp":
                     volume = volume + 0.1;
@@ -237,27 +231,6 @@ function clearURL() {
 }
 
 /*
- * Funktion: updateURL()
- * Autor: Bernardo de Oliveira
- *
- * Aktualisiert die URL mit den aktuellen Parametern (Song, Timeline)
- */
-function updateURL() {
-    let timeline = document.getElementById("timeline");
-    let angleUp = document.getElementsByClassName("fa-angle-up")[0];
-    let songID = playlist[playIndex]["id"];
-
-    if (!songInterval) {
-        songInterval = setInterval(function () {
-            if (angleUp.getAttribute("data-angle") === "up") {
-                location.replace(setGetParameter(location.href, "s", songID));
-                location.replace(setGetParameter(location.href, "t", timeline.value));
-            }
-        }, 1000);
-    }
-}
-
-/*
  * Funktion: updatePlaying()
  * Autor: Bernardo de Oliveira
  *
@@ -297,6 +270,11 @@ function updatePlaying() {
         const scroll = rowBounding.top - top - (marginTop * 2);
         queue.scrollBy(0, scroll);
     }
+
+    const angleUp = document.getElementsByClassName("fa-angle-up")[0];
+
+    if (angleUp.getAttribute("data-angle") === "up")
+        location.replace(setGetParameter(location.href, "s", playlist[playIndex]["id"]));
 }
 
 /*
@@ -422,23 +400,35 @@ function showConfirmation(title, message, acceptCallback = () => {
     transparent.style.display = "block";
     body.style.overflow = "hidden";
 
-    okButton.addEventListener("click", function accept() {
+    function accept() {
         okButton.removeEventListener("click", accept);
-
-        transparent.style.display = "none";
-        body.style.overflow = "initial";
-
-        acceptCallback();
-    });
-
-    cancelButton.addEventListener("click", function cancel() {
         cancelButton.removeEventListener("click", cancel);
 
-        transparent.style.display = "none";
-        body.style.overflow = "initial";
+        hideConfirmation();
+
+        acceptCallback();
+    }
+
+    function cancel() {
+        okButton.removeEventListener("click", accept);
+        cancelButton.removeEventListener("click", cancel);
+
+        hideConfirmation();
 
         cancelCallback();
-    });
+    }
+
+    okButton.addEventListener("click", accept);
+    cancelButton.addEventListener("click", cancel);
+}
+
+// TODO: Comment
+function hideConfirmation() {
+    let body = document.getElementsByTagName("body")[0];
+    let transparent = document.getElementById('transparent');
+
+    transparent.style.display = "none";
+    body.style.overflow = "initial";
 }
 
 // TODO: Comment
@@ -863,6 +853,8 @@ function hidePlaylist() {
         angleIcon = document.getElementsByClassName("fa-angle-up")[0];
 
     if (angleIcon.getAttribute("data-angle") !== "down") {
+        angleIcon.setAttribute("data-angle", "down");
+
         body.style.overflowY = "initial";
 
         angleIcon.animate([{transform: 'rotate(-180deg)'}, {transform: 'rotate(0deg)'}], {
@@ -874,8 +866,6 @@ function hidePlaylist() {
         }, function () {
             queueView.classList.remove("show");
         });
-
-        angleIcon.setAttribute("data-angle", "down");
     }
 }
 
@@ -1040,8 +1030,7 @@ function updateSongData() {
  * Beginnt die Wiedergabe
  */
 function play(diffSong = false, pageLoad = false) {
-    let player = playlist[playIndex]["player"];
-    player.setVolume(volume);
+    const player = playlist[playIndex]["player"];
 
     if (diffSong) {
         let song = playlist[playIndex];
@@ -1051,10 +1040,13 @@ function play(diffSong = false, pageLoad = false) {
         if (!document.hidden) updateSongData();
 
         player.setMetadata(song["name"], song["artist"], song["cover"]);
+        player.setVolume(volume);
+        player.reset();
     }
 
     if (!player.isPlaying()) {
         player.initialize().then(() => {
+            hideConfirmation();
             player.playNext(partIndex);
 
             if (!document.hidden) {
@@ -1067,8 +1059,6 @@ function play(diffSong = false, pageLoad = false) {
                         }
                     }
                 }
-
-                updateURL();
 
                 if (pageLoad) {
                     let angleUp = document.getElementsByClassName("fa-angle-up")[0];
@@ -1165,9 +1155,6 @@ function clearSongs() {
             playlist[index]["player"].clear();
     }
 
-    clearInterval(songInterval);
-    songInterval = null;
-
     playIndex = 0;
     partIndex = 0;
     nextPlayIndex = 0;
@@ -1190,9 +1177,6 @@ function pauseSong() {
 
         playPauseButton("pause");
     }
-
-    clearInterval(songInterval);
-    songInterval = null;
 
     if (!document.hidden) {
         let animation = document.getElementsByClassName("lds-facebook")[0];
@@ -1219,23 +1203,6 @@ function onTimelinePress() {
     timeInfo.style.display = "initial";
 
     playlist[playIndex]["player"].removeTimeUpdate();
-
-    clearInterval(songInterval);
-    songInterval = null;
-}
-
-/*
- * Funktion: clearTimeouts()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  timeouts: (Array) Definiert die Timeouts, welche gestoppt werden sollen
- *
- * Löscht alle Timeouts
- */
-function clearTimeouts(timeouts) {
-    for (let timeout of timeouts) {
-        clearTimeout(timeout);
-    }
 }
 
 /*
@@ -1251,47 +1218,58 @@ function clearTimeouts(timeouts) {
  *
  * Die Wiedergabe beginnt
  */
-function onTimelineRelease(value) {
-    clearTimeouts(releaseTimeouts);
-    releaseTimeouts = [];
-
+function onTimelineRelease(value, rangeEvent = null) {
+    const timeline = document.getElementById("timeline");
+    const rect = timeline.getBoundingClientRect();
     const player = playlist[playIndex]["player"];
-    player.setMediaSessionPosition(value);
+
+    if (!document.hidden)
+        document.getElementById("timeInfo").style.display = "none";
+
+    if (rangeEvent !== null) {
+        let clientX, clientY;
+        if (rangeEvent.type === "touchend") {
+            clientX = rangeEvent.changedTouches[0].clientX;
+            clientY = rangeEvent.changedTouches[0].clientY;
+        } else {
+            clientX = rangeEvent.clientX;
+            clientY = rangeEvent.clientY;
+        }
+
+        const abortRelease = !
+            (clientX >= rect.left &&
+                clientX <= rect.right &&
+                clientY >= rect.top &&
+                clientY <= rect.bottom);
+
+        if (abortRelease) {
+            player.addTimeUpdate();
+            return;
+        }
+    }
 
     pauseSong();
-    playPauseButton("load");
+    value = Math.round(value);
+    player.setMediaSessionPosition(value);
 
-    releaseTimeouts.push(setTimeout(async () => {
-        if (!document.hidden) {
-            let timeInfo = document.getElementById("timeInfo");
-            timeInfo.style.display = "none";
-        }
+    let songID = playlist[playIndex]["id"];
+    let partInfo = getPartIndexByTime(value);
 
-        let songID = playlist[playIndex]["id"];
-        let partInfo = getPartIndexByTime(value);
+    seekValue = 0;
+    nextPartIndex = partInfo[2];
 
-        seekValue = 0;
-        nextPartIndex = partInfo[2];
+    if (nextPartIndex === null) {
+        playPauseButton("load");
 
-        let nextPartIndexCopy = nextPartIndex;
-        if (nextPartIndex === null) {
-            nextPartIndex = Object.keys(partlist[songID]).length;
-
-            nextPartIndexCopy = nextPartIndex;
-            await downloadPart(Number(value), playIndex, nextPartIndex);
-
-            if (player.isPlaying()) return;
-            player.setOffset(0);
-        } else {
-            if (player.isPlaying()) return;
-            player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
-        }
-        if (nextPartIndexCopy !== nextPartIndex) return;
+        nextPartIndex = Object.keys(partlist[songID]).length;
+        downloadPart(Number(value), playIndex, nextPartIndex);
+    } else {
+        if (player.isPlaying()) return;
+        player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
 
         partIndex = nextPartIndex;
-
         play();
-    }, 1000));
+    }
 }
 
 /*
@@ -1305,22 +1283,18 @@ async function nextSong(bypass = false) {
     if (!bypass) pauseSong();
     playPauseButton("load");
 
-    let nextIndex = nextSongIndex();
+    const nextIndex = nextSongIndex();
     if (typeof playlist[nextIndex] !== 'undefined') {
-        let diffIndex = (playIndex !== nextIndex);
-        let song = playlist[nextIndex];
+        const song = playlist[nextIndex];
 
         playIndex = nextIndex;
         partIndex = 0;
         nextPartIndex = 0;
+
         if (typeof song["player"] === 'undefined') {
             partlist[nextIndex] = {};
-            await downloadPart(0, playIndex, partIndex);
-        }
-
-        song["player"].reset();
-
-        play(diffIndex);
+            downloadPart(0, playIndex, partIndex);
+        } else play(true);
     }
 }
 
@@ -1336,23 +1310,17 @@ async function previousSong(bypass = false) {
     playPauseButton("load");
 
 
-    let previousIndex = previousSongIndex();
+    const previousIndex = previousSongIndex();
     if (typeof playlist[previousIndex] !== 'undefined') {
-        let diffIndex = (playIndex !== previousIndex);
-        let song = playlist[previousIndex];
+        const song = playlist[previousIndex];
 
         playIndex = previousIndex;
         partIndex = 0;
         nextPartIndex = 0;
         if (typeof song["player"] === 'undefined') {
             partlist[previousIndex] = {};
-            await downloadPart(0, playIndex, partIndex);
-        }
-
-
-        song["player"].reset();
-
-        play(bypass || diffIndex);
+            downloadPart(0, playIndex, partIndex);
+        } else play(true);
     }
 }
 
@@ -1377,7 +1345,7 @@ async function previousSong(bypass = false) {
  *  - Teil 75 - 85 Sekunden wurde heruntergeladen
  *  - Jetzt fehlt ein 5 Sekunden langer Teil, dieser wird heruntergeladen (anstatt 10 Sekunden)
  */
-async function prepareNextPart() {
+function prepareNextPart() {
     const currentSong = playlist[playIndex], songID = currentSong["id"];
     const currentPart = partlist[songID][partIndex];
 
@@ -1412,17 +1380,10 @@ async function prepareNextPart() {
             nextPartIndex = Object.keys(partlist[songID]).length;
 
             let missingLength = findMissingLengthByCurrentPart(nextTime);
-            await downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength);
-
-            if (playIndex !== nextPlayIndex
-                || player.hadError()
-                || player.isDecoding()) return;
-
-            if (player.isPlaying()) player.queueTrack(nextPartIndex);
-            else play();
+            downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength);
         }
     } else if (typeof partlist[nextSongID] === 'undefined' && typeof playlist[nextPlayIndex] !== 'undefined') {
-        await downloadPart(0, nextPlayIndex, nextPartIndex);
+        downloadPart(0, nextPlayIndex, nextPartIndex);
     }
 }
 
@@ -1440,7 +1401,7 @@ async function prepareNextPart() {
  *
  * Optional kann man auch bis zu einer bestimmten Zeit herunterladen
  */
-async function downloadPart(time, sIndex, pIndex, till = null) {
+function downloadPart(time, sIndex, pIndex, till = null) {
     let song = playlist[sIndex];
     let songID = song["id"];
     let player = song["player"];
@@ -1456,7 +1417,7 @@ async function downloadPart(time, sIndex, pIndex, till = null) {
 
     partlist[songID][pIndex] = {};
 
-    await player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
+    player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
         if (typeof partlist[songID] !== "undefined" && typeof partlist[songID][pIndex] !== "undefined") {
             const length = player.getPartLength(pIndex);
 
@@ -1494,37 +1455,36 @@ function addEvents(player) {
     player.addEventListener("end", async () => {
         pauseSong();
 
-        async function trackEvent(retry = false) {
-            let diffIndex = (playIndex !== nextPlayIndex);
-            if (diffIndex || repeatMode !== 0) {
+        function trackEvent(retry = false) {
+            if (playIndex !== nextPlayIndex || repeatMode !== 0) {
                 playIndex = nextPlayIndex;
                 partIndex = 0;
                 nextPartIndex = 0;
 
-                player.reset();
-
-                play(diffIndex);
+                play(true);
                 return;
             }
 
             if (!player.isDecoding()) {
                 if (!retry && !player.hadError()) {
-                    await prepareNextPart();
-                    await trackEvent(true);
+                    prepareNextPart();
+                    trackEvent(true);
                 }
             } else playPauseButton("load");
         }
 
-        await trackEvent();
+        trackEvent();
     });
 
     player.addEventListener("processed", (e) => {
-        nextPartIndex = e.detail.index
+        if (e.detail.set) {
+            nextPartIndex = e.detail.index
 
-        if (player.isPlaying()) player.queueTrack(nextPartIndex);
-        else {
-            partIndex = nextPartIndex;
-            play();
+            if (player.isPlaying()) player.queueTrack(nextPartIndex);
+            else {
+                partIndex = nextPartIndex;
+                play();
+            }
         }
     });
 
@@ -1542,13 +1502,46 @@ function addEvents(player) {
     });
 
     player.addEventListener("pause", () => {
-            nextPartIndex = partIndex;
+        nextPartIndex = partIndex;
+
+        if (player.isDecoding()) playPauseButton("load");
+        else playPauseButton("pause");
     });
 
     player.addEventListener("timeupdate", (e) => {
         if (!document.hidden) {
             const timeline = document.getElementById("timeline");
             timeline.value = e.detail.index;
+        }
+    });
+
+    player.setActionHandlers({
+        "play": () => play(),
+        "pause": () => pauseSong(),
+        "previoustrack": () => previousSong(),
+        "nexttrack": () => nextSong(),
+        "stop": () => pauseSong(),
+        "seekbackward": () => {
+            seekValue -= 10;
+
+            let currentTime = playlist[playIndex]["player"].getCurrentTime();
+            let seekTime = Math.round(currentTime) + seekValue;
+
+            onTimelineRelease(seekTime);
+        },
+        "seekforward": () => {
+            seekValue += 10;
+
+            let currentTime = playlist[playIndex]["player"].getCurrentTime();
+            let seekTime = Math.round(currentTime) + seekValue;
+
+            onTimelineRelease(seekTime);
+        },
+        "seekto": (details) => {
+            if ('seekTime' in details) {
+                let time = Math.round(details.seekTime);
+                onTimelineRelease(time);
+            }
         }
     });
 }
@@ -1567,6 +1560,8 @@ function onTimelineMove(rangeEvent) {
     let measurementTimeInfo = timeInfo.getBoundingClientRect();
     let measurementRange = rangeEvent.target.getBoundingClientRect();
     let leftPos = mouseX - (measurementTimeInfo["width"] / 2);
+
+    playlist[playIndex]["player"].removeTimeUpdate();
 
     if (leftPos < 0) leftPos = 0; else if ((leftPos + measurementTimeInfo["width"]) > getWidth()) leftPos = getWidth() - measurementTimeInfo["width"];
 

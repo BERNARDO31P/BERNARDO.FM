@@ -22,13 +22,21 @@ const menuItems = {
         "name": "Add to queue",
         "icon": () => {
             const addDiv = document.createElement('div');
-            addDiv.classList.add("icon", "listAdd");
+            addDiv.classList.add("icon");
             addDiv.title = 'Add this song to the queue';
 
             const listIcon = createIconElement('fas fa-list');
             const plusIcon = createIconElement('fas fa-plus');
 
-            addDiv.append(listIcon, plusIcon);
+            const iconDiv = document.createElement('div');
+            iconDiv.classList.add("listAdd");
+
+            iconDiv.append(listIcon, plusIcon);
+
+            const helperDiv = document.createElement('div');
+            helperDiv.append(iconDiv);
+
+            addDiv.append(helperDiv);
             return addDiv;
         },
         "action": (card) => {
@@ -40,13 +48,21 @@ const menuItems = {
         "name": "Play as next",
         "icon": () => {
             const addDiv = document.createElement('div');
-            addDiv.classList.add("icon", "listAdd");
+            addDiv.classList.add("icon");
             addDiv.title = 'Add this song to the queue';
 
             const listIcon = createIconElement('fas fa-list');
             const plusIcon = createIconElement('fas fa-play');
 
-            addDiv.append(listIcon, plusIcon);
+            const iconDiv = document.createElement('div');
+            iconDiv.classList.add("listAdd");
+
+            iconDiv.append(listIcon, plusIcon);
+
+            const helperDiv = document.createElement('div');
+            helperDiv.append(iconDiv);
+
+            addDiv.append(helperDiv);
             return addDiv;
         },
         "action": (card) => {
@@ -129,16 +145,6 @@ const menuItems = {
 
 document.addEventListener("click", hideContext);
 
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Ändert die Ansicht zwischen Gitter und Liste
- */
-bindEvent("click", "#view [data-prefix='fas']:not(.active)", function () {
-    setCookie("view", this.dataset.view, getExpireTime(30));
-    loadPage();
-});
 
 /*
  * Funktion: Anonym
@@ -149,11 +155,8 @@ bindEvent("click", "#view [data-prefix='fas']:not(.active)", function () {
 bindEvent("click", "#content .listAdd", function () {
     addSongToPlaylist(this);
 
-    if (playlist.length === 1) {
-        downloadPart(0, playIndex, partIndex).then(() => {
-            play(true);
-        });
-    }
+    if (playlist.length === 1)
+        downloadPart(0, playIndex, partIndex);
 
     showNotification("Song added to queue", 3000);
 });
@@ -165,42 +168,7 @@ function playAction(card) {
     addSongToPlaylist(card);
     playPauseButton("load");
 
-    downloadPart(0, playIndex, partIndex).then(() => {
-        let player = playlist[playIndex]["player"];
-
-        player.setCurrentTime(0);
-        play(true);
-
-        player.setActionHandlers({
-            "play": () => play(),
-            "pause": () => pauseSong(),
-            "previoustrack": () => previousSong(),
-            "nexttrack": () => nextSong(),
-            "stop": () => pauseSong(),
-            "seekbackward": () => {
-                seekValue -= 10;
-
-                let currentTime = playlist[playIndex]["player"].getCurrentTime();
-                let seekTime = Math.round(currentTime) + seekValue;
-
-                onTimelineRelease(seekTime);
-            },
-            "seekforward": () => {
-                seekValue += 10;
-
-                let currentTime = playlist[playIndex]["player"].getCurrentTime();
-                let seekTime = Math.round(currentTime) + seekValue;
-
-                onTimelineRelease(seekTime);
-            },
-            "seekto": (details) => {
-                if ('seekTime' in details) {
-                    let time = Math.round(details.seekTime);
-                    onTimelineRelease(time);
-                }
-            }
-        });
-    });
+    downloadPart(0, playIndex, partIndex);
 }
 
 /*
@@ -210,7 +178,7 @@ function playAction(card) {
  * Findet heraus welches Lied abgespielt werden soll
  * Spielt das Lied ab
  */
-bindEvent("click", "#queueView tr[data-id]", async function () {
+bindEvent("click", "#queueView tr[data-id]", function () {
     pauseSong();
     playPauseButton("load");
 
@@ -226,11 +194,8 @@ bindEvent("click", "#queueView tr[data-id]", async function () {
     nextPartIndex = 0;
 
     if (typeof playlist[playIndex]["player"] === 'undefined')
-        await downloadPart(0, playIndex, partIndex);
-
-    playlist[playIndex]["player"].reset();
-
-    play(true);
+        downloadPart(0, playIndex, partIndex);
+    else play(true);
 });
 
 /*
@@ -398,6 +363,8 @@ bindEvent("click", "[data-angle='down']", function () {
     let navbar = document.getElementById("navbar");
     let body = document.getElementsByTagName("body")[0];
 
+    this.setAttribute("data-angle", "up");
+
     navbar.classList.remove("shadow");
     body.style.overflowY = "hidden";
 
@@ -411,7 +378,7 @@ bindEvent("click", "[data-angle='down']", function () {
 
     let queue = queueView.querySelector("#queue");
     if (changedQueue) {
-        generateListView(playlist).then(listView => {
+        generateQueueView(playlist).then(listView => {
             queue.innerHTML = "";
             queue.appendChild(listView);
 
@@ -433,8 +400,6 @@ bindEvent("click", "[data-angle='down']", function () {
         duration: 300,
         fill: "forwards"
     });
-
-    this.setAttribute("data-angle", "up");
 });
 
 /*
@@ -447,9 +412,6 @@ bindEvent("click", "[data-angle='up']", function () {
     let navbar = document.getElementById("navbar");
 
     hidePlaylist();
-    clearInterval(songInterval);
-    songInterval = null;
-
     clearURL();
 
     if (window.scrollY !== 0) navbar.classList.add("shadow");
@@ -480,7 +442,7 @@ bindEvent("click", ".fa-random", function () {
 
         showNotification("Playlist has been shuffled", 2000);
 
-        generateListView(playlist).then((listView) => {
+        generateQueueView(playlist).then((listView) => {
             let queueView = document.getElementById("queueView");
             let queue = queueView.querySelector("#queue");
 
@@ -667,142 +629,107 @@ window["music"] = async () => {    /*
                 data = removeFromObject(data, "cover", false);
             }
 
-            let view = getCookie("view");
-            if (!view) view = "grid";
-            if (view === "list") {
-                document.getElementsByClassName("fa-list")[0].classList.add("active");
+            let gridView = document.createElement("div");
+            gridView.classList.add("songGrid");
 
-                let listView = document.createElement("div");
-                listView.classList.add("songList");
+            for (let category in data) {
+                let songs = data[category], title = document.createElement("h2");
 
-                for (let category in data) {
-                    let songs = data[category], title = document.createElement("h2");
+                title.textContent = category;
+                gridView.appendChild(title);
 
-                    title.textContent = category;
-                    listView.appendChild(title);
+                let div = document.createElement("div"), categoryView = document.createElement("div");
+                categoryView.classList.add("songCategory");
 
-                    let table = await generateListView(songs, cover);
-                    table.setAttribute("data-page", "1");
-                    table.setAttribute("data-url", object.dataset.url);
+                div.setAttribute("data-page", "1");
+                div.setAttribute("data-url", object.dataset.url);
 
-                    if (songs.length === count)
-                        table.setAttribute("data-load", String(1));
+                if (songs.length === count)
+                    div.setAttribute("data-load", String(1));
 
-                    listView.appendChild(table);
+                /*
+                 * Funktion: handler()
+                 * Author: Bernardo de Oliveira
+                 * Argumente:
+                 *  e: (Event) Das jetzige Event
+                 *
+                 * Lädt neue Lieder nach, sobald mehr 60% gescrollt wurde
+                 * Wenn kein Touchgerät, dann werden die Knöpfe je nach Scroll-Position angepasst
+                 */
+                div.addEventListener("scroll", async function handler(e) {
+                    let element = e.target;
+                    let scrolled = Math.round(100 * element.scrollLeft / (element.scrollWidth - element.clientWidth));
 
-                    if (songs.length === count) {
-                        let loadMore = document.createElement("a");
-                        loadMore.classList.add("loadMore");
-                        loadMore.textContent = "Load more..";
+                    if (scrolled >= 60) {
+                        let search = document.querySelector("#search input");
+                        let catPage = Number(element.dataset.page) + 1;
+                        let catCategory = prev(element.parentElement).textContent;
 
-                        listView.appendChild(loadMore);
+                        let data;
+                        if (search.value !== "") {
+                            data = tryParseJSON(httpGet(element.dataset.url + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
+                        } else {
+                            data = tryParseJSON(httpGet(element.dataset.url + "/" + catCategory + "/" + catPage + "/" + count));
+                        }
+
+                        let cover = "";
+                        if (typeof data["cover"] !== 'undefined') {
+                            cover = data["cover"];
+                            data = removeFromObject(data, "cover", false);
+                        }
+
+                        if (Object.keys(data).length > 0) {
+                            element.setAttribute("data-page", String(catPage));
+                            await generateBlockView(data, element.querySelector(".songCategory"), cover);
+                        } else {
+                            element.removeEventListener("scroll", handler);
+                        }
                     }
-                }
-                object.parentNode.insertBefore(listView, object);
-            } else {
-                document.getElementsByClassName("fa-grip-horizontal")[0].classList.add("active");
+                });
 
-                let gridView = document.createElement("div");
-                gridView.classList.add("songGrid");
-
-                for (let category in data) {
-                    let songs = data[category], title = document.createElement("h2");
-
-                    title.textContent = category;
-                    gridView.appendChild(title);
-
-                    let div = document.createElement("div"), categoryView = document.createElement("div");
-                    categoryView.classList.add("songCategory");
-
-                    div.setAttribute("data-page", "1");
-                    div.setAttribute("data-url", object.dataset.url);
-
-                    if (songs.length === count)
-                        div.setAttribute("data-load", String(1));
-
-                    /*
-                     * Funktion: handler()
-                     * Author: Bernardo de Oliveira
-                     * Argumente:
-                     *  e: (Event) Das jetzige Event
-                     *
-                     * Lädt neue Lieder nach, sobald mehr 60% gescrollt wurde
-                     * Wenn kein Touchgerät, dann werden die Knöpfe je nach Scroll-Position angepasst
-                     */
-                    div.addEventListener("scroll", async function handler(e) {
-                        let element = e.target;
-                        let scrolled = Math.round(100 * element.scrollLeft / (element.scrollWidth - element.clientWidth));
-
-                        if (scrolled >= 60) {
-                            let search = document.querySelector("#search input");
-                            let catPage = Number(element.dataset.page) + 1;
-                            let catCategory = prev(element.parentElement).textContent;
-
-                            let data;
-                            if (search.value !== "") {
-                                data = tryParseJSON(httpGet(element.dataset.url + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
-                            } else {
-                                data = tryParseJSON(httpGet(element.dataset.url + "/" + catCategory + "/" + catPage + "/" + count));
-                            }
-
-                            let cover = "";
-                            if (typeof data["cover"] !== 'undefined') {
-                                cover = data["cover"];
-                                data = removeFromObject(data, "cover", false);
-                            }
-
-                            if (Object.keys(data).length > 0) {
-                                element.setAttribute("data-page", String(catPage));
-                                await generateBlockView(data, element.querySelector(".songCategory"), cover);
-                            } else {
-                                element.removeEventListener("scroll", handler);
-                            }
-                        }
-                    });
-
-                    div.addEventListener("scroll", function (e) {
-                        let element = e.target;
-                        let scrolled = Math.round(100 * element.scrollLeft / (element.scrollWidth - element.clientWidth));
-
-                        if (!isTouchScreen()) {
-                            let scrollBack = div.parentElement.querySelector(".scrollBack");
-                            if (scrolled === 0) scrollBack.style.display = "none";
-                            else scrollBack.style.display = "flex";
-
-                            let scrollForward = div.parentElement.querySelector(".scrollForward");
-                            if (scrolled === 100) scrollForward.style.display = "none";
-                            else scrollForward.style.display = "flex";
-                        }
-                    });
-
-                    await generateBlockView(songs, categoryView, cover);
-
-                    let parent = document.createElement("div");
-
-                    div.appendChild(categoryView);
+                div.addEventListener("scroll", function (e) {
+                    let element = e.target;
+                    let scrolled = Math.round(100 * element.scrollLeft / (element.scrollWidth - element.clientWidth));
 
                     if (!isTouchScreen()) {
-                        let scrollBack = document.createElement("div");
-                        scrollBack.classList.add("scrollBack");
-                        scrollBack.innerHTML = "<i class='fas fa-arrow-left'></i>";
-                        parent.appendChild(scrollBack);
+                        let scrollBack = div.parentElement.querySelector(".scrollBack");
+                        if (scrolled === 0) scrollBack.style.display = "none";
+                        else scrollBack.style.display = "flex";
 
-                        let scrollForward = document.createElement("div");
-                        scrollForward.classList.add("scrollForward");
-                        scrollForward.innerHTML = "<i class='fas fa-arrow-right'></i>";
-                        parent.appendChild(scrollForward);
-
-                        if (Object.keys(songs).length > count - 3) {
-                            scrollForward.style.display = "flex";
-                        }
+                        let scrollForward = div.parentElement.querySelector(".scrollForward");
+                        if (scrolled === 100) scrollForward.style.display = "none";
+                        else scrollForward.style.display = "flex";
                     }
+                });
 
-                    parent.appendChild(div);
-                    gridView.appendChild(parent);
+                await generateBlockView(songs, categoryView, cover);
+
+                let parent = document.createElement("div");
+
+                div.appendChild(categoryView);
+
+                if (!isTouchScreen()) {
+                    let scrollBack = document.createElement("div");
+                    scrollBack.classList.add("scrollBack");
+                    scrollBack.innerHTML = "<i class='fas fa-arrow-left'></i>";
+                    parent.appendChild(scrollBack);
+
+                    let scrollForward = document.createElement("div");
+                    scrollForward.classList.add("scrollForward");
+                    scrollForward.innerHTML = "<i class='fas fa-arrow-right'></i>";
+                    parent.appendChild(scrollForward);
+
+                    if (Object.keys(songs).length > count - 3) {
+                        scrollForward.style.display = "flex";
+                    }
                 }
 
-                object.parentNode.insertBefore(gridView, object);
+                parent.appendChild(div);
+                gridView.appendChild(parent);
             }
+
+            if (object.parentNode !== null)
+                object.parentNode.insertBefore(gridView, object);
         } else {
             let div = document.createElement("div");
             div.classList.add("info");
@@ -812,7 +739,8 @@ window["music"] = async () => {    /*
 
             div.appendChild(span);
 
-            object.parentNode.insertBefore(div, object);
+            if (object.parentNode !== null)
+                object.parentNode.insertBefore(div, object);
         }
 
         object.remove();
@@ -837,9 +765,7 @@ window["music"] = async () => {    /*
         addSongToPlaylist(null, songID);
         if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]) {
             playPauseButton("load");
-            downloadPart(time, playIndex, partIndex).then(() => {
-                play(true, true);
-            });
+            downloadPart(time, playIndex, partIndex);
         }
     }
 }
@@ -863,7 +789,7 @@ function addSongToPlaylist(element, id = 0, next = false) {
     else deleteMultiple(data, ["cover", "name", "count"]);
 
     const songs = Object.values(data);
-
+    const length = playlist.length;
     if (!next) {
         playlist = [...playlist, ...songs];
     } else {
@@ -873,8 +799,9 @@ function addSongToPlaylist(element, id = 0, next = false) {
             ...playlist.slice(playIndex + 1)
         ]
     }
-
     changedQueue = true;
+
+    if (!length && !document.hidden) updateSongData();
 }
 
 /*
@@ -957,7 +884,7 @@ async function generateBlockView(songs, categoryView, cover) {
 }
 
 /*
- * Funktion: generateListView()
+ * Funktion: generateQueueView()
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  data: (Object) Die Daten, welche verarbeitet werden sollen
@@ -965,20 +892,11 @@ async function generateBlockView(songs, categoryView, cover) {
  *
  * Generiert eine Tabelle aus den Daten (Table body) und Schlüssel (Table head)
  */
-async function generateListView(data, cover) {
+async function generateQueueView(data, cover) {
     let table = document.createElement("table");
     table.classList.add("responsive-table");
 
-    let columns = getColumns(data, 1);
-    columns = removeFromObject(columns, ["id", "category", "player", "coverPos", "info", "shuffle"]);
-
-    if (columns.includes("playlist")) {
-        columns.unshift("cover");
-        columns.push("artists");
-
-        columns = removeFromObject(columns, ["playlist"]);
-    }
-
+    const columns = ["Cover", "Name", "Artist", "Length"];
     table.appendChild(generateTableHead(columns));
     table.appendChild(await generateTableBody(data, columns, null, cover));
     return table;

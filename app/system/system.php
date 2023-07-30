@@ -292,9 +292,9 @@ function generate_pictures(array &$db, $hashDB, int $length = 200): void
 
 	$imagick->resetIterator();
 	$out = $imagick->appendImages(false);
-	$out->setImageFormat("jpg");
+	$out->setImageFormat("webp");
 
-	$newImage = "temp/" . uniqid(rand(), true) . ".jpg";
+	$newImage = "temp/" . uniqid(rand(), true) . ".webp";
 	$data["image"] = "system/" . $newImage;
 
 	$out->writeimage($newImage);
@@ -796,8 +796,10 @@ $router->get("/img/(.*)", function ($image) {
         $imagick = new Imagick();
         $imagick->readImage($imageUrl);
         $imagick->scaleImage($length, $length);
+		$imagick->setImageFormat("webp");
 
-        header("Content-Type: image/" . $imagick->getImageFormat());
+
+        header("Content-Type: image/webp");
         echo $imagick;
 	} else {
         header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
@@ -816,8 +818,19 @@ $router->get("/temp/(.*)", function ($image) {
 	$imageUrl = __DIR__ . "/temp/" . $image;
 	$contentType = mime_content_type($imageUrl);
 
-	header("Content-Type: " . $contentType);
-	echo file_get_contents($imageUrl);
+	if ($contentType === false) {
+		header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
+		exit("Forbidden");
+	}
+
+	if ($contentType === "image/webp") {
+		$imagick = new Imagick();
+		$imagick->readImage($imageUrl);
+
+		header("Content-Type: image/webp");
+		echo $imagick;
+		exit();
+	}
 });
 
 $router->run();

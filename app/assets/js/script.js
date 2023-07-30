@@ -23,12 +23,8 @@ document.addEventListener("visibilitychange", function () {
 
     if (document.hidden) {
         player.removeTimeUpdate();
-
-        clearInterval(songInterval);
-        songInterval = null;
     } else {
         updateSongData();
-        updateURL();
 
         if (player.isPlaying()) {
             player.addTimeUpdate();
@@ -184,7 +180,7 @@ bindEvent("click", "#navbar-toggler", function () {
 bindEvent("click", "#player .fa-pause", () => pauseSong());
 bindEvent("mousedown, touchstart", "#timeline", () => onTimelinePress());
 bindEvent("input", "#timeline", (e) => onTimelineMove(e));
-bindEvent("mouseup, touchend", "#timeline", (e) => onTimelineRelease(e.target.value));
+bindEvent("mouseup, touchend", "#timeline", (e) => onTimelineRelease(e.target.value, e));
 bindEvent("click", "#player .fa-step-forward", () => nextSong());
 bindEvent("click", "#player .fa-step-backward", () => previousSong());
 
@@ -195,26 +191,19 @@ bindEvent("click", "#player .fa-step-backward", () => previousSong());
  * Handler, wenn im Player auf den Play Knopf drückt
  * Wenn das Lied beendet wurde, wird überprüft, ob ein nächstes Lied abgespielt werden kann
  */
-bindEvent("click", "#player .fa-play", async () => {
+bindEvent("click", "#player .fa-play", () => {
     let timeline = document.getElementById("timeline");
     if (timeline.max === timeline.value) {
         let nextIndex = nextSongIndex();
-        let diffIndex = (playIndex !== nextIndex);
         partIndex = 0;
 
         if (typeof playlist[nextIndex] !== 'undefined') {
             if (typeof playlist[nextIndex]["player"] === 'undefined')
-                await downloadPart(0, nextIndex, partIndex);
+                downloadPart(0, nextIndex, partIndex);
 
             playIndex = nextIndex;
         }
-
-        playlist[playIndex]["player"].reset();
-
-        play(diffIndex);
-    }
-
-    play();
+    } else play();
 });
 
 /*

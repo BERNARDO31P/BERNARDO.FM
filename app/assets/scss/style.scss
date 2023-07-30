@@ -987,10 +987,14 @@ a.button {
     background-color: var(--text-color-author);
     opacity: .5;
 
+    margin: 8px 0;
+
     left: -10px;
   }
 
   .menu {
+    user-select: none;
+
     .item:hover {
       background-color: var(--active-background);
     }
@@ -999,15 +1003,24 @@ a.button {
       transition: 0.2s;
       cursor: pointer;
 
+      margin: 5px 0;
       padding: 5px 20px;
       display: flex;
 
       border-radius: 5px;
 
       .icon {
-        margin: 2px 0 0 0;
         width: 25px;
         height: 25px;
+
+        position: relative;
+
+        & > * {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%,-50%);
+        }
       }
 
       .listAdd {
@@ -1018,12 +1031,13 @@ a.button {
 
         .fa-plus, .fa-play, .fa-times {
           background-color: var(--primary-color);
-
-          padding: 0 !important;
-          margin: 0 0 -3px -5px;
+          bottom: 0;
+          right: -4px;
 
           font-size: 10px;
+
           z-index: 1;
+          position: absolute;
         }
       }
 
@@ -1233,6 +1247,8 @@ a.button {
     -webkit-appearance: none;
     height: 5px;
     overflow: hidden;
+
+    touch-action: none;
 
     &:focus-visible {
       outline: none;
@@ -1669,6 +1685,8 @@ a.button {
       left: 0;
       max-height: 0;
       width: 100%;
+
+      border-top: 1px solid var(--border-color);
 
       .permanent {
         position: fixed;
