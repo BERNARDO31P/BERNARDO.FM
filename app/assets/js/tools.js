@@ -1255,11 +1255,11 @@ function onTimelineRelease(value) {
     clearTimeouts(releaseTimeouts);
     releaseTimeouts = [];
 
-    pauseSong();
-    playPauseButton("load");
-
     const player = playlist[playIndex]["player"];
     player.setMediaSessionPosition(value);
+
+    pauseSong();
+    playPauseButton("load");
 
     releaseTimeouts.push(setTimeout(async () => {
         if (!document.hidden) {
@@ -1286,12 +1286,12 @@ function onTimelineRelease(value) {
             if (player.isPlaying()) return;
             player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
         }
+        if (nextPartIndexCopy !== nextPartIndex) return;
 
         partIndex = nextPartIndex;
 
-        if (nextPartIndexCopy !== nextPartIndex || player.isDecoding()) return;
         play();
-    }, 250));
+    }, 1000));
 }
 
 /*
@@ -1384,7 +1384,7 @@ async function prepareNextPart() {
     let nextTime;
     if (typeof currentPart !== "undefined" && currentPart["till"])
         nextTime = Math.round(currentPart["till"]);
-    else return
+    else return;
 
     let songEnded = false, nextSong = false, nextSongID = null;
     if (!(currentSong["player"].getDuration() - nextTime > 1)) {
@@ -1507,21 +1507,19 @@ function addEvents(player) {
                 return;
             }
 
-            if (!retry) {
-                await prepareNextPart();
-                await trackEvent(true);
-            }
+            if (!player.isDecoding()) {
+                if (!retry && !player.hadError()) {
+                    await prepareNextPart();
+                    await trackEvent(true);
+                }
+            } else playPauseButton("load");
         }
 
         await trackEvent();
     });
 
-    player.addEventListener("decoding", () => {
-        playPauseButton("load");
-    });
-
     player.addEventListener("processed", (e) => {
-        nextPartIndex = e.detail.index;
+        nextPartIndex = e.detail.index
 
         if (player.isPlaying()) player.queueTrack(nextPartIndex);
         else {
@@ -1530,23 +1528,20 @@ function addEvents(player) {
         }
     });
 
-    ["downloadError", "decodeError"].forEach((event) => {
-        player.addEventListener(event, () => {
-            delete partlist[playlist[playIndex]["id"]][nextPartIndex];
+    player.addEventListener("downloadError", () => {
+        delete partlist[playlist[playIndex]["id"]][nextPartIndex];
 
-            nextPartIndex = partIndex;
+        nextPartIndex = partIndex;
 
-            if (!player.isPlaying())
-                playPauseButton("load");
+        if (!player.isPlaying())
+            playPauseButton("load");
 
-            setTimeout(() => {
-                prepareNextPart();
-            }, 2000);
-        });
+        setTimeout(() => {
+            prepareNextPart();
+        }, 2000);
     });
 
     player.addEventListener("pause", () => {
-        if (!player.hadError() && !player.isDecoding())
             nextPartIndex = partIndex;
     });
 

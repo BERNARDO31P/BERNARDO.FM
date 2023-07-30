@@ -126,13 +126,8 @@ class MultiTrackPlayer extends EventTarget {
                 this.#currentOffset = 0;
 
                 if (!Object.keys(this.#startTimeouts).length) {
-                    if (!this.hadError() && !this.isDecoding())
-                        this.dispatchEvent(new Event("end"));
-                    else {
-                        this.pause();
-                        if (this.isDecoding())
-                            this.dispatchEvent(new Event("decoding"));
-                    }
+                    this.#clearTimeouts();
+                    this.dispatchEvent(new Event("end"));
                 }
             }
 
@@ -188,7 +183,8 @@ class MultiTrackPlayer extends EventTarget {
             && typeof this.#audioBuffers[this.#currentTrackIndex] !== "undefined"
             && this.#audioBuffers[this.#currentTrackIndex] !== null) {
 
-            if (startTime === null) startTime = (this.#audioBuffers[this.#currentTrackIndex].duration - this.#offset) - this.getStartTime();
+            if (startTime === null || this.isPlaying())
+                startTime = (this.#audioBuffers[this.#currentTrackIndex].duration - this.#offset) - this.getStartTime();
 
             if (this.#executedTask) {
                 this.#executedTask = false;
@@ -320,7 +316,6 @@ class MultiTrackPlayer extends EventTarget {
             } catch (e) {
                 this.#hadError = true;
                 this.#isDecoding = false;
-                this.#waitIndex = null;
 
                 this.#removePart(bufferIndex);
 
@@ -336,11 +331,10 @@ class MultiTrackPlayer extends EventTarget {
             } catch (e) {
                 this.#hadError = true;
                 this.#isDecoding = false;
-                this.#waitIndex = null;
 
                 this.#removePart(bufferIndex);
 
-                this.dispatchEvent(new Event("decodeError"));
+                this.dispatchEvent(new Event("downloadError"));
                 return;
             }
 
