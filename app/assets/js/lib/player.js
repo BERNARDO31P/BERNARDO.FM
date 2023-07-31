@@ -6,6 +6,7 @@ class MultiTrackPlayer extends EventTarget {
 
     #audioTag = new Audio();
     #initialPlay = true;
+    #stopped = true;
 
     #length = 0;
     #volume = 1;
@@ -61,15 +62,17 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     addTimeUpdate() {
-        if (!this.#timeUpdateHandler) {
+        if (this.#timeUpdateHandler === null) {
             this.#timeUpdateHandler = this.#dispatchTimeUpdate.bind(this);
             this.#audioTag.addEventListener("timeupdate", this.#timeUpdateHandler);
         }
     }
 
     removeTimeUpdate() {
-        if (this.#timeUpdateHandler)
+        if (this.#timeUpdateHandler !== null) {
             this.#audioTag.removeEventListener("timeupdate", this.#timeUpdateHandler);
+            this.#timeUpdateHandler = null;
+        }
     }
 
     #dispatchTimeUpdate() {
@@ -85,6 +88,8 @@ class MultiTrackPlayer extends EventTarget {
         this.#decodingCallbacks[index] = callback;
         this.#decodingQueue[index] = url;
 
+        console.log(url);
+        console.log(this.isDecoding());
         if (!this.isDecoding())
             this.#processDecodeQueue();
         else {
@@ -95,6 +100,7 @@ class MultiTrackPlayer extends EventTarget {
 
     async initialize() {
         this.#initialPlay = true;
+        this.#stopped = false;
 
         if (this.#audioTag.duration !== this.#length) {
             this.#audioTag.src = this.#createSilence(this.#length);
@@ -179,6 +185,23 @@ class MultiTrackPlayer extends EventTarget {
         audioContext.suspend().finally(() => {
             this.dispatchEvent(new Event("pause"));
         });
+    }
+
+    stop() {
+        this.#stopped = true;
+
+        this.#currentTrackIndex = 0;
+        this.#nextTrackIndex = false;
+
+        this.#startTime = 0;
+
+        this.#offset = 0;
+        this.#currentOffset = 0;
+
+        this.#executedTask = true;
+        this.#hadError = false;
+
+        this.#abortDownload();
     }
 
     #playEvent() {
@@ -299,7 +322,6 @@ class MultiTrackPlayer extends EventTarget {
     clear() {
         this.pause();
         this.reset();
-        this.#abortDownload();
 
         this.#audioBuffers = {};
         this.#audioSources = {};
@@ -319,7 +341,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     async #processDecodeQueue() {
-        if (Object.values(this.#decodingQueue).length) {
+        if (Object.values(this.#decodingQueue).length && !this.#stopped) {
             this.#isDecoding = true;
 
             let url;
@@ -345,9 +367,10 @@ class MultiTrackPlayer extends EventTarget {
 
                 this.#hadError = false;
             } catch (e) {
+                this.#isDecoding = false;
+
                 if (!e.toString().includes("AbortError")) {
                     this.#hadError = true;
-                    this.#isDecoding = false;
 
                     this.#removePart(bufferIndex);
                     this.dispatchEvent(new Event("downloadError"));
@@ -391,7 +414,7 @@ class MultiTrackPlayer extends EventTarget {
                 }));
 
                 this.#waitIndex = null;
-            } else {
+            } else if (!this.#stopped) {
                 this.dispatchEvent(new CustomEvent("processed", {
                     detail: {
                         index: bufferIndex,
@@ -399,10 +422,9 @@ class MultiTrackPlayer extends EventTarget {
                         initialPlay: this.#urls.length === 1
                     }
                 }));
-
-                this.#isDecoding = false;
             }
 
+            this.#isDecoding = false;
             this.#processDecodeQueue();
         }
     }

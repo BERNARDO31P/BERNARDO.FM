@@ -60,7 +60,6 @@ document.onkeydown = function (e) {
             e.preventDefault();
 
             const playerHTML = document.getElementById("player");
-            const timeline = playerHTML.querySelector("#timeline");
             const song = playlist[playIndex];
 
             if (typeof song === "undefined") return;
@@ -1181,8 +1180,10 @@ function playPauseButton(option = "pause") {
  */
 function clearSongs() {
     for (let index of Object.keys(playlist)) {
-        if (typeof playlist[index]["player"] !== 'undefined')
+        if (typeof playlist[index]["player"] !== 'undefined') {
+            playlist[index]["player"].stop();
             playlist[index]["player"].clear();
+        }
     }
 
     playIndex = 0;
@@ -1317,6 +1318,8 @@ async function nextSong(bypass = false) {
     if (typeof playlist[nextIndex] !== 'undefined') {
         const song = playlist[nextIndex];
 
+        playlist[playIndex]["player"].stop();
+
         playIndex = nextIndex;
         partIndex = 0;
         nextPartIndex = 0;
@@ -1343,6 +1346,8 @@ async function previousSong(bypass = false) {
     const previousIndex = previousSongIndex();
     if (typeof playlist[previousIndex] !== 'undefined') {
         const song = playlist[previousIndex];
+
+        playlist[playIndex]["player"].stop();
 
         playIndex = previousIndex;
         partIndex = 0;
@@ -1487,6 +1492,8 @@ function addEvents(player) {
 
         function trackEvent(retry = false) {
             if (playIndex !== nextPlayIndex || repeatMode !== 0) {
+                player.stop();
+
                 playIndex = nextPlayIndex;
                 partIndex = 0;
                 nextPartIndex = 0;
