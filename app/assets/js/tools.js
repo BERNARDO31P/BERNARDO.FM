@@ -1314,20 +1314,21 @@ async function nextSong(bypass = false) {
     if (!bypass) pauseSong();
     playPauseButton("load");
 
+    playlist[playIndex]["player"].stop();
+
     const nextIndex = nextSongIndex();
     if (typeof playlist[nextIndex] !== 'undefined') {
         const song = playlist[nextIndex];
-
-        playlist[playIndex]["player"].stop();
 
         playIndex = nextIndex;
         partIndex = 0;
         nextPartIndex = 0;
 
-        if (typeof song["player"] === 'undefined') {
-            partlist[nextIndex] = {};
+        if (typeof song["player"] === 'undefined'
+            || typeof partlist[song["id"]] === "undefined"
+            || typeof partlist[song["id"]][partIndex]["from"] === "undefined")
             downloadPart(0, playIndex, partIndex);
-        } else play(true);
+        else play(true);
     }
 }
 
@@ -1342,20 +1343,20 @@ async function previousSong(bypass = false) {
     if (!bypass) pauseSong();
     playPauseButton("load");
 
+    playlist[playIndex]["player"].stop();
 
     const previousIndex = previousSongIndex();
     if (typeof playlist[previousIndex] !== 'undefined') {
         const song = playlist[previousIndex];
 
-        playlist[playIndex]["player"].stop();
-
         playIndex = previousIndex;
         partIndex = 0;
         nextPartIndex = 0;
-        if (typeof song["player"] === 'undefined') {
-            partlist[previousIndex] = {};
+        if (typeof song["player"] === 'undefined'
+            || typeof partlist[song["id"]] === "undefined"
+            || typeof partlist[song["id"]][partIndex]["from"] === "undefined")
             downloadPart(0, playIndex, partIndex);
-        } else play(true);
+        else play(true);
     }
 }
 
@@ -1437,8 +1438,8 @@ function prepareNextPart() {
  * Optional kann man auch bis zu einer bestimmten Zeit herunterladen
  */
 function downloadPart(time, sIndex, pIndex, till = null) {
-    let song = playlist[sIndex];
-    let songID = song["id"];
+    const song = playlist[sIndex];
+    const songID = song["id"];
     let player = song["player"];
 
     if (typeof player === 'undefined') {

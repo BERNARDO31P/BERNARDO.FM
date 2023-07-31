@@ -6,7 +6,7 @@ class MultiTrackPlayer extends EventTarget {
 
     #audioTag = new Audio();
     #initialPlay = true;
-    #stopped = false;
+    #stopped = true;
 
     #length = 0;
     #volume = 1;
@@ -80,16 +80,18 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     addTrack(url, callback) {
-        if (this.#urls.includes(url)) return;
+        this.#stopped = false;
         this.#nextTrackIndex = false;
 
-        const index = this.#urls.push(url) - 1;
+        let index;
+        if (!this.#urls.includes(url))
+            index = this.#urls.push(url) - 1;
+        else index = this.#urls.indexOf(url);
+
         this.#audioBuffers[index] = null;
         this.#decodingCallbacks[index] = callback;
         this.#decodingQueue[index] = url;
 
-        console.log(url);
-        console.log(this.isDecoding());
         if (!this.isDecoding())
             this.#processDecodeQueue();
         else {
@@ -188,6 +190,8 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     stop() {
+        this.pause();
+
         this.#stopped = true;
 
         this.#currentTrackIndex = 0;
@@ -200,6 +204,7 @@ class MultiTrackPlayer extends EventTarget {
 
         this.#executedTask = true;
         this.#hadError = false;
+        this.#isDecoding = false;
 
         this.#abortDownload();
     }
