@@ -6,7 +6,7 @@ class MultiTrackPlayer extends EventTarget {
 
     #audioTag = new Audio();
     #initialPlay = true;
-    #stopped = true;
+    #stopped = false;
 
     #length = 0;
     #volume = 1;
