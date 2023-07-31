@@ -1280,7 +1280,7 @@ function onTimelineRelease(value, rangeEvent = null) {
     }
 
     pauseSong();
-    value = Math.round(value);
+    value = Math.round(Number(value));
     player.setMediaSessionPosition(value);
 
     let songID = playlist[playIndex]["id"];
@@ -1293,7 +1293,7 @@ function onTimelineRelease(value, rangeEvent = null) {
         playPauseButton("load");
 
         nextPartIndex = Object.keys(partlist[songID]).length;
-        downloadPart(Number(value), playIndex, nextPartIndex);
+        downloadPart(value, playIndex, nextPartIndex);
     } else {
         if (player.isPlaying()) return;
         player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
@@ -1303,6 +1303,15 @@ function onTimelineRelease(value, rangeEvent = null) {
     }
 }
 
+// TODO: Comment
+function partIsPlayable(sIndex, pIndex) {
+    const song = playlist[sIndex];
+    return !((typeof song["player"] === 'undefined'
+        || typeof partlist[song["id"]] === "undefined"
+        || typeof partlist[song["id"]][pIndex] === "undefined"
+        || typeof partlist[song["id"]][pIndex]["from"] === "undefined"));
+}
+
 /*
  * Funktion: nextSong()
  * Autor: Bernardo de Oliveira
@@ -1310,7 +1319,7 @@ function onTimelineRelease(value, rangeEvent = null) {
  * Überprüft, ob der nächste Index in der Playlist verfügbar ist
  * Die Wiedergabe wird gestartet
  */
-async function nextSong(bypass = false) {
+function nextSong(bypass = false) {
     if (!bypass) pauseSong();
     playPauseButton("load");
 
@@ -1318,15 +1327,13 @@ async function nextSong(bypass = false) {
 
     const nextIndex = nextSongIndex();
     if (typeof playlist[nextIndex] !== 'undefined') {
-        const song = playlist[nextIndex];
+        updateSongData();
 
         playIndex = nextIndex;
         partIndex = 0;
         nextPartIndex = 0;
 
-        if (typeof song["player"] === 'undefined'
-            || typeof partlist[song["id"]] === "undefined"
-            || typeof partlist[song["id"]][partIndex]["from"] === "undefined")
+        if (!partIsPlayable(nextIndex, partIndex))
             downloadPart(0, playIndex, partIndex);
         else play(true);
     }
@@ -1339,7 +1346,7 @@ async function nextSong(bypass = false) {
  * Überprüft, ob der vorherige Index in der Playlist verfügbar ist
  * Die Wiedergabe wird gestartet
  */
-async function previousSong(bypass = false) {
+function previousSong(bypass = false) {
     if (!bypass) pauseSong();
     playPauseButton("load");
 
@@ -1347,14 +1354,12 @@ async function previousSong(bypass = false) {
 
     const previousIndex = previousSongIndex();
     if (typeof playlist[previousIndex] !== 'undefined') {
-        const song = playlist[previousIndex];
+        updateSongData();
 
         playIndex = previousIndex;
         partIndex = 0;
         nextPartIndex = 0;
-        if (typeof song["player"] === 'undefined'
-            || typeof partlist[song["id"]] === "undefined"
-            || typeof partlist[song["id"]][partIndex]["from"] === "undefined")
+        if (!partIsPlayable(previousIndex, partIndex))
             downloadPart(0, playIndex, partIndex);
         else play(true);
     }
@@ -1418,9 +1423,8 @@ function prepareNextPart() {
             let missingLength = findMissingLengthByCurrentPart(nextTime);
             downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength);
         }
-    } else if (typeof partlist[nextSongID] === 'undefined' && typeof playlist[nextPlayIndex] !== 'undefined') {
+    } else if (!partIsPlayable(nextPlayIndex, nextPartIndex))
         downloadPart(0, nextPlayIndex, nextPartIndex);
-    }
 }
 
 /*

@@ -128,8 +128,8 @@ const menuItems = {
 
             if (index <= playIndex && !sameIndex) playIndex--;
             if (sameIndex) {
-                if (playIndex === -1) await nextSong(true);
-                else await previousSong(true);
+                if (playIndex === -1) nextSong(true);
+                else previousSong(true);
             }
 
             card.closest("tr").remove();
@@ -193,7 +193,7 @@ bindEvent("click", "#queueView tr[data-id]", function () {
     partIndex = 0;
     nextPartIndex = 0;
 
-    if (typeof playlist[playIndex]["player"] === 'undefined')
+    if (!partIsPlayable(playIndex, partIndex))
         downloadPart(0, playIndex, partIndex);
     else play(true);
 });
@@ -766,7 +766,7 @@ window["music"] = async () => {    /*
         if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]) {
             playPauseButton("load");
             downloadPart(time, playIndex, partIndex);
-        }
+        } else clearURL();
     }
 }
 
@@ -784,6 +784,7 @@ function addSongToPlaylist(element, id = 0, next = false) {
     if (element) songID = element.dataset.id;
 
     let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
+    if (!Object.values(data).length) return;
 
     if (typeof data[0] === "undefined") data = [data];
     else deleteMultiple(data, ["cover", "name", "count"]);

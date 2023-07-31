@@ -198,7 +198,7 @@ bindEvent("click", "#player .fa-play", () => {
         partIndex = 0;
 
         if (typeof playlist[nextIndex] !== 'undefined') {
-            if (typeof playlist[nextIndex]["player"] === 'undefined')
+            if (!partIsPlayable(nextIndex, partIndex))
                 downloadPart(0, nextIndex, partIndex);
 
             playIndex = nextIndex;
