@@ -407,26 +407,28 @@ class MultiTrackPlayer extends EventTarget {
                 delete this.#decodingCallbacks[bufferIndex];
             }
 
-            if (bufferIndex === this.#waitIndex) {
-                this.#clearTimeouts();
+            if (!this.#stopped) {
+                if (bufferIndex === this.#waitIndex) {
+                    this.#clearTimeouts();
 
-                this.dispatchEvent(new CustomEvent("processed", {
-                    detail: {
-                        index: this.#waitIndex,
-                        set: true,
-                        initialPlay: false
-                    }
-                }));
+                    this.dispatchEvent(new CustomEvent("processed", {
+                        detail: {
+                            index: this.#waitIndex,
+                            set: true,
+                            initialPlay: false
+                        }
+                    }));
 
-                this.#waitIndex = null;
-            } else if (!this.#stopped) {
-                this.dispatchEvent(new CustomEvent("processed", {
-                    detail: {
-                        index: bufferIndex,
-                        set: !this.#nextTrackIndex,
-                        initialPlay: this.#urls.length === 1
-                    }
-                }));
+                    this.#waitIndex = null;
+                } else {
+                    this.dispatchEvent(new CustomEvent("processed", {
+                        detail: {
+                            index: bufferIndex,
+                            set: !this.#nextTrackIndex,
+                            initialPlay: this.#urls.length === 1
+                        }
+                    }));
+                }
             }
 
             this.#isDecoding = false;
