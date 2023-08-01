@@ -1201,10 +1201,11 @@ function clearSongs() {
  *
  * Pausiert die Wiedergabe
  */
-function pauseSong() {
+function pauseSong(stop = false) {
     const player = playlist[playIndex]["player"];
     if (player.isPlaying()) {
-        player.pause();
+        if (!stop) player.pause();
+        else player.stop();
 
         playPauseButton("pause");
     }
@@ -1236,6 +1237,23 @@ function onTimelinePress() {
     playlist[playIndex]["player"].removeTimeUpdate();
 }
 
+// TODO: Comment
+function onElement(element, event) {
+    let clientX, clientY;
+    if (event.type === "touchend") {
+        clientX = event.changedTouches[0].clientX;
+        clientY = event.changedTouches[0].clientY;
+    } else {
+        clientX = event.clientX;
+        clientY = event.clientY;
+    }
+
+    return clientX >= element.left &&
+        clientX <= element.right &&
+        clientY >= element.top &&
+        clientY <= element.bottom;
+}
+
 /*
  * Funktion: onTimelineRelease()
  * Autor: Bernardo de Oliveira
@@ -1250,30 +1268,16 @@ function onTimelinePress() {
  * Die Wiedergabe beginnt
  */
 function onTimelineRelease(value, rangeEvent = null) {
-    const timeline = document.getElementById("timeline");
-    const rect = timeline.getBoundingClientRect();
     const player = playlist[playIndex]["player"];
 
     if (!document.hidden)
         document.getElementById("timeInfo").style.display = "none";
 
     if (rangeEvent !== null) {
-        let clientX, clientY;
-        if (rangeEvent.type === "touchend") {
-            clientX = rangeEvent.changedTouches[0].clientX;
-            clientY = rangeEvent.changedTouches[0].clientY;
-        } else {
-            clientX = rangeEvent.clientX;
-            clientY = rangeEvent.clientY;
-        }
+        const timeline = document.getElementById("timeline");
+        const rect = timeline.getBoundingClientRect();
 
-        const abortRelease = !
-            (clientX >= rect.left &&
-                clientX <= rect.right &&
-                clientY >= rect.top &&
-                clientY <= rect.bottom);
-
-        if (abortRelease) {
+        if (!onElement(rect, rangeEvent)) {
             player.addTimeUpdate();
             return;
         }
@@ -1320,10 +1324,8 @@ function partIsPlayable(sIndex, pIndex) {
  * Die Wiedergabe wird gestartet
  */
 function nextSong(bypass = false) {
-    if (!bypass) pauseSong();
+    if (!bypass) pauseSong(true);
     playPauseButton("load");
-
-    playlist[playIndex]["player"].stop();
 
     const nextIndex = nextSongIndex();
     if (typeof playlist[nextIndex] !== 'undefined') {
@@ -1347,10 +1349,8 @@ function nextSong(bypass = false) {
  * Die Wiedergabe wird gestartet
  */
 function previousSong(bypass = false) {
-    if (!bypass) pauseSong();
+    if (!bypass) pauseSong(true);
     playPauseButton("load");
-
-    playlist[playIndex]["player"].stop();
 
     const previousIndex = previousSongIndex();
     if (typeof playlist[previousIndex] !== 'undefined') {
