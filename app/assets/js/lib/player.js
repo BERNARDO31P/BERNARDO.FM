@@ -79,7 +79,7 @@ class MultiTrackPlayer extends EventTarget {
         this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.#audioTag.currentTime}}));
     }
 
-    addTrack(url, callback) {
+    async addTrack(url, callback) {
         this.#stopped = false;
         this.#nextTrackIndex = false;
 
@@ -93,7 +93,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#decodingQueue[index] = url;
 
         if (!this.isDecoding())
-            this.#processDecodeQueue();
+            await this.#processDecodeQueue();
         else {
             this.#waitIndex = index;
             this.#abortDownload();
@@ -379,7 +379,7 @@ class MultiTrackPlayer extends EventTarget {
                 } else if (this.#urls.indexOf(url)) {
                     this.#decodingQueue[bufferIndex] = url;
 
-                    this.#processDecodeQueue();
+                    await this.#processDecodeQueue();
                 }
                 return;
             }
@@ -429,7 +429,7 @@ class MultiTrackPlayer extends EventTarget {
             }
 
             this.#isDecoding = false;
-            this.#processDecodeQueue();
+            await this.#processDecodeQueue();
         }
     }
 

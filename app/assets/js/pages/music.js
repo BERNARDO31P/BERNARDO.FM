@@ -762,6 +762,9 @@ window["music"] = async () => {    /*
 
         addSongToPlaylist(null, songID);
         if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]) {
+            const player = document.querySelector("#player");
+            player.querySelector("[data-angle]").dispatchEvent(clickEvent);
+
             playPauseButton("load");
             downloadPart(time, playIndex, partIndex);
         } else clearURL();

@@ -149,6 +149,7 @@ const bindEvent = (eventNames, selectors, handler) => {
             selectorArray.some(selector => {
                 if (event.target.matches(selector + ', ' + selector + ' *')) {
                     const element = event.target.closest(selector);
+                    handler.bind(this);
                     handler.call(element, event);
 
                     event.stopImmediatePropagation();
@@ -1395,14 +1396,13 @@ function prepareNextPart() {
         nextTime = Math.round(currentPart["till"]);
     else return;
 
-    let songEnded = false, nextSong = false, nextSongID = null;
+    let songEnded = false, nextSong = false;
     if (!(currentSong["player"].getDuration() - nextTime > 1)) {
         songEnded = true;
         nextPlayIndex = nextSongIndex();
 
         if (typeof playlist[nextPlayIndex] !== 'undefined') {
             nextSong = true;
-            nextSongID = playlist[nextPlayIndex]["id"];
             nextPartIndex = 0;
             nextTime = 0;
         }
@@ -1423,7 +1423,7 @@ function prepareNextPart() {
             let missingLength = findMissingLengthByCurrentPart(nextTime);
             downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength);
         }
-    } else if (!partIsPlayable(nextPlayIndex, nextPartIndex))
+    } else if (nextSong && !partIsPlayable(nextPlayIndex, nextPartIndex))
         downloadPart(0, nextPlayIndex, nextPartIndex);
 }
 
@@ -1441,7 +1441,7 @@ function prepareNextPart() {
  *
  * Optional kann man auch bis zu einer bestimmten Zeit herunterladen
  */
-function downloadPart(time, sIndex, pIndex, till = null) {
+async function downloadPart(time, sIndex, pIndex, till = null) {
     const song = playlist[sIndex];
     const songID = song["id"];
     let player = song["player"];
@@ -1457,7 +1457,7 @@ function downloadPart(time, sIndex, pIndex, till = null) {
 
     partlist[songID][pIndex] = {};
 
-    player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
+    await player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
         if (typeof partlist[songID] !== "undefined" && typeof partlist[songID][pIndex] !== "undefined") {
             const length = player.getPartLength(pIndex);
 
@@ -1492,7 +1492,7 @@ function addEvents(player) {
         prepareNextPart();
     });
 
-    player.addEventListener("end", async () => {
+    player.addEventListener("end", () => {
         pauseSong();
 
         function trackEvent(retry = false) {
