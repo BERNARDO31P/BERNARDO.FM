@@ -192,19 +192,16 @@ class MultiTrackPlayer extends EventTarget {
     stop() {
         this.pause();
 
-        this.#stopped = true;
-
         this.#currentTrackIndex = 0;
-        this.#nextTrackIndex = false;
-
         this.#startTime = 0;
-
         this.#offset = 0;
         this.#currentOffset = 0;
 
         this.#executedTask = true;
         this.#hadError = false;
         this.#isDecoding = false;
+        this.#stopped = true;
+        this.#initialPlay = true;
 
         this.#abortDownload();
     }
