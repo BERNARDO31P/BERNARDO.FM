@@ -79,7 +79,7 @@ class MultiTrackPlayer extends EventTarget {
         this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.#audioTag.currentTime}}));
     }
 
-    async addTrack(url, callback) {
+    addTrack(url, callback) {
         this.#stopped = false;
         this.#nextTrackIndex = false;
 
@@ -93,7 +93,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#decodingQueue[index] = url;
 
         if (!this.isDecoding())
-            await this.#processDecodeQueue();
+            this.#processDecodeQueue();
         else {
             this.#waitIndex = index;
             this.#abortDownload();

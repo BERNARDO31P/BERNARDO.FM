@@ -1441,7 +1441,7 @@ function prepareNextPart() {
  *
  * Optional kann man auch bis zu einer bestimmten Zeit herunterladen
  */
-async function downloadPart(time, sIndex, pIndex, till = null) {
+ function downloadPart(time, sIndex, pIndex, till = null) {
     const song = playlist[sIndex];
     const songID = song["id"];
     let player = song["player"];
@@ -1457,7 +1457,7 @@ async function downloadPart(time, sIndex, pIndex, till = null) {
 
     partlist[songID][pIndex] = {};
 
-    await player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
+    player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
         if (typeof partlist[songID] !== "undefined" && typeof partlist[songID][pIndex] !== "undefined") {
             const length = player.getPartLength(pIndex);
 
