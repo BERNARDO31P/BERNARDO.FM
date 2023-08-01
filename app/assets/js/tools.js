@@ -8,7 +8,7 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
 const defaultDelay = 500;
 
 let backgroundProcesses = [];
-let sliderTimeout = null, searchTimeout = null;
+let sliderTimeout = null, searchTimeout = null, releaseTimeout = null;
 let pageURL = window.location.protocol + '//' + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 let seekValue = 0;
@@ -1269,43 +1269,48 @@ function onElement(element, event) {
  * Die Wiedergabe beginnt
  */
 function onTimelineRelease(value, rangeEvent = null) {
+    clearTimeout(releaseTimeout);
+
     const player = playlist[playIndex]["player"];
+    const timeline = document.getElementById("timeline");
+
+    value = Math.round(Number(value));
 
     if (!document.hidden)
         document.getElementById("timeInfo").style.display = "none";
 
     if (rangeEvent !== null) {
-        const timeline = document.getElementById("timeline");
         const rect = timeline.getBoundingClientRect();
 
         if (!onElement(rect, rangeEvent)) {
             player.addTimeUpdate();
             return;
         }
-    }
+    } else timeline.value = value;
 
     pauseSong();
-    value = Math.round(Number(value));
     player.setMediaSessionPosition(value);
 
-    let songID = playlist[playIndex]["id"];
-    let partInfo = getPartIndexByTime(value);
+    releaseTimeout = setTimeout(() => {
+        let songID = playlist[playIndex]["id"];
+        let partInfo = getPartIndexByTime(value);
 
-    seekValue = 0;
-    nextPartIndex = partInfo[2];
+        seekValue = 0;
+        nextPartIndex = partInfo[2];
 
-    if (nextPartIndex === null) {
-        playPauseButton("load");
+        if (nextPartIndex === null) {
+            playPauseButton("load");
 
-        nextPartIndex = Object.keys(partlist[songID]).length;
-        downloadPart(value, playIndex, nextPartIndex);
-    } else {
-        if (player.isPlaying()) return;
-        player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
+            nextPartIndex = Object.keys(partlist[songID]).length;
+            downloadPart(value, playIndex, nextPartIndex);
+        } else {
+            if (player.isPlaying()) return;
+            player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
 
-        partIndex = nextPartIndex;
-        play();
-    }
+            partIndex = nextPartIndex;
+            play();
+        }
+    }, 100);
 }
 
 // TODO: Comment
@@ -1441,7 +1446,7 @@ function prepareNextPart() {
  *
  * Optional kann man auch bis zu einer bestimmten Zeit herunterladen
  */
- function downloadPart(time, sIndex, pIndex, till = null) {
+function downloadPart(time, sIndex, pIndex, till = null) {
     const song = playlist[sIndex];
     const songID = song["id"];
     let player = song["player"];
