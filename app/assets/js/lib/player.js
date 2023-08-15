@@ -120,9 +120,9 @@ class MultiTrackPlayer extends EventTarget {
 
     playNext(index = 0, startTime = 0) {
         if (!this.hadError()
-            && !(startTime !== 0 && !this.isPlaying())
-            && !(startTime === 0 && this.isPlaying())
-            && (this.#waitIndex === null || this.#waitIndex === index)) {
+            && !(startTime < (this.getPartLength(this.#currentTrackIndex) / 2) && this.isPlaying())
+            && this.#waitIndex === null || this.#waitIndex === index
+            && this.#currentTrackIndex !== index) {
 
             this.#playing = true;
 
@@ -150,7 +150,9 @@ class MultiTrackPlayer extends EventTarget {
 
                 if (!Object.keys(this.#startTimeouts).length) {
                     this.#clearTimeouts();
-                    this.dispatchEvent(new Event("end"));
+
+                    if (!this.#stopped)
+                        this.dispatchEvent(new Event("end"));
                 }
             }
 
@@ -167,6 +169,7 @@ class MultiTrackPlayer extends EventTarget {
     pause(bypass = false) {
         this.#playing = false;
         this.#nextTrackIndex = false;
+        this.#waitIndex = null;
 
         if (!bypass) {
             this.#audioTag.removeEventListener("play", this.#playEventHandler);
@@ -190,21 +193,16 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     stop() {
-        this.pause();
-
-        this.#stopped = true;
-
-        this.#currentTrackIndex = 0;
-        this.#nextTrackIndex = false;
-
-        this.#startTime = 0;
-
-        this.#offset = 0;
-        this.#currentOffset = 0;
-
         this.#executedTask = true;
         this.#hadError = false;
         this.#isDecoding = false;
+        this.#stopped = true;
+        this.#initialPlay = true;
+
+        this.pause();
+
+        this.#offset = 0;
+        this.#currentOffset = 0;
 
         this.#abortDownload();
     }
@@ -372,17 +370,18 @@ class MultiTrackPlayer extends EventTarget {
 
                 this.#hadError = false;
             } catch (e) {
+                this.#hadError = true;
                 this.#isDecoding = false;
 
                 if (!e.toString().includes("AbortError")) {
-                    this.#hadError = true;
-
                     this.#removePart(bufferIndex);
-                    this.dispatchEvent(new Event("downloadError"));
-                } else if (this.#urls.indexOf(url)) {
+
+                    if (!this.#stopped)
+                        this.dispatchEvent(new Event("downloadError"));
+                } else if (this.#urls.indexOf(url) && !this.#stopped) {
                     this.#decodingQueue[bufferIndex] = url;
 
-                    this.#processDecodeQueue();
+                    await this.#processDecodeQueue();
                 }
                 return;
             }
@@ -395,12 +394,15 @@ class MultiTrackPlayer extends EventTarget {
             } catch (e) {
                 this.#hadError = true;
                 this.#isDecoding = false;
-
                 this.#removePart(bufferIndex);
 
-                this.dispatchEvent(new Event("downloadError"));
+                if (!this.#stopped)
+                    this.dispatchEvent(new Event("downloadError"));
                 return;
             }
+
+            if (Object.keys(this.#decodingQueue).length === 0 || this.#stopped)
+                this.#isDecoding = false;
 
             if (typeof this.#decodingCallbacks[bufferIndex] === "function") {
                 this.#decodingCallbacks[bufferIndex]();
@@ -429,10 +431,9 @@ class MultiTrackPlayer extends EventTarget {
                         }
                     }));
                 }
-            }
 
-            this.#isDecoding = false;
-            this.#processDecodeQueue();
+                await this.#processDecodeQueue();
+            }
         }
     }
 

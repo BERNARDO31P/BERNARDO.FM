@@ -8,7 +8,7 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
 const defaultDelay = 500;
 
 let backgroundProcesses = [];
-let sliderTimeout = null, searchTimeout = null;
+let sliderTimeout = null, searchTimeout = null, releaseTimeout = null;
 let pageURL = window.location.protocol + '//' + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 let seekValue = 0;
@@ -149,6 +149,7 @@ const bindEvent = (eventNames, selectors, handler) => {
             selectorArray.some(selector => {
                 if (event.target.matches(selector + ', ' + selector + ' *')) {
                     const element = event.target.closest(selector);
+                    handler.bind(this);
                     handler.call(element, event);
 
                     event.stopImmediatePropagation();
@@ -1201,10 +1202,11 @@ function clearSongs() {
  *
  * Pausiert die Wiedergabe
  */
-function pauseSong() {
+function pauseSong(stop = false) {
     const player = playlist[playIndex]["player"];
     if (player.isPlaying()) {
-        player.pause();
+        if (!stop) player.pause();
+        else player.stop();
 
         playPauseButton("pause");
     }
@@ -1236,6 +1238,23 @@ function onTimelinePress() {
     playlist[playIndex]["player"].removeTimeUpdate();
 }
 
+// TODO: Comment
+function onElement(element, event) {
+    let clientX, clientY;
+    if (event.type === "touchend") {
+        clientX = event.changedTouches[0].clientX;
+        clientY = event.changedTouches[0].clientY;
+    } else {
+        clientX = event.clientX;
+        clientY = event.clientY;
+    }
+
+    return clientX >= element.left &&
+        clientX <= element.right &&
+        clientY >= element.top &&
+        clientY <= element.bottom;
+}
+
 /*
  * Funktion: onTimelineRelease()
  * Autor: Bernardo de Oliveira
@@ -1250,57 +1269,48 @@ function onTimelinePress() {
  * Die Wiedergabe beginnt
  */
 function onTimelineRelease(value, rangeEvent = null) {
-    const timeline = document.getElementById("timeline");
-    const rect = timeline.getBoundingClientRect();
+    clearTimeout(releaseTimeout);
+
     const player = playlist[playIndex]["player"];
+    const timeline = document.getElementById("timeline");
+
+    value = Math.round(Number(value));
 
     if (!document.hidden)
         document.getElementById("timeInfo").style.display = "none";
 
     if (rangeEvent !== null) {
-        let clientX, clientY;
-        if (rangeEvent.type === "touchend") {
-            clientX = rangeEvent.changedTouches[0].clientX;
-            clientY = rangeEvent.changedTouches[0].clientY;
-        } else {
-            clientX = rangeEvent.clientX;
-            clientY = rangeEvent.clientY;
-        }
+        const rect = timeline.getBoundingClientRect();
 
-        const abortRelease = !
-            (clientX >= rect.left &&
-                clientX <= rect.right &&
-                clientY >= rect.top &&
-                clientY <= rect.bottom);
-
-        if (abortRelease) {
+        if (!onElement(rect, rangeEvent)) {
             player.addTimeUpdate();
             return;
         }
-    }
+    } else timeline.value = value;
 
     pauseSong();
-    value = Math.round(Number(value));
     player.setMediaSessionPosition(value);
 
-    let songID = playlist[playIndex]["id"];
-    let partInfo = getPartIndexByTime(value);
+    releaseTimeout = setTimeout(() => {
+        let songID = playlist[playIndex]["id"];
+        let partInfo = getPartIndexByTime(value);
 
-    seekValue = 0;
-    nextPartIndex = partInfo[2];
+        seekValue = 0;
+        nextPartIndex = partInfo[2];
 
-    if (nextPartIndex === null) {
-        playPauseButton("load");
+        if (nextPartIndex === null) {
+            playPauseButton("load");
 
-        nextPartIndex = Object.keys(partlist[songID]).length;
-        downloadPart(value, playIndex, nextPartIndex);
-    } else {
-        if (player.isPlaying()) return;
-        player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
+            nextPartIndex = Object.keys(partlist[songID]).length;
+            downloadPart(value, playIndex, nextPartIndex);
+        } else {
+            if (player.isPlaying()) return;
+            player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
 
-        partIndex = nextPartIndex;
-        play();
-    }
+            partIndex = nextPartIndex;
+            play();
+        }
+    }, 100);
 }
 
 // TODO: Comment
@@ -1320,10 +1330,8 @@ function partIsPlayable(sIndex, pIndex) {
  * Die Wiedergabe wird gestartet
  */
 function nextSong(bypass = false) {
-    if (!bypass) pauseSong();
+    if (!bypass) pauseSong(true);
     playPauseButton("load");
-
-    playlist[playIndex]["player"].stop();
 
     const nextIndex = nextSongIndex();
     if (typeof playlist[nextIndex] !== 'undefined') {
@@ -1347,10 +1355,8 @@ function nextSong(bypass = false) {
  * Die Wiedergabe wird gestartet
  */
 function previousSong(bypass = false) {
-    if (!bypass) pauseSong();
+    if (!bypass) pauseSong(true);
     playPauseButton("load");
-
-    playlist[playIndex]["player"].stop();
 
     const previousIndex = previousSongIndex();
     if (typeof playlist[previousIndex] !== 'undefined') {
@@ -1395,14 +1401,13 @@ function prepareNextPart() {
         nextTime = Math.round(currentPart["till"]);
     else return;
 
-    let songEnded = false, nextSong = false, nextSongID = null;
+    let songEnded = false, nextSong = false;
     if (!(currentSong["player"].getDuration() - nextTime > 1)) {
         songEnded = true;
         nextPlayIndex = nextSongIndex();
 
         if (typeof playlist[nextPlayIndex] !== 'undefined') {
             nextSong = true;
-            nextSongID = playlist[nextPlayIndex]["id"];
             nextPartIndex = 0;
             nextTime = 0;
         }
@@ -1423,7 +1428,7 @@ function prepareNextPart() {
             let missingLength = findMissingLengthByCurrentPart(nextTime);
             downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength);
         }
-    } else if (!partIsPlayable(nextPlayIndex, nextPartIndex))
+    } else if (nextSong && !partIsPlayable(nextPlayIndex, nextPartIndex))
         downloadPart(0, nextPlayIndex, nextPartIndex);
 }
 
@@ -1492,7 +1497,7 @@ function addEvents(player) {
         prepareNextPart();
     });
 
-    player.addEventListener("end", async () => {
+    player.addEventListener("end", () => {
         pauseSong();
 
         function trackEvent(retry = false) {

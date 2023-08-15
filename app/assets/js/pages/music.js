@@ -179,10 +179,8 @@ function playAction(card) {
  * Spielt das Lied ab
  */
 bindEvent("click", "#queueView tr[data-id]", function () {
-    pauseSong();
+    pauseSong(true);
     playPauseButton("load");
-
-    playlist[playIndex]["player"].stop();
 
     for (let [key, value] of Object.entries(playlist)) {
         if (value["id"] === this.dataset.id) playIndex = Number(key);
@@ -764,6 +762,9 @@ window["music"] = async () => {    /*
 
         addSongToPlaylist(null, songID);
         if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]) {
+            const player = document.querySelector("#player");
+            player.querySelector("[data-angle]").dispatchEvent(clickEvent);
+
             playPauseButton("load");
             downloadPart(time, playIndex, partIndex);
         } else clearURL();
