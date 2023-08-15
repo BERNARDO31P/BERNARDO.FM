@@ -277,13 +277,18 @@ function generate_pictures(array &$db, $hashDB, int $length = 200): void
 	array_walk_multi_dimension($db, function (array &$song) use ($length, &$imagick, &$i, &$data) {
 		if (isset($song["id"]) && isset($song["cover"])) {
 			try {
-				$imagick->readImage("img/" . $song["cover"]);
-				$imagick->scaleImage($length, $length);
+				if (!isset($data["coverPos"][$song["cover"]])) {
+					$imagick->readImage("img/" . $song["cover"]);
+					$imagick->scaleImage($length, $length);
 
-				$pos = $i * $length;
-				$song["coverPos"] = $pos;
-				$data["coverPos"][$song["id"]] = $pos;
+					$pos = $i * $length;
+					$song["coverPos"] = $pos;
+					$data["coverPos"][$song["cover"]] = $pos;
+				} else {
+					$song["coverPos"] = $data["coverPos"][$song["cover"]];
+				}
 			} catch (ImagickException) {
+				// TODO: Add black image instead
 			}
 			$i++;
 		}
@@ -315,9 +320,9 @@ function generate_pictures(array &$db, $hashDB, int $length = 200): void
  */
 function generate_hash($data, &$songs = array()): string
 {
-	array_walk_multi_dimension($data, function (array &$value) use (&$songs) {
-		if (isset($value["id"]))
-			$songs[] = $value["id"];
+	array_walk_multi_dimension($data, function (array $value) use (&$songs) {
+		if (isset($value["id"]) && !in_array($value["cover"], $songs))
+			$songs[] = $value["cover"];
 	});
 
 	sort($songs);
@@ -415,8 +420,8 @@ function apply_hash(&$db, $hashDB): void
 	$hash = generate_hash($db);
 
 	array_walk_multi_dimension($db, function(&$song) use ($hash, $hashDB) {
-		if (isset($hashDB[$hash]["coverPos"][$song["id"]]))
-			$song["coverPos"] = $hashDB[$hash]["coverPos"][$song["id"]];
+		if (isset($hashDB[$hash]["coverPos"][$song["cover"]]))
+			$song["coverPos"] = $hashDB[$hash]["coverPos"][$song["cover"]];
 	});
 
 	$db["cover"] = $hashDB[$hash]["image"];
@@ -798,8 +803,8 @@ $router->get("/img/(.*)", function ($image) {
         $imagick->scaleImage($length, $length);
 		$imagick->setImageFormat("webp");
 
-
-        header("Content-Type: image/webp");
+	    enable_cache(60 * 60 * 24 * 7);
+	    header("Content-Type: image/webp");
         echo $imagick;
 	} else {
         header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
@@ -827,10 +832,18 @@ $router->get("/temp/(.*)", function ($image) {
 		$imagick = new Imagick();
 		$imagick->readImage($imageUrl);
 
+		enable_cache(60 * 60 * 24);
 		header("Content-Type: image/webp");
 		echo $imagick;
 		exit();
 	}
 });
+
+function enable_cache($time): void
+{
+	header("Cache-Control: public, max-age=86400");
+	header("Expires: " . gmdate("D, d M Y H:i:s \G\M\T", time() + $time));
+	header("Pragma: ");
+}
 
 $router->run();

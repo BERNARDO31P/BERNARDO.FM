@@ -142,11 +142,14 @@ bindEvent("click", "#navbar [data-page]", function (e) {
     if (navigation.classList.contains("show"))
         navigation.classList.remove("show");
 
-    page = this.getAttribute("data-page");
-    prevPage = undefined;
-
     clearURL();
     hidePlaylist();
+
+    const clickedPage = this.getAttribute("data-page");
+    if (page === clickedPage) return;
+
+    page = clickedPage;
+    prevPage = undefined;
 
     loadPage();
     setActiveNavbar();
@@ -543,13 +546,13 @@ document.addEventListener("DOMContentLoaded", function () {
     dataIncludeReplace(document.body);
     setActiveNavbar();
 
-    /*if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.min.js');
-    }*/
+    }
 
-    navigator.serviceWorker.getRegistrations().then(function (registrations) {
+    /*navigator.serviceWorker.getRegistrations().then(function (registrations) {
         for (let registration of registrations) {
             registration.unregister()
         }
-    });
+    });*/
 });
