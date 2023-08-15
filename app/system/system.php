@@ -6,12 +6,14 @@ include_once __DIR__ . "/vendor/autoload.php";
 ini_set("memory_limit", "256M");
 session_start();
 
-$queryString = explode("?", $_SERVER["REQUEST_URI"])[1];
-$parameters = explode("&", $queryString);
+$queryArray = explode("?", $_SERVER["REQUEST_URI"]);
+if (isset($queryArray[1])) {
+	$parameters = explode("&", $queryArray[1]);
 
-foreach ($parameters as $parameter) {
-    $parameter = explode("=", $parameter);
-    $_GET[$parameter[0]] = $parameter[1];
+	foreach ($parameters as $parameter) {
+		$parameter = explode("=", $parameter);
+		$_GET[$parameter[0]] = $parameter[1];
+	}
 }
 
 /*
@@ -249,7 +251,8 @@ function array_walk_multi_dimension(array &$arr, callable $callback, string ...$
 			} else {
 				array_walk_multi_dimension($value, $callback, ...$args);
 			}
-		} catch (TypeError){}
+		} catch (TypeError) {
+		}
 	}
 }
 
@@ -276,21 +279,22 @@ function generate_pictures(array &$db, $hashDB, int $length = 200): void
 
 	array_walk_multi_dimension($db, function (array &$song) use ($length, &$imagick, &$i, &$data) {
 		if (isset($song["id"]) && isset($song["cover"])) {
-			try {
-				if (!isset($data["coverPos"][$song["cover"]])) {
+			if (!isset($data["coverPos"][$song["cover"]])) {
+				try {
 					$imagick->readImage("img/" . $song["cover"]);
 					$imagick->scaleImage($length, $length);
 
 					$pos = $i * $length;
 					$song["coverPos"] = $pos;
 					$data["coverPos"][$song["cover"]] = $pos;
-				} else {
-					$song["coverPos"] = $data["coverPos"][$song["cover"]];
+
+					$i++;
+				} catch (ImagickException) {
+					// TODO: Add black image instead
 				}
-			} catch (ImagickException) {
-				// TODO: Add black image instead
+			} else {
+				$song["coverPos"] = $data["coverPos"][$song["cover"]];
 			}
-			$i++;
 		}
 	});
 
@@ -321,7 +325,7 @@ function generate_pictures(array &$db, $hashDB, int $length = 200): void
 function generate_hash($data, &$songs = array()): string
 {
 	array_walk_multi_dimension($data, function (array $value) use (&$songs) {
-		if (isset($value["id"]) && !in_array($value["cover"], $songs))
+		if (isset($value["cover"]) && !in_array($value["cover"], $songs))
 			$songs[] = $value["cover"];
 	});
 
@@ -419,7 +423,7 @@ function apply_hash(&$db, $hashDB): void
 {
 	$hash = generate_hash($db);
 
-	array_walk_multi_dimension($db, function(&$song) use ($hash, $hashDB) {
+	array_walk_multi_dimension($db, function (&$song) use ($hash, $hashDB) {
 		if (isset($hashDB[$hash]["coverPos"][$song["cover"]]))
 			$song["coverPos"] = $hashDB[$hash]["coverPos"][$song["cover"]];
 	});
@@ -790,25 +794,25 @@ $router->get("/changelog", function () {
 $router->get("/img/(.*)", function ($image) {
 	$imageUrl = __DIR__ . "/img/" . $image;
 
-    if (isset($_GET["size"]) && file_exists($imageUrl)) {
-        $length = intval($_GET["size"]);
+	if (isset($_GET["size"]) && file_exists($imageUrl)) {
+		$length = intval($_GET["size"]);
 
-        if ($length < 32 || $length > 1024) {
-            header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
-            exit("Forbidden");
-        }
+		if ($length < 32 || $length > 1024) {
+			header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
+			exit("Forbidden");
+		}
 
-        $imagick = new Imagick();
-        $imagick->readImage($imageUrl);
-        $imagick->scaleImage($length, $length);
+		$imagick = new Imagick();
+		$imagick->readImage($imageUrl);
+		$imagick->scaleImage($length, $length);
 		$imagick->setImageFormat("webp");
 
-	    enable_cache(60 * 60 * 24 * 7);
-	    header("Content-Type: image/webp");
-        echo $imagick;
+		enable_cache(60 * 60 * 24 * 7);
+		header("Content-Type: image/webp");
+		echo $imagick;
 	} else {
-        header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
-        exit("Forbidden");
+		header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
+		exit("Forbidden");
 	}
 });
 

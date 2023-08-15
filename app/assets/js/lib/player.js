@@ -119,7 +119,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     playNext(index = 0, startTime = 0) {
-        if (!this.hadError()
+        if (!this.hadError() && !this.#stopped
             && !(startTime < (this.getPartLength(this.#currentTrackIndex) / 2) && this.isPlaying())
             && this.#waitIndex === null || this.#waitIndex === index
             && this.#currentTrackIndex !== index) {

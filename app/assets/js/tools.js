@@ -1095,7 +1095,8 @@ function play(diffSong = false, pageLoad = false) {
                     angleUp.dispatchEvent(clickEvent);
                 }
             }
-        }).catch(() => {
+        }).catch((e) => {
+            if (e.toString().includes("AbortError")) return;
             showConfirmation("Confirmation", "An error occurred while trying to automatically start the playback. Confirm to play the song.", () => play(diffSong, pageLoad), pauseSong);
         });
     }
@@ -1202,12 +1203,10 @@ function clearSongs() {
  *
  * Pausiert die Wiedergabe
  */
-function pauseSong(stop = false) {
+function pauseSong() {
     const player = playlist[playIndex]["player"];
     if (player.isPlaying()) {
-        if (!stop) player.pause();
-        else player.stop();
-
+        player.pause();
         playPauseButton("pause");
     }
 
@@ -1221,6 +1220,13 @@ function pauseSong(stop = false) {
                 }
             }
         }
+    }
+}
+
+function stopSongs() {
+    for (const index of Object.keys(playlist)) {
+        if (typeof playlist[index]["player"] !== 'undefined')
+            playlist[index]["player"].stop();
     }
 }
 
@@ -1330,16 +1336,19 @@ function partIsPlayable(sIndex, pIndex) {
  * Die Wiedergabe wird gestartet
  */
 function nextSong(bypass = false) {
-    if (!bypass) pauseSong(true);
+    if (!bypass) {
+        pauseSong();
+        stopSongs();
+    }
     playPauseButton("load");
 
     const nextIndex = nextSongIndex();
     if (typeof playlist[nextIndex] !== 'undefined') {
-        updateSongData();
-
         playIndex = nextIndex;
         partIndex = 0;
         nextPartIndex = 0;
+
+        updateSongData();
 
         if (!partIsPlayable(nextIndex, partIndex))
             downloadPart(0, playIndex, partIndex);
@@ -1355,16 +1364,20 @@ function nextSong(bypass = false) {
  * Die Wiedergabe wird gestartet
  */
 function previousSong(bypass = false) {
-    if (!bypass) pauseSong(true);
+    if (!bypass) {
+        pauseSong();
+        stopSongs();
+    }
     playPauseButton("load");
 
     const previousIndex = previousSongIndex();
     if (typeof playlist[previousIndex] !== 'undefined') {
-        updateSongData();
-
         playIndex = previousIndex;
         partIndex = 0;
         nextPartIndex = 0;
+
+        updateSongData();
+
         if (!partIsPlayable(previousIndex, partIndex))
             downloadPart(0, playIndex, partIndex);
         else play(true);

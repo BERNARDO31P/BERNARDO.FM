@@ -179,7 +179,8 @@ function playAction(card) {
  * Spielt das Lied ab
  */
 bindEvent("click", "#queueView tr[data-id]", function () {
-    pauseSong(true);
+    pauseSong();
+    stopSongs();
     playPauseButton("load");
 
     for (let [key, value] of Object.entries(playlist)) {
