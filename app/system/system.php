@@ -1,9 +1,13 @@
 <?php
 
+const oneDay = 86400;
+
 use Bramus\Router\Router;
 
 include_once __DIR__ . "/vendor/autoload.php";
 ini_set("memory_limit", "256M");
+
+session_set_cookie_params(oneDay);
 session_start();
 
 $queryArray = explode("?", $_SERVER["REQUEST_URI"]);
@@ -424,7 +428,7 @@ function apply_hash(&$db, $hashDB): void
 	$hash = generate_hash($db);
 
 	array_walk_multi_dimension($db, function (&$song) use ($hash, $hashDB) {
-		if (isset($hashDB[$hash]["coverPos"][$song["cover"]]))
+		if (isset($song["cover"]) && isset($hashDB[$hash]["coverPos"][$song["cover"]]))
 			$song["coverPos"] = $hashDB[$hash]["coverPos"][$song["cover"]];
 	});
 
@@ -807,13 +811,14 @@ $router->get("/img/(.*)", function ($image) {
 		$imagick->scaleImage($length, $length);
 		$imagick->setImageFormat("webp");
 
-		enable_cache(60 * 60 * 24 * 7);
+		enable_cache(oneDay * 7);
 		header("Content-Type: image/webp");
 		echo $imagick;
-	} else {
-		header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
-		exit("Forbidden");
+		exit();
 	}
+
+	header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
+	exit("Forbidden");
 });
 
 /*
@@ -836,11 +841,18 @@ $router->get("/temp/(.*)", function ($image) {
 		$imagick = new Imagick();
 		$imagick->readImage($imageUrl);
 
-		enable_cache(60 * 60 * 24);
+		enable_cache(oneDay);
 		header("Content-Type: image/webp");
 		echo $imagick;
 		exit();
 	}
+
+	header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
+	exit("Forbidden");
+});
+
+$router->get("/phpinfo", function () {
+	phpinfo();
 });
 
 function enable_cache($time): void
