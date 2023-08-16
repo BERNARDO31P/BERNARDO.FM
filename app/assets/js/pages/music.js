@@ -191,10 +191,7 @@ bindEvent("click", "#queueView tr[data-id]", function () {
     stopSongs();
     playPauseButton("load");
 
-    for (let [key, value] of Object.entries(playlist)) {
-        if (value["id"] === this.dataset.id) playIndex = Number(key);
-    }
-
+    playIndex = this.rowIndex - 1;
     nextPlayIndex = playIndex;
 
     partIndex = 0;

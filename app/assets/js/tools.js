@@ -243,7 +243,11 @@ function updatePlaying() {
     const queueView = document.getElementById("queueView");
 
     const song = playlist[playIndex];
-    const row = queueView.querySelector("[data-id='" + song["id"] + "']");
+    let row = null;
+
+    const table = queueView.querySelector(".responsive-table");
+    if (table) row = table.rows[playIndex + 1];
+
 
     if (row && typeof song["player"] !== "undefined") {
         let animation = queueView.querySelector(".lds-facebook");
@@ -1196,7 +1200,7 @@ function clearSongs() {
     nextPartIndex = 0;
 
     playlist = [];
-    partlist = [];
+    partlist = {};
 }
 
 /*

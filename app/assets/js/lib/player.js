@@ -301,16 +301,21 @@ class MultiTrackPlayer extends EventTarget {
         return this.#hadError;
     }
 
+    #getUrlExtension(url) {
+        return url.split(/[#?]/)[0].split('.').pop().trim();
+    }
+
     setMetadata(title, artist, cover) {
         if ('mediaSession' in navigator) {
+            const type = this.#getUrlExtension(cover);
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: title, artist: artist, artwork: [
-                    {src: cover + "?size=96", type: "image/png", sizes: "96x96"},
-                    {src: cover + "?size=128", type: "image/png", sizes: "128x128"},
-                    {src: cover + "?size=192", type: "image/png", sizes: "192x192"},
-                    {src: cover + "?size=256", type: "image/png", sizes: "256x256"},
-                    {src: cover + "?size=384", type: "image/png", sizes: "384x384"},
-                    {src: cover + "?size=512", type: "image/png", sizes: "512x512"},
+                    {src: cover + "?size=512", type: "image/" + type, sizes: "512x512"},
+                    {src: cover + "?size=384", type: "image/" + type, sizes: "384x384"},
+                    {src: cover + "?size=256", type: "image/" + type, sizes: "256x256"},
+                    {src: cover + "?size=192", type: "image/" + type, sizes: "192x192"},
+                    {src: cover + "?size=128", type: "image/" + type, sizes: "128x128"},
+                    {src: cover + "?size=96", type: "image/" + type, sizes: "96x96"},
                 ]
             });
 
