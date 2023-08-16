@@ -1030,14 +1030,19 @@ a.button {
         padding: 0;
 
         .fa-plus, .fa-play, .fa-times {
-          background-color: var(--primary-color);
           bottom: 0;
           right: -4px;
 
-          font-size: 10px;
-
           z-index: 1;
           position: absolute;
+        }
+
+        .fa-play {
+          font-size: 10px;
+        }
+
+        .fa-plus, .fa-times {
+          font-size: 12px;
         }
       }
 

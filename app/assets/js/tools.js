@@ -268,7 +268,9 @@ function updatePlaying() {
 
         const marginTop = Number(imageStyle.marginTop.replace("px", ""));
         const scroll = rowBounding.top - top - (marginTop * 2);
+
         queue.scrollBy(0, scroll);
+        queueView.querySelector("#info").scrollTo(0, 0);
     }
 
     const angleUp = document.getElementsByClassName("fa-angle-up")[0];

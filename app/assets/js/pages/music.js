@@ -101,9 +101,17 @@ const menuItems = {
             addDiv.title = 'Remove this song from the queue';
 
             const listIcon = createIconElement('fas fa-list');
-            const plusIcon = createIconElement('fas fa-times');
+            const crossIcon = createIconElement('fas fa-times');
 
-            addDiv.append(listIcon, plusIcon);
+            const iconDiv = document.createElement('div');
+            iconDiv.classList.add("listAdd");
+
+            iconDiv.append(listIcon, crossIcon);
+
+            const helperDiv = document.createElement('div');
+            helperDiv.append(iconDiv);
+
+            addDiv.append(helperDiv);
             return addDiv;
         },
         "action": async (card) => {
