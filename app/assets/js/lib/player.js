@@ -80,7 +80,7 @@ class MultiTrackPlayer extends EventTarget {
         this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.#audioTag.currentTime}}));
     }
 
-    addTrack(url, callback) {
+    async addTrack(url, callback) {
         this.#stopped = false;
         this.#nextTrackIndex = false;
 
@@ -94,7 +94,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#decodingQueue[index] = url;
 
         if (!this.isDecoding())
-            this.#processDecodeQueue();
+            await this.#processDecodeQueue();
         else {
             this.#waitIndex = index;
             this.#abortDownload();
@@ -120,10 +120,11 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     playNext(index = 0, startTime = 0) {
-        if (!this.hadError() && !this.#stopped && (!this.#executedTask || this.#initialPlay)
-            && !(startTime < (this.getPartLength(this.#currentTrackIndex) / 2) && this.isPlaying())
-            && this.#waitIndex === null || this.#waitIndex === index
-            && this.#currentTrackIndex !== index) {
+        if (!this.hadError() && !this.#stopped
+            && (this.#currentTrackIndex !== index || this.#initialPlay)
+            && (!this.#executedTask || this.#initialPlay)
+            && (this.#playingSources.length === 1 || this.#initialPlay)
+            && (this.#waitIndex === null || this.#waitIndex === index)) {
 
             this.#playing = true;
 
@@ -154,22 +155,18 @@ class MultiTrackPlayer extends EventTarget {
                 if (!Object.keys(this.#startTimeouts).length) {
                     this.#clearTimeouts();
 
-                    if (!this.#stopped)
-                        this.dispatchEvent(new Event("end"));
+                    this.dispatchEvent(new Event("end"));
                 }
             }
 
-            this.#startTimeouts[index] = setTimeout(async () => {
-                if (!this.#playingSources.length) {
-                    this.#executedTask = true;
-                    this.#currentTrackIndex = index;
-                    this.#startTime = when;
+            this.#startTimeouts[index] = setTimeout(() => {
+                this.#playingSources.push(source);
 
-                    this.#playingSources.push(source);
-                    this.dispatchEvent(new Event("play"));
-                } else {
-                    this.#killSource(source);
-                }
+                this.#executedTask = true;
+                this.#currentTrackIndex = index;
+                this.#startTime = when;
+
+                this.dispatchEvent(new Event("play"));
             }, startTime * 1000);
         }
     }

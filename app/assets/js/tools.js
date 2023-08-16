@@ -1206,11 +1206,8 @@ function clearSongs() {
  * Pausiert die Wiedergabe
  */
 function pauseSong() {
-    const player = playlist[playIndex]["player"];
-    if (player.isPlaying()) {
-        player.pause();
-        playPauseButton("pause");
-    }
+    playlist[playIndex]["player"].pause();
+    playPauseButton("pause");
 
     if (!document.hidden) {
         let animation = document.getElementsByClassName("lds-facebook")[0];
