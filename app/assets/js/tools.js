@@ -8,7 +8,7 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
 const defaultDelay = 500;
 
 let backgroundProcesses = [];
-let sliderTimeout = null, searchTimeout = null, releaseTimeout = null;
+let sliderTimeout = null, searchTimeout = null;
 let pageURL = window.location.protocol + '//' + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
 let seekValue = 0;
@@ -1277,8 +1277,6 @@ function onElement(element, event) {
  * Die Wiedergabe beginnt
  */
 function onTimelineRelease(value, rangeEvent = null) {
-    clearTimeout(releaseTimeout);
-
     const player = playlist[playIndex]["player"];
     const timeline = document.getElementById("timeline");
 
@@ -1299,26 +1297,24 @@ function onTimelineRelease(value, rangeEvent = null) {
     pauseSong();
     player.setMediaSessionPosition(value);
 
-    releaseTimeout = setTimeout(() => {
-        let songID = playlist[playIndex]["id"];
-        let partInfo = getPartIndexByTime(value);
+    let songID = playlist[playIndex]["id"];
+    let partInfo = getPartIndexByTime(value);
 
-        seekValue = 0;
-        nextPartIndex = partInfo[2];
+    seekValue = 0;
+    nextPartIndex = partInfo[2];
 
-        if (nextPartIndex === null) {
-            playPauseButton("load");
+    if (nextPartIndex === null) {
+        playPauseButton("load");
 
-            nextPartIndex = Object.keys(partlist[songID]).length;
-            downloadPart(value, playIndex, nextPartIndex);
-        } else {
-            if (player.isPlaying()) return;
-            player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
+        nextPartIndex = Object.keys(partlist[songID]).length;
+        downloadPart(value, playIndex, nextPartIndex);
+    } else {
+        if (player.isPlaying()) return;
+        player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
 
-            partIndex = nextPartIndex;
-            play();
-        }
-    }, 100);
+        partIndex = nextPartIndex;
+        play();
+    }
 }
 
 // TODO: Comment

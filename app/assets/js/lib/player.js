@@ -15,6 +15,7 @@ class MultiTrackPlayer extends EventTarget {
     #urls = [];
     #audioBuffers = {};
     #audioSources = {};
+    #playingSources = [];
 
     #isDecoding = false;
     #decodingQueue = {};
@@ -146,6 +147,8 @@ class MultiTrackPlayer extends EventTarget {
 
             source.onended = () => {
                 delete this.#startTimeouts[index];
+                this.#playingSources.splice(this.#playingSources.indexOf(source), 1);
+
                 this.#currentOffset = 0;
 
                 if (!Object.keys(this.#startTimeouts).length) {
@@ -157,11 +160,16 @@ class MultiTrackPlayer extends EventTarget {
             }
 
             this.#startTimeouts[index] = setTimeout(async () => {
-                this.#executedTask = true;
-                this.#currentTrackIndex = index;
-                this.#startTime = when;
+                if (!this.#playingSources.length) {
+                    this.#executedTask = true;
+                    this.#currentTrackIndex = index;
+                    this.#startTime = when;
 
-                this.dispatchEvent(new Event("play"));
+                    this.#playingSources.push(source);
+                    this.dispatchEvent(new Event("play"));
+                } else {
+                    this.#killSource(source);
+                }
             }, startTime * 1000);
         }
     }
@@ -170,6 +178,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#playing = false;
         this.#nextTrackIndex = false;
         this.#waitIndex = null;
+        this.#playingSources = [];
 
         if (!bypass) {
             this.#audioTag.removeEventListener("play", this.#playEventHandler);
