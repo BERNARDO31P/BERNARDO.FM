@@ -119,7 +119,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     playNext(index = 0, startTime = 0) {
-        if (!this.hadError() && !this.#stopped
+        if (!this.hadError() && !this.#stopped && (!this.#executedTask || this.#initialPlay)
             && !(startTime < (this.getPartLength(this.#currentTrackIndex) / 2) && this.isPlaying())
             && this.#waitIndex === null || this.#waitIndex === index
             && this.#currentTrackIndex !== index) {
@@ -188,7 +188,7 @@ class MultiTrackPlayer extends EventTarget {
         });
 
         audioContext.suspend().finally(() => {
-            this.dispatchEvent(new Event("pause"));
+            if (!this.#stopped) this.dispatchEvent(new Event("pause"));
         });
     }
 
@@ -199,12 +199,9 @@ class MultiTrackPlayer extends EventTarget {
         this.#stopped = true;
         this.#initialPlay = true;
 
-        this.pause();
-
-        this.#offset = 0;
-        this.#currentOffset = 0;
-
         this.#abortDownload();
+        this.pause();
+        this.reset();
     }
 
     #playEvent() {
@@ -333,6 +330,8 @@ class MultiTrackPlayer extends EventTarget {
 
     reset() {
         this.setCurrentTime(0);
+
+        this.setOffset(0);
         this.setOffset(0);
     }
 

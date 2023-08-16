@@ -245,7 +245,7 @@ function updatePlaying() {
     const song = playlist[playIndex];
     const row = queueView.querySelector("[data-id='" + song["id"] + "']");
 
-    if (row) {
+    if (row && typeof song["player"] !== "undefined") {
         let animation = queueView.querySelector(".lds-facebook");
         const animationRow = animation ? animation.closest("tr") : null;
 
