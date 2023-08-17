@@ -1,7 +1,0 @@
- - play again after track ends
- - close menu and navbar when clicking somewhere
- - mediasession api closes after a specific time
- - mediasession api check if all clicks are registered
- - try with bad internet
- - catch errors
- - stop playback when in different app is started
