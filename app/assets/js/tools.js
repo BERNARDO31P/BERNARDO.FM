@@ -1290,8 +1290,8 @@ function onTimelineRelease(value, rangeEvent = null) {
         }
     } else timeline.value = value;
 
-    pauseSong();
     player.setMediaSessionPosition(value);
+    pauseSong();
 
     let songID = playlist[playIndex]["id"];
     let partInfo = getPartIndexByTime(value);
