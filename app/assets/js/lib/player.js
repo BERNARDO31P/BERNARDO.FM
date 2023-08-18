@@ -318,11 +318,9 @@ class MultiTrackPlayer extends EventTarget {
         }
     }
 
-    setActionHandlers(data) {
+    setActionHandler(action, handler) {
         if ('mediaSession' in navigator) {
-            for (const [action, handler] of Object.entries(data)) {
-                navigator.mediaSession.setActionHandler(action, handler);
-            }
+            navigator.mediaSession.setActionHandler(action, handler);
         }
     }
 

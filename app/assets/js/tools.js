@@ -11,7 +11,6 @@ let backgroundProcesses = [];
 let sliderTimeout = null, searchTimeout = null;
 let pageURL = window.location.protocol + '//' + window.location.host + new URL(window.location).pathname;
 let page, prevPage, mouseX = 0, mouseY = 0;
-let seekValue = 0;
 
 let clickEvent = new Event('click', {
     bubbles: true,
@@ -1039,43 +1038,33 @@ function play(diffSong = false, pageLoad = false) {
     const player = playlist[playIndex]["player"];
 
     if (diffSong) {
-        let song = playlist[playIndex];
-        let title = document.querySelector("title");
+        const song = playlist[playIndex];
+        const title = document.querySelector("title");
         title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
 
         if (!document.hidden) updateSongData();
 
-        player.setMetadata(song["name"], song["artist"], song["cover"]);
-        player.setActionHandlers({
+        const actionHandlers = {
             "play": () => play(),
             "pause": () => pauseSong(),
             "previoustrack": () => previousSong(),
             "nexttrack": () => nextSong(),
             "stop": () => pauseSong(),
-            "seekbackward": () => {
-                seekValue -= 10;
-
-                let currentTime = playlist[playIndex]["player"].getCurrentTime();
-                let seekTime = Math.round(currentTime) + seekValue;
-
-                onTimelineRelease(seekTime);
-            },
-            "seekforward": () => {
-                seekValue += 10;
-
-                let currentTime = playlist[playIndex]["player"].getCurrentTime();
-                let seekTime = Math.round(currentTime) + seekValue;
-
-                onTimelineRelease(seekTime);
-            },
+            "seekbackward": () => onTimelineRelease(player.getCurrentTime() - 10),
+            "seekforward": () => onTimelineRelease(player.getCurrentTime() + 10),
             "seekto": (details) => {
                 if ('seekTime' in details) {
-                    let time = Math.round(details.seekTime);
+                    const time = Math.round(details.seekTime);
                     onTimelineRelease(time);
                 }
             }
-        });
+        }
 
+        for (const [action, handler] of actionHandlers) {
+            player.setActionHandler(action, handler);
+        }
+
+        player.setMetadata(song["name"], song["artist"], song["cover"]);
         player.setVolume(volume);
         player.reset();
     }
@@ -1306,8 +1295,6 @@ function onTimelineRelease(value, rangeEvent = null) {
 
     let songID = playlist[playIndex]["id"];
     let partInfo = getPartIndexByTime(value);
-
-    seekValue = 0;
     nextPartIndex = partInfo[2];
 
     if (nextPartIndex === null) {
