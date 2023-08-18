@@ -1278,17 +1278,18 @@ function onTimelineRelease(value, rangeEvent = null) {
     if (value < 0) value = 0;
     value = Math.round(Number(value));
 
-    if (!document.hidden)
+    if (!document.hidden) {
         document.getElementById("timeInfo").style.display = "none";
 
-    if (rangeEvent !== null) {
-        const rect = timeline.getBoundingClientRect();
+        if (rangeEvent !== null) {
+            const rect = timeline.getBoundingClientRect();
 
-        if (!onElement(rect, rangeEvent)) {
-            player.addTimeUpdate();
-            return;
+            if (!onElement(rect, rangeEvent)) {
+                player.addTimeUpdate();
+                return;
+            }
         }
-    } else timeline.value = value;
+    }
 
     player.setMediaSessionPosition(value);
     pauseSong();
