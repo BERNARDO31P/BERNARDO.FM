@@ -1,3 +1,5 @@
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
 class MultiTrackPlayer extends EventTarget {
     #waitIndex = null;
 
