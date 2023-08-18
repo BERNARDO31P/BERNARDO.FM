@@ -1060,7 +1060,7 @@ function play(diffSong = false, pageLoad = false) {
             }
         }
 
-        for (const [action, handler] of actionHandlers) {
+        for (const [action, handler] of Object.entries(actionHandlers)) {
             player.setActionHandler(action, handler);
         }
 
