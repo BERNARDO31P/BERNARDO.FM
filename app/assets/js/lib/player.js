@@ -44,7 +44,6 @@ class MultiTrackPlayer extends EventTarget {
 
         this.#gainNode = audioContext.createGain();
         this.#gainNode.connect(audioContext.destination);
-        this.#gainNode.gain.value = this.#volume;
 
         this.#length = length + 1;
 
@@ -58,6 +57,7 @@ class MultiTrackPlayer extends EventTarget {
             document.body.append(this.#audioTag);
         }
 
+        this.#audioTag.volume = 0;
         this.#playEventHandler = this.#playEvent.bind(this);
         this.#pauseEventHandler = this.#pauseEvent.bind(this);
     }
@@ -135,17 +135,10 @@ class MultiTrackPlayer extends EventTarget {
             const source = audioContext.createBufferSource();
             this.#audioSources[index] = source;
 
+            source.when = audioContext.currentTime + startTime;
             source.buffer = this.#audioBuffers[index];
             source.connect(this.#gainNode);
-
-            let when = audioContext.currentTime;
-            try {
-                source.start(startTime + when, this.#offset);
-                when = startTime + when;
-            } catch (e) {
-                source.start(when, this.#offset);
-            }
-            source.when = when;
+            source.start(source.when, this.#offset);
 
             source.onended = () => {
                 delete this.#startTimeouts[index];
@@ -165,7 +158,7 @@ class MultiTrackPlayer extends EventTarget {
 
                 this.#executedTask = true;
                 this.#currentTrackIndex = index;
-                this.#startTime = when;
+                this.#startTime = source.when;
 
                 this.dispatchEvent(new Event("play"));
             }, startTime * 1000);
@@ -241,7 +234,7 @@ class MultiTrackPlayer extends EventTarget {
                 this.#nextTrackIndex = true;
 
                 this.setOffset(0);
-                this.playNext(index, startTime);
+                this.playNext(index, (startTime >= 0) ? startTime : 0);
             }
         }
     }
@@ -274,8 +267,8 @@ class MultiTrackPlayer extends EventTarget {
 
     setVolume(volume) {
         this.#volume = volume;
-        this.#gainNode.gain.value = volume;
 
+        this.#gainNode.gain.value = volume;
         this.#audioTag.volume = volume;
     }
 
