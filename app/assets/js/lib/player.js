@@ -77,7 +77,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #dispatchTimeUpdate() {
-        this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.#audioTag.currentTime}}));
+        this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.getCurrentTime()}}));
     }
 
     async addTrack(url, callback) {
@@ -121,8 +121,9 @@ class MultiTrackPlayer extends EventTarget {
 
     playNext(index = 0, startTime = 0) {
         if (!this.hadError() && !this.#stopped
-            && (this.#currentTrackIndex !== index || this.#initialPlay)
+            && !(startTime === 0 && this.isPlaying())
             && (!this.#executedTask || this.#initialPlay)
+            && (this.#currentTrackIndex !== index || this.#initialPlay)
             && (this.#playingSources.length === 1 || this.#initialPlay)
             && (this.#waitIndex === null || this.#waitIndex === index)) {
 
@@ -152,7 +153,7 @@ class MultiTrackPlayer extends EventTarget {
 
                 this.#currentOffset = 0;
 
-                if (!Object.keys(this.#startTimeouts).length) {
+                if (!Object.keys(this.#startTimeouts).length || this.getCurrentTime() >= this.getDuration()) {
                     this.#clearTimeouts();
 
                     this.dispatchEvent(new Event("end"));
@@ -212,6 +213,8 @@ class MultiTrackPlayer extends EventTarget {
 
     #playEvent() {
         if (!this.isPlaying() && !this.#initialPlay) {
+            this.#initialPlay = true;
+
             this.#setPositionState();
             this.playNext(this.#currentTrackIndex, 0);
         }
@@ -518,8 +521,8 @@ class MultiTrackPlayer extends EventTarget {
     #setPositionState() {
         if ('mediaSession' in navigator) {
             navigator.mediaSession.setPositionState({
-                duration: this.#length,
-                playbackRate: 1,
+                duration: this.#audioTag.duration,
+                playbackRate: this.#audioTag.playbackRate,
                 position: this.#audioTag.currentTime
             });
         }
