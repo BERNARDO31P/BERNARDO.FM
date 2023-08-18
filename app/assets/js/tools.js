@@ -1049,7 +1049,7 @@ function play(diffSong = false, pageLoad = false) {
             "pause": () => pauseSong(),
             "previoustrack": () => previousSong(),
             "nexttrack": () => nextSong(),
-            "stop": () => pauseSong(),
+            "stop": () => stopSongs(),
             "seekbackward": () => onTimelineRelease(player.getCurrentTime() - 10),
             "seekforward": () => onTimelineRelease(player.getCurrentTime() + 10),
             "seekto": (details) => {
@@ -1060,9 +1060,8 @@ function play(diffSong = false, pageLoad = false) {
             }
         }
 
-        for (const [action, handler] of Object.entries(actionHandlers)) {
+        for (const [action, handler] of Object.entries(actionHandlers))
             player.setActionHandler(action, handler);
-        }
 
         player.setMetadata(song["name"], song["artist"], song["cover"]);
         player.setVolume(volume);
