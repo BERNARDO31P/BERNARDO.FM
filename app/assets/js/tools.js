@@ -1281,6 +1281,12 @@ function onTimelineRelease(value, rangeEvent = null) {
     const player = playlist[playIndex]["player"];
     const timeline = document.getElementById("timeline");
 
+    if (value > player.getDuration()) {
+        nextSong();
+        return;
+    }
+
+    if (value < 0) value = 0;
     value = Math.round(Number(value));
 
     if (!document.hidden)
@@ -1352,7 +1358,7 @@ function nextSong(bypass = false) {
         if (!partIsPlayable(nextIndex, partIndex))
             downloadPart(0, playIndex, partIndex);
         else play(true);
-    }
+    } else playPauseButton("pause");
 }
 
 /*
@@ -1380,7 +1386,7 @@ function previousSong(bypass = false) {
         if (!partIsPlayable(previousIndex, partIndex))
             downloadPart(0, playIndex, partIndex);
         else play(true);
-    }
+    } else playPauseButton("pause");
 }
 
 /*
