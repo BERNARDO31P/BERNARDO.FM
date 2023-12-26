@@ -7,33 +7,38 @@
         {
             "src": "./assets/img/icon32x32.png",
             "sizes": "32x32",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "./assets/img/icon64x64.png",
             "sizes": "64x64",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "./assets/img/icon128x128.png",
             "sizes": "128x128",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "./assets/img/maskable_icon_x192.png",
             "sizes": "192x192",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "any"
         },
         {
             "src": "./assets/img/icon256x256.png",
             "sizes": "256x256",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "./assets/img/icon512x512.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         }
     ],
     "name": "BERNARDO.FM",
