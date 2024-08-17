@@ -1602,41 +1602,36 @@ function onTimelineMove(rangeEvent) {
  * Generiert die Künstler für die Playlist
  */
 async function generatePlaylistInfo(song) {
-    let info = {"cover": null, "artists": ""};
+    const info = {"cover": null, "artists": ""};
+    const count = song["playlist"]["count"];
 
-    let data = tryParseJSON(httpGet(pageURL + "system/song/" + song["id"]));
-    const count = data["count"];
-    deleteMultiple(data, ["cover", "name", "count"])
+    delete song["playlist"]["count"];
 
-    if (!song["cover"]) {
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        context.canvas.width = 160;
-        context.canvas.height = 160;
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    context.canvas.width = 160;
+    context.canvas.height = 160;
 
-        for (let i = 0, j = 0; i < 4; i++) {
-            if (i % 2 === 0 && i !== 0) j++;
+    for (let i = 0, j = 0; i < 4; i++) {
+        if (i % 2 === 0 && i !== 0) j++;
 
-            const image = new Image();
-            image.src = data[i]["cover"].toString() + "?size=80";
+        const image = new Image();
+        image.src = "system/img/" + song["playlist"][i]["cover"].toString() + "?size=80";
 
-            await new Promise((resolve) => {
-                image.onload = () => {
-                    context.drawImage(image, (i % 2) * 80, (j % 2) * 80, 80, 80);
-                    resolve();
-                };
-            });
-        }
-
-        info["cover"] = context.canvas.toDataURL("image/png");
-    } else {
-        info["cover"] = "system/img/" + song["cover"] + "?size=200";
+        await new Promise((resolve) => {
+            image.onload = () => {
+                context.drawImage(image, (i % 2) * 80, (j % 2) * 80, 80, 80);
+                resolve();
+            };
+        });
     }
+
+    info["cover"] = context.canvas.toDataURL("image/png");
 
     let artistCount = 0;
     for (let i = 0; i < count; i++) {
         if (artistCount >= 4) break;
-        const artists = data[i]["artist"].split(/[,&]+/).map(artist => artist.trim());
+        const artists = song["playlist"][i]["artist"].split(/[,&]+/).map(artist => artist.trim());
         for (let artist of artists) {
             if (artistCount >= 4) break;
             if (info["artists"].includes(artist)) continue;

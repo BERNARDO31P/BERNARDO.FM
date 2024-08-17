@@ -114,14 +114,15 @@ function recursive_prepend(&$object, $key, $data): void
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  object: (Object) Die Daten, welche manipuliert werden sollen
+ *  category: (String) Definiert, welche und ob eine Kategorie geladen werden soll
  *
  * Sortiert die Daten je nach Kategorie
  * Gibt ein neues, sortiertes Objekt zurück
  */
-function sorting_by_category($object): array
+function sorting_by_category($object, $category = null): array
 {
 	$parsed = array();
-	foreach ($object as $id => $song) {
+	foreach ($object as $song) {
 		$key = $song["category"];
 
 		if (!array_key_exists($key, $parsed))
@@ -129,7 +130,39 @@ function sorting_by_category($object): array
 
 		$parsed[$key][] = $song;
 	}
+
+    if ($category === null) {
+        join_songs($object, $parsed);
+    } elseif (isset($parsed[$category]["playlist"])) {
+        join_playlist($object, $parsed[$category]["playlist"]);
+    }
+
 	return $parsed;
+}
+
+function join_songs($object, &$parsed): void
+{
+    foreach ($parsed["Albums"] as &$album) {
+        $albumInfo = explode(" - ", $album["name"]);
+
+        $album["artist"] = $albumInfo[0];
+        $album["name"] = $albumInfo[1];
+
+        join_playlist($object, $album["playlist"]);
+    }
+
+    foreach ($parsed["Playlists"] as &$playlist) {
+        join_playlist($object, $playlist["playlist"]);
+    }
+}
+
+function join_playlist($object, &$playlist): void
+{
+    foreach ($playlist as &$songReference) {
+        $songReference = search_song($songReference, $object);
+    }
+
+    $playlist["count"] = count($playlist);
 }
 
 /*
@@ -497,7 +530,7 @@ $router->get("/songs/([\d]+)", function ($count) {
  */
 $router->get("/songs/([^\/]*)/([\d]+)/([\d]+)", function ($category, $page, $count) {
 	$db = loadDatabase();
-	$db = sorting_by_category($db)[$category];
+	$db = sorting_by_category($db, $category)[$category];
 
 	paging($db, $page, $count);
 	recursive_unset($db, "fileName");
@@ -575,7 +608,7 @@ $router->get("/songs/([^\/]*)/([\d]+)", function ($search, $count) {
 $router->get("/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)", function ($search, $category, $page, $count) {
 	$db = loadDatabase();
 	$db = search_songs($search, $db);
-	$db = sorting_by_category($db)[$category];
+	$db = sorting_by_category($db, $category)[$category];
 
 	paging($db, $page, $count);
 	recursive_unset($db, "fileName");

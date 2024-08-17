@@ -830,7 +830,7 @@ async function generateBlockView(songs, categoryView, cover) {
         let song = songs[arrayID];
         let card;
 
-        if (typeof song["playlist"] === "undefined") {
+        if (typeof song["coverPos"] !== "undefined") {
             card = document.createElement('div');
             card.classList.add("songCard", "card");
             card.dataset.id = song.id;
