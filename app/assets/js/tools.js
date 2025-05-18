@@ -1016,10 +1016,15 @@ function updateSongData() {
     if (Object.keys(data).length) {
         infoBox.innerHTML = "";
         for (let info of Object.values(data)) {
+            if (!info || typeof info["name"] === "undefined") {
+                infoBox.innerHTML += `<h3>${song["artist"]}</h3><p>No description found..</p>`;
+                continue;
+            }
+
             infoBox.innerHTML += `<h3>${info["name"]}</h3><p>${info["description"]}</p>`;
         }
     } else {
-        infoBox.innerHTML = "<h3>No description found.</h3>";
+        infoBox.innerHTML = "<h3>No description found..</h3>";
     }
 
     updatePlaying();

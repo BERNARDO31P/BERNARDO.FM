@@ -1835,7 +1835,7 @@
   },
   {
     "id": "yjiA3yvRF00Ja9B0mPp",
-    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
     "name": "Forces Of Nature",
     "artist": "Electric Universe",
     "length": "6:38",
@@ -1845,7 +1845,7 @@
   },
   {
     "id": "rPc4LrooSccTIe_68UU",
-    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
     "name": "Fractals",
     "artist": "Electric Universe",
     "length": "8:03",
@@ -1855,7 +1855,7 @@
   },
   {
     "id": "6bvMtMTt5X0EXjxQiEt",
-    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
     "name": "Himalaya",
     "artist": "Electric Universe",
     "length": "7:53",
@@ -1865,7 +1865,7 @@
   },
   {
     "id": "csQ_05qp0GrcjzUJV3v",
-    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
     "name": "Magic Carpet",
     "artist": "Electric Universe",
     "length": "8:23",
@@ -1875,7 +1875,7 @@
   },
   {
     "id": "oVCAVADTC8Kld7xhXrz",
-    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
     "name": "Time Bender",
     "artist": "Electric Universe",
     "length": "8:08",
@@ -1885,7 +1885,7 @@
   },
   {
     "id": "jYKiKGuzIBZ3jM-s0U_",
-    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
     "name": "Vibration",
     "artist": "Electric Universe",
     "length": "6:57",
@@ -1895,7 +1895,7 @@
   },
   {
     "id": "oztuSmxotw9XdnlhB0O",
-    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
     "name": "World Of Waves",
     "artist": "Electric Universe",
     "length": "7:43",
@@ -1905,7 +1905,7 @@
   },
   {
     "id": "qbkQGmfGMwQGoJtMp39",
-    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
     "name": "Ancient Aum",
     "artist": "Electric Universe & Ace Ventura",
     "length": "8:00",
@@ -1918,7 +1918,7 @@
   },
   {
     "id": "Bn7YsJ2a28ixTSX8v2o",
-    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
     "name": "Calling For Peace",
     "artist": "Electric Universe & Faders",
     "length": "8:59",
@@ -1931,7 +1931,7 @@
   },
   {
     "id": "dZwzdFEiY3__ESlDrxY",
-    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
     "name": "Party Planners 2.1",
     "artist": "Electric Universe & Mad Tribe",
     "length": "8:35",
@@ -1944,7 +1944,7 @@
   },
   {
     "id": "4pMm5L7MjvMFdCDvgwE",
-    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
     "name": "Satory",
     "artist": "Electric Universe & Raja Ram",
     "length": "8:32",
@@ -1957,7 +1957,7 @@
   },
   {
     "id": "1IKIe6m5__Grkhza00f",
-    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
     "name": "Shiva Nataraja",
     "artist": "Electric Universe & Sitarsonic",
     "length": "8:53",
@@ -1969,8 +1969,18 @@
     ]
   },
   {
+    "id": "ALKTe6m5KFHrmhza18L",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
+    "name": "Mandala",
+    "artist": "Electric Universe",
+    "length": "9:36",
+    "fileName": "Electric Universe - Mandala.wav",
+    "category": "Psybient",
+    "info": "y6LGrGyVuDDQPb4c82i"
+  },
+  {
     "id": "akOx4wdokGEtoRTAlAj",
-    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpeg",
+    "cover": "Electric Universe - Sacred Geometry - Album Cover.jpg",
     "name": "Electric Universe - Sacred Geometry",
     "category": "Albums",
     "playlist": [
@@ -1985,7 +1995,363 @@
       "Bn7YsJ2a28ixTSX8v2o",
       "dZwzdFEiY3__ESlDrxY",
       "4pMm5L7MjvMFdCDvgwE",
-      "1IKIe6m5__Grkhza00f"
+      "1IKIe6m5__Grkhza00f",
+      "ALKTe6m5KFHrmhza18L"
+    ]
+  },
+  {
+    "id": "KlcHOYwoqqslNiXS4Ti",
+    "cover": "Dr Fractal - Red Spicy - Album Cover.png",
+    "name": "Red Spicy",
+    "artist": "Dr Fractal",
+    "length": "8:09",
+    "fileName": "Dr Fractal - Red Spicy.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "D96rJ3xE6ztTwKuyCVq",
+    "cover": "Dr Fractal - Red Spicy - Album Cover.png",
+    "name": "Levitate",
+    "artist": "Dr Fractal",
+    "length": "8:12",
+    "fileName": "Dr Fractal - Levitate.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "WktjUNMhRFFXdEtwQYM",
+    "cover": "Dr Fractal - Red Spicy - Album Cover.png",
+    "name": "Bad Dreams",
+    "artist": "Dr Fractal & The Horrids",
+    "length": "7:50",
+    "fileName": "Dr Fractal & The Horrids - Bad Dreams.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "bgRz3AR1V9ZY0EWVgyk",
+    "cover": "Dr Fractal - Red Spicy - Album Cover.png",
+    "name": "Semi Organic",
+    "artist": "Dr Fractal & Karev",
+    "length": "8:18",
+    "fileName": "Dr Fractal & Karev - Semi Organic.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "PQcOoXgA3YgmHiSn1kp",
+    "cover": "Dr Fractal - Red Spicy - Album Cover.png",
+    "name": "Hive Circus",
+    "artist": "Dr Fractal",
+    "length": "7:26",
+    "fileName": "Dr Fractal - Hive Circus.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "itkBLl40tofhi6vvi0i",
+    "cover": "Dr Fractal - Red Spicy - Album Cover.png",
+    "name": "Dr Fractal - Red Spicy",
+    "category": "Albums",
+    "playlist": [
+      "KlcHOYwoqqslNiXS4Ti",
+      "D96rJ3xE6ztTwKuyCVq",
+      "WktjUNMhRFFXdEtwQYM",
+      "bgRz3AR1V9ZY0EWVgyk",
+      "PQcOoXgA3YgmHiSn1kp"
+    ]
+  },
+  {
+    "id": "Surr52SBupjHxhRjkwv",
+    "cover": "Dr Fractal - Into Matter - Album Cover.jpg",
+    "name": "Nebula",
+    "artist": "Dr Fractal",
+    "length": "8:48",
+    "fileName": "Dr Fractal - Nebula.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "mhwpqJxIVDpgCrJGbkK",
+    "cover": "Dr Fractal - Into Matter - Album Cover.jpg",
+    "name": "Into Matter",
+    "artist": "Dr Fractal",
+    "length": "7:59",
+    "fileName": "Dr Fractal - Into Matter.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "oUF3FuMzLAKy7NIm9vp",
+    "cover": "Dr Fractal - Into Matter - Album Cover.jpg",
+    "name": "Complex Geometry",
+    "artist": "Dr Fractal",
+    "length": "8:16",
+    "fileName": "Dr Fractal - Complex Geometry.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "cUILIl6Hkv8hEobj9Fg",
+    "cover": "Dr Fractal - Into Matter - Album Cover.jpg",
+    "name": "End Of Isengard",
+    "artist": "Dr Fractal & Heavy Fawn",
+    "length": "8:23",
+    "fileName": "Dr Fractal & Heavy Fawn - End Of Isengard.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "CIATtB5UwR5C17YFKTp",
+    "cover": "Dr Fractal - Into Matter - Album Cover.jpg",
+    "name": "Dr Fractal - Into Matter",
+    "category": "Albums",
+    "playlist": [
+      "Surr52SBupjHxhRjkwv",
+      "mhwpqJxIVDpgCrJGbkK",
+      "oUF3FuMzLAKy7NIm9vp",
+      "cUILIl6Hkv8hEobj9Fg"
+    ]
+  },
+  {
+    "id": "XFhbPD6u8AYkC5jP5kM",
+    "cover": "VA - Sonic Force - Album Cover.jpg",
+    "name": "Looming Deviants",
+    "artist": "Sator Arepo & Yann",
+    "length": "7:33",
+    "fileName": "Sator Arepo & Yann - Looming Deviants.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "4fIn12jROVT7idG2P7Z",
+    "cover": "Sator Arepo - Encrypted Holograms.jpg",
+    "name": "Encrypted Holograms",
+    "artist": "Sator Arepo",
+    "length": "7:30",
+    "fileName": "Sator Arepo - Encrypted Holograms.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "kDHixDGgcUbaNAWzQqS",
+    "cover": "Sator Arepo - Glitched Reality.jpg",
+    "name": "Glitched Reality",
+    "artist": "Sator Arepo",
+    "length": "7:50",
+    "fileName": "Sator Arepo - Glitched Reality.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "t5Fan2uHVbCsjYiyYKb",
+    "cover": "Dr Fractal - Smooth Lobotomy.jpg",
+    "name": "Smooth Lobotomy",
+    "artist": "Dr Fractal",
+    "length": "7:37",
+    "fileName": "Dr Fractal - Smooth Lobotomy.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "iuBWTiKH64N0pCbzKwv",
+    "cover": "Art Materials & 50 Drops - Resonate.jpg",
+    "name": "Resonate",
+    "artist": "Art Materials & 50 Drops",
+    "length": "6:55",
+    "fileName": "Art Materials & 50 Drops - Resonate.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "w5jmDqj5N5s4eoKMUGY",
+    "cover": "Infected Mushroom - Deeply Disturbed (Art Materials Remix).jpg",
+    "name": "Deeply Disturbed (Art Materials Remix)",
+    "artist": "Infected Mushroom",
+    "length": "6:57",
+    "fileName": "Infected Mushroom - Deeply Disturbed (Art Materials Remix).wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "MZBQpoIpcnT8dgwA2X6",
+    "cover": "VA - Sonic Force - Album Cover.jpg",
+    "name": "Darknitzt",
+    "artist": "ChromArepo",
+    "length": "6:15",
+    "fileName": "ChromArepo - Darknitzt.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "dmD0pWQ2SBS4SfwqGhA",
+    "cover": "Art Materials - Art District - Album Cover.jpg",
+    "name": "Shamanism",
+    "artist": "Art Materials",
+    "length": "6:45",
+    "fileName": "Art Materials - Shamanism.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "lcLeJuxlzDyXrYYwnJW",
+    "cover": "Art Materials - Art District - Album Cover.jpg",
+    "name": "The Future Is Now",
+    "artist": "Art Materials",
+    "length": "7:06",
+    "fileName": "Art Materials - The Future Is Now.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "DVRyWXdOaLa6tCieap9",
+    "cover": "Art Materials - Art District - Album Cover.jpg",
+    "name": "Good Looking People",
+    "artist": "Art Materials & Jumpstreet",
+    "length": "6:52",
+    "fileName": "Art Materials & Jumpstreet - Good Looking People.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "ZPFvYtP3SGCHHHyohkG",
+    "cover": "Art Materials - Art District - Album Cover.jpg",
+    "name": "Day Zero",
+    "artist": "Art Materials",
+    "length": "6:19",
+    "fileName": "Art Materials - Day Zero.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "7RlhqjCvonZG7fn2rBn",
+    "cover": "Art Materials - Art District - Album Cover.jpg",
+    "name": "Art Materials - Art District",
+    "category": "Albums",
+    "playlist": [
+      "dmD0pWQ2SBS4SfwqGhA",
+      "lcLeJuxlzDyXrYYwnJW",
+      "DVRyWXdOaLa6tCieap9",
+      "ZPFvYtP3SGCHHHyohkG"
+    ]
+  },
+  {
+    "id": "NUpJkiXhYYKWYVCj6Ab",
+    "cover": "Jumpstreet - Surreal Symphony - Album Cover.jpg",
+    "name": "The Knowledge",
+    "artist": "Jumpstreet",
+    "length": "7:01",
+    "fileName": "Jumpstreet - The Knowledge.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "T9EGXGpuhxTDCQ1vyoW",
+    "cover": "Jumpstreet - Surreal Symphony - Album Cover.jpg",
+    "name": "Lysurgical Precision",
+    "artist": "Jumpstreet & Ajja",
+    "length": "8:32",
+    "fileName": "Jumpstreet & Ajja - Lysurgical Precision.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "rQvRhosblDanhw8Os4N",
+    "cover": "Jumpstreet - Surreal Symphony - Album Cover.jpg",
+    "name": "Harmonic Voltage",
+    "artist": "Jumpstreet & Virtual Light",
+    "length": "7:03",
+    "fileName": "Jumpstreet & Virtual Light - Harmonic Voltage.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "Pn3saM7u55yq23PbJnM",
+    "cover": "Jumpstreet - Surreal Symphony - Album Cover.jpg",
+    "name": "Superconductor",
+    "artist": "Jumpstreet",
+    "length": "6:40",
+    "fileName": "Jumpstreet - Superconductor.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "fHDy8zdTSb0OzjIOTs7",
+    "cover": "Jumpstreet - Surreal Symphony - Album Cover.jpg",
+    "name": "Overmotivated",
+    "artist": "Jumpstreet & Siloka",
+    "length": "6:45",
+    "fileName": "Jumpstreet & Siloka - Overmotivated.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "u5VCP1nkcwN6lmTd67O",
+    "cover": "Jumpstreet - Surreal Symphony - Album Cover.jpg",
+    "name": "Rave Psalm",
+    "artist": "Jumpstreet & Art Materials",
+    "length": "7:25",
+    "fileName": "Jumpstreet & Art Materials - Rave Psalm.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "ilGjaQ78A5BnAqYa9W3",
+    "cover": "Jumpstreet - Surreal Symphony - Album Cover.jpg",
+    "name": "Surreal Symphony",
+    "artist": "Jumpstreet",
+    "length": "6:42",
+    "fileName": "Jumpstreet - Surreal Symphony.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "zSFJybJ4nReZ7VTXOKh",
+    "cover": "Jumpstreet - Surreal Symphony - Album Cover.jpg",
+    "name": "High Altitude",
+    "artist": "Jumpstreet & Spectra Sonics",
+    "length": "7:21",
+    "fileName": "Jumpstreet & Spectra Sonics - High Altitude.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "Cl8UYK4RJvCrw7GnJji",
+    "cover": "Jumpstreet - Surreal Symphony - Album Cover.jpg",
+    "name": "Granular Glissando",
+    "artist": "Jumpstreet",
+    "length": "6:29",
+    "fileName": "Jumpstreet - Granular Glissando.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "vbdcsGFhugBRjFDtyFS",
+    "cover": "Jumpstreet - Surreal Symphony - Album Cover.jpg",
+    "name": "Trippy Triad",
+    "artist": "Jumpstreet",
+    "length": "7:07",
+    "fileName": "Jumpstreet - Trippy Triad.wav",
+    "category": "Psytrance",
+    "info": null
+  },
+  {
+    "id": "hVBh3vLbYpxMZnfInIr",
+    "cover": "Jumpstreet - Surreal Symphony - Album Cover.jpg",
+    "name": "Jumpstreet - Surreal Symphony",
+    "category": "Albums",
+    "playlist": [
+      "NUpJkiXhYYKWYVCj6Ab",
+      "T9EGXGpuhxTDCQ1vyoW",
+      "rQvRhosblDanhw8Os4N",
+      "Pn3saM7u55yq23PbJnM",
+      "fHDy8zdTSb0OzjIOTs7",
+      "u5VCP1nkcwN6lmTd67O",
+      "ilGjaQ78A5BnAqYa9W3",
+      "zSFJybJ4nReZ7VTXOKh",
+      "Cl8UYK4RJvCrw7GnJji",
+      "vbdcsGFhugBRjFDtyFS"
     ]
   }
 ]
