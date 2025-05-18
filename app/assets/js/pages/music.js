@@ -5,8 +5,7 @@ setPositionState(0, 0);
 let count = 0, resizeTimeout = null;
 const menuItems = {
     "play": {
-        "name": "Play",
-        "icon": () => {
+        "name": "Play", "icon": () => {
             const playDiv = document.createElement('div');
             playDiv.classList.add("icon");
             playDiv.title = 'Play this song';
@@ -15,12 +14,9 @@ const menuItems = {
 
             playDiv.append(playIcon);
             return playDiv;
-        },
-        "action": (card) => playAction(card)
-    },
-    "queue": {
-        "name": "Add to queue",
-        "icon": () => {
+        }, "action": (card) => playAction(card)
+    }, "queue": {
+        "name": "Add to queue", "icon": () => {
             const addDiv = document.createElement('div');
             addDiv.classList.add("icon");
             addDiv.title = 'Add this song to the queue';
@@ -38,15 +34,12 @@ const menuItems = {
 
             addDiv.append(helperDiv);
             return addDiv;
-        },
-        "action": (card) => {
+        }, "action": (card) => {
             addSongToPlaylist(card);
             showNotification("Song added to queue", 3000);
         }
-    },
-    "next": {
-        "name": "Play as next",
-        "icon": () => {
+    }, "next": {
+        "name": "Play as next", "icon": () => {
             const addDiv = document.createElement('div');
             addDiv.classList.add("icon");
             addDiv.title = 'Add this song to the queue';
@@ -64,15 +57,12 @@ const menuItems = {
 
             addDiv.append(helperDiv);
             return addDiv;
-        },
-        "action": (card) => {
+        }, "action": (card) => {
             addSongToPlaylist(card, 0, true);
             showNotification("Song will be played next", 3000);
         }
-    },
-    "share": {
-        "name": "Share",
-        "icon": () => {
+    }, "share": {
+        "name": "Share", "icon": () => {
             const addDiv = document.createElement('div');
             addDiv.classList.add("icon");
             addDiv.title = 'Share this song';
@@ -81,8 +71,7 @@ const menuItems = {
 
             addDiv.append(listIcon);
             return addDiv;
-        },
-        "action": (card) => {
+        }, "action": (card) => {
             const url = pageURL + "#!page=music&s=" + card.dataset.id;
             const nameElement = card.querySelector(".name") ?? card.querySelector("td:nth-child(2) .content");
             const artistElement = card.querySelector(".artist") ?? card.querySelector("td:nth-child(3) .content");
@@ -92,10 +81,8 @@ const menuItems = {
 
             navigator.share({title: title, text: text, url: url});
         }
-    },
-    "delete": {
-        "name": "Remove from queue",
-        "icon": () => {
+    }, "delete": {
+        "name": "Remove from queue", "icon": () => {
             const addDiv = document.createElement('div');
             addDiv.classList.add("icon", "listAdd");
             addDiv.title = 'Remove this song from the queue';
@@ -113,8 +100,7 @@ const menuItems = {
 
             addDiv.append(helperDiv);
             return addDiv;
-        },
-        "action": async (card) => {
+        }, "action": async (card) => {
             const id = card.dataset.id;
             let current = playlist[playIndex]["id"];
             const sameIndex = id === current;
@@ -136,8 +122,7 @@ const menuItems = {
 
             if (index <= playIndex && !sameIndex) playIndex--;
             if (sameIndex) {
-                if (playIndex === -1) nextSong(true);
-                else previousSong(true);
+                if (playIndex === -1) nextSong(true); else previousSong(true);
             }
 
             card.closest("tr").remove();
@@ -145,8 +130,7 @@ const menuItems = {
             let queueView = document.getElementById("queueView");
             let queue = queueView.querySelector("#queue");
 
-            if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
-            else queue.style.right = "0";
+            if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px"; else queue.style.right = "0";
         }
     }
 };
@@ -163,8 +147,7 @@ document.addEventListener("click", hideContext);
 bindEvent("click", "#content .listAdd", function () {
     addSongToPlaylist(this);
 
-    if (playlist.length === 1)
-        downloadPart(0, playIndex, partIndex);
+    if (playlist.length === 1) downloadPart(0, playIndex, partIndex);
 
     showNotification("Song added to queue", 3000);
 });
@@ -197,9 +180,7 @@ bindEvent("click", "#queueView tr[data-id]", function () {
     partIndex = 0;
     nextPartIndex = 0;
 
-    if (!partIsPlayable(playIndex, partIndex))
-        downloadPart(0, playIndex, partIndex);
-    else play(true);
+    if (!partIsPlayable(playIndex, partIndex)) downloadPart(0, playIndex, partIndex); else play(true);
 });
 
 /*
@@ -295,8 +276,7 @@ function showContext(e, card, items) {
     songArtist.classList.add("songArtist");
     songArtist.textContent = artistElement.textContent;
 
-    if (typeof data["count"] !== "undefined")
-        songArtist.textContent += " • " + data["count"] + " Tracks";
+    if (typeof data["count"] !== "undefined") songArtist.textContent += " • " + data["count"] + " Tracks";
 
     const row = document.createElement("div");
     row.classList.add("row");
@@ -372,12 +352,8 @@ bindEvent("click", "[data-angle='down']", function () {
     navbar.classList.remove("shadow");
     body.style.overflowY = "hidden";
 
-    this.animate([
-        {transform: 'rotate(0deg)'},
-        {transform: 'rotate(-180deg)'}
-    ], {
-        duration: 200,
-        fill: "forwards"
+    this.animate([{transform: 'rotate(0deg)'}, {transform: 'rotate(-180deg)'}], {
+        duration: 200, fill: "forwards"
     });
 
     let queue = queueView.querySelector("#queue");
@@ -386,8 +362,7 @@ bindEvent("click", "[data-angle='down']", function () {
             queue.innerHTML = "";
             queue.appendChild(listView);
 
-            if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px";
-            else queue.style.right = "0";
+            if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px"; else queue.style.right = "0";
 
             updatePlaying();
         });
@@ -397,12 +372,8 @@ bindEvent("click", "[data-angle='down']", function () {
         updatePlaying();
     }
 
-    queueView.animate([
-        {top: '100%'},
-        {top: '60px'}
-    ], {
-        duration: 300,
-        fill: "forwards"
+    queueView.animate([{top: '100%'}, {top: '60px'}], {
+        duration: 300, fill: "forwards"
     });
 });
 
@@ -487,8 +458,7 @@ bindEvent("click", ".songList .loadMore", function () {
         data = tryParseJSON(httpGet(table.dataset.url + "/" + catCategory + "/" + catPage + "/" + count));
     }
 
-    if (Object.keys(data).length < count)
-        this.remove();
+    if (Object.keys(data).length < count) this.remove();
 
     table.setAttribute("data-page", String(catPage));
 
@@ -560,8 +530,7 @@ window.addEventListener("resize", function () {
             if (getGetParameter(location.href, "page") === "music") {
                 loadPage();
 
-                if (typeof playlist[playIndex] !== "undefined")
-                    updateSongData();
+                if (typeof playlist[playIndex] !== "undefined") updateSongData();
             }
         }, 200);
     }
@@ -648,8 +617,7 @@ window["music"] = async () => {    /*
                 div.setAttribute("data-page", "1");
                 div.setAttribute("data-url", object.dataset.url);
 
-                if (songs.length === count)
-                    div.setAttribute("data-load", String(1));
+                if (songs.length === count) div.setAttribute("data-load", String(1));
 
                 /*
                  * Funktion: handler()
@@ -661,13 +629,16 @@ window["music"] = async () => {    /*
                  * Wenn kein Touchgerät, dann werden die Knöpfe je nach Scroll-Position angepasst
                  */
                 div.addEventListener("scroll", async function handler(e) {
-                    let element = e.target;
-                    let scrolled = Math.round(100 * element.scrollLeft / (element.scrollWidth - element.clientWidth));
+                    const element = e.target;
+                    const rects = element.getBoundingClientRect();
 
-                    if (scrolled >= 60) {
-                        let search = document.querySelector("#search input");
-                        let catPage = Number(element.dataset.page) + 1;
-                        let catCategory = prev(element.parentElement).textContent;
+                    const scrollRight = element.scrollWidth - (element.scrollLeft + rects.width);
+                    const currentPage = Number(element.dataset.page);
+
+                    if (scrollRight < 200) {
+                        const search = document.querySelector("#search input");
+                        const catPage = currentPage + 1;
+                        const catCategory = prev(element.parentElement).textContent;
 
                         let data;
                         if (search.value !== "") {
@@ -697,12 +668,11 @@ window["music"] = async () => {    /*
 
                     if (!isTouchScreen()) {
                         let scrollBack = div.parentElement.querySelector(".scrollBack");
-                        if (scrolled === 0) scrollBack.style.display = "none";
-                        else scrollBack.style.display = "flex";
+
+                        scrollBack.style.display = (scrolled === 0) ? "none" : "flex";
 
                         let scrollForward = div.parentElement.querySelector(".scrollForward");
-                        if (scrolled === 100) scrollForward.style.display = "none";
-                        else scrollForward.style.display = "flex";
+                        if (scrolled === 100) scrollForward.style.display = "none"; else scrollForward.style.display = "flex";
                     }
                 });
 
@@ -732,8 +702,7 @@ window["music"] = async () => {    /*
                 gridView.appendChild(parent);
             }
 
-            if (object.parentNode !== null)
-                object.parentNode.insertBefore(gridView, object);
+            if (object.parentNode !== null) object.parentNode.insertBefore(gridView, object);
         } else {
             let div = document.createElement("div");
             div.classList.add("info");
@@ -743,8 +712,7 @@ window["music"] = async () => {    /*
 
             div.appendChild(span);
 
-            if (object.parentNode !== null)
-                object.parentNode.insertBefore(div, object);
+            if (object.parentNode !== null) object.parentNode.insertBefore(div, object);
         }
 
         object.remove();
@@ -793,19 +761,14 @@ function addSongToPlaylist(element, id = 0, next = false) {
     let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
     if (!Object.values(data).length) return;
 
-    if (typeof data[0] === "undefined") data = [data];
-    else deleteMultiple(data, ["cover", "name", "count"]);
+    if (typeof data[0] === "undefined") data = [data]; else deleteMultiple(data, ["cover", "name", "count"]);
 
     const songs = Object.values(data);
     const length = playlist.length;
     if (!next) {
         playlist = [...playlist, ...songs];
     } else {
-        playlist = [
-            ...playlist.slice(0, playIndex + 1),
-            ...songs,
-            ...playlist.slice(playIndex + 1)
-        ]
+        playlist = [...playlist.slice(0, playIndex + 1), ...songs, ...playlist.slice(playIndex + 1)]
     }
     changedQueue = true;
 
