@@ -698,7 +698,7 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
     else $till = $timeFrom + $time;
 
     try {
-        $bitrate = "320k";
+        $bitrate = "512k";
         $cmd     = "{$ffmpegPath} -i {$inputFile} -ss {$timeFrom} -to {$till} -vn -c:a libopus -b:a {$bitrate} -f webm -";
 
         $process       = proc_open($cmd, $descriptorspec, $pipes);

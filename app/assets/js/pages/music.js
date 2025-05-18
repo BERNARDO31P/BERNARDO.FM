@@ -635,7 +635,7 @@ window["music"] = async () => {    /*
                     const scrollRight = element.scrollWidth - (element.scrollLeft + rects.width);
                     const currentPage = Number(element.dataset.page);
 
-                    if (scrollRight < 200) {
+                    if (scrollRight < 400) {
                         const search = document.querySelector("#search input");
                         const catPage = currentPage + 1;
                         const catCategory = prev(element.parentElement).textContent;
