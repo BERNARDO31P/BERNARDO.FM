@@ -295,6 +295,44 @@ function array_walk_multi_dimension(array &$arr, callable $callback, string ...$
     }
 }
 
+function process_pictures(&$db, $length = 200, &$i = 0, &$imagePaths = []): array
+{
+    foreach ($db as &$data) {
+        if (is_array($data) && !isset($data["id"])) {
+            process_pictures($data, $length, $i, $imagePaths);
+            continue;
+        }
+
+        if (!is_array($data) || !isset($data["id"], $data["cover"])) {
+            continue;
+        }
+
+        $cover = $data["cover"];
+
+        $inputPath    = "img/" . $cover;
+        $escapedInput = escapeshellarg($inputPath);
+
+        $outputPath    = __DIR__ . "/temp/resized_" . md5($cover) . ".png";
+        $escapedOutput = escapeshellarg($outputPath);
+
+        if (!file_exists($outputPath)) {
+            if (file_exists($inputPath)) {
+                $resizeCmd = "magick $escapedInput -resize {$length}x{$length}^ -gravity center -extent {$length}x{$length} $escapedOutput";
+            } else {
+                $resizeCmd = "magick -size {$length}x{$length} canvas:black $escapedOutput";
+            }
+            shell_exec($resizeCmd);
+        }
+
+        $data["coverPos"] = $i * $length;
+
+        $imagePaths[] = $outputPath;
+        $i++;
+    }
+
+    return $imagePaths;
+}
+
 /*
  * Funktion: generate_pictures()
  * Autor: Bernardo de Oliveira
@@ -311,52 +349,19 @@ function array_walk_multi_dimension(array &$arr, callable $callback, string ...$
  */
 function generate_pictures(array &$db, int $length = 200): void
 {
-    $tempDir = "temp/";
-    @mkdir($tempDir);
-
-    $imagePaths = [];
-    $i          = 0;
-
-    foreach ($db as &$row) {
-        foreach ($row as &$song) {
-            if (!is_array($song) || !isset($song["id"], $song["cover"])) {
-                continue;
-            }
-
-            $cover = $song["cover"];
-
-            $inputPath    = "img/" . $cover;
-            $escapedInput = escapeshellarg($inputPath);
-
-            $outputPath    = $tempDir . "resized_" . md5($cover) . ".png";
-            $escapedOutput = escapeshellarg($outputPath);
-
-            if (!file_exists($outputPath)) {
-                if (file_exists($inputPath)) {
-                    $resizeCmd = "magick $escapedInput -resize {$length}x{$length}^ -gravity center -extent {$length}x{$length} $escapedOutput";
-                } else {
-                    $resizeCmd = "magick -size {$length}x{$length} canvas:black $escapedOutput";
-                }
-                shell_exec($resizeCmd);
-            }
-
-            $song["coverPos"] = $i * $length;
-
-            $imagePaths[] = $outputPath;
-            $i++;
-        }
-    }
+    $imagePaths = process_pictures($db, $length);
 
     if (empty($imagePaths)) {
         $db["cover"] = null;
         return;
     }
 
-    $escapedImageList   = implode(" ", array_map("escapeshellarg", $imagePaths));
-    $outputImage        = $tempDir . uniqid("cover_", true) . ".webp";
-    $escapedOutputImage = escapeshellarg($outputImage);
+    $outputImage = "temp/" . uniqid("cover_", true) . ".webp";
 
-    $combineCmd = "magick $escapedImageList +append -quality 85 $escapedOutputImage";
+    $escapedOutputImage = escapeshellarg($outputImage);
+    $escapedImageList   = implode(" ", array_map("escapeshellarg", $imagePaths));
+
+    $combineCmd = "magick $escapedImageList +append -quality 45 $escapedOutputImage";
     shell_exec($combineCmd);
 
     $db["cover"] = "system/" . $outputImage;
@@ -408,79 +413,6 @@ function findExecutable($executableName): ?string
     return null;
 }
 
-/*
- * Funktion: add_hash()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  hash: (String) Definiert den Hash
- *  value: (String) Definiert die Daten zum Hash
- *  hashDB: (Object) Definiert die Hash Datenbank
- *
- * Speichert einen Hash (als Schlüssel) und die dazugehörigen Daten (als Wert) ab
- */
-function add_hash($hash, $value, $hashDB): void
-{
-    $dbFile        = __DIR__ . "/db/hashes.json";
-    $hashDB[$hash] = $value;
-
-    file_put_contents($dbFile, json_encode($hashDB));
-}
-
-/*
- * Funktion: check_hash()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  db: (Object) Definiert die Datenbank
- *  hashDB: (Object) Definiert die Hash Datenbank
- *
- * Generiert einen Hash aus den Daten
- * Überprüft ob der Hash in der Hash Datenbank vorkommt
- *
- * Gibt den Speicherort des Bildes zurück
- */
-function check_hash($db, $hashDB): ?string
-{
-    $hash = generate_hash($db);
-
-    if (isset($hashDB[$hash])) {
-        $image = str_replace("system/", "", $hashDB[$hash]["image"]);
-
-        if (file_exists(__DIR__ . "/" . $image)) {
-            return $image;
-        } else {
-            unset($hashDB[$hash]);
-
-            $dbFile = __DIR__ . "/db/hashes.json";
-            file_put_contents($dbFile, json_encode($hashDB));
-        }
-    }
-    return null;
-}
-
-/*
- * Funktion: apply_hash()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  db: (Object) Definiert die Datenbank
- *  hashDB: (Object) Definiert die Hash Datenbank
- *  hasCategory: (Boolean) Definiert ob die Daten kategorisiert sind
- *
- * Generiert einen Hash aus den Daten
- * Sucht den Hash in der Datenbank
- * Speichert die Position des Covers vom Hash in die Datenbank ab
- */
-function apply_hash(&$db, $hashDB): void
-{
-    $hash = generate_hash($db);
-
-    array_walk_multi_dimension($db, function (&$song) use ($hash, $hashDB) {
-        if (isset($song["cover"]) && isset($hashDB[$hash]["coverPos"][$song["cover"]]))
-            $song["coverPos"] = $hashDB[$hash]["coverPos"][$song["cover"]];
-    });
-
-    $db["cover"] = $hashDB[$hash]["image"];
-}
-
 $router = new Router();
 
 /*
@@ -508,13 +440,6 @@ $router->get("/songs/([\d]+)", function ($count) {
 
     if (count($db)) {
         generate_pictures($db);
-
-        /*$hashDB = loadHashDatabase();
-
-        $url = check_hash($db, $hashDB);
-        ($url === null)
-            ? generate_pictures($db, $hashDB)
-            : apply_hash($db, $hashDB);*/
     }
 
     shuffle_level($db, 1);
@@ -550,13 +475,6 @@ $router->get("/songs/([^\/]*)/([\d]+)/([\d]+)", function ($category, $page, $cou
 
     if (count($db)) {
         generate_pictures($db);
-
-        /*$hashDB = loadHashDatabase();
-
-        $url = check_hash($db, $hashDB);
-        ($url === null)
-            ? generate_pictures($db, $hashDB)
-            : apply_hash($db, $hashDB);*/
     }
 
     shuffle_level($db, 0);
@@ -591,13 +509,6 @@ $router->get("/songs/([^\/]*)/([\d]+)", function ($search, $count) {
 
     if (count($db)) {
         generate_pictures($db);
-
-        /*$hashDB = loadHashDatabase();
-
-        $url = check_hash($db, $hashDB);
-        ($url === null)
-            ? generate_pictures($db, $hashDB)
-            : apply_hash($db, $hashDB);*/
     }
 
     header("Content-Type: application/json");
@@ -632,13 +543,6 @@ $router->get("/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)", function ($search, $cat
 
     if (count($db)) {
         generate_pictures($db);
-
-        /*$hashDB = loadHashDatabase();
-
-        $url = check_hash($db, $hashDB);
-        ($url === null)
-            ? generate_pictures($db, $hashDB)
-            : apply_hash($db, $hashDB);*/
     }
 
     header("Content-Type: application/json");
@@ -883,8 +787,8 @@ $router->get("/img/(.*)", function ($image) {
  * Dafür da, sodass direkter Zugriff nicht möglich ist
  */
 $router->get("/temp/(.*)", function ($image) {
-    $imageUrl    = __DIR__ . "/temp/" . $image;
-    $contentType = mime_content_type($imageUrl);
+    $imagePath    = __DIR__ . "/temp/" . $image;
+    $contentType = mime_content_type($imagePath);
 
     if ($contentType === false) {
         header($_SERVER['SERVER_PROTOCOL'] . " 403 Forbidden");
@@ -893,7 +797,9 @@ $router->get("/temp/(.*)", function ($image) {
 
     if ($contentType === "image/webp") {
         $imagick = new Imagick();
-        $imagick->readImage($imageUrl);
+        $imagick->readImage($imagePath);
+
+        @unlink($imagePath);
 
         enable_cache(oneDay);
         header("Content-Type: image/webp");
