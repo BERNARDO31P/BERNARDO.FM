@@ -9,7 +9,9 @@
     {
       "title": "Version 1.2",
       "message": "Improved the native performance of the page. The loading times you're now seeing are completely without cache!",
-      "details": "+Improved image rendering and generation<br> +Improved request handling<br/>c +Minor bugfixes"
+      "details": "+Improved image rendering and generation<br> +Improved request handling<br/>c +Minor bugfixes",
+      "author":  "Bernardo de Oliveira",
+      "date": "18. May. 2025"
     },
     {
       "title": "Version 1.1",
