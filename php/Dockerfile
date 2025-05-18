@@ -7,8 +7,8 @@ USER root
 RUN rm -rf /etc/nginx/conf.d/default.conf
 
 RUN apk --no-cache add  \
-    php81-pecl-imagick php81-fileinfo php81-pcntl php81-pecl-memcached  \
-    git screen ffmpeg
+    php81-pecl-imagick php81-fileinfo php81-pcntl php81-pecl-memcached \
+    git screen ffmpeg imagemagick
 
 RUN echo "user = nginx" >> /etc/php81/php-fpm.d/www.conf
 RUN echo "listen.owner = nginx" >> /etc/php81/php-fpm.d/www.conf
