@@ -185,6 +185,11 @@ function paging(array &$data, int $currentPage, int $itemsPerPage): void
         $data = array_slice($data, $offset, $itemsPerPage);
     } else {
         foreach ($data as $category => $tracks) {
+            if (empty($tracks)) {
+                unset($data[$category]);
+                continue;
+            }
+
             $data[$category] = array_slice($tracks, $offset, $itemsPerPage);
         }
     }
