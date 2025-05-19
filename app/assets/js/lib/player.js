@@ -94,9 +94,9 @@ class MultiTrackPlayer extends EventTarget {
         this.#decodingCallbacks[index] = callback;
         this.#decodingQueue[index] = url;
 
-        if (!this.isDecoding())
+        if (!this.isDecoding()) {
             await this.#processDecodeQueue();
-        else {
+        } else {
             this.#waitIndex = index;
             this.#abortDownload();
         }
