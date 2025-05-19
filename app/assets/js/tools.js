@@ -1535,8 +1535,9 @@ function addEvents(player) {
         if (e.detail.set) {
             nextPartIndex = e.detail.index
 
-            if (player.isPlaying()) player.queueTrack(nextPartIndex);
-            else {
+            if (player.isPlaying()) {
+                player.queueTrack(nextPartIndex);
+            } else {
                 partIndex = nextPartIndex;
                 play(e.detail.initialPlay);
             }
