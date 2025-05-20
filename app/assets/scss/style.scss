@@ -543,6 +543,8 @@ a.button {
         display: inline-flex;
 
         .songCard, .playlistCard {
+          cursor: pointer;
+
           display: flex;
           justify-content: center;
           align-items: center;

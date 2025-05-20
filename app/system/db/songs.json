@@ -507,7 +507,7 @@
     "id": "MQqFOvdySUuRZrKY6HU",
     "cover": "PSYBORT - Galactic Balance.jpg",
     "name": "Galactic Balance",
-    "artist": "PSYBORT",
+    "artist": "Psybort",
     "length": "10:30",
     "fileName": "PSYBORT - Galactic Balance.wav",
     "category": "Psybient",
@@ -2401,5 +2401,265 @@
     "fileName": "Fluxsense - Wired Plants.wav",
     "category": "Psybient",
     "info": "PVOuQG_qwlJC2BdxAVw"
+  },
+  {
+    "id": "sp6Xn5I4CKBpCWwFewo",
+    "cover": "Tetarise - Entrancing Bloom - Album Cover.jpg",
+    "name": "Starry Night Skies",
+    "artist": "Tetarise",
+    "length": "9:42",
+    "fileName": "Tetarise - Starry Night Skies.wav",
+    "category": "Psybient",
+    "info": null
+  },
+  {
+    "id": "Pe1p5x7USkZYeZcjMlH",
+    "cover": "Fluxsense - Pleiadian Alienation - Album Cover.jpg",
+    "name": "In the Pleiades",
+    "artist": "Fluxsense",
+    "length": "8:28",
+    "fileName": "Fluxsense - In the Pleiades.wav",
+    "category": "Psybient",
+    "info": "PVOuQG_qwlJC2BdxAVw"
+  },
+  {
+    "id": "V7CSj3LGEySKEFROERS",
+    "cover": "Fluxsense - Pleiadian Alienation - Album Cover.jpg",
+    "name": "They Found Us",
+    "artist": "Fluxsense & Mobitex",
+    "length": "9:19",
+    "fileName": "Fluxsense & Mobitex - They Found Us.wav",
+    "category": "Psybient",
+    "info": [
+      "PVOuQG_qwlJC2BdxAVw",
+      "nAU2lLX9x-kejD_c3gE"
+    ]
+  },
+  {
+    "id": "j0OuzFu73LH272ZQVoE",
+    "cover": "Fluxsense - Pleiadian Alienation - Album Cover.jpg",
+    "name": "Breath",
+    "artist": "Fluxsense",
+    "length": "10:44",
+    "fileName": "Fluxsense - Breath.wav",
+    "category": "Psybient",
+    "info": "PVOuQG_qwlJC2BdxAVw"
+  },
+  {
+    "id": "MhJTfLvhPPy7wJrXRVR",
+    "cover": "Fluxsense - Pleiadian Alienation - Album Cover.jpg",
+    "name": "Imeh",
+    "artist": "Fluxsense",
+    "length": "8:59",
+    "fileName": "Fluxsense - Imeh.wav",
+    "category": "Psybient",
+    "info": "PVOuQG_qwlJC2BdxAVw"
+  },
+  {
+    "id": "Ut0UvYe7I8vXgmorYyP",
+    "cover": "Fluxsense - Pleiadian Alienation - Album Cover.jpg",
+    "name": "Desintegration Cycle",
+    "artist": "Fluxsense & Stardust",
+    "length": "10:22",
+    "fileName": "Fluxsense & Stardust - Desintegration Cycle.wav",
+    "category": "Psybient",
+    "info": [
+      "PVOuQG_qwlJC2BdxAVw"
+    ]
+  },
+  {
+    "id": "dqC6jEkLoISaDNpRrPK",
+    "cover": "Fluxsense - Pleiadian Alienation - Album Cover.jpg",
+    "name": "Ethereal",
+    "artist": "Fluxsense",
+    "length": "8:56",
+    "fileName": "Fluxsense - Ethereal.wav",
+    "category": "Psybient",
+    "info": "PVOuQG_qwlJC2BdxAVw"
+  },
+  {
+    "id": "oWWmFMLx0NbQrDU77BY",
+    "cover": "Fluxsense - Pleiadian Alienation - Album Cover.jpg",
+    "name": "Eternal Return",
+    "artist": "Fluxsense",
+    "length": "10:15",
+    "fileName": "Fluxsense - Eternal Return.wav",
+    "category": "Psybient",
+    "info": "PVOuQG_qwlJC2BdxAVw"
+  },
+  {
+    "id": "8Ot1UUSy7vqkue6mJf5",
+    "cover": "Fluxsense - Pleiadian Alienation - Album Cover.jpg",
+    "name": "Sahasrara",
+    "artist": "Fluxsense",
+    "length": "5:53",
+    "fileName": "Fluxsense - Sahasrara.wav",
+    "category": "Psybient",
+    "info": "PVOuQG_qwlJC2BdxAVw"
+  },
+  {
+    "id": "jw5HDtTs6LPC3BmiQGh",
+    "cover": "Fluxsense - Pleiadian Alienation - Album Cover.jpg",
+    "name": "Oneiric Alienation",
+    "artist": "Fluxsense",
+    "length": "8:18",
+    "fileName": "Fluxsense - Oneiric Alienation.wav",
+    "category": "Psybient",
+    "info": "PVOuQG_qwlJC2BdxAVw"
+  },
+  {
+    "id": "NTJ4gOy3PFaQCYqoxSg",
+    "cover": "Fluxsense - Pleiadian Alienation - Album Cover.jpg",
+    "name": "Fluxsense - Pleiadian Alienation",
+    "category": "Albums",
+    "playlist": [
+      "Pe1p5x7USkZYeZcjMlH",
+      "V7CSj3LGEySKEFROERS",
+      "j0OuzFu73LH272ZQVoE",
+      "MhJTfLvhPPy7wJrXRVR",
+      "PNbCLGPpZ5182LIbX-U",
+      "Ut0UvYe7I8vXgmorYyP",
+      "dqC6jEkLoISaDNpRrPK",
+      "oWWmFMLx0NbQrDU77BY",
+      "8Ot1UUSy7vqkue6mJf5",
+      "jw5HDtTs6LPC3BmiQGh"
+    ]
+  },
+  {
+    "id": "y3pexevIJ5aDqtyfvQO",
+    "cover": "Psybort - Your Own Universe - Album Cover.jpg",
+    "name": "Blissful Mindscape",
+    "artist": "Psybort",
+    "length": "11:57",
+    "fileName": "Psybort - Blissful Mindscape.wav",
+    "category": "Psybient",
+    "info": "XWAtNgKpjn17aZ0BlYs"
+  },
+  {
+    "id": "u56PvDUUYtABEx9hVnv",
+    "cover": "Psybort - Your Own Universe - Album Cover.jpg",
+    "name": "Stellar Euphony",
+    "artist": "Psybort",
+    "length": "10:00",
+    "fileName": "Psybort - Stellar Euphony.wav",
+    "category": "Psybient",
+    "info": "XWAtNgKpjn17aZ0BlYs"
+  },
+  {
+    "id": "pFtDagax8AsAC9SxRLK",
+    "cover": "Psybort - Your Own Universe - Album Cover.jpg",
+    "name": "Unknown Space (Psybort Remix)",
+    "artist": "Mobitex & Hesus",
+    "length": "7:42",
+    "fileName": "Mobitex & Hesus - Unknown Space (Psybort Remix).wav",
+    "category": "Psybient",
+    "info": [
+      "nAU2lLX9x-kejD_c3gE",
+      "XWAtNgKpjn17aZ0BlYs"
+    ]
+  },
+  {
+    "id": "Cuxbi4pSqnOzKLpJPCu",
+    "cover": "Psybort - Your Own Universe - Album Cover.jpg",
+    "name": "Skywatcher",
+    "artist": "Psybort",
+    "length": "8:34",
+    "fileName": "Psybort - Skywatcher.wav",
+    "category": "Psybient",
+    "info": "XWAtNgKpjn17aZ0BlYs"
+  },
+  {
+    "id": "oEzm9l5Gxn41gJmkhNB",
+    "cover": "Psybort - Your Own Universe - Album Cover.jpg",
+    "name": "Holographic Universe",
+    "artist": "Psybort",
+    "length": "8:00",
+    "fileName": "Psybort - Holographic Universe.wav",
+    "category": "Psybient",
+    "info": "XWAtNgKpjn17aZ0BlYs"
+  },
+  {
+    "id": "CMkrvfvFsEhaBHvLg7X",
+    "cover": "Psybort - Your Own Universe - Album Cover.jpg",
+    "name": "Y.O.U",
+    "artist": "Psybort",
+    "length": "8:32",
+    "fileName": "Psybort - Y.O.U.wav",
+    "category": "Psybient",
+    "info": "XWAtNgKpjn17aZ0BlYs"
+  },
+  {
+    "id": "2suU8VkMqLPyLw0IVK9",
+    "cover": "Psybort - Your Own Universe - Album Cover.jpg",
+    "name": "Psybort - Your Own Universe",
+    "category": "Albums",
+    "playlist": [
+      "y3pexevIJ5aDqtyfvQO",
+      "u56PvDUUYtABEx9hVnv",
+      "pFtDagax8AsAC9SxRLK",
+      "Cuxbi4pSqnOzKLpJPCu",
+      "oEzm9l5Gxn41gJmkhNB",
+      "CMkrvfvFsEhaBHvLg7X"
+    ]
+  },
+  {
+    "id": "aajfj2PhCdBsrfarQnN",
+    "cover": "Psybort - Illusion Of Time - Album Cover.jpg",
+    "name": "The Code",
+    "artist": "Psybort",
+    "length": "9:05",
+    "fileName": "Psybort - The Code.wav",
+    "category": "Psybient",
+    "info": "XWAtNgKpjn17aZ0BlYs"
+  },
+  {
+    "id": "j2NFblgFv16quh18pQP",
+    "cover": "Psybort - Illusion Of Time - Album Cover.jpg",
+    "name": "Prime Creator",
+    "artist": "Psybort",
+    "length": "8:36",
+    "fileName": "Psybort - Prime Creator.wav",
+    "category": "Psybient",
+    "info": "XWAtNgKpjn17aZ0BlYs"
+  },
+  {
+    "id": "dp1AG7CTxsCjWzCGDTx",
+    "cover": "Psybort - Illusion Of Time - Album Cover.jpg",
+    "name": "Innercell",
+    "artist": "Psybort",
+    "length": "8:52",
+    "fileName": "Psybort - Innercell.wav",
+    "category": "Psybient",
+    "info": "XWAtNgKpjn17aZ0BlYs"
+  },
+  {
+    "id": "mYgTCCikyC9g0Pe2zhL",
+    "cover": "Psybort - Mother Earth - Album Cover.jpg",
+    "name": "Cultures",
+    "artist": "Psybort",
+    "length": "9:59",
+    "fileName": "Psybort - Cultures.wav",
+    "category": "Psybient",
+    "info": "XWAtNgKpjn17aZ0BlYs"
+  },
+  {
+    "id": "h6B09zINZsh5JREJrTW",
+    "cover": "Psybort - Mother Earth - Album Cover.jpg",
+    "name": "Water",
+    "artist": "Psybort",
+    "length": "10:23",
+    "fileName": "Psybort - Water.wav",
+    "category": "Psybient",
+    "info": "XWAtNgKpjn17aZ0BlYs"
+  },
+  {
+    "id": "pVT84vJWDuwo4uqkK6w",
+    "cover": "Psybort - Mother Earth - Album Cover.jpg",
+    "name": "Nature and Human",
+    "artist": "Psybort",
+    "length": "10:00",
+    "fileName": "Psybort - Nature and Human.wav",
+    "category": "Psybient",
+    "info": "XWAtNgKpjn17aZ0BlYs"
   }
 ]
