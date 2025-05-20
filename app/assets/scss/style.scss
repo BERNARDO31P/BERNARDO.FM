@@ -601,6 +601,37 @@ a.button {
               opacity: 0.6;
             }
 
+            .playButton::before {
+              transition: 0.2s;
+
+              content: "▶";
+              position: absolute;
+              bottom: 11px;
+              left: 11px;
+              color: gray;
+              background-color: rgba(0, 0, 0, 0.5);
+              border-radius: 100%;
+              font-size: 20px;
+              padding: 12px;
+              height: 15px;
+              width: 15px;
+              text-align: center;
+              line-height: 15px;
+
+              z-index: 1;
+            }
+
+            .playButton:hover {
+              &::before {
+                color: white;
+                background-color: rgba(0, 0, 0, 0.9);
+                padding: 15px;
+
+                bottom: 8px;
+                left: 8px;
+              }
+            }
+
             .length {
               padding: 2px 5px;
               border-radius: 4px;
@@ -1021,7 +1052,7 @@ a.button {
           position: absolute;
           top: 50%;
           left: 50%;
-          transform: translate(-50%,-50%);
+          transform: translate(-50%, -50%);
         }
       }
 

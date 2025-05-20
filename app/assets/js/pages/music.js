@@ -189,13 +189,13 @@ bindEvent("click", "#queueView tr[data-id]", function () {
  *
  * Diverse Funktionen welche durch Benutzereingaben ausgelöst werden
  */
-bindEvent("click", ".card .darker", function () {
+bindEvent("click", ".card", function () {
     playAction(this.closest(".card"));
 });
 bindEvent("click", ".songList tr[data-id]", function () {
     playAction(this);
 });
-bindEvent("contextmenu", ".card .darker", function (e) {
+bindEvent("contextmenu", ".card", function (e) {
     e.preventDefault();
     if (!isTouchScreen()) showContext(e, this.closest(".card"), ["play", "queue", "next", "share"]);
 });
@@ -203,7 +203,7 @@ bindEvent("contextmenu", ".songList tr[data-id]", function (e) {
     e.preventDefault();
     if (!isTouchScreen()) showContext(e, this, ["play", "queue", "next", "share"]);
 });
-bindEvent("touchstart", ".card .darker", function (e) {
+bindEvent("touchstart", ".card", function (e) {
     if (isTouchScreen()) {
         contextTimeout = setTimeout(() => {
             showContext(e, this.closest(".card"), ["play", "queue", "next", "share"]);
@@ -228,10 +228,10 @@ bindEvent("touchstart", "#queueView tr[data-id]", function (e) {
         }, defaultDelay);
     }
 });
-bindEvent("touchend", ".card .darker, .songList tr[data-id], #queueView tr[data-id]", function () {
+bindEvent("touchend", ".card, .songList tr[data-id], #queueView tr[data-id]", function () {
     if (isTouchScreen()) clearTimeout(contextTimeout);
 });
-bindEvent("touchmove", ".card .darker, .songList tr[data-id], #queueView tr[data-id]", function () {
+bindEvent("touchmove", ".card, .songList tr[data-id], #queueView tr[data-id]", function () {
     if (isTouchScreen()) clearTimeout(contextTimeout);
 });
 
@@ -801,6 +801,9 @@ async function generateBlockView(songs, categoryView, cover) {
             const darker = document.createElement('div');
             darker.className = 'darker';
 
+            const playButton = document.createElement('div');
+            playButton.className = 'playButton';
+
             const coverDiv = document.createElement('div');
             coverDiv.className = 'cover';
             coverDiv.style.backgroundImage = `url(${cover})`;
@@ -820,7 +823,7 @@ async function generateBlockView(songs, categoryView, cover) {
             lengthSpan.className = 'length';
             lengthSpan.textContent = song.length;
 
-            card.append(darker, coverDiv, nameSpan, artistSpan, lengthSpan);
+            card.append(darker, playButton, coverDiv, nameSpan, artistSpan, lengthSpan);
         } else {
             let info = await generatePlaylistInfo(song);
 
@@ -830,6 +833,9 @@ async function generateBlockView(songs, categoryView, cover) {
 
             const darkerDiv = document.createElement('div');
             darkerDiv.className = 'darker';
+
+            const playButton = document.createElement('div');
+            playButton.className = 'playButton';
 
             const coverDiv = document.createElement('div');
             coverDiv.className = 'cover';
@@ -845,7 +851,7 @@ async function generateBlockView(songs, categoryView, cover) {
             artistSpan.dataset.title = info.artists;
             artistSpan.textContent = info.artists;
 
-            card.append(darkerDiv, coverDiv, nameSpan, artistSpan);
+            card.append(darkerDiv, playButton, coverDiv, nameSpan, artistSpan);
         }
 
         fragment.appendChild(card);
