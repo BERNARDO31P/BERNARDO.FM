@@ -819,11 +819,15 @@ async function generateBlockView(songs, categoryView, cover) {
             artistSpan.dataset.title = song.artist;
             artistSpan.textContent = song.artist;
 
-            const lengthSpan = document.createElement('span');
-            lengthSpan.className = 'length';
-            lengthSpan.textContent = song.length;
+            card.append(darker, playButton, coverDiv, nameSpan, artistSpan);
 
-            card.append(darker, playButton, coverDiv, nameSpan, artistSpan, lengthSpan);
+            if (typeof song.length !== "undefined") {
+                const lengthSpan = document.createElement('span');
+                lengthSpan.className = 'length';
+                lengthSpan.textContent = song.length;
+
+                card.append(lengthSpan);
+            }
         } else {
             let info = await generatePlaylistInfo(song);
 

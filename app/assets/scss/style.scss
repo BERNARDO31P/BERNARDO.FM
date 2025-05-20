@@ -598,7 +598,7 @@ a.button {
 
           &:hover {
             .darker {
-              opacity: 0.6;
+              opacity: 0.5;
             }
 
             .playButton::before {
@@ -609,7 +609,7 @@ a.button {
               bottom: 11px;
               left: 11px;
               color: gray;
-              background-color: rgba(0, 0, 0, 0.5);
+              background-color: rgba(0, 0, 0, 0.6);
               border-radius: 100%;
               font-size: 20px;
               padding: 12px;
@@ -633,10 +633,10 @@ a.button {
             }
 
             .length {
-              padding: 2px 5px;
+              padding: 3px 8px;
               border-radius: 4px;
 
-              background-color: black;
+              background-color: rgba(0, 0, 0, 0.6);
               opacity: 1;
 
               user-select: none;
@@ -676,7 +676,7 @@ a.button {
             transition: 0.2s;
             position: absolute;
             opacity: 0;
-            top: 133px;
+            bottom: 10px;
             right: 10px;
 
             color: #cccccc;
