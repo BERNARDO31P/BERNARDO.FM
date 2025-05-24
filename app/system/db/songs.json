@@ -426,26 +426,6 @@
     ]
   },
   {
-    "id": "jEt1akrppa814TmjHVg",
-    "cover": "Lil Nas X - MONTERO (Call Me By Your Name).jpeg",
-    "name": "MONTERO (Call Me By Your Name)",
-    "artist": "Lil Nas X",
-    "length": "2:50",
-    "fileName": "Lil Nas X - MONTERO (Call Me By Your Name).wav",
-    "category": "Trap",
-    "info": "nDwv1vABjE_uB7Je59w"
-  },
-  {
-    "id": "ktM-Yx9zxws4oMT8CoA",
-    "cover": "Lil Nas X - INDUSTRY BABY.jpg",
-    "name": "INDUSTRY BABY",
-    "artist": "Lil Nas X",
-    "length": "3:32",
-    "fileName": "Lil Nas X - INDUSTRY BABY.wav",
-    "category": "Trap",
-    "info": "nDwv1vABjE_uB7Je59w"
-  },
-  {
     "id": "PNbCLGPpZ5182LIbX-U",
     "cover": "Fluxsense - Divinity Plane.jpg",
     "name": "Divinity Plane",
@@ -566,46 +546,13 @@
     "info": "9Sk8wBxXZ7uQd_x7d1I"
   },
   {
-    "id": "YKxApWK-NQepGCIigb8",
-    "cover": "Travis Scott - BUTTERFLY EFFECT.jpg",
-    "name": "BUTTERFLY EFFECT",
-    "artist": "Travis Scott",
-    "length": "3:10",
-    "fileName": "Travis Scott - BUTTERFLY EFFECT.wav",
-    "category": "Trap",
-    "info": "ez1HwRez1E7xJs4xWPY"
-  },
-  {
-    "id": "An11raWsNFXzaG0XxYg",
-    "cover": "Pop Smoke - Dior.jpg",
-    "name": "Dior",
-    "artist": "Pop Smoke",
-    "length": "3:36",
-    "fileName": "Pop Smoke - Dior.wav",
-    "category": "Trap",
-    "info": "ZusUvDH0mbajmPS-AoA"
-  },
-  {
-    "id": "yLBWlx7QxYYenBY6pWE",
-    "cover": "Travis Scott feat. Kendrick Lamar - Goosebumps.jpg",
-    "name": "Goosebumps",
-    "artist": "Travis Scott feat. Kendrick Lamar",
-    "length": "4:03",
-    "fileName": "Travis Scott feat. Kendrick Lamar - Goosebumps.wav",
-    "category": "Trap",
-    "info": [
-      "ez1HwRez1E7xJs4xWPY",
-      "4RMVtlZPkx3A-aQd-6M"
-    ]
-  },
-  {
     "id": "_oPCKgRULY63Ldo2ULQ",
     "cover": "Hucci - Wings.jpg",
     "name": "Wings",
     "artist": "Hucci",
     "length": "3:34",
     "fileName": "Hucci - Wings.wav",
-    "category": "Trap",
+    "category": "Trip-Hop",
     "info": "KrEHGeKWsvk02bfLp8k"
   },
   {
