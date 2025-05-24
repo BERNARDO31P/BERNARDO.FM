@@ -7,15 +7,15 @@ USER root
 RUN rm -rf /etc/nginx/conf.d/default.conf
 
 RUN apk --no-cache add  \
-    php81-pecl-imagick php81-fileinfo php81-pcntl php81-pecl-memcached \
+    php-pecl-imagick php-fileinfo php-pcntl php-pecl-memcached \
     git screen ffmpeg imagemagick
 
-RUN echo "user = nginx" >> /etc/php81/php-fpm.d/www.conf
-RUN echo "listen.owner = nginx" >> /etc/php81/php-fpm.d/www.conf
-RUN echo "listen.group = nginx" >> /etc/php81/php-fpm.d/www.conf
-RUN echo "listen.mode = 0660" >> /etc/php81/php-fpm.d/www.conf
+RUN echo "user = nginx" >> /etc/php84/php-fpm.d/www.conf
+RUN echo "listen.owner = nginx" >> /etc/php84/php-fpm.d/www.conf
+RUN echo "listen.group = nginx" >> /etc/php84/php-fpm.d/www.conf
+RUN echo "listen.mode = 0660" >> /etc/php84/php-fpm.d/www.conf
 
-COPY ./php.ini /etc/php81/php.ini
+COPY ./php.ini /etc/php84/php.ini
 
 COPY start.sh /
 RUN chmod +x /start.sh

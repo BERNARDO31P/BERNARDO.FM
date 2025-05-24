@@ -10,12 +10,6 @@
       "role": "lead"
     }
   ],
-  "repositories": [
-    {
-      "url": "https://github.com/BERNARDO31P/Audero-Wav-Extractor.git",
-      "type": "git"
-    }
-  ],
   "require": {
     "ext-json": "*",
     "bramus/router": "*",

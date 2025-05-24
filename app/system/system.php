@@ -699,20 +699,27 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
 
     try {
         $bitrate = "320k";
-        $cmd     = "{$ffmpegPath} -i {$inputFile} -ss {$timeFrom} -to {$till} -vn -c:a libopus -b:a {$bitrate} -f webm -";
+        $cmd = "{$ffmpegPath} -i {$inputFile} -ss {$timeFrom} -to {$till} -vn -c:a libopus -b:a {$bitrate} -f ogg -";
 
-        $process       = proc_open($cmd, $descriptorspec, $pipes);
-        $webmAudioData = stream_get_contents($pipes[1]);
+        $descriptorspec = [
+            0 => ["pipe", "r"], // stdin
+            1 => ["pipe", "w"], // stdout
+            2 => ["pipe", "w"]  // stderr
+        ];
+
+        $process = proc_open($cmd, $descriptorspec, $pipes);
+
+        $oggAudioData = stream_get_contents($pipes[1]);
 
         fclose($pipes[0]);
         fclose($pipes[1]);
         fclose($pipes[2]);
         proc_close($process);
 
-        header("Content-Type: audio/webm");
-        header("Content-Disposition: attachment; filename=output.webm");
+        header("Content-Type: audio/ogg");
+        header("Content-Disposition: attachment; filename=output.ogg");
 
-        echo $webmAudioData;
+        echo $oggAudioData;
     } catch (Exception $ex) {
         echo "An error has occurred: " . $ex->getMessage();
     }
@@ -792,7 +799,7 @@ $router->get("/img/(.*)", function ($image) {
  * Dafür da, sodass direkter Zugriff nicht möglich ist
  */
 $router->get("/temp/(.*)", function ($image) {
-    $imagePath    = __DIR__ . "/temp/" . $image;
+    $imagePath   = __DIR__ . "/temp/" . $image;
     $contentType = mime_content_type($imagePath);
 
     if ($contentType === false) {
