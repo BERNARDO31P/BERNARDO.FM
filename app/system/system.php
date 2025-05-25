@@ -699,7 +699,7 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
 
     try {
         $bitrate = "320k";
-        $cmd = "{$ffmpegPath} -i {$inputFile} -ss {$timeFrom} -to {$till} -vn -c:a libopus -b:a {$bitrate} -f ogg -";
+        $cmd = "{$ffmpegPath} -ss {$timeFrom} -to {$till} -i {$inputFile} -vn -c:a libopus -b:a {$bitrate} -f ogg -";
 
         $descriptorspec = [
             0 => ["pipe", "r"], // stdin
