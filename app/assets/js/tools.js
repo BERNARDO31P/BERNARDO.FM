@@ -1613,6 +1613,9 @@ async function generatePlaylistInfo(song) {
 
     delete song["playlist"]["count"];
 
+    let playlist = Object.values(song["playlist"])
+    playlist = playlist.sort(() => 0.5 - Math.random());
+
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
     context.canvas.width = 160;
@@ -1622,7 +1625,7 @@ async function generatePlaylistInfo(song) {
         if (i % 2 === 0 && i !== 0) j++;
 
         const image = new Image();
-        image.src = "system/img/" + song["playlist"][i]["cover"].toString() + "?size=80";
+        image.src = "system/img/" + playlist[i]["cover"].toString() + "?size=80";
 
         await new Promise((resolve) => {
             image.onload = () => {
