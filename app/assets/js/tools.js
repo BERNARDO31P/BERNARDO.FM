@@ -434,7 +434,7 @@ function showConfirmation(title, message, acceptCallback = () => {
 function hideConfirmation() {
     const transparent = document.getElementById('transparent');
 
-    if (transparent.style.display === "none") {
+    if (transparent.style.display !== "block") {
         return;
     }
 
