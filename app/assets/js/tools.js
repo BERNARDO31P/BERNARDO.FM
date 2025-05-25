@@ -432,9 +432,14 @@ function showConfirmation(title, message, acceptCallback = () => {
 
 // TODO: Comment
 function hideConfirmation() {
+    const transparent = document.getElementById('transparent');
+
+    if (transparent.style.display === "none") {
+        return;
+    }
+
     const html = document.getElementsByTagName("html")[0];
     const body = document.getElementsByTagName("body")[0];
-    const transparent = document.getElementById('transparent');
 
     transparent.style.display = "none";
     body.style.overflow = "initial";
