@@ -3,6 +3,9 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
     touched = null, contextTimeout = null, touchTimeout = null, touchedElement = null, currentButton = null,
     changedQueue = false, width = getWidth(), height = getHeight() + 100;
 
+let lastScroll = 0;
+let overflowTimeout = null;
+
 const defaultDelay = 500;
 
 let backgroundProcesses = [];
@@ -389,19 +392,21 @@ function tryParseJSON(jsonString) {
 function showConfirmation(title, message, acceptCallback = () => {
 }, cancelCallback = () => {
 }) {
-    let body = document.getElementsByTagName("body")[0];
-    let transparent = document.getElementById('transparent');
-    let confirmation = document.getElementById("confirmation");
-    let titleElement = confirmation.querySelector(".title");
-    let messageElement = confirmation.querySelector(".message");
+    const html = document.getElementsByTagName("html")[0];
+    const body = document.getElementsByTagName("body")[0];
+    const transparent = document.getElementById('transparent');
+    const confirmation = document.getElementById("confirmation");
+    const titleElement = confirmation.querySelector(".title");
+    const messageElement = confirmation.querySelector(".message");
 
-    let okButton = confirmation.querySelector(".ok");
-    let cancelButton = confirmation.querySelector(".cancel");
+    const okButton = confirmation.querySelector(".ok");
+    const cancelButton = confirmation.querySelector(".cancel");
 
     titleElement.textContent = title;
     messageElement.textContent = message;
     transparent.style.display = "block";
     body.style.overflow = "hidden";
+    html.style.overflow = "hidden";
 
     function accept() {
         okButton.removeEventListener("click", accept);
@@ -427,11 +432,13 @@ function showConfirmation(title, message, acceptCallback = () => {
 
 // TODO: Comment
 function hideConfirmation() {
-    let body = document.getElementsByTagName("body")[0];
-    let transparent = document.getElementById('transparent');
+    const html = document.getElementsByTagName("html")[0];
+    const body = document.getElementsByTagName("body")[0];
+    const transparent = document.getElementById('transparent');
 
     transparent.style.display = "none";
     body.style.overflow = "initial";
+    html.style.overflow = "initial";
 }
 
 // TODO: Comment
@@ -852,20 +859,27 @@ function hideVolumeSlider(timeout = 2000) {
  */
 function hidePlaylist() {
     const queueView = document.getElementById("queueView"),
+        html = document.getElementsByTagName("html")[0],
         body = document.getElementsByTagName("body")[0],
         angleIcon = document.getElementsByClassName("fa-angle-up")[0];
+
+    clearTimeout(overflowTimeout);
 
     if (angleIcon.getAttribute("data-angle") !== "down") {
         angleIcon.setAttribute("data-angle", "down");
 
         body.style.overflowY = "initial";
+        html.style.overflowY = "initial";
+
+        body.scrollTop = lastScroll;
+        html.scrollTop = lastScroll;
 
         angleIcon.animate([{transform: 'rotate(-180deg)'}, {transform: 'rotate(0deg)'}], {
             duration: 200, fill: "forwards"
         });
 
         queueView.animateCallback([{top: '60px'}, {top: '100%'}], {
-            duration: 300, fill: "forwards",
+            duration: 200, fill: "forwards",
         }, function () {
             queueView.classList.remove("show");
         });

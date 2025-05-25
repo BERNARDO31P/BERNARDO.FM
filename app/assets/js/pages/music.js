@@ -343,14 +343,22 @@ function showContext(e, card, items) {
  * Generiert und zeigt die Wiedergabeliste
  */
 bindEvent("click", "[data-angle='down']", function () {
-    let queueView = document.getElementById("queueView");
-    let navbar = document.getElementById("navbar");
-    let body = document.getElementsByTagName("body")[0];
+    const queueView = document.getElementById("queueView"),
+        navbar = document.getElementById("navbar"),
+        html = document.getElementsByTagName("html")[0],
+        body = document.getElementsByTagName("body")[0];
+
+    lastScroll = Math.max(html.scrollTop, body.scrollTop);
 
     this.setAttribute("data-angle", "up");
 
     navbar.classList.remove("shadow");
-    body.style.overflowY = "hidden";
+
+    clearTimeout(overflowTimeout);
+    overflowTimeout = setTimeout(() => {
+        body.style.overflowY = "hidden";
+        html.style.overflowY = "hidden";
+    }, 200);
 
     this.animate([{transform: 'rotate(0deg)'}, {transform: 'rotate(-180deg)'}], {
         duration: 200, fill: "forwards"
@@ -373,7 +381,7 @@ bindEvent("click", "[data-angle='down']", function () {
     }
 
     queueView.animate([{top: '100%'}, {top: '60px'}], {
-        duration: 300, fill: "forwards"
+        duration: 200, fill: "forwards"
     });
 });
 
