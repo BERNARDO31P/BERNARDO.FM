@@ -1298,8 +1298,10 @@ function onTimelinePress() {
     playlist[playIndex]["player"].removeTimeUpdate();
 }
 
-// TODO: Comment
+// Checks if the event occurred on the element with a 40px buffer
 function onElement(element, event) {
+    const buffer = 40;
+
     let clientX, clientY;
     if (event.type === "touchend") {
         clientX = event.changedTouches[0].clientX;
@@ -1309,10 +1311,10 @@ function onElement(element, event) {
         clientY = event.clientY;
     }
 
-    return clientX >= element.left &&
-        clientX <= element.right &&
-        clientY >= element.top &&
-        clientY <= element.bottom;
+    return clientX >= (element.left - buffer) &&
+        clientX <= (element.right + buffer) &&
+        clientY >= (element.top - buffer) &&
+        clientY <= (element.bottom + buffer);
 }
 
 /*
