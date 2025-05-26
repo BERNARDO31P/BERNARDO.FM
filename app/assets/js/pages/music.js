@@ -400,11 +400,28 @@ bindEvent("click", "[data-angle='up']", function () {
     if (window.scrollY !== 0) navbar.classList.add("shadow");
 });
 
+let playTimeout = null;
+
+bindEvent("click", "#playingCover", function () {
+    clearTimeout(playTimeout);
+
+    playTimeout = setTimeout(() => {
+        const player = playlist[playIndex]["player"];
+        if (player.isPlaying()) {
+            pauseSong();
+        } else {
+            play();
+        }
+    }, 300);
+});
+
 let lastTap = 0;
 
 bindEvent("touchstart", "#playingCover", function(event) {
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap;
+
+    clearTimeout(playTimeout);
 
     if (tapLength < 300 && tapLength > 0) {
         const touch = event.touches[0];
@@ -420,6 +437,8 @@ bindEvent("touchstart", "#playingCover", function(event) {
 });
 
 bindEvent("dblclick", "#playingCover", function (event) {
+    clearTimeout(playTimeout);
+
     const element = event.target.closest("#playingCover");
     const rect = element.getBoundingClientRect();
     const isRight = event.clientX > rect.left + rect.width / 2;
