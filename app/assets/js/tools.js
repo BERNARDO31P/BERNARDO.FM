@@ -121,8 +121,12 @@ let seekLabelTimeout = null;
 
 function showSeekLabel(amount, isRight) {
     const label = document.querySelector(isRight ? ".right-label" : ".left-label");
+    const oppositeLabel = document.querySelector(isRight ? ".left-label" : ".right-label");
+
     label.textContent = (amount > 0 ? "+" : "") + amount;
     label.style.opacity = "1";
+
+    oppositeLabel.style.opacity = "0";
 
     clearTimeout(seekLabelTimeout);
 
