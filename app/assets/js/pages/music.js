@@ -400,6 +400,37 @@ bindEvent("click", "[data-angle='up']", function () {
     if (window.scrollY !== 0) navbar.classList.add("shadow");
 });
 
+let lastTap = 0;
+let timeout;
+
+bindEvent("touchstart", "#playingCover", function(event) {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+
+    clearTimeout(timeout);
+
+    if (tapLength < 300 && tapLength > 0) {
+        const touch = event.touches[0];
+        const element = event.target.closest("#playingCover");
+        const rect = element.getBoundingClientRect();
+        const isRight = touch.clientX > rect.left + rect.width / 2;
+
+        // Double tap
+        seek(isRight ? 10 : -10);
+    }
+
+    lastTap = currentTime;
+});
+
+bindEvent("dblclick", "#playingCover", function (event) {
+    const element = event.target.closest("#playingCover");
+    const rect = element.getBoundingClientRect();
+    const isRight = event.clientX > rect.left + rect.width / 2;
+
+    // Double click
+    seek(isRight ? 10 : -10);
+});
+
 /*
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira

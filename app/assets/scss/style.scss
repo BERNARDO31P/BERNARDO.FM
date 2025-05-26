@@ -1124,6 +1124,29 @@ a.button {
     display: flex;
     width: 50%;
 
+    position: relative;
+
+    .seek-label {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 2rem;
+      color: white;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 100;
+    }
+
+    .left-label {
+      left: 20px;
+    }
+
+    .right-label {
+      right: 20px;
+    }
+
+
     div {
       margin: auto;
       border-radius: 5px;

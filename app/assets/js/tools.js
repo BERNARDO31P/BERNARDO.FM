@@ -6,6 +6,8 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
 let lastScroll = 0;
 let overflowTimeout = null;
 
+let seekTimeout = null, seekTime = 0;
+
 const defaultDelay = 500;
 
 let backgroundProcesses = [];
@@ -87,16 +89,16 @@ document.onkeydown = function (e) {
                     muteAudio();
                     break;
                 case "ArrowLeft":
-                    onTimelineRelease(player.getCurrentTime() - 5);
+                    seek(-5);
                     break;
                 case "ArrowRight":
-                    onTimelineRelease(player.getCurrentTime() + 5);
+                    seek(5);
                     break;
                 case "J":
-                    onTimelineRelease(player.getCurrentTime() - 10);
+                    seek(-10);
                     break;
                 case "L":
-                    onTimelineRelease(player.getCurrentTime() + 10);
+                    seek(10);
                     break;
                 case "ArrowUp":
                     volume = volume + 0.1;
@@ -114,6 +116,37 @@ document.onkeydown = function (e) {
         }
     }
 };
+
+function showSeekLabel(amount, isRight) {
+    const label = document.querySelector(isRight ? ".right-label" : ".left-label");
+    label.textContent = (amount > 0 ? "+" : "") + amount;
+    label.style.opacity = "1";
+
+    setTimeout(() => {
+        label.style.opacity = "0";
+    }, 600); // fades out after 600ms
+}
+
+function seek(value) {
+    clearTimeout(seekTimeout);
+
+    seekTime += value;
+
+    showSeekLabel(seekTime, value > 0);
+
+    seekTimeout = setTimeout(() => {
+        const song = playlist[playIndex];
+
+        if (typeof song === "undefined")
+            return;
+
+        const player = song["player"];
+
+        onTimelineRelease(player.getCurrentTime() + seekTime);
+
+        seekTime = 0;
+    }, 1000);
+}
 
 /*
  * Funktion: anonym
@@ -1072,8 +1105,8 @@ function play(diffSong = false, pageLoad = false) {
             "previoustrack": () => previousSong(),
             "nexttrack": () => nextSong(),
             "stop": () => stopSongs(),
-            "seekbackward": () => onTimelineRelease(player.getCurrentTime() - 10),
-            "seekforward": () => onTimelineRelease(player.getCurrentTime() + 10),
+            "seekbackward": () => seek(-10),
+            "seekforward": () => seek(10),
             "seekto": (details) => {
                 if ('seekTime' in details) {
                     const time = Math.round(details.seekTime);
