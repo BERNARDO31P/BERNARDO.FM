@@ -437,6 +437,10 @@ bindEvent("touchstart", "#playingCover", function(event) {
 });
 
 bindEvent("dblclick", "#playingCover", function (event) {
+    if (isTouchScreen()) {
+        return;
+    }
+
     clearTimeout(playTimeout);
 
     const element = event.target.closest("#playingCover");
