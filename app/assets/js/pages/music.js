@@ -401,13 +401,10 @@ bindEvent("click", "[data-angle='up']", function () {
 });
 
 let lastTap = 0;
-let timeout;
 
 bindEvent("touchstart", "#playingCover", function(event) {
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap;
-
-    clearTimeout(timeout);
 
     if (tapLength < 300 && tapLength > 0) {
         const touch = event.touches[0];
