@@ -117,14 +117,18 @@ document.onkeydown = function (e) {
     }
 };
 
+let seekLabelTimeout = null;
+
 function showSeekLabel(amount, isRight) {
     const label = document.querySelector(isRight ? ".right-label" : ".left-label");
     label.textContent = (amount > 0 ? "+" : "") + amount;
     label.style.opacity = "1";
 
-    setTimeout(() => {
+    clearTimeout(seekLabelTimeout);
+
+    seekLabelTimeout = setTimeout(() => {
         label.style.opacity = "0";
-    }, 600); // fades out after 600ms
+    }, 600);
 }
 
 function seek(value) {
