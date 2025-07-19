@@ -312,30 +312,33 @@ function process_pictures(&$db, $length = 200, &$i = 0, &$imagePaths = []): arra
             continue;
         }
 
-        $cover = $data["cover"];
-
-        $inputPath    = "img/" . $cover;
-        $escapedInput = escapeshellarg($inputPath);
-
-        $outputPath    = __DIR__ . "/temp/resized_" . md5($cover) . ".png";
-        $escapedOutput = escapeshellarg($outputPath);
-
-        if (!file_exists($outputPath)) {
-            if (file_exists($inputPath)) {
-                $resizeCmd = "magick $escapedInput -resize {$length}x{$length}^ -gravity center -extent {$length}x{$length} $escapedOutput";
-            } else {
-                $resizeCmd = "magick -size {$length}x{$length} canvas:black $escapedOutput";
-            }
-            shell_exec($resizeCmd);
-        }
-
         $data["coverPos"] = $i * $length;
 
-        $imagePaths[] = $outputPath;
+        $imagePaths[] = resize_picture($data["cover"], $length);
         $i++;
     }
 
     return $imagePaths;
+}
+
+function resize_picture($fileName, $size): string
+{
+    $inputPath    = "img/" . $fileName;
+    $escapedInput = escapeshellarg($inputPath);
+
+    $outputPath    = __DIR__ . "/temp/resized_" . md5($fileName . $size) . ".png";
+    $escapedOutput = escapeshellarg($outputPath);
+
+    if (!file_exists($outputPath)) {
+        if (file_exists($inputPath)) {
+            $resizeCmd = "magick $escapedInput -resize {$size}x{$size} -gravity center -extent {$size}x{$size} $escapedOutput";
+        } else {
+            $resizeCmd = "magick -size {$size}x{$size} canvas:black $escapedOutput";
+        }
+        shell_exec($resizeCmd);
+    }
+
+    return $outputPath;
 }
 
 /*
@@ -766,9 +769,9 @@ $router->get("/changelog", function () {
  * Dafür da, sodass direkter Zugriff nicht möglich ist
  */
 $router->get("/img/(.*)", function ($image) {
-    $imageUrl = __DIR__ . "/img/" . $image;
+    $imagePath = __DIR__ . "/img/" . $image;
 
-    if (isset($_GET["size"]) && file_exists($imageUrl)) {
+    if (isset($_GET["size"]) && file_exists($imagePath)) {
         $length = intval($_GET["size"]);
 
         if ($length < 32 || $length > 1024) {
@@ -776,14 +779,12 @@ $router->get("/img/(.*)", function ($image) {
             exit("Forbidden");
         }
 
-        $imagick = new Imagick();
-        $imagick->readImage($imageUrl);
-        $imagick->scaleImage($length, $length);
-        $imagick->setImageFormat("webp");
-
         enable_cache(oneDay * 7);
         header("Content-Type: image/webp");
-        echo $imagick;
+
+        $path = resize_picture($image, $length);
+        readfile($path);
+
         exit();
     }
 
