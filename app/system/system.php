@@ -809,14 +809,12 @@ $router->get("/temp/(.*)", function ($image) {
     }
 
     if ($contentType === "image/webp") {
-        $imagick = new Imagick();
-        $imagick->readImage($imagePath);
+        enable_cache(oneDay * 7);
+        header("Content-Type: image/webp");
 
+        readfile($imagePath);
         @unlink($imagePath);
 
-        enable_cache(oneDay);
-        header("Content-Type: image/webp");
-        echo $imagick;
         exit();
     }
 
