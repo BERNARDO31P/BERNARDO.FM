@@ -94,6 +94,7 @@ async function generateFirewall(objects) {
             }
         }
 
+        object.innerHTML = "";
         object.appendChild(fragment);
     }
 }
