@@ -806,6 +806,10 @@ window["music"] = async () => {    /*
 
             playPauseButton("load");
             downloadPart(time, playIndex, partIndex);
+
+            playlist[playIndex]["player"].addEventListener("play", () => {
+                playlist[playIndex]["player"].setCurrentTime(time);
+            });
         } else clearURL();
     }
 }
