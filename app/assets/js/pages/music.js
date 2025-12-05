@@ -402,10 +402,16 @@ bindEvent("click", "[data-angle='up']", function () {
 
 let playTimeout = null;
 
-bindEvent("click", "#playingCover", function () {
+bindEvent("click", "#playingCover", function (event) {
     clearTimeout(playTimeout);
 
     playTimeout = setTimeout(() => {
+        const element = event.target.closest(".cover");
+
+        if (!element) {
+            return;
+        }
+
         const player = playlist[playIndex]["player"];
         if (player.isPlaying()) {
             pauseSong();
