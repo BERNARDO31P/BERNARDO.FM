@@ -217,7 +217,7 @@
   },
   {
     "id": "2zU83V5DEO-M6brJVxc",
-    "cover": "Ours Samplus - Memento.jpg",
+    "cover": "Ours Samplus - Last Frontier.jpg",
     "name": "Memento",
     "artist": "Ours Samplus",
     "length": "2:42",
@@ -2683,5 +2683,118 @@
     "fileName": "Psybort - Nature and Human.wav",
     "category": "Psybient",
     "info": "XWAtNgKpjn17aZ0BlYs"
+  },
+  {
+    "id": "QHL1bvJWDuwo4AKsuch",
+    "cover": "Ours Samplus - Too High.jpg",
+    "name": "Too High",
+    "artist": "Ours Samplus",
+    "length": "3:11",
+    "fileName": "Ours Samplus - Too High.wav",
+    "category": "Trip-Hop",
+    "info": "acxbN1V4IyfQEEQjw7A"
+  },
+  {
+    "id": "zJVbjT8RzQCvNjHIRyn",
+    "cover": "Ours Samplus - Guatem.jpg",
+    "name": "Guatem",
+    "artist": "Ours Samplus",
+    "length": "3:13",
+    "fileName": "Ours Samplus - Guatem.wav",
+    "category": "Trip-Hop",
+    "info": "acxbN1V4IyfQEEQjw7A"
+  },
+  {
+    "id": "ixJWluPwsNVPcBhXfA9",
+    "cover": "Ours Samplus & AlTarba - Time Has Come.jpg",
+    "name": "Time Has Come",
+    "artist": "Ours Samplus & AlTarba",
+    "length": "3:37",
+    "fileName": "Ours Samplus & AlTarba - Time Has Come.wav",
+    "category": "Trip-Hop",
+    "info": [
+      "acxbN1V4IyfQEEQjw7A",
+      "08AF7wp79wDS7taQDqv"
+    ]
+  },
+  {
+    "id": "sWrroxJbW6yhEfXWLUN",
+    "cover": "Ours Samplus - Friday Remixes.jpg",
+    "name": "Friday Remix 14",
+    "artist": "Ours Samplus",
+    "length": "3:28",
+    "fileName": "Ours Samplus - Friday Remix 14.wav",
+    "category": "Trip-Hop",
+    "info": "acxbN1V4IyfQEEQjw7A"
+  },
+  {
+    "id": "va5XRIp5cnnuWldTprr",
+    "cover": "Ours Samplus - Friday Remixes.jpg",
+    "name": "Friday Remix 1",
+    "artist": "Ours Samplus",
+    "length": "3:47",
+    "fileName": "Ours Samplus - Friday Remix 1.wav",
+    "category": "Trip-Hop",
+    "info": "acxbN1V4IyfQEEQjw7A"
+  },
+  {
+    "id": "oilHf8DYCxYJTmM7O3h",
+    "cover": "Ours Samplus - Last Frontier.jpg",
+    "name": "Metal Leaves",
+    "artist": "Ours Samplus",
+    "length": "3:53",
+    "fileName": "Ours Samplus - Metal Leaves.wav",
+    "category": "Trip-Hop",
+    "info": "acxbN1V4IyfQEEQjw7A"
+  },
+  {
+    "id": "zVJMA2zYtmWqgAI6azt",
+    "cover": "Ours Samplus - Last Frontier.jpg",
+    "name": "Deer Garden",
+    "artist": "Ours Samplus",
+    "length": "3:44",
+    "fileName": "Ours Samplus - Deer Garden.wav",
+    "category": "Trip-Hop",
+    "info": "acxbN1V4IyfQEEQjw7A"
+  },
+  {
+    "id": "njWGa7HgslM0DFPMbiH",
+    "cover": "Ours Samplus - Last Frontier.jpg",
+    "name": "Flying Ship",
+    "artist": "Ours Samplus",
+    "length": "4:08",
+    "fileName": "Ours Samplus - Flying Ship.wav",
+    "category": "Trip-Hop",
+    "info": "acxbN1V4IyfQEEQjw7A"
+  },
+  {
+    "id": "zj3NcmeL6ideQCTJgeN",
+    "cover": "Ours Samplus - Last Frontier.jpg",
+    "name": "Hara Kiri",
+    "artist": "Ours Samplus",
+    "length": "3:19",
+    "fileName": "Ours Samplus - Hara Kiri.wav",
+    "category": "Trip-Hop",
+    "info": "acxbN1V4IyfQEEQjw7A"
+  },
+  {
+    "id": "VT0bIzjHKr4X2jGhrEn",
+    "cover": "Ours Samplus - Isteri.jpg",
+    "name": "Like the sunshine",
+    "artist": "Ours Samplus",
+    "length": "4:25",
+    "fileName": "Ours Samplus - Like the sunshine.wav",
+    "category": "Trip-Hop",
+    "info": "acxbN1V4IyfQEEQjw7A"
+  },
+  {
+    "id": "goLn6Qayr91c6TlUlFG",
+    "cover": "Ours Samplus - Isteri.jpg",
+    "name": "Spell on you",
+    "artist": "Ours Samplus",
+    "length": "4:01",
+    "fileName": "Ours Samplus - Spell on you.wav",
+    "category": "Trip-Hop",
+    "info": "acxbN1V4IyfQEEQjw7A"
   }
 ]
