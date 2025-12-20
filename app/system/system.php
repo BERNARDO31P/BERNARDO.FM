@@ -310,9 +310,16 @@ function process_pictures(&$db, $length = 200, &$i = 0, &$imagePaths = []): arra
             continue;
         }
 
+        $resizePath = resize_picture($data["cover"], $length);
+        $imageIndex = array_search($resizePath, $imagePaths);
+        if ($imageIndex !== false) {
+            $data["coverPos"] = $imageIndex * $length;
+            continue;
+        }
+
         $data["coverPos"] = $i * $length;
 
-        $imagePaths[] = resize_picture($data["cover"], $length);
+        $imagePaths[] = $resizePath;
         $i++;
     }
 
