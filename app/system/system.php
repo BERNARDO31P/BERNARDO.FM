@@ -131,11 +131,7 @@ function sorting_by_category($object, $category = null): array
         $parsed[$key][] = $song;
     }
 
-    if ($category === null) {
-        join_songs($object, $parsed);
-    } elseif (isset($parsed[$category]["playlist"])) {
-        join_playlist($object, $parsed[$category]["playlist"]);
-    }
+    join_songs($object, $parsed);
 
     return $parsed;
 }
@@ -145,8 +141,10 @@ function join_songs($object, &$parsed): void
     foreach ($parsed["Albums"] as &$album) {
         $albumInfo = explode(" - ", $album["name"]);
 
-        $album["artist"] = $albumInfo[0];
-        $album["name"]   = $albumInfo[1];
+        if (count($albumInfo) > 1) {
+            $album["artist"] = $albumInfo[0];
+            $album["name"]   = $albumInfo[1];
+        }
 
         join_playlist($object, $album["playlist"]);
     }
@@ -702,7 +700,7 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
 
     try {
         $bitrate = "320k";
-        $cmd = "{$ffmpegPath} -ss {$timeFrom} -to {$till} -i {$inputFile} -vn -c:a libopus -b:a {$bitrate} -f ogg -";
+        $cmd     = "{$ffmpegPath} -ss {$timeFrom} -to {$till} -i {$inputFile} -vn -c:a libopus -b:a {$bitrate} -f ogg -";
 
         $descriptorspec = [
             0 => ["pipe", "r"], // stdin
