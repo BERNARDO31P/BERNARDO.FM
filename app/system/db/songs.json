@@ -303,6 +303,11 @@
     "category": "Playlists",
     "shuffle": true,
     "playlist": [
+      "8IcqipmEpBZV8ZTp6pS",
+      "N9h3SSy072Vs4OecKuU",
+      "poESJPpGo2fnvh80iAO",
+      "NbjZLSdcz4LjPRzkfT3",
+      "Jp6014HKgDH8QlUgb8V",
       "dQVjRxdFQ3e_36p3s9w",
       "O0Rd-k9nbhr8vilp8UM",
       "G_BjVCsB1oykTWelKDg",
@@ -2796,5 +2801,383 @@
     "fileName": "Ours Samplus - Spell on you.wav",
     "category": "Trip-Hop",
     "info": "acxbN1V4IyfQEEQjw7A"
+  },
+  {
+    "id": "Jp6014HKgDH8QlUgb8V",
+    "cover": "Grasshopper Records - Round of Night Vol 5.jpg",
+    "name": "Psychosphere",
+    "artist": "Virtual Light & Jirah",
+    "length": "7:43",
+    "fileName": "Virtual Light & Jirah - Psychosphere.wav",
+    "category": "Psytrance",
+    "info": [
+      "cr3kZHk_GN4GRNuvKWY",
+      "BN0eJeXqWKqxWm7sYk7"
+    ]
+  },
+  {
+    "id": "NbjZLSdcz4LjPRzkfT3",
+    "cover": "Grasshopper Records - Round of Night Vol 5.jpg",
+    "name": "Mavericks",
+    "artist": "Justin Chaos & Zephirus Kane",
+    "length": "7:55",
+    "fileName": "Justin Chaos & Zephirus Kane - Mavericks.wav",
+    "category": "Psytrance",
+    "info": [
+      "BIdiV2MeygXwMXcv9NA",
+      "eqpIXf5pAIjhli9OOl8"
+    ]
+  },
+  {
+    "id": "poESJPpGo2fnvh80iAO",
+    "cover": "Alienatic - Back to the Matrix.jpg",
+    "name": "Back to the Matrix",
+    "artist": "Alienatic",
+    "length": "8:09",
+    "fileName": "Alienatic - Back to the Matrix.wav",
+    "category": "Psytrance",
+    "info": "fZWx3rZq1o9zyozTpSY"
+  },
+  {
+    "id": "N9h3SSy072Vs4OecKuU",
+    "cover": "Imaginarium & Ital - Folded Dimensions.jpg",
+    "name": "Folded Dimensions",
+    "artist": "Imaginarium & Ital",
+    "length": "7:23",
+    "fileName": "Imaginarium & Ital - Folded Dimensions.wav",
+    "category": "Psytrance",
+    "info": [
+      "1F4whD4WXIIy88gCa1n",
+      "kvdj5QW7hYmT4rGQHes"
+    ]
+  },
+  {
+    "id": "8IcqipmEpBZV8ZTp6pS",
+    "cover": "Dezzert & Creepy Deep - Soul Prison.jpg",
+    "name": "Soul Prison",
+    "artist": "Dezzert & Creepy Deep",
+    "length": "7:35",
+    "fileName": "Dezzert & Creepy Deep - Soul Prison.wav",
+    "category": "Psytrance",
+    "info": [
+      "LXPqfSV0uJnvwDFR7bg",
+      "uamxPJO3Bdt33bRmHjy"
+    ]
+  },
+  {
+    "id": "rK7uXbsmGRYBZYHLYAp",
+    "cover": "Burn in Noise & Amigos.jpg",
+    "name": "Burnin Scientists",
+    "artist": "Burn in Noise & GMS",
+    "length": "7:46",
+    "fileName": "Burn in Noise & GMS - Burnin Scientists.wav",
+    "category": "Psytrance",
+    "info": [
+      "Bj0tK88PaKdXFh14cKn",
+      "Wo6H5i2bRsNACD1OCkf"
+    ]
+  },
+  {
+    "id": "GJTBXdBfYzgVZXKSkut",
+    "cover": "Burn in Noise & Amigos.jpg",
+    "name": "Howling at the Moon",
+    "artist": "Undefined Behavior",
+    "length": "5:59",
+    "fileName": "Undefined Behavior - Howling at the Moon.wav",
+    "category": "Psytrance",
+    "info": [
+      "NIbPqdXf8U16xZ2DVrR",
+      "Bj0tK88PaKdXFh14cKn",
+      "gXXgbAQBofIl0mh22iA"
+    ]
+  },
+  {
+    "id": "JkWFK3IQjMgFbNh6Dw3",
+    "cover": "Burn in Noise & Amigos.jpg",
+    "name": "Circles",
+    "artist": "Burn in Noise & Tristan",
+    "length": "6:47",
+    "fileName": "Burn in Noise & Tristan - Circles.wav",
+    "category": "Psytrance",
+    "info": [
+      "Bj0tK88PaKdXFh14cKn",
+      "1BgWpDfDllU6gUCD1bH"
+    ]
+  },
+  {
+    "id": "LL2Bc6ungqcuNh799iF",
+    "cover": "Burn in Noise & Amigos.jpg",
+    "name": "Digital Utopia",
+    "artist": "Circuit Breakers",
+    "length": "7:46",
+    "fileName": "Circuit Breakers - Digital Utopia.wav",
+    "category": "Psytrance",
+    "info": [
+      "uDpoGMcNm04S94nPSeF",
+      "Bj0tK88PaKdXFh14cKn"
+    ]
+  },
+  {
+    "id": "hk8f0TzlnbEoqrbPp3T",
+    "cover": "Burn in Noise & Amigos.jpg",
+    "name": "Brimstone",
+    "artist": "Burn in Noise & Vertical",
+    "length": "6:59",
+    "fileName": "Burn in Noise & Vertical - Brimstone.wav",
+    "category": "Psytrance",
+    "info": [
+      "Bj0tK88PaKdXFh14cKn",
+      "cv3XwPepAID8ckhzcxy"
+    ]
+  },
+  {
+    "id": "Y9LAbURqAzL2wzpCprb",
+    "cover": "Burn in Noise & Amigos.jpg",
+    "name": "Tiny Impulses",
+    "artist": "Burn in Noise & Imaginarium",
+    "length": "7:13",
+    "fileName": "Burn in Noise & Imaginarium - Tiny Impulses.wav",
+    "category": "Psytrance",
+    "info": [
+      "Bj0tK88PaKdXFh14cKn",
+      "1F4whD4WXIIy88gCa1n"
+    ]
+  },
+  {
+    "id": "7kmsJKvFZW7m2OAFmRU",
+    "cover": "Burn in Noise & Amigos.jpg",
+    "name": "Dream",
+    "artist": "Burn in Noise & Shivatree",
+    "length": "9:20",
+    "fileName": "Burn in Noise & Shivatree - Dream.wav",
+    "category": "Psytrance",
+    "info": [
+      "Bj0tK88PaKdXFh14cKn",
+      "lKcVrB9Cpfmg8ygJwOm"
+    ]
+  },
+  {
+    "id": "QQ1hHz4mcchlQjcpVLS",
+    "cover": "Burn in Noise & Amigos.jpg",
+    "name": "The Answer (Burn in Noise & Altruism Remix)",
+    "artist": "Symbolico",
+    "length": "7:32",
+    "fileName": "Symbolico - The Answer (Burn in Noise & Altruism Remix).wav",
+    "category": "Psytrance",
+    "info": [
+      "Bkhd2FUam8ROAHtyJqw",
+      "Bj0tK88PaKdXFh14cKn",
+      "k1ak0wYG04arnRWSJP2"
+    ]
+  },
+  {
+    "id": "iEn6RzW28MdjH1sKMFZ",
+    "cover": "Burn in Noise & Amigos.jpg",
+    "name": "Burn in Noise & Amigos",
+    "category": "Albums",
+    "playlist": [
+      "rK7uXbsmGRYBZYHLYAp",
+      "GJTBXdBfYzgVZXKSkut",
+      "JkWFK3IQjMgFbNh6Dw3",
+      "LL2Bc6ungqcuNh799iF",
+      "hk8f0TzlnbEoqrbPp3T",
+      "Y9LAbURqAzL2wzpCprb",
+      "7kmsJKvFZW7m2OAFmRU",
+      "QQ1hHz4mcchlQjcpVLS"
+    ]
+  },
+  {
+    "id": "UbwgdEpb3RmEnu3oyV2",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "Instant Enlightenment",
+    "artist": "Mad Tribe & Raja Ram",
+    "length": "9:42",
+    "fileName": "Mad Tribe & Raja Ram - Instant Enlightenment.wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII",
+      "CZ9_dFT-LIyBwU2zpEo"
+    ]
+  },
+  {
+    "id": "EV5XoNMY595ucfP0RJd",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "Superstar",
+    "artist": "Mad Tribe",
+    "length": "8:23",
+    "fileName": "Mad Tribe - Superstar.wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII"
+    ]
+  },
+  {
+    "id": "OgsdgDRGakjiib5MYyz",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "Duck & Cover",
+    "artist": "Mad Tribe",
+    "length": "8:26",
+    "fileName": "Mad Tribe - Duck & Cover.wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII"
+    ]
+  },
+  {
+    "id": "15qunPjKK8N6aDVYZO9",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "Electric Kool A(c)ID Test",
+    "artist": "Mad Tribe",
+    "length": "7:43",
+    "fileName": "Mad Tribe - Electric Kool A(c)ID Test.wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII"
+    ]
+  },
+  {
+    "id": "YEcSdEac7t3bZQLpfzv",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "You can Fly",
+    "artist": "Mad Tribe",
+    "length": "7:00",
+    "fileName": "Mad Tribe - You can Fly.wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII"
+    ]
+  },
+  {
+    "id": "yA0LlKuB0TQuIt1cW21",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "Living Stereo",
+    "artist": "Mad Tribe",
+    "length": "6:47",
+    "fileName": "Mad Tribe - Living Stereo.wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII"
+    ]
+  },
+  {
+    "id": "dGT7tVBgAhpLOxr9ZcX",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "Vinyl Fetish",
+    "artist": "Mad Tribe",
+    "length": "7:01",
+    "fileName": "Mad Tribe - Vinyl Fetish.wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII"
+    ]
+  },
+  {
+    "id": "Xt8IPaw8vtQSUGcn0fQ",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "World of Tomorrow",
+    "artist": "Mad Tribe & Avalon",
+    "length": "7:20",
+    "fileName": "Mad Tribe & Avalon - World of Tomorrow.wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII",
+      "pKh9SbbeBBTXMTaXyJf"
+    ]
+  },
+  {
+    "id": "oQ46r0coziWH1aLCz8C",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "Alien Hoax (GMS remix)",
+    "artist": "Mad Tribe",
+    "length": "6:54",
+    "fileName": "Mad Tribe - Alien Hoax (GMS remix).wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII",
+      "Wo6H5i2bRsNACD1OCkf"
+    ]
+  },
+  {
+    "id": "My78u2CzGC99bj1w6WR",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "Drop the Bomb",
+    "artist": "Mad Tribe",
+    "length": "8:09",
+    "fileName": "Mad Tribe - Drop the Bomb.wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII"
+    ]
+  },
+  {
+    "id": "JUmbKqk7N6iWd4uZRIF",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "Sound Horn OK",
+    "artist": "Mad Tribe",
+    "length": "7:37",
+    "fileName": "Mad Tribe - Sound Horn OK.wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII"
+    ]
+  },
+  {
+    "id": "WC6zTAJDuWDVDDAWJ17",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "Fake Guru",
+    "artist": "Mad Tribe",
+    "length": "8:00",
+    "fileName": "Mad Tribe - Fake Guru.wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII"
+    ]
+  },
+  {
+    "id": "PTltJYRCfMj5ug10mn1",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "Meet the Ding-A-Lings",
+    "artist": "Mad Tribe",
+    "length": "8:22",
+    "fileName": "Mad Tribe - Meet the Ding-A-Lings.wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII"
+    ]
+  },
+  {
+    "id": "pEvzQy1f5z8tNdRZ7vr",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "Bigger Bang",
+    "artist": "Mad Tribe & Raja Ram",
+    "length": "10:07",
+    "fileName": "Mad Tribe & Raja Ram - Bigger Bang.wav",
+    "category": "Psytrance",
+    "info": [
+      "xchjR7U9ug2bI7wZCII",
+      "LIyBwU2zpEo"
+    ]
+  },
+  {
+    "id": "xyDwCnNRxIrM7jSRL2W",
+    "cover": "Mad Tribe - Futuristic Flashbacks Episode 3.jpg",
+    "name": "Mad Tribe - Futuristic Flashbacks Episode 3",
+    "category": "Albums",
+    "playlist": [
+      "UbwgdEpb3RmEnu3oyV2",
+      "EV5XoNMY595ucfP0RJd",
+      "OgsdgDRGakjiib5MYyz",
+      "15qunPjKK8N6aDVYZO9",
+      "YEcSdEac7t3bZQLpfzv",
+      "yA0LlKuB0TQuIt1cW21",
+      "dGT7tVBgAhpLOxr9ZcX",
+      "Xt8IPaw8vtQSUGcn0fQ",
+      "oQ46r0coziWH1aLCz8C",
+      "My78u2CzGC99bj1w6WR",
+      "JUmbKqk7N6iWd4uZRIF",
+      "WC6zTAJDuWDVDDAWJ17",
+      "PTltJYRCfMj5ug10mn1",
+      "pEvzQy1f5z8tNdRZ7vr"
+    ]
   }
 ]
