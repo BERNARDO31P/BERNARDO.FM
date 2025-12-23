@@ -123,12 +123,18 @@ function sorting_by_category($object, $category = null): array
 {
     $parsed = array();
     foreach ($object as $song) {
-        $key = $song["category"];
+        $keys = $song["category"];
 
-        if (!array_key_exists($key, $parsed))
-            $parsed[$key] = array();
+        if (is_string($keys)) {
+            $keys = [$keys];
+        }
 
-        $parsed[$key][] = $song;
+        foreach ($keys as $key) {
+            if (!array_key_exists($key, $parsed))
+                $parsed[$key] = array();
+
+            $parsed[$key][] = $song;
+        }
     }
 
     join_songs($object, $parsed);

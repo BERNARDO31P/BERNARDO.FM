@@ -303,7 +303,6 @@
     "category": "Playlists",
     "shuffle": true,
     "playlist": [
-      "8IcqipmEpBZV8ZTp6pS",
       "N9h3SSy072Vs4OecKuU",
       "poESJPpGo2fnvh80iAO",
       "NbjZLSdcz4LjPRzkfT3",
@@ -1230,7 +1229,10 @@
     "artist": "Radikal Moodz & Gandhabba",
     "length": "7:10",
     "fileName": "Radikal Moodz & Gandhabba - Rebel System.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": [
       "Tzx4GnAqT2LyLEmSO4L",
       "LdJn8TcuMUPylIMrndR"
@@ -1576,7 +1578,10 @@
     "artist": "Ajja",
     "length": "8:20",
     "fileName": "Ajja - Bazinga (2023 Revamp).wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": "gXXgbAQBofIl0mh22iA"
   },
   {
@@ -2033,7 +2038,10 @@
     "artist": "Dr Fractal",
     "length": "8:09",
     "fileName": "Dr Fractal - Red Spicy.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": "f8ObDMDLJABcmVrVpSr"
   },
   {
@@ -2043,7 +2051,10 @@
     "artist": "Dr Fractal",
     "length": "8:12",
     "fileName": "Dr Fractal - Levitate.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": "f8ObDMDLJABcmVrVpSr"
   },
   {
@@ -2053,7 +2064,10 @@
     "artist": "Dr Fractal & The Horrids",
     "length": "7:50",
     "fileName": "Dr Fractal & The Horrids - Bad Dreams.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": [
       "f8ObDMDLJABcmVrVpSr"
     ]
@@ -2065,7 +2079,10 @@
     "artist": "Dr Fractal & Karev",
     "length": "8:18",
     "fileName": "Dr Fractal & Karev - Semi Organic.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": [
       "f8ObDMDLJABcmVrVpSr"
     ]
@@ -2077,7 +2094,10 @@
     "artist": "Dr Fractal",
     "length": "7:26",
     "fileName": "Dr Fractal - Hive Circus.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": "f8ObDMDLJABcmVrVpSr"
   },
   {
@@ -2100,7 +2120,10 @@
     "artist": "Dr Fractal",
     "length": "8:48",
     "fileName": "Dr Fractal - Nebula.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": "f8ObDMDLJABcmVrVpSr"
   },
   {
@@ -2110,7 +2133,10 @@
     "artist": "Dr Fractal",
     "length": "7:59",
     "fileName": "Dr Fractal - Into Matter.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": "f8ObDMDLJABcmVrVpSr"
   },
   {
@@ -2120,7 +2146,10 @@
     "artist": "Dr Fractal",
     "length": "8:16",
     "fileName": "Dr Fractal - Complex Geometry.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": "f8ObDMDLJABcmVrVpSr"
   },
   {
@@ -2130,7 +2159,10 @@
     "artist": "Dr Fractal & Heavy Fawn",
     "length": "8:23",
     "fileName": "Dr Fractal & Heavy Fawn - End Of Isengard.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": [
       "f8ObDMDLJABcmVrVpSr"
     ]
@@ -2154,7 +2186,10 @@
     "artist": "Sator Arepo & Yann",
     "length": "7:33",
     "fileName": "Sator Arepo & Yann - Looming Deviants.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": [
       "Yj1VWoESoHtJyZnF5rM"
     ]
@@ -2166,7 +2201,10 @@
     "artist": "Sator Arepo",
     "length": "7:30",
     "fileName": "Sator Arepo - Encrypted Holograms.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": "Yj1VWoESoHtJyZnF5rM"
   },
   {
@@ -2176,7 +2214,10 @@
     "artist": "Sator Arepo",
     "length": "7:50",
     "fileName": "Sator Arepo - Glitched Reality.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": "Yj1VWoESoHtJyZnF5rM"
   },
   {
@@ -2186,7 +2227,10 @@
     "artist": "Dr Fractal",
     "length": "7:37",
     "fileName": "Dr Fractal - Smooth Lobotomy.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": "f8ObDMDLJABcmVrVpSr"
   },
   {
@@ -2221,7 +2265,10 @@
     "artist": "ChromArepo",
     "length": "6:15",
     "fileName": "ChromArepo - Darknitzt.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": null
   },
   {
@@ -2858,7 +2905,10 @@
     "artist": "Dezzert & Creepy Deep",
     "length": "7:35",
     "fileName": "Dezzert & Creepy Deep - Soul Prison.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "Dark Psy"
+    ],
     "info": [
       "LXPqfSV0uJnvwDFR7bg",
       "uamxPJO3Bdt33bRmHjy"
