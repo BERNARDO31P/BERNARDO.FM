@@ -3229,5 +3229,139 @@
       "PTltJYRCfMj5ug10mn1",
       "pEvzQy1f5z8tNdRZ7vr"
     ]
+  },
+  {
+    "id": "DgL67dGuoHZZOxfKurP",
+    "cover": "Mekkanikka & Ajja - Ultrasonic - Album Cover.jpg",
+    "name": "Rewired",
+    "artist": "Mekkanikka & Ajja",
+    "length": "9:21",
+    "fileName": "Mekkanikka & Ajja - Rewired.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "gXXgbAQBofIl0mh22iA"
+    ]
+  },
+  {
+    "id": "hgOLw6p4uvxeRZ10Tf4",
+    "cover": "Mekkanikka & Ajja - Ultrasonic - Album Cover.jpg",
+    "name": "Ultrasonic",
+    "artist": "Mekkanikka & Ajja",
+    "length": "7:55",
+    "fileName": "Mekkanikka & Ajja - Ultrasonic.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "gXXgbAQBofIl0mh22iA"
+    ]
+  },
+  {
+    "id": "kgSRzyL1MX9EeRaYIB3",
+    "cover": "Mekkanikka & Ajja - Ultrasonic - Album Cover.jpg",
+    "name": "Electrically Driven",
+    "artist": "Mekkanikka & Ajja",
+    "length": "6:45",
+    "fileName": "Mekkanikka & Ajja - Electrically Driven.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "gXXgbAQBofIl0mh22iA"
+    ]
+  },
+  {
+    "id": "uZ9OVU2ptbOIs5gNN0M",
+    "cover": "Mekkanikka & Ajja - Ultrasonic - Album Cover.jpg",
+    "name": "Chemical Process",
+    "artist": "Mekkanikka & Ajja",
+    "length": "7:33",
+    "fileName": "Mekkanikka & Ajja - Chemical Process.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "gXXgbAQBofIl0mh22iA"
+    ]
+  },
+  {
+    "id": "TG6JoNxkJYi6K6HVPfT",
+    "cover": "Mekkanikka & Ajja - Ultrasonic - Album Cover.jpg",
+    "name": "Shift Happens",
+    "artist": "Mekkanikka & Ajja",
+    "length": "6:47",
+    "fileName": "Mekkanikka & Ajja - Shift Happens.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "gXXgbAQBofIl0mh22iA"
+    ]
+  },
+  {
+    "id": "O1dpmJeKBMCeF2onLmS",
+    "cover": "Mekkanikka & Ajja - Ultrasonic - Album Cover.jpg",
+    "name": "Time Reactor",
+    "artist": "Mekkanikka & Ajja",
+    "length": "8:00",
+    "fileName": "Mekkanikka & Ajja - Time Reactor.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "gXXgbAQBofIl0mh22iA"
+    ]
+  },
+  {
+    "id": "Bt2PWNw3QLGSOXTcwyO",
+    "cover": "Mekkanikka & Ajja - Ultrasonic - Album Cover.jpg",
+    "name": "Scientific Inception",
+    "artist": "Mekkanikka & Ajja",
+    "length": "7:36",
+    "fileName": "Mekkanikka & Ajja - Scientific Inception.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "gXXgbAQBofIl0mh22iA"
+    ]
+  },
+  {
+    "id": "Kphmpkn3Vfo0c7oy7HN",
+    "cover": "Mekkanikka & Ajja - Ultrasonic - Album Cover.jpg",
+    "name": "Sonic Vision",
+    "artist": "Mekkanikka & Ajja",
+    "length": "7:43",
+    "fileName": "Mekkanikka & Ajja - Sonic Vision.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "gXXgbAQBofIl0mh22iA"
+    ]
+  },
+  {
+    "id": "APpKKxAfTnnilaJBOf9",
+    "cover": "Mekkanikka & Ajja - Ultrasonic - Album Cover.jpg",
+    "name": "Beleive in Yourself",
+    "artist": "Mekkanikka & Ajja",
+    "length": "8:50",
+    "fileName": "Mekkanikka & Ajja - Believe in Yourself.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "gXXgbAQBofIl0mh22iA"
+    ]
+  },
+  {
+    "id": "AL8f1GdgJTqo6Xu1iDV",
+    "cover": "Mekkanikka & Ajja - Ultrasonic - Album Cover.jpg",
+    "name": "Mekkanikka & Ajja - Ultrasonic",
+    "category": "Albums",
+    "playlist": [
+      "DgL67dGuoHZZOxfKurP",
+      "hgOLw6p4uvxeRZ10Tf4",
+      "kgSRzyL1MX9EeRaYIB3",
+      "uZ9OVU2ptbOIs5gNN0M",
+      "TG6JoNxkJYi6K6HVPfT",
+      "O1dpmJeKBMCeF2onLmS",
+      "Bt2PWNw3QLGSOXTcwyO",
+      "Kphmpkn3Vfo0c7oy7HN",
+      "APpKKxAfTnnilaJBOf9"
+    ]
   }
 ]

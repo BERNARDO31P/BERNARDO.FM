@@ -250,10 +250,22 @@ function search_songs($search, $db): array
     $songs = array();
 
     foreach ($db as $song) {
+        $categories = $song["category"];
+        if (is_string($categories)) {
+            $categories = [$categories];
+        }
+
+        $categoryMatch = false;
+        foreach ($categories as $category) {
+            if (stripos($category, $search) !== false) {
+                $categoryMatch = true;
+            }
+        }
+
         if (
             (stripos($song["name"] ?? "", $search) !== false) ||
             (stripos($song["artist"] ?? "", $search) !== false) ||
-            (stripos($song["category"] ?? "", $search) !== false)
+            ($categoryMatch)
         ) {
             $songs[] = $song;
         }
