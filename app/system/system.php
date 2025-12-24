@@ -316,6 +316,8 @@ function array_walk_multi_dimension(array &$arr, callable $callback, string ...$
     }
 }
 
+const COLS = 60;
+
 function process_pictures(&$db, $length = 200, &$i = 0, &$imagePaths = []): array
 {
     foreach ($db as &$data) {
@@ -331,11 +333,13 @@ function process_pictures(&$db, $length = 200, &$i = 0, &$imagePaths = []): arra
         $resizePath = resize_picture($data["cover"], $length);
         $imageIndex = array_search($resizePath, $imagePaths);
         if ($imageIndex !== false) {
-            $data["coverPos"] = $imageIndex * $length;
+            $data["coverPosX"] = ($imageIndex % COLS) * $length;
+            $data["coverPosY"] = floor($imageIndex / COLS) * $length;
             continue;
         }
 
-        $data["coverPos"] = $i * $length;
+        $data["coverPosX"] = ($i % COLS) * $length;
+        $data["coverPosY"] = floor($i / COLS) * $length;
 
         $imagePaths[] = $resizePath;
         $i++;
@@ -388,12 +392,16 @@ function generate_pictures(array &$db, int $length = 200): void
     }
 
     $outputImage = "temp/" . uniqid("cover_", true) . ".webp";
+    $listFile = "temp/" . uniqid("list_", true) . ".txt";
+    file_put_contents($listFile, implode("\n", $imagePaths));
 
+    $escapedListFile   = escapeshellarg($listFile);
     $escapedOutputImage = escapeshellarg($outputImage);
-    $escapedImageList   = implode(" ", array_map("escapeshellarg", $imagePaths));
 
-    $combineCmd = "magick $escapedImageList +append -quality 45 $escapedOutputImage";
+    $combineCmd = "magick montage @" . $escapedListFile . " -strip -geometry +0+0 -tile " . COLS . "x -quality 45 $escapedOutputImage";
     shell_exec($combineCmd);
+
+    unlink($listFile);
 
     $db["cover"] = "system/" . $outputImage;
 }

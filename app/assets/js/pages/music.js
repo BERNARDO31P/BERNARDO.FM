@@ -862,7 +862,7 @@ async function generateBlockView(songs, categoryView, cover) {
         let song = songs[arrayID];
         let card;
 
-        if (typeof song["coverPos"] !== "undefined") {
+        if (typeof song["coverPosX"] !== "undefined") {
             card = document.createElement('div');
             card.classList.add("songCard", "card");
             card.dataset.id = song.id;
@@ -873,10 +873,18 @@ async function generateBlockView(songs, categoryView, cover) {
             const playButton = document.createElement('div');
             playButton.className = 'playButton';
 
+            const SRC_TILE = 200;
+            const DST_TILE = 160;
+            const COLS = 60;
+
+            const scale = DST_TILE / SRC_TILE;
+
             const coverDiv = document.createElement('div');
             coverDiv.className = 'cover';
             coverDiv.style.backgroundImage = `url(${cover})`;
-            coverDiv.style.backgroundPositionX = `-${song['coverPos'] / 200 * 160}px`;
+            coverDiv.style.backgroundRepeat = "no-repeat";
+            coverDiv.style.backgroundSize = `${COLS * DST_TILE}px auto`;
+            coverDiv.style.backgroundPosition = `-${song['coverPosX'] * scale}px -${song['coverPosY'] * scale}px`;
 
             const nameSpan = document.createElement('span');
             nameSpan.className = 'name';

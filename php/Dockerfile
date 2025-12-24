@@ -16,6 +16,7 @@ RUN echo "listen.group = nginx" >> /etc/php84/php-fpm.d/www.conf
 RUN echo "listen.mode = 0660" >> /etc/php84/php-fpm.d/www.conf
 
 COPY ./php.ini /etc/php84/php.ini
+COPY ./www.conf /etc/php84/php-fpm.d/www.conf
 
 COPY start.sh /
 RUN chmod +x /start.sh
