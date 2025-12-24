@@ -3474,7 +3474,7 @@
     "artist": "Fox Stevenson",
     "length": "4:40",
     "fileName": "Fox Stevenson - Endless.wav",
-    "category": "Drum and Bass",
+    "category": "Dubstep",
     "info": "JHBsPgXmY9inBU45pjN"
   },
   {
@@ -3504,7 +3504,7 @@
     "artist": "Fox Stevenson",
     "length": "4:42",
     "fileName": "Fox Stevenson - Lightspeed.wav",
-    "category": "Drum and Bass",
+    "category": "Dubstep",
     "info": "JHBsPgXmY9inBU45pjN"
   },
   {
@@ -3524,7 +3524,7 @@
     "artist": "Fox Stevenson",
     "length": "4:09",
     "fileName": "Fox Stevenson - Radar.wav",
-    "category": "Drum and Bass",
+    "category": "Dubstep",
     "info": "JHBsPgXmY9inBU45pjN"
   },
   {
@@ -3534,7 +3534,7 @@
     "artist": "Fox Stevenson",
     "length": "5:27",
     "fileName": "Fox Stevenson - Sandblast.wav",
-    "category": "Drum and Bass",
+    "category": "Dubstep",
     "info": "JHBsPgXmY9inBU45pjN"
   },
   {
@@ -3864,7 +3864,6 @@
     "category": "Dubstep",
     "info": "KeKQFGcTYCx2eH68YsA"
   },
-
   {
     "id": "aJNobEmpzR5V7dnUtby",
     "cover": "Astronaut - Quantum (Virtual Riot Remix).jpg",
@@ -3877,5 +3876,41 @@
       "clzRI8iyxC6EL8lecWs",
       "ZOHiffnv1Z9R09vtYfn"
     ]
+  },
+  {
+    "id": "aJNPAEmpzR5V7dnUtby",
+    "cover": "Blue Foundation - Eyes on Fire (Zeds Dead Remix).webp",
+    "name": "Eyes on Fire (Zeds Dead Remix)",
+    "artist": "Blue Foundation",
+    "length": "5:20",
+    "fileName": "Blue Foundation - Eyes on Fire (Zeds Dead Remix).wav",
+    "category": "Dubstep",
+    "info": [
+      "ZOHiffnveZ9R09vtYfn",
+      "ZOHiffnveZkA09vtYfn"
+    ]
+  },
+  {
+    "id": "UALSAEmpzR5V7dnUtby",
+    "cover": "DJ Fresh - Gold Dust (Flux Pavillion Remix).jpg",
+    "name": "Gold Dust (Flux Pavillion Remix)",
+    "artist": "DJ Fresh",
+    "length": "5:25",
+    "fileName": "DJ Fresh - Gold Dust (Flux Pavillion Remix).wav",
+    "category": "Dubstep",
+    "info": [
+      "AOHGJGfnveZ9R09vYGK",
+      "FJa92hdbcaQLSJFwhda"
+    ]
+  },
+  {
+    "id": "lfhaE39f7asGKAcSAfB",
+    "cover": "Gemini - Blue.jpg",
+    "name": "Blue",
+    "artist": "Gemini",
+    "length": "5:16",
+    "fileName": "Gemini - Blue.wav",
+    "category": "Dubstep",
+    "info": "HJSufhaVLAJGvWI983h"
   }
 ]
