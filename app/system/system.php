@@ -508,6 +508,44 @@ function findExecutable($executableName): ?string
     return null;
 }
 
+function buildLoudnessFilter(string $inputFile, float $maxLimiterReductionDb = 0.3): string
+{
+    $referenceFile = __DIR__ . "/music/Jumpstreet & Ajja - Lysurgical Precision.wav";
+
+    $ref = analyzeAudio($referenceFile);
+    $in  = analyzeAudio($inputFile);
+
+    $refLufs = $ref["lufs"];
+    $refPeak = $ref["peak"];
+
+    $inLufs = $in["lufs"];
+    $inPeak = $in["peak"];
+
+    // Desired loudness gain
+    $desiredGain = $refLufs - $inLufs;
+
+    // Max gain without any limiting
+    $maxSafeGain = $refPeak - $inPeak;
+
+    // Case 1: pure volume knob is enough
+    if ($desiredGain <= $maxSafeGain) {
+        return "volume={$desiredGain}dB";
+    }
+
+    // Case 2: limiting required
+    $requiredLimiter = $desiredGain - $maxSafeGain;
+
+    if ($requiredLimiter > $maxLimiterReductionDb) {
+        // Clamp gain, still allow tiny limiting
+        $finalGain = $maxSafeGain + $maxLimiterReductionDb;
+    } else {
+        // Fully match loudness
+        $finalGain = $desiredGain;
+    }
+
+    return "volume={$finalGain}dB,alimiter=limit={$refPeak}dB";
+}
+
 /*
  * Funktion: analyzeAudio()
  * Autor: Bernardo de Oliveira
@@ -813,21 +851,9 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
     $db   = loadDatabase();
     $song = search_song($id, $db);
 
-    $referenceFile = __DIR__ . "/music/Jumpstreet & Ajja - Lysurgical Precision.wav";
-    $inputFile     = __DIR__ . "/music/" . $song["fileName"];
-    $ffmpegPath    = findExecutable("ffmpeg");
-
-    $ref = analyzeAudio($referenceFile);
-    $in  = analyzeAudio($inputFile);
-
-    $desiredGain = ($ref["lufs"] - $in["lufs"]) + 0.5;
-    $maxGain     = $ref["peak"] - $in["peak"];
-
-    if ($desiredGain > 0) {
-        $finalGain = min($desiredGain, $maxGain) - 0.1;
-    } else {
-        $finalGain = $desiredGain;
-    }
+    $inputFile  = __DIR__ . "/music/" . $song["fileName"];
+    $ffmpegPath = findExecutable("ffmpeg");
+    $af         = buildLoudnessFilter($inputFile);
 
     $cmd            = "{$ffmpegPath} -i '{$inputFile}' 2>&1";
     $descriptorspec = [
@@ -859,7 +885,7 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
         $bitrate = "320k";
 
         $cmd = "{$ffmpegPath} -ss {$timeFrom} -to {$till} -i '{$inputFile}' " .
-            "-af volume={$finalGain}dB " .
+            "-af $af " .
             "-vn -c:a libopus -b:a {$bitrate} -f ogg -";
 
         $descriptorspec = [
