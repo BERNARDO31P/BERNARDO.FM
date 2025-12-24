@@ -35,10 +35,11 @@ if (isset($queryArray[1])) {
  */
 function loadDatabase()
 {
-    if (isset($_SESSION["database"]) && file_exists($_SESSION["database"]))
+    if (isset($_SESSION["database"]) && file_exists($_SESSION["database"])) {
         $db = json_decode(file_get_contents($_SESSION["database"]), true);
-    else {
+    } else {
         $db = json_decode(file_get_contents(__DIR__ . "/db/songs.json"), true);
+
         shuffle_level($db, 0);
 
         $tempDB               = __DIR__ . "/temp/" . uniqid(rand(), true) . ".json";

@@ -10,5 +10,5 @@ services:
       - "8000:8080"
     volumes:
       - ./app:/var/www/html
-#  memcached:
-#    image: memcached:latest
+  memcached:
+    image: memcached:latest
