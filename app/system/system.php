@@ -820,10 +820,14 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
     $ref = analyzeAudio($referenceFile);
     $in  = analyzeAudio($inputFile);
 
-    $desiredGain = $ref["lufs"] - $in["lufs"];
+    $desiredGain = ($ref["lufs"] - $in["lufs"]) + 0.5;
     $maxGain     = $ref["peak"] - $in["peak"];
 
-    $finalGain = min($desiredGain, $maxGain) - 0.1;
+    if ($desiredGain > 0) {
+        $finalGain = min($desiredGain, $maxGain) - 0.1;
+    } else {
+        $finalGain = $desiredGain;
+    }
 
     $cmd            = "{$ffmpegPath} -i '{$inputFile}' 2>&1";
     $descriptorspec = [
