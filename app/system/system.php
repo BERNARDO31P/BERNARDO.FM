@@ -143,6 +143,17 @@ function sorting_by_category($object, $category = null): array
     return $parsed;
 }
 
+/*
+ * Funktion: join_songs()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  object: (Object) Definiert die Datenbasis mit allen verfügbaren Songs
+ *  parsed: (Object) Referenz auf die geparsten Album- und Playlist-Daten
+ *
+ * Verknüpft Album- und Playlist-Einträge mit den zugehörigen Songdaten
+ * Trennt bei Alben optional den Künstlernamen vom Albumnamen
+ * und ersetzt Song-Referenzen durch die vollständigen Songobjekte
+ */
 function join_songs($object, &$parsed): void
 {
     foreach ($parsed["Albums"] as &$album) {
@@ -161,6 +172,17 @@ function join_songs($object, &$parsed): void
     }
 }
 
+/*
+ * Funktion: join_playlist()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  object: (Object) Definiert die Datenbasis mit allen verfügbaren Songs
+ *  playlist: (Array) Referenz auf die Playlist mit Song-Referenzen
+ *
+ * Ersetzt alle Song-Referenzen innerhalb einer Playlist
+ * durch die vollständigen Songdaten aus der Datenbasis
+ * und fügt der Playlist die Anzahl der enthaltenen Songs hinzu
+ */
 function join_playlist($object, &$playlist): void
 {
     foreach ($playlist as &$songReference) {
@@ -319,6 +341,24 @@ function array_walk_multi_dimension(array &$arr, callable $callback, string ...$
 
 const COLS = 60;
 
+/*
+ * Funktion: process_pictures()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  db: (Object) Referenz auf die Datenstruktur mit Song- oder Kategoriedaten
+ *  length: (Integer) Definiert die Seitenlänge der Coverbilder in Pixel
+ *  i: (Integer) Interner Zähler für die Positionierung der Bilder im Sprite
+ *  imagePaths: (Array) Referenz auf das Array mit bereits verarbeiteten Bildpfaden
+ *
+ * Durchläuft rekursiv die Datenstruktur und verarbeitet alle vorhandenen Coverbilder
+ * Erstellt skalierte Versionen der Coverbilder und berechnet deren Position
+ * innerhalb eines CSS-Sprites (X- und Y-Koordinaten)
+ *
+ * Doppelte Coverbilder werden nur einmal in das Sprite aufgenommen
+ * und mehrfach referenziert
+ *
+ * Gibt ein Array mit den eindeutigen Pfaden der verarbeiteten Bilder zurück
+ */
 function process_pictures(&$db, $length = 200, &$i = 0, &$imagePaths = []): array
 {
     foreach ($db as &$data) {
@@ -349,6 +389,21 @@ function process_pictures(&$db, $length = 200, &$i = 0, &$imagePaths = []): arra
     return $imagePaths;
 }
 
+/*
+ * Funktion: resize_picture()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  fileName: (String) Definiert den Dateinamen des Originalbildes
+ *  size: (Integer) Definiert die Zielgrösse des Bildes in Pixel
+ *
+ * Skaliert ein Bild auf eine quadratische Zielgrösse
+ * Das Bild wird zentriert und bei Bedarf mit schwarzem Hintergrund aufgefüllt
+ *
+ * Falls das Originalbild nicht existiert, wird ein schwarzes Platzhalterbild erzeugt
+ * Das Ergebnis wird zwischengespeichert, um erneute Verarbeitung zu vermeiden
+ *
+ * Gibt den Pfad zum skalierten Bild zurück
+ */
 function resize_picture($fileName, $size): string
 {
     $inputPath    = "img/" . $fileName;
@@ -393,10 +448,10 @@ function generate_pictures(array &$db, int $length = 200): void
     }
 
     $outputImage = "temp/" . uniqid("cover_", true) . ".webp";
-    $listFile = "temp/" . uniqid("list_", true) . ".txt";
+    $listFile    = "temp/" . uniqid("list_", true) . ".txt";
     file_put_contents($listFile, implode("\n", $imagePaths));
 
-    $escapedListFile   = escapeshellarg($listFile);
+    $escapedListFile    = escapeshellarg($listFile);
     $escapedOutputImage = escapeshellarg($outputImage);
 
     $combineCmd = "magick montage @" . $escapedListFile . " -strip -geometry +0+0 -tile " . COLS . "x -quality 45 $escapedOutputImage";
@@ -451,6 +506,61 @@ function findExecutable($executableName): ?string
     }
 
     return null;
+}
+
+/*
+ * Funktion: analyzeAudio()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  fileName: (String) Definiert den Pfad zur Audiodatei
+ *
+ * Analysiert eine Audiodatei mit FFmpeg (EBU R128 + Peak Detection)
+ * Ermittelt die integrierte Lautheit (LUFS) sowie den maximalen Peak (dBFS)
+ * Die Analyse wird gecacht, basierend auf Dateipfad, Dateigrässe und Änderungszeit
+ * um wiederholte FFmpeg-Aufrufe zu vermeiden
+ *
+ * Gibt ein Array mit folgenden Werten zurück:
+ *  lufs: (Float) Integrierte Lautheit der Datei in LUFS
+ *  peak: (Float) Maximaler Peak-Wert in dBFS
+ */
+function analyzeAudio(string $fileName): array
+{
+    $stat = stat($fileName);
+    if (!$stat) {
+        throw new RuntimeException("File not found");
+    }
+
+    $cacheKey  = md5($fileName . $stat["size"] . $stat["mtime"]);
+    $cacheFile = "temp/audio_$cacheKey.json";
+    if (file_exists($cacheFile)) {
+        return json_decode(file_get_contents($cacheFile), true);
+    }
+
+    $ffmpegPath = findExecutable("ffmpeg");
+
+    $cmd = "{$ffmpegPath} -i '$fileName' -af ebur128,volumedetect -f null - 2>&1";
+    $out = shell_exec($cmd);
+
+    if (!$out) {
+        throw new RuntimeException("FFmpeg failed");
+    }
+
+    if (!preg_match("/Integrated loudness:.*?I:\s*(-?\d+(\.\d+)?)/s", $out, $mLufs)) {
+        throw new RuntimeException("Integrated LUFS not found");
+    }
+
+    if (!preg_match("/max_volume:\s*(-?\d+(\.\d+)?)/", $out, $mPeak)) {
+        throw new RuntimeException("Peak not found");
+    }
+
+    $data = [
+        "lufs" => (float)$mLufs[1],
+        "peak" => (float)$mPeak[1],
+    ];
+
+    file_put_contents($cacheFile, json_encode($data));
+
+    return $data;
 }
 
 $router = new Router();
@@ -703,10 +813,19 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
     $db   = loadDatabase();
     $song = search_song($id, $db);
 
-    $inputFile  = escapeshellarg(__DIR__ . "/music/" . $song["fileName"]);
-    $ffmpegPath = findExecutable("ffmpeg");
+    $referenceFile = __DIR__ . "/music/Jumpstreet & Ajja - Lysurgical Precision.wav";
+    $inputFile     = __DIR__ . "/music/" . $song["fileName"];
+    $ffmpegPath    = findExecutable("ffmpeg");
 
-    $cmd            = "{$ffmpegPath} -i {$inputFile} 2>&1";
+    $ref = analyzeAudio($referenceFile);
+    $in  = analyzeAudio($inputFile);
+
+    $desiredGain = $ref["lufs"] - $in["lufs"];
+    $maxGain     = $ref["peak"] - $in["peak"];
+
+    $finalGain = min($desiredGain, $maxGain) - 0.1;
+
+    $cmd            = "{$ffmpegPath} -i '{$inputFile}' 2>&1";
     $descriptorspec = [
         0 => ["pipe", "r"],
         1 => ["pipe", "w"],
@@ -734,7 +853,10 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
 
     try {
         $bitrate = "320k";
-        $cmd     = "{$ffmpegPath} -ss {$timeFrom} -to {$till} -i {$inputFile} -vn -c:a libopus -b:a {$bitrate} -f ogg -";
+
+        $cmd = "{$ffmpegPath} -ss {$timeFrom} -to {$till} -i '{$inputFile}' " .
+            "-af volume={$finalGain}dB " .
+            "-vn -c:a libopus -b:a {$bitrate} -f ogg -";
 
         $descriptorspec = [
             0 => ["pipe", "r"], // stdin
