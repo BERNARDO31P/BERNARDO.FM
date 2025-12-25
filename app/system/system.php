@@ -516,34 +516,36 @@ function buildLoudnessFilter(string $inputFile, float $maxLimiterReductionDb = 0
     $in  = analyzeAudio($inputFile);
 
     $refLufs = $ref["lufs"];
+    $inLufs  = $in["lufs"];
+
     $refPeak = $ref["peak"];
+    $inPeak  = $in["peak"];
 
-    $inLufs = $in["lufs"];
-    $inPeak = $in["peak"];
-
-    // Desired loudness gain
+    // Desired loudness gain (LUFS match)
     $desiredGain = $refLufs - $inLufs;
 
-    // Max gain without any limiting
+    // Max gain possible without touching peaks
     $maxSafeGain = $refPeak - $inPeak;
 
-    // Case 1: pure volume knob is enough
+    // Safe final ceiling (Opus / streaming friendly)
+    $ceiling = -1.5; // dBFS
+
+    // Case 1: pure gain, no limiting needed
     if ($desiredGain <= $maxSafeGain) {
         return "volume={$desiredGain}dB";
     }
 
-    // Case 2: limiting required
+    // Case 2: limiting would be required
     $requiredLimiter = $desiredGain - $maxSafeGain;
 
+    // Clamp limiter usage to remain transparent
     if ($requiredLimiter > $maxLimiterReductionDb) {
-        // Clamp gain, still allow tiny limiting
         $finalGain = $maxSafeGain + $maxLimiterReductionDb;
     } else {
-        // Fully match loudness
         $finalGain = $desiredGain;
     }
 
-    return "volume={$finalGain}dB,alimiter=limit={$refPeak}dB";
+    return "volume={$finalGain}dB,alimiter=limit={$ceiling}dB";
 }
 
 /*
@@ -884,30 +886,65 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
     try {
         $bitrate = "320k";
 
-        $cmd = "{$ffmpegPath} -ss {$timeFrom} -to {$till} -i '{$inputFile}' " .
-            "-af $af " .
-            "-vn -c:a libopus -b:a {$bitrate} -f ogg -";
+        $inputArg = escapeshellarg($inputFile);
+        $afArg    = escapeshellarg($af);
 
-        $descriptorspec = [
-            0 => ["pipe", "r"], // stdin
-            1 => ["pipe", "w"], // stdout
-            2 => ["pipe", "w"]  // stderr
-        ];
+        // FFmpeg #1: cut + process -> WAV to stdout
+        $cmd1 = "{$ffmpegPath} " .
+            "-i {$inputArg} " .
+            "-ss {$timeFrom} -to {$till} " .
+            "-af {$afArg} " .
+            "-vn -c:a pcm_s16le -f wav -";
 
-        $process = proc_open($cmd, $descriptorspec, $pipes);
+        // FFmpeg #2: WAV from stdin -> OGG to stdout
+        $cmd2 = "{$ffmpegPath} " .
+            "-i pipe:0 " .
+            "-vn -c:a libopus -b:a {$bitrate} -vbr on -compression_level 10 " .
+            "-f ogg -";
 
-        $oggAudioData = stream_get_contents($pipes[1]);
+        // Start first process
+        $proc1 = proc_open($cmd1, [
+            0 => ["pipe", "r"],
+            1 => ["pipe", "w"],
+            2 => ["pipe", "w"]
+        ], $pipes1);
 
-        fclose($pipes[0]);
-        fclose($pipes[1]);
-        fclose($pipes[2]);
-        proc_close($process);
+        if (!is_resource($proc1)) {
+            throw new RuntimeException("Failed to start FFmpeg (WAV stage)");
+        }
+
+        // Start second process
+        $proc2 = proc_open($cmd2, [
+            0 => $pipes1[1],     // stdin = stdout of proc1
+            1 => ["pipe", "w"],  // stdout
+            2 => ["pipe", "w"]   // stderr
+        ], $pipes2);
+
+        if (!is_resource($proc2)) {
+            throw new RuntimeException("Failed to start FFmpeg (OGG stage)");
+        }
+
+        // We don't write to stdin of proc1
+        fclose($pipes1[0]);
+        fclose($pipes1[1]);
+
+        // Read final OGG output
+        $oggAudioData = stream_get_contents($pipes2[1]);
+
+        fclose($pipes2[1]);
+        fclose($pipes2[2]);
+
+        proc_close($proc2);
+        proc_close($proc1);
 
         header("Content-Type: audio/ogg");
         header("Content-Disposition: attachment; filename=output.ogg");
+        header("Content-Length: " . strlen($oggAudioData));
 
         echo $oggAudioData;
+
     } catch (Exception $ex) {
+        http_response_code(500);
         echo "An error has occurred: " . $ex->getMessage();
     }
 });
