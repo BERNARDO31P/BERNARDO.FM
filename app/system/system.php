@@ -508,44 +508,21 @@ function findExecutable($executableName): ?string
     return null;
 }
 
-function buildLoudnessFilter(string $inputFile, float $maxLimiterReductionDb = 0.3): string
+function buildLoudnessFilter(string $inputFile): string
 {
     $referenceFile = __DIR__ . "/music/Jumpstreet & Ajja - Lysurgical Precision.wav";
 
     $ref = analyzeAudio($referenceFile);
     $in  = analyzeAudio($inputFile);
 
-    $refLufs = $ref["lufs"];
-    $inLufs  = $in["lufs"];
+    $desiredGain = $ref["lufs"] - $in["lufs"];
+    $ceiling = -1.5;
 
-    $refPeak = $ref["peak"];
-    $inPeak  = $in["peak"];
-
-    // Desired loudness gain (LUFS match)
-    $desiredGain = $refLufs - $inLufs;
-
-    // Max gain possible without touching peaks
-    $maxSafeGain = $refPeak - $inPeak;
-
-    // Safe final ceiling (Opus / streaming friendly)
-    $ceiling = -1.5; // dBFS
-
-    // Case 1: pure gain, no limiting needed
-    if ($desiredGain <= $maxSafeGain) {
-        return "volume={$desiredGain}dB";
+    if ($desiredGain > 0) {
+        return "volume={$desiredGain}dB,alimiter=limit={$ceiling}dB:attack=5:release=50:level=true";
     }
 
-    // Case 2: limiting would be required
-    $requiredLimiter = $desiredGain - $maxSafeGain;
-
-    // Clamp limiter usage to remain transparent
-    if ($requiredLimiter > $maxLimiterReductionDb) {
-        $finalGain = $maxSafeGain + $maxLimiterReductionDb;
-    } else {
-        $finalGain = $desiredGain;
-    }
-
-    return "volume={$finalGain}dB,alimiter=limit={$ceiling}dB";
+    return "volume={$desiredGain}dB";
 }
 
 /*
@@ -894,12 +871,13 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
             "-i {$inputArg} " .
             "-ss {$timeFrom} -to {$till} " .
             "-af {$afArg} " .
-            "-vn -c:a pcm_s16le -f wav -";
+            "-vn -c:a pcm_f32le -f wav -";
 
         // FFmpeg #2: WAV from stdin -> OGG to stdout
         $cmd2 = "{$ffmpegPath} " .
             "-i pipe:0 " .
-            "-vn -c:a libopus -b:a {$bitrate} -vbr on -compression_level 10 " .
+	    "-vbr off -compression_level 10 " .
+            "-vn -c:a libopus -b:a {$bitrate} " .
             "-f ogg -";
 
         // Start first process
