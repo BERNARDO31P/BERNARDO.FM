@@ -4152,5 +4152,114 @@
     "fileName": "Tristam - The Vine.wav",
     "category": "Drum and Bass",
     "info": "OCNUwPJasuKqqSE4wMa"
+  },
+  {
+    "id": "z6yc59KLRtyPlokbIsX",
+    "cover": "Gemini - Blue.jpg",
+    "name": "Feel Stronger",
+    "artist": "Gemini",
+    "length": "5:08",
+    "fileName": "Gemini - Feel Stronger.wav",
+    "category": "Dubstep",
+    "info": "HJSufhaVLAJGvWI983h"
+  },
+  {
+    "id": "BKFj7O6YQmLFXoXupjj",
+    "cover": "Gemini - Graduation.webp",
+    "name": "Graduation",
+    "artist": "Gemini",
+    "length": "5:44",
+    "fileName": "Gemini - Graduation.wav",
+    "category": "Dubstep",
+    "info": "HJSufhaVLAJGvWI983h"
+  },
+  {
+    "id": "xEFuBr2nooHHe6bIHFr",
+    "cover": "Gemini - Blue.jpg",
+    "name": "No Way Out",
+    "artist": "Gemini & Greta Svabo Bech",
+    "length": "3:22",
+    "fileName": "Gemini & Greta Svabo Bech - No Way Out.wav",
+    "category": "Dubstep",
+    "info": [
+      "HJSufhaVLAJGvWI983h",
+      "T58HrfyLiazevRjU7bf"
+    ]
+  },
+  {
+    "id": "qBr21idWjInYiu03ttP",
+    "cover": "Hadouken! - Oxygen (Gemini Remix).jpg",
+    "name": "Oxygen (Gemini Remix)",
+    "artist": "Hadouken!",
+    "length": "4:43",
+    "fileName": "Hadouken! - Oxygen (Gemini Remix).wav",
+    "category": "Dubstep",
+    "info": [
+      "05dP6aWgCSIBUreBa5w",
+      "HJSufhaVLAJGvWI983h"
+    ]
+  },
+  {
+    "id": "szlWo3k8lyAxVJeAZgN",
+    "cover": "Laura Welsh - Break The Fall (Gemini Remix).jpg",
+    "name": "Break The Fall (Gemini Remix)",
+    "artist": "Laura Welsh",
+    "length": "4:41",
+    "fileName": "Laura Welsh - Break The Fall (Gemini Remix).wav",
+    "category": "Dubstep",
+    "info": [
+      "JowQN8r14LIcodVZVxq",
+      "HJSufhaVLAJGvWI983h"
+    ]
+  },
+  {
+    "id": "QQzWNCBubCb3tooaMy9",
+    "cover": "Nero - Electron.jpg",
+    "name": "Innocence",
+    "artist": "Nero",
+    "length": "5:14",
+    "fileName": "Nero - Innocence.wav",
+    "category": "Dubstep",
+    "info": "pjWrMUssuV9rqu0bWcH"
+  },
+  {
+    "id": "UAJmCPO90SEOQqmbHVI",
+    "cover": "Nero - Promises.jpg",
+    "name": "Promises",
+    "artist": "Nero",
+    "length": "4:17",
+    "fileName": "Nero - Promises.wav",
+    "category": "Dubstep",
+    "info": "pjWrMUssuV9rqu0bWcH"
+  },
+  {
+    "id": "u1FVseX0g1VUW8zuDRv",
+    "cover": "Rogue - Adventure Time.jpg",
+    "name": "Adventure Time",
+    "artist": "Rogue",
+    "length": "5:38",
+    "fileName": "Rogue - Adventure Time.wav",
+    "category": "Dubstep",
+    "info": "4ArzfeukY4UTvVkY51l"
+  },
+  {
+    "id": "FU35XWjS9xFm3BCAE4N",
+    "cover": "Skrillex - Kill EVERYBODY.jpg",
+    "name": "Kill EVERYBODY",
+    "artist": "Skrillex",
+    "length": "4:57",
+    "fileName": "Skrillex - Kill EVERYBODY.wav",
+    "category": "Dubstep",
+    "info": "S3jcfQnfNGoTnUSppIR"
+  },
+  {
+    "id": "JCvsQt9P7jvJVqpjsfG",
+    "cover": "Tristam - Once Again.jpg",
+    "name": "Once Again",
+    "artist": "Tristam",
+    "length": "3:39",
+    "fileName": "Tristam - Once Again.wav",
+    "category": "Dubstep",
+    "info": "OCNUwPJasuKqqSE4wMa"
   }
 ]
