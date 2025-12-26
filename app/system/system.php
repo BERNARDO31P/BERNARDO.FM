@@ -861,8 +861,6 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
     else $till = $timeFrom + $time;
 
     try {
-        $bitrate = "320k";
-
         $inputArg = escapeshellarg($inputFile);
         $afArg    = escapeshellarg($af);
 
@@ -871,14 +869,16 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
             "-i {$inputArg} " .
             "-ss {$timeFrom} -to {$till} " .
             "-af {$afArg} " .
-            "-vn -c:a pcm_f32le -f wav -";
+            "-vn -c:a pcm_s16le " .
+            "-f wav -";
 
-        // FFmpeg #2: WAV from stdin -> OGG to stdout
+        // FFmpeg #2: WAV from stdin -> FLAC to stdout
         $cmd2 = "{$ffmpegPath} " .
             "-i pipe:0 " .
-	    "-vbr off -compression_level 10 " .
-            "-vn -c:a libopus -b:a {$bitrate} " .
-            "-f ogg -";
+            "-vn -c:a flac " .
+            "-compression_level 0 " .
+            "-sample_fmt s16 " .
+            "-f flac -";
 
         // Start first process
         $proc1 = proc_open($cmd1, [
@@ -891,6 +891,9 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
             throw new RuntimeException("Failed to start FFmpeg (WAV stage)");
         }
 
+        // Test with WAV directly
+        //$flacAudioData = stream_get_contents($pipes1[1]);
+
         // Start second process
         $proc2 = proc_open($cmd2, [
             0 => $pipes1[1],     // stdin = stdout of proc1
@@ -899,15 +902,15 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
         ], $pipes2);
 
         if (!is_resource($proc2)) {
-            throw new RuntimeException("Failed to start FFmpeg (OGG stage)");
+            throw new RuntimeException("Failed to start FFmpeg (FLAC stage)");
         }
 
         // We don't write to stdin of proc1
         fclose($pipes1[0]);
         fclose($pipes1[1]);
 
-        // Read final OGG output
-        $oggAudioData = stream_get_contents($pipes2[1]);
+        // Read final FLAC output
+        $flacAudioData = stream_get_contents($pipes2[1]);
 
         fclose($pipes2[1]);
         fclose($pipes2[2]);
@@ -915,11 +918,11 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
         proc_close($proc2);
         proc_close($proc1);
 
-        header("Content-Type: audio/ogg");
-        header("Content-Disposition: attachment; filename=output.ogg");
-        header("Content-Length: " . strlen($oggAudioData));
+        header("Content-Type: audio/flac");
+        header("Content-Disposition: attachment; filename=output.flac");
+        header("Content-Length: " . strlen($flacAudioData));
 
-        echo $oggAudioData;
+        echo $flacAudioData;
 
     } catch (Exception $ex) {
         http_response_code(500);
