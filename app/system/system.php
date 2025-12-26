@@ -269,7 +269,7 @@ $router->get("/info/([\w-]*)$", function ($id) {
 $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $duration = null) {
     // TODO: Add a real buffering system, which always tries to have 20 seconds buffered (in JavaScript)
     $time = match (true) {
-        $timeFrom < 2  => 1,
+        $timeFrom < 2  => 1, // Results in an extremely fast start of a song
         $timeFrom < 10 => 2,
         $timeFrom < 50 => 5,
         $timeFrom < 75 => 10,
