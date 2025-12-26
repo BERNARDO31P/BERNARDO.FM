@@ -292,16 +292,16 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
 
     if (!file_exists($cacheFile)) {
         $bitrate = "320k";
-        $af = buildLoudnessFilter($inputFile);
+        $af      = buildLoudnessFilter($inputFile);
 
-	$command_ogg = "{$ffmpegPath} " .
-	    "-i \"{$inputFile}\" " .
-	    "-af {$af} " .
-	    "-vn -c:a libopus " .
-	    "-application audio " .
-	    "-b:a {$bitrate} " .
-	    "-vbr on " .
-	    "-f ogg -";
+        $command_ogg = "{$ffmpegPath} " .
+            "-i \"{$inputFile}\" " .
+            "-af {$af} " .
+            "-vn -c:a libopus " .
+            "-application audio " .
+            "-b:a {$bitrate} " .
+            "-vbr on " .
+            "-f ogg -";
 
         $process_ogg = proc_open($command_ogg, [
             0 => ["pipe", "r"],
@@ -313,14 +313,14 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
             throw new RuntimeException("Failed to start FFmpeg (ogg stage)");
         }
 
-	$command_flac = "{$ffmpegPath} " .
-	    "-i pipe:0 " .
-	    "-vn " .
-	    "-af aformat=sample_fmts=s16:sample_rates=44100:channel_layouts=stereo " .
-	    "-c:a flac " .
-	    "-compression_level 12 " .
-	    "-map_metadata -1 " .
-	    "-f flac \"{$cacheFile}\"";
+        $command_flac = "{$ffmpegPath} " .
+            "-i pipe:0 " .
+            "-vn " .
+            "-af aformat=sample_fmts=s16:sample_rates=44100:channel_layouts=stereo " .
+            "-c:a flac " .
+            "-compression_level 12 " .
+            "-map_metadata -1 " .
+            "-f flac \"{$cacheFile}\"";
 
         $process_flac = proc_open($command_flac, [
             0 => $pipes_ogg[1],
@@ -353,7 +353,7 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
         }
     }
 
-    $cmd = "{$ffmpegPath} -i \"{$cacheFile}\"";
+    $cmd     = "{$ffmpegPath} -i \"{$cacheFile}\"";
     $process = proc_open($cmd, [
         0 => ["pipe", "r"],
         1 => ["pipe", "w"],
@@ -378,13 +378,13 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
         : $timeFrom + $time;
 
     $command_cut = "{$ffmpegPath} " .
-	"-i \"{$cacheFile}\" " .
+        "-i \"{$cacheFile}\" " .
         "-ss {$timeFrom} " .
         "-to {$till} " .
-	"-af aformat=sample_fmts=s16:sample_rates=44100:channel_layouts=stereo " .
-	"-c:a flac " .
-	"-compression_level 12 " .
-	"-map_metadata -1 " .
+        "-af aformat=sample_fmts=s16:sample_rates=44100:channel_layouts=stereo " .
+        "-c:a flac " .
+        "-compression_level 12 " .
+        "-map_metadata -1 " .
         "-f flac -";
 
     $process_cut = proc_open($command_cut, [
