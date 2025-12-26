@@ -259,7 +259,7 @@ function structureArray($array): array
  * Strukturiert die Daten neu
  * Speichert diese ab
  */
-while (sleep(2) !== null) {
+do {
     $raw = file_get_contents(__DIR__ . "/data/raw");
     $mangle = file_get_contents(__DIR__ . "/data/mangle");
     $nat = file_get_contents(__DIR__ . "/data/nat");
@@ -280,4 +280,4 @@ while (sleep(2) !== null) {
     $data = structureArray($data);
 
     file_put_contents(__DIR__ . "/db/firewall.json", json_encode($data));
-}
+} while (sleep(2) !== null);

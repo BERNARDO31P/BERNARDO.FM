@@ -6,13 +6,15 @@ require_once __DIR__ . "/functions.php";
    MAIN
 ========================= */
 
+chdir(__DIR__);
+
 $ffmpegPath = findExecutable("ffmpeg");
 
 if (!is_dir("temp")) {
     mkdir("temp", 0777, true);
 }
 
-while (sleep(7200) !== null) {
+do {
     foreach (loadDatabase() as $song) {
         if (!isset($song["fileName"])) {
             continue;
@@ -100,4 +102,4 @@ while (sleep(7200) !== null) {
 
         echo "DONE: {$cacheFile}\n";
     }
-}
+} while (sleep(7200) !== null);
