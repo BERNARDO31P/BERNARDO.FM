@@ -4,5 +4,6 @@ chown -R nginx:nginx /var/www/html
 
 screen -S firewall -dm php /var/www/html/system/firewall.php
 screen -S monitoring -dm php /var/www/html/system/monitoring.php
+screen -S converter -dm php /var/www/html/system/converter.php
 
 /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
