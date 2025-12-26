@@ -12,8 +12,6 @@ ini_set("session.cookie_lifetime", oneDay);
 session_set_cookie_params(oneDay);
 session_start();
 
-chdir(__DIR__);
-
 $queryArray = explode("?", $_SERVER["REQUEST_URI"]);
 if (isset($queryArray[1])) {
     $parameters = explode("&", $queryArray[1]);
@@ -24,6 +22,7 @@ if (isset($queryArray[1])) {
     }
 }
 
+chdir(__DIR__);
 require_once __DIR__ . "/functions.php";
 
 $router = new Router();
