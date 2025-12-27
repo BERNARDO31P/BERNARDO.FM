@@ -433,12 +433,14 @@ function generate_pictures(array &$db, int $length = 200): void
     $escapedListFile    = escapeshellarg($listFile);
     $escapedOutputImage = escapeshellarg($outputImage);
 
-    $combineCmd = "magick montage @" . $escapedListFile . " -strip -geometry +0+0 -tile " . COLS . "x -quality 45 $escapedOutputImage";
+    $cols       = min(COLS, count($imagePaths));
+    $combineCmd = "magick montage @" . $escapedListFile . " -strip -geometry +0+0 -tile {$cols}x -quality 45 $escapedOutputImage";
     shell_exec($combineCmd);
 
     unlink($listFile);
 
-    $db["cover"] = "system/" . $outputImage;
+    $db["cover"]     = "system/" . $outputImage;
+    $db["coverCols"] = $cols;
 }
 
 /*

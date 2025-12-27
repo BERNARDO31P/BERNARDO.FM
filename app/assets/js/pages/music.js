@@ -2,6 +2,7 @@ if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde
 
 setPositionState(0, 0);
 
+const COLS = 60;
 let count = 0, resizeTimeout = null;
 const menuItems = {
     "play": {
@@ -343,10 +344,8 @@ function showContext(e, card, items) {
  * Generiert und zeigt die Wiedergabeliste
  */
 bindEvent("click", "[data-angle='down']", function () {
-    const queueView = document.getElementById("queueView"),
-        navbar = document.getElementById("navbar"),
-        html = document.getElementsByTagName("html")[0],
-        body = document.getElementsByTagName("body")[0];
+    const queueView = document.getElementById("queueView"), navbar = document.getElementById("navbar"),
+        html = document.getElementsByTagName("html")[0], body = document.getElementsByTagName("body")[0];
 
     lastScroll = Math.max(html.scrollTop, body.scrollTop);
 
@@ -423,7 +422,7 @@ bindEvent("click", "#playingCover", function (event) {
 
 let lastTap = 0;
 
-bindEvent("touchstart", "#playingCover", function(event) {
+bindEvent("touchstart", "#playingCover", function (event) {
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap;
 
@@ -661,10 +660,13 @@ window["music"] = async () => {    /*
 
 
         if (data && Object.keys(data).length > 0) {
-            let cover = "";
-            if (typeof data["cover"] !== 'undefined') {
+            let cover = "", coverCols = COLS;
+            if (typeof data["cover"] !== 'undefined' && typeof data["coverCols"] !== 'undefined') {
                 cover = data["cover"];
+                coverCols = data["coverCols"];
+
                 data = removeFromObject(data, "cover", false);
+                data = removeFromObject(data, "coverCols", false);
             }
 
             let gridView = document.createElement("div");
@@ -712,15 +714,17 @@ window["music"] = async () => {    /*
                             data = tryParseJSON(httpGet(element.dataset.url + "/" + catCategory + "/" + catPage + "/" + count));
                         }
 
-                        let cover = "";
-                        if (typeof data["cover"] !== 'undefined') {
+                        let cover = "", coverCols = COLS;
+                        if (typeof data["cover"] !== 'undefined' && typeof data["coverCols"] !== 'undefined') {
                             cover = data["cover"];
+                            coverCols = data["coverCols"];
                             data = removeFromObject(data, "cover", false);
+                            data = removeFromObject(data, "coverCols", false);
                         }
 
                         if (Object.keys(data).length > 0) {
                             element.setAttribute("data-page", String(catPage));
-                            await generateBlockView(data, element.querySelector(".songCategory"), cover);
+                            await generateBlockView(data, element.querySelector(".songCategory"), cover, coverCols);
                         } else {
                             element.removeEventListener("scroll", handler);
                         }
@@ -741,7 +745,7 @@ window["music"] = async () => {    /*
                     }
                 });
 
-                await generateBlockView(songs, categoryView, cover);
+                await generateBlockView(songs, categoryView, cover, coverCols);
 
                 let parent = document.createElement("div");
 
@@ -855,7 +859,7 @@ function addSongToPlaylist(element, id = 0, next = false) {
  * Generiert aus den Daten -> Cards 
  * Generiert auch Playlist Cards
  */
-async function generateBlockView(songs, categoryView, cover) {
+async function generateBlockView(songs, categoryView, cover, coverCols) {
     const fragment = document.createDocumentFragment();
 
     for (let arrayID in songs) {
@@ -875,7 +879,6 @@ async function generateBlockView(songs, categoryView, cover) {
 
             const SRC_TILE = 200;
             const DST_TILE = 160;
-            const COLS = 60;
 
             const scale = DST_TILE / SRC_TILE;
 
@@ -883,7 +886,10 @@ async function generateBlockView(songs, categoryView, cover) {
             coverDiv.className = 'cover';
             coverDiv.style.backgroundImage = `url(${cover})`;
             coverDiv.style.backgroundRepeat = "no-repeat";
-            coverDiv.style.backgroundSize = `${COLS * DST_TILE}px auto`;
+
+            let $cols = Math.min(COLS, coverCols);
+
+            coverDiv.style.backgroundSize = `${$cols * DST_TILE}px auto`;
             coverDiv.style.backgroundPosition = `-${song['coverPosX'] * scale}px -${song['coverPosY'] * scale}px`;
 
             const nameSpan = document.createElement('span');
