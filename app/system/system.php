@@ -358,35 +358,11 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
         }
     }
 
-    $cmd     = "{$ffmpegPath} -i \"{$cacheFile}\"";
-    $process = proc_open($cmd, [
-        0 => ["pipe", "r"],
-        1 => ["pipe", "w"],
-        2 => ["pipe", "w"]
-    ], $pipes);
-
-    $output = stream_get_contents($pipes[2]);
-
-    fclose($pipes[0]);
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-    proc_close($process);
-
-    $totalSeconds = 0;
-    if (preg_match("/Duration: (\d{2}:\d{2}:\d{2}\.\d{2})/", $output, $matches)) {
-        list($h, $m, $s) = sscanf($matches[1], "%d:%d:%f");
-        $totalSeconds = $h * 3600 + $m * 60 + $s;
-    }
-
-    $till = ($totalSeconds <= $timeFrom + $time)
-        ? $totalSeconds
-        : $timeFrom + $time;
-
     $command_cut = "{$ffmpegPath} " .
-        "-i \"{$cacheFile}\" " .
         "-ss {$timeFrom} " .
-        "-to {$till} " .
-        "-af aformat=sample_fmts=s16:sample_rates=44100:channel_layouts=stereo " .
+        "-i \"{$cacheFile}\" " .
+        "-vn " .
+        "-af \"atrim=start=0:duration={$time},aformat=sample_fmts=s16:sample_rates=44100:channel_layouts=stereo\" " .
         "-c:a flac " .
         "-compression_level 12 " .
         "-map_metadata -1 " .
