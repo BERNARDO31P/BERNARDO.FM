@@ -268,9 +268,11 @@ $router->get("/info/([\w-]*)$", function ($id) {
  */
 $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $duration = null) {
     $time = match (true) {
+        $timeFrom < 5 => 1,
+        $timeFrom < 15 => 3,
         $timeFrom < 50 => 5,
-        $timeFrom < 75 => 10,
-        default => 20,
+        $timeFrom < 75 => 7,
+        default => 10,
     };
 
     if ($duration !== null && $duration < $time) {
