@@ -1162,6 +1162,14 @@ a.button {
 
       box-shadow: 0 0 10px 3px var(--shadow-cover) inset;
     }
+
+    .cover {
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+    }
   }
 
   #queueInfo {
@@ -1902,12 +1910,11 @@ a.button {
 
       display: block;
       width: initial;
+      height: 38%;
 
-      img {
-        max-width: 50%;
-        max-height: initial;
-
-        display: flex;
+      .cover {
+        width: unset;
+        height: 100%;
       }
     }
 

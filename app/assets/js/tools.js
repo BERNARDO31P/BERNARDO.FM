@@ -1050,17 +1050,11 @@ function updateSongData() {
     let songLength = document.querySelector("#timeInfo #length");
     let queueView = document.getElementById("queueView");
     let cover = queueView.querySelector("#playingCover .cover");
-    let size = Math.round(width / 100 * 90);
+    let size = Math.round(width / 100 * 80);
 
-    let heightCalc;
-    if (height + 100 < width) heightCalc = height / 2 + 100;
-    else heightCalc = height / 2 - 200;
+    if (size > 1024) size = 1024;
 
-    size = (size < 1024 && heightCalc > size) ? size : Math.round(heightCalc);
-
-    cover.style.backgroundImage = "url('" + song["cover"] + "?size=" + size + "')";
-    cover.style.width = size + "px";
-    cover.style.height = size + "px";
+    cover.style.backgroundImage = "url(\"" + song["cover"] + "?size=" + size + "\")";
 
     songLength.textContent = song["length"];
 
