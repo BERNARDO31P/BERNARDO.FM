@@ -181,33 +181,60 @@ $router->get("/song/([\w-]*)$", function ($id) {
     $db   = loadDatabase();
     $song = search_song($id, $db);
 
-    header("Content-Type: application/json");
-    if (isset($song["playlist"])) {
-        $playlist = array();
-        foreach ($song["playlist"] as $songID) {
-            $playlist[] = search_song($songID, $db);
+    if (!isset($song["playlist"])) {
+        if (!isset($song["category"])) {
+            exit;
         }
 
-        $playlist["count"] = count($playlist);
+        $dbCategory = sorting_by_category($db);
 
-        if (isset($song["shuffle"]) && $song["shuffle"]) {
-            shuffle_level($playlist, 0);
-        } else {
-            $playlist["cover"] = $song["cover"];
+        if (!is_array($song["category"])) {
+            $song["category"] = [$song["category"]];
         }
 
-        $playlist["name"] = $song["name"];
+        $songs = [];
+        foreach ($song["category"] as $category) {
+            $songIDs = array_values(array_filter(array_map(function ($song) use ($id) {
+                if ($song["id"] === $id) {
+                    return null;
+                }
 
-        recursive_unset($playlist, "fileName");
-        recursive_prepend($playlist, "cover", "system/img/");
+                return $song["id"];
+            }, $dbCategory[$category])));
 
-        echo json_encode($playlist);
-    } else {
-        recursive_unset($song, "fileName");
-        recursive_prepend($song, "cover", "system/img/");
+            array_push($songs, ...$songIDs);
+        }
 
-        echo json_encode($song);
+        $song["playlist"] = $songs;
+        $song["shuffle"]  = true;
+
+        unset($song["artist"]);
+        unset($song["length"]);
+        unset($song["cover"]);
     }
+
+    $playlist = array();
+    foreach ($song["playlist"] as $songID) {
+        $playlist[] = search_song($songID, $db);
+    }
+
+    $playlist["count"] = count($playlist);
+
+    if (isset($song["shuffle"]) && $song["shuffle"]) {
+        shuffle_level($playlist, 0);
+
+        array_unshift($playlist, search_song($id, $db));
+    } else {
+        $playlist["cover"] = $song["cover"];
+    }
+
+    $playlist["name"] = $song["name"];
+
+    recursive_unset($playlist, "fileName");
+    recursive_prepend($playlist, "cover", "system/img/");
+
+    header("Content-Type: application/json");
+    echo json_encode($playlist);
 });
 
 /*
