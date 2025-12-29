@@ -1,4 +1,7 @@
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const audioContext = new (window.AudioContext || window.webkitAudioContext)({
+    latencyHint: "playback",
+    sampleRate: 44100
+});
 
 class MultiTrackPlayer extends EventTarget {
     #waitIndex = null;
@@ -135,7 +138,7 @@ class MultiTrackPlayer extends EventTarget {
             const source = audioContext.createBufferSource();
             this.#audioSources[index] = source;
 
-            source.when = audioContext.currentTime + startTime;
+            source.when = Math.max(0, audioContext.currentTime + Math.max(0, startTime));
             source.buffer = this.#audioBuffers[index];
             source.connect(this.#gainNode);
             source.start(source.when, this.#offset);
@@ -236,7 +239,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     getStartTime() {
-        return audioContext.currentTime - this.#startTime;
+        return Math.max(0, audioContext.currentTime - Math.max(0, this.#startTime));
     }
 
     getCurrentPartTime() {
@@ -378,7 +381,7 @@ class MultiTrackPlayer extends EventTarget {
 
                     if (!this.#stopped)
                         this.dispatchEvent(new Event("downloadError"));
-                } else if (this.#urls.indexOf(url) && !this.#stopped) {
+                } else if (this.#urls.indexOf(url) !== -1 && !this.#stopped) {
                     this.#decodingQueue[bufferIndex] = url;
 
                     await this.#processDecodeQueue();
@@ -452,7 +455,11 @@ class MultiTrackPlayer extends EventTarget {
     #killSource(source) {
         source.onended = () => {
         };
-        source.stop(source.when);
+
+        try {
+            source.stop(source.when);
+        } catch (ignored) {
+        }
 
         try {
             source.disconnect(this.#gainNode);

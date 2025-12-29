@@ -1328,7 +1328,7 @@ function onTimelineRelease(value, rangeEvent = null) {
     const player = playlist[playIndex]["player"];
     const timeline = document.getElementById("timeline");
 
-    if (value > player.getDuration()) {
+    if (value >= player.getDuration()) {
         nextSong();
         return;
     }
