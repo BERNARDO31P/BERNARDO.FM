@@ -1530,6 +1530,11 @@ function downloadPart(time, sIndex, pIndex, till = null) {
         if (typeof partlist[songID] !== "undefined" && typeof partlist[songID][pIndex] !== "undefined") {
             const length = player.getPartLength(pIndex);
 
+            if (length === 0) {
+                delete partlist[songID][pIndex];
+                return;
+            }
+
             partlist[songID][pIndex] = {
                 "from": time,
                 "till": time + length
@@ -2027,7 +2032,7 @@ function getPartIndexByTime(time) {
 function getPartIndexByStartTime(time) {
     let songID = playlist[playIndex]["id"];
     for (let [index, part] of Object.entries(partlist[songID])) {
-        if (part["from"] === time) return [part["from"], part["till"], Number(index)];
+        if (part["from"] === time && part["from"] !== part["till"]) return [part["from"], part["till"], Number(index)];
     }
 
     return [null, null, null];

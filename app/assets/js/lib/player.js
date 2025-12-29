@@ -397,11 +397,17 @@ class MultiTrackPlayer extends EventTarget {
             } catch (e) {
                 this.#hadError = true;
                 this.#isDecoding = false;
-                this.#removePart(bufferIndex);
 
-                if (!this.#stopped)
-                    this.dispatchEvent(new Event("downloadError"));
-                return;
+                if (!e.toString().includes("AbortError")) {
+                    this.#removePart(bufferIndex);
+
+                    if (!this.#stopped)
+                        this.dispatchEvent(new Event("downloadError"));
+                } else if (this.#urls.indexOf(url) !== -1 && !this.#stopped) {
+                    this.#decodingQueue[bufferIndex] = url;
+
+                    await this.#processDecodeQueue();
+                }
             }
 
             if (Object.keys(this.#decodingQueue).length === 0 || this.#stopped)
