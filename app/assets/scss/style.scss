@@ -1167,7 +1167,12 @@ a.button {
       background-repeat: no-repeat;
       background-position: center;
       background-size: contain;
-      width: 100%;
+
+      width: min(100%, 650px);
+
+      max-width: 60vh;
+      max-height: 100%;
+
       aspect-ratio: 1 / 1;
     }
   }
