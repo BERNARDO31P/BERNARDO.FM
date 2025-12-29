@@ -1168,9 +1168,7 @@ a.button {
       background-position: center;
       background-size: contain;
 
-      width: min(100%, 650px);
-
-      max-width: 60vh;
+      width: min(100%, 650px, 60vh);
       max-height: 100%;
 
       aspect-ratio: 1 / 1;
