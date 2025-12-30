@@ -223,9 +223,9 @@ $router->get("/song/([\w-]*)$", function ($id) {
     if (isset($song["shuffle"]) && $song["shuffle"]) {
         shuffle_level($playlist, 0);
 
-        $searchedSong = search_song($id, $db);
-        if (!isset($searchedSong["playlist"])) {
-            array_unshift($playlist, $searchedSong);
+        $originalSong = search_song($id, $db);
+        if (!isset($originalSong["playlist"])) {
+            array_unshift($playlist, $originalSong);
         }
     } else {
         $playlist["cover"] = $song["cover"];
