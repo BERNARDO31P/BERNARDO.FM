@@ -1533,6 +1533,24 @@ a.button {
   border-radius: 3px;
 }
 
+.firewall {
+  h2, h3 {
+    margin-top: 10px;
+  }
+
+  h3 {
+    margin-bottom: 0;
+  }
+
+  thead th {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .responsive-table {
+    margin-bottom: 40px !important;
+  }
+}
+
 .responsive-table {
   width: 100%;
 
