@@ -1142,6 +1142,8 @@ a.button {
       transition: opacity 0.3s;
       z-index: 100;
 
+      background-color: var(--body-background);
+
       box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -5px -5px 7px var(--shadow-light);
 
       padding: 5px 10px;
