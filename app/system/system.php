@@ -223,8 +223,9 @@ $router->get("/song/([\w-]*)$", function ($id) {
     if (isset($song["shuffle"]) && $song["shuffle"]) {
         shuffle_level($playlist, 0);
 
-        if (!isset($song["playlist"])) {
-            array_unshift($playlist, $song);
+        $searchedSong = search_song($id, $db);
+        if (!isset($searchedSong["playlist"])) {
+            array_unshift($playlist, $searchedSong);
         }
     } else {
         $playlist["cover"] = $song["cover"];
