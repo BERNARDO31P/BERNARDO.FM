@@ -195,7 +195,7 @@ $router->get("/song/([\w-]*)$", function ($id) {
         $songs = [];
         foreach ($song["category"] as $category) {
             $songIDs = array_values(array_filter(array_map(function ($song) use ($id) {
-                if ($song["id"] === $id) {
+                if ($song["id"] === $id || isset($song["playlist"])) {
                     return null;
                 }
 
@@ -223,7 +223,9 @@ $router->get("/song/([\w-]*)$", function ($id) {
     if (isset($song["shuffle"]) && $song["shuffle"]) {
         shuffle_level($playlist, 0);
 
-        array_unshift($playlist, search_song($id, $db));
+        if (!isset($song["playlist"])) {
+            array_unshift($playlist, $song);
+        }
     } else {
         $playlist["cover"] = $song["cover"];
     }
