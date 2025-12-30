@@ -181,6 +181,8 @@ $router->get("/song/([\w-]*)$", function ($id) {
     $db   = loadDatabase();
     $song = search_song($id, $db);
 
+    $originalSong = $song;
+
     if (!isset($song["playlist"])) {
         if (!isset($song["category"])) {
             exit;
@@ -223,7 +225,6 @@ $router->get("/song/([\w-]*)$", function ($id) {
     if (isset($song["shuffle"]) && $song["shuffle"]) {
         shuffle_level($playlist, 0);
 
-        $originalSong = search_song($id, $db);
         if (!isset($originalSong["playlist"])) {
             array_unshift($playlist, $originalSong);
         }
