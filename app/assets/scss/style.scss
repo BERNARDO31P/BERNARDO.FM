@@ -1212,18 +1212,19 @@ a.button {
       z-index: 2;
 
       background-color: var(--primary-color);
-
-      th:first-of-type {
-        border-left: 1px solid var(--border-color);
-      }
-
-      th:last-of-type {
-        border-right: 1px solid var(--border-color);
-      }
     }
 
     tr {
+      th {
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      transition: 0.2s;
       height: 45px;
+
+      &.shadow {
+        box-shadow: 0 1px 5px var(--shadow-dark);
+      }
     }
 
     .cover {
@@ -1547,8 +1548,6 @@ a.button {
 
       height: 50px;
       padding: 0 10px;
-
-      border-bottom: 1px solid var(--border-color);
     }
   }
 

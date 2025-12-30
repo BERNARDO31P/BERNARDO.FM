@@ -499,46 +499,6 @@ bindEvent("click", ".fa-random", function () {
  * Funktion: Anonym
  * Autor: Bernardo de Oliveira
  *
- * Lädt neue Lieder nach
- */
-bindEvent("click", ".songList .loadMore", function () {
-    let table = prev(this), category = prev(table);
-    let search = document.querySelector("#search input");
-    let tbody = table.querySelector("tbody");
-    let catPage = Number(table.dataset.page) + 1;
-    let catCategory = category.textContent;
-
-    let theadColumns = table.querySelectorAll("thead tr:first-of-type th");
-
-    let columns = [];
-    for (let theadColumn of theadColumns) {
-        columns.push(theadColumn.textContent.toLowerCase());
-    }
-
-    let data;
-    if (search.value !== "") {
-        data = tryParseJSON(httpGet(table.dataset.url + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
-    } else {
-        data = tryParseJSON(httpGet(table.dataset.url + "/" + catCategory + "/" + catPage + "/" + count));
-    }
-
-    if (Object.keys(data).length < count) this.remove();
-
-    table.setAttribute("data-page", String(catPage));
-
-    let cover = "";
-    if (typeof data["cover"] !== 'undefined') {
-        cover = data["cover"];
-        data = removeFromObject(data, "cover", false);
-    }
-
-    generateTableBody(data, columns, tbody, cover);
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
  * Scrollt am PC vorwärts binnen der Musikkategorie
  * Löscht den Knopf, wenn das Ende erreicht wird
  */

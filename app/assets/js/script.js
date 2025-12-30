@@ -186,6 +186,17 @@ bindEvent("click", "#navbar-toggler", function () {
     }
 });
 
+const queue = document.getElementById("queue");
+queue.addEventListener("scroll", () => {
+    const tableHead = document.querySelector("#queue thead tr");
+
+    if (queue.scrollTop === 0) {
+        tableHead.classList.remove("shadow");
+    } else {
+        tableHead.classList.add("shadow");
+    }
+})
+
 /*
  * Funktion: Diverse Funktionen
  * Autor: Bernardo de Oliveira
