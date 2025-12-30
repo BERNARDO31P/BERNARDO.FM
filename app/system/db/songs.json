@@ -3787,7 +3787,7 @@
     "cover": "Fytch - What If - Album Cover.jpg",
     "name": "What If I Told You",
     "artist": "Fytch",
-    "length": "4:42",
+    "length": "4:48",
     "fileName": "Fytch - What If I Told You.wav",
     "category": "Dubstep",
     "info": "csUMBOu927kA436b1Go"
@@ -3797,7 +3797,7 @@
     "cover": "Fytch - What If - Album Cover.jpg",
     "name": "That I Love You",
     "artist": "Fytch",
-    "length": "5:01",
+    "length": "4:48",
     "fileName": "Fytch - That I Love You.wav",
     "category": "Dubstep",
     "info": "csUMBOu927kA436b1Go"
@@ -4291,5 +4291,118 @@
     "fileName": "Tristam - Once Again.wav",
     "category": "Dubstep",
     "info": "OCNUwPJasuKqqSE4wMa"
+  },
+  {
+    "id": "qfurUS02msn9az0qwlC",
+    "cover": "Undercover Babas - A Hop, Skip and a Jump.jpg",
+    "name": "A Hop, Skip and a Jump",
+    "artist": "Undercover Babas",
+    "length": "9:24",
+    "fileName": "Undercover Babas - A Hop, Skip and a Jump.wav",
+    "category": "Psytrance",
+    "info": "d35GlRdKql2fKXQ1VWK"
+  },
+  {
+    "id": "LOI3alNTdeGcFLiGOCc",
+    "cover": "Undercover Babas - Live Blissfully.jpg",
+    "name": "Live Blissfully",
+    "artist": "Undercover Babas",
+    "length": "7:40",
+    "fileName": "Undercover Babas - Live Blissfully.wav",
+    "category": "Psytrance",
+    "info": "d35GlRdKql2fKXQ1VWK"
+  },
+  {
+    "id": "uowj58Th5SsqSXNXLFg",
+    "cover": "Undercover Babas - Hope Scope.jpg",
+    "name": "Everything Around You",
+    "artist": "Undercover Babas",
+    "length": "9:54",
+    "fileName": "Undercover Babas - Everything Around You.wav",
+    "category": "Psytrance",
+    "info": "d35GlRdKql2fKXQ1VWK"
+  },
+  {
+    "id": "k9JE2nD3LRNVP4bGfsQ",
+    "cover": "Undercover Babas - Hope Scope.jpg",
+    "name": "Tribal Calling",
+    "artist": "Undercover Babas",
+    "length": "10:22",
+    "fileName": "Undercover Babas - Tribal Calling.wav",
+    "category": "Psytrance",
+    "info": "d35GlRdKql2fKXQ1VWK"
+  },
+  {
+    "id": "oL8YZVAclQppU9N4RZj",
+    "cover": "Undercover Babas - Right In This Moment.jpg",
+    "name": "Right In This Moment",
+    "artist": "Undercover Babas",
+    "length": "7:25",
+    "fileName": "Undercover Babas - Right In This Moment.wav",
+    "category": "Psytrance",
+    "info": "d35GlRdKql2fKXQ1VWK"
+  },
+  {
+    "id": "HWNIwZq1CCOJJgp8UMc",
+    "cover": "Undercover Babas - Do Something Different.jpg",
+    "name": "Do Something Different",
+    "artist": "Undercover Babas",
+    "length": "10:00",
+    "fileName": "Undercover Babas - Do Something Different.wav",
+    "category": "Psytrance",
+    "info": "d35GlRdKql2fKXQ1VWK"
+  },
+  {
+    "id": "Tfw8n2u8KDbKkfaORHJ",
+    "cover": "Undercover Babas - Do Something Different.jpg",
+    "name": "Upgrading Our Interface",
+    "artist": "Undercover Babas",
+    "length": "10:15",
+    "fileName": "Undercover Babas - Upgrading Our Interface.wav",
+    "category": "Psytrance",
+    "info": "d35GlRdKql2fKXQ1VWK"
+  },
+  {
+    "id": "uobdMAxSBeN1cIuxZKH",
+    "cover": "Tristan & Undercover Babas - The Eternal Message.jpg",
+    "name": "The Eternal Message",
+    "artist": "Tristan & Undercover Babas",
+    "length": "8:29",
+    "fileName": "Tristan & Undercover Babas - The Eternal Message.wav",
+    "category": "Psytrance",
+    "info": [
+      "1BgWpDfDllU6gUCD1bH",
+      "d35GlRdKql2fKXQ1VWK"
+    ]
+  },
+  {
+    "id": "zQZ44L8c6qivFgxygom",
+    "cover": "Undercover Babas - Live Blissfully.jpg",
+    "name": "Cellular Mandala",
+    "artist": "Undercover Babas",
+    "length": "8:50",
+    "fileName": "Undercover Babas - Cellular Mandala.wav",
+    "category": "Psytrance",
+    "info": "d35GlRdKql2fKXQ1VWK"
+  },
+  {
+    "id": "hi2qMRf6tzQIxoUIRz1",
+    "cover": "Undercover Babas - Right In This Moment.jpg",
+    "name": "Cosmic Orgy",
+    "artist": "Undercover Babas",
+    "length": "9:43",
+    "fileName": "Undercover Babas - Cosmic Orgy.wav",
+    "category": "Psytrance",
+    "info": "d35GlRdKql2fKXQ1VWK"
+  },
+  {
+    "id": "ViBC58ba2JM9Y52H6qD",
+    "cover": "Undefined Behavior - Nice Dreams.jpg",
+    "name": "Nice Dreams",
+    "artist": "Undefined Behavior",
+    "length": "8:36",
+    "fileName": "Undefined Behavior - Nice Dreams.wav",
+    "category": "Psytrance",
+    "info": "NIbPqdXf8U16xZ2DVrR"
   }
 ]

@@ -16,7 +16,9 @@ function loadDatabase()
 {
     if (isset($_SESSION["database"]) && file_exists($_SESSION["database"])) {
         $db = json_decode(file_get_contents($_SESSION["database"]), true);
-    } else {
+    }
+
+    if (empty($db)) {
         $db = json_decode(file_get_contents(__DIR__ . "/db/songs.json"), true);
 
         shuffle_level($db, 0);
@@ -240,40 +242,66 @@ function shuffle_level(&$object, $level, $current = 0): void
  * Funktion: search_songs()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  search: (String) Definiert die Suche
- *  db: (Object) Definiert die Datenbank
+ *  search: (String) Suchbegriff(e), mehrere Wörter möglich
+ *  db: (Array) Sammlung von Songs
  *
- * Sucht in der Datenbank nach Daten, die mit der Suche übereinstimmen
+ * Beschreibung:
+ * Durchsucht die Song-Datenbank intelligent nach Übereinstimmungen.
+ * Die Suche ist wortbasiert, reihenfolgeunabhängig und tolerant gegenüber
+ * Sonderzeichen und Trennzeichen.
  *
- * Überprüft wird: Songname, Künstlername und Kategorie
+ * Es werden alle Suchbegriffe gegen folgende Felder geprüft:
+ *  - Songname
+ *  - Künstlername
+ *  - Kategorie(n)
+ *
+ * Alle Suchwörter müssen irgendwo im Datensatz vorkommen,
+ * unabhängig von der Reihenfolge.
  */
 function search_songs($search, $db): array
 {
-    $songs = array();
+    $results = [];
+
+    $normalize = function ($text) {
+        $text = strtolower($text);
+        $text = preg_replace("/[^a-z0-9\s]/i", " ", $text);
+        $text = preg_replace("/\s+/", " ", $text);
+        return trim($text);
+    };
+
+    $searchTokens = explode(" ", $normalize($search));
 
     foreach ($db as $song) {
-        $categories = $song["category"];
+        $categories = $song["category"] ?? [];
         if (is_string($categories)) {
             $categories = [$categories];
         }
 
-        $categoryMatch = false;
-        foreach ($categories as $category) {
-            if (stripos($category, $search) !== false) {
-                $categoryMatch = true;
+        $haystackParts = [
+            $song["name"] ?? "",
+            $song["artist"] ?? "",
+            implode(" ", $categories)
+        ];
+
+        $haystack = $normalize(implode(" ", $haystackParts));
+
+        $allTokensMatch = true;
+        foreach ($searchTokens as $token) {
+            if ($token === "") {
+                continue;
+            }
+            if (stripos($haystack, $token) === false) {
+                $allTokensMatch = false;
+                break;
             }
         }
 
-        if (
-            (stripos($song["name"] ?? "", $search) !== false) ||
-            (stripos($song["artist"] ?? "", $search) !== false) ||
-            ($categoryMatch)
-        ) {
-            $songs[] = $song;
+        if ($allTokensMatch) {
+            $results[] = $song;
         }
     }
 
-    return $songs;
+    return $results;
 }
 
 /*
