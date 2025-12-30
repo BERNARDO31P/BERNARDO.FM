@@ -145,14 +145,20 @@ bindEvent("click", "#navbar [data-page]", function (e) {
     clearURL();
     hidePlaylist();
 
-    const searchInput = document.querySelector("#search input");
-    if (searchInput) {
-        searchInput.value = "";
-        searchInput.dispatchEvent(new Event("input", { bubbles: true }));
-    }
-
     const clickedPage = this.getAttribute("data-page");
-    if (page === clickedPage) return;
+    if (page === clickedPage) {
+        const searchInput = document.querySelector("#search input");
+        const searchValue = searchInput.value;
+        if (searchInput) {
+            searchInput.value = "";
+        }
+
+        if (searchValue.length) {
+            searchInput.dispatchEvent(new Event("input", {bubbles: true}));
+        }
+
+        return;
+    }
 
     page = clickedPage;
     prevPage = undefined;
