@@ -1,11 +1,18 @@
 {
   "greeting": {
-    "title": "GREETINGS",
-    "message": "I welcome you to my personal homepage! <br/> Please note that this website is for proof of concept only. I want to prove that even a single person can build a streaming service. <br/> In addition, it also serves to promote unknown, good artists. I hope you enjoy the music and your stay! <br/> If there is any copyright infringement, please contact me <a class='mail' href=\"mailto:contact@bernardo.fm?subject=Copyright, BERNARDO.FM\">through this email</a>. <br/> If you have found any errors, please tell me about them <a class='mail' href=\"mailto:contact@bernardo.fm?subject=Bugs, BERNARDO.FM\">through this email</a>. <br/><br><br/> <b>IMPORTANT!</b> Please do <b>not</b> rename or use a different subject in the email.",
+    "title": "WELCOME",
+    "message": "Welcome to my personal audio archive. This website is a proof of concept and a personal statement: a single person can design, build, and operate a complete audio streaming platform. <br/><br/> Beyond the technology, this space exists to preserve and celebrate human-made music. In a time where AI-generated songs are rapidly increasing, every track you hear here was created by real artists. These songs are my personal favorites. Many of them accompanied me through my childhood and shaped who I am today. They carry memories, emotions, and authenticity that cannot be synthesized. I hope you enjoy the music and take your time exploring. <br/><br/> If you believe any content violates copyright, please contact me <a class=\"mail\" href=\"mailto:contact@bernardo.fm?subject=Copyright, BERNARDO.FM\">via this email</a>. Removal is absolutely no problem. This project is non-commercial, I do not earn any money from it, and all songs were legally purchased by me. Additionally, the audio is intentionally not streamed in the highest available quality to prevent direct downloading or redistribution. <br/><br/> If you discover bugs or errors, I would appreciate your feedback <a class=\"mail\" href=\"mailto:contact@bernardo.fm?subject=Bugs, BERNARDO.FM\">via this email</a>. <br/><br/><br/> <b>IMPORTANT!</b> Please do <b>not</b> rename or alter the email subject.",
     "author": "Bernardo de Oliveira",
-    "date": "07. Feb. 2022"
+    "date": "30. Dec. 2025"
   },
   "changelog": [
+    {
+      "title": "Version 1.3",
+      "message": "Further improvements of the performance and small bug fixes.",
+      "details": "+ Improved image generation<br> + Improved ffmpeg chunk cutting<br/> + Fixed design consistency<br/> + Minor bugfixes",
+      "author":  "Bernardo de Oliveira",
+      "date": "30. Dec. 2025"
+    },
     {
       "title": "Version 1.2",
       "message": "Improved the native performance of the page. The loading times you're now seeing are completely without cache!",
@@ -15,7 +22,7 @@
     },
     {
       "title": "Version 1.1",
-      "message": "I've finally managed to code my own player, after a long and stressful time!<br/> Feel free to report any errors. It hasn't been fully tested yet.<br/> I hope you enjoy it!",
+      "message": "I've finally managed to code my own player, after a long and stressful time!<br/> Feel free to report any errors. It hasn't been fully tested yet.<br/><br/> I hope you enjoy it!",
       "details": "+ <a href='https://github.com/regosen/Gapless-5'>Gapless5</a> player has been replaced by my own player<br/> + <a href='https://github.com/BERNARDO31P/Audero-Wav-Extractor'>Audero-Wav-Extractor</a> has been replaced by my own audio-cut system.<br/> + Audio is now streamed in the WebM format, which is much more efficient.",
       "author": "Bernardo de Oliveira",
       "date": "Updated: 14. Jul. 2023"

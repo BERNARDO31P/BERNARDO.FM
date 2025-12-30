@@ -147,7 +147,8 @@ bindEvent("click", "#navbar [data-page]", function (e) {
 
     const clickedPage = this.getAttribute("data-page");
     if (page === clickedPage) {
-        const searchInput = document.querySelector("#search input");
+        const search = document.querySelector("#search");
+        const searchInput = search.querySelector("input");
         const searchValue = searchInput.value;
         if (searchInput) {
             searchInput.value = "";
@@ -155,9 +156,10 @@ bindEvent("click", "#navbar [data-page]", function (e) {
 
         if (searchValue.length) {
             searchInput.dispatchEvent(new Event("input", {bubbles: true}));
+            search.dispatchEvent(new Event("focusout", {bubbles: true}));
+        } else {
+            return;
         }
-
-        return;
     }
 
     page = clickedPage;

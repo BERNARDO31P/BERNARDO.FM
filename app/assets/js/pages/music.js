@@ -773,7 +773,7 @@ window["music"] = async () => {    /*
 
             playlist[playIndex]["player"].addEventListener("play", () => {
                 playlist[playIndex]["player"].setCurrentTime(time);
-            });
+            }, {once: true});
         } else clearURL();
     }
 }

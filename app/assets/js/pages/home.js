@@ -20,9 +20,18 @@ window["home"] = () => {
                 let messages = quote["message"].split("<br/>");
 
                 html += "<span class='message'>";
+
                 for (const [i, message] of messages.entries()) {
-                    if (i !== messages.length - 1) html += "<p>" + message + "</p>";
-                    else html += "<p class='break'>" + message + "</p>";
+                    if (i !== messages.length - 1){
+                        if (!message.length) {
+                            html += "<br/>";
+                            continue;
+                        }
+
+                        html += "<p>" + message + "</p>";
+                    } else {
+                        html += "<p class='break'>" + message + "</p>";
+                    }
                 }
                 html += "</span>";
 
