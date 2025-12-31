@@ -1510,6 +1510,13 @@ function prepareNextPart() {
         downloadPart(0, nextPlayIndex, nextPartIndex);
 }
 
+function resetPlayer() {
+    clearSongs();
+
+    let playerHTML = document.getElementById("player");
+    playerHTML.style.display = "none";
+}
+
 /*
  * Funktion: downloadPart()
  * Autor: Bernardo de Oliveira
@@ -1526,6 +1533,14 @@ function prepareNextPart() {
  */
 function downloadPart(time, sIndex, pIndex, till = null) {
     const song = playlist[sIndex];
+
+    if (!song || typeof song["id"] === "undefined") {
+        // TODO: Maybe somehow save the song before leaving the page
+        resetPlayer();
+
+        return;
+    }
+
     const songID = song["id"];
     let player = song["player"];
 
