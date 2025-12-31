@@ -3,6 +3,8 @@ let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPa
     touched = null, contextTimeout = null, touchTimeout = null, touchedElement = null, currentButton = null,
     changedQueue = false, width = getWidth(), height = getHeight() + 100;
 
+let onInfoCallback = null;
+
 let lastScroll = 0;
 let overflowTimeout = null;
 
@@ -1087,6 +1089,10 @@ function updateSongData() {
         }
     } else {
         infoBox.innerHTML = "<h3>No description found..</h3>";
+    }
+
+    onInfoCallback = () => {
+        infoBox.scrollTop = 0;
     }
 
     updatePlaying();

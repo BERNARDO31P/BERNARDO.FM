@@ -197,7 +197,11 @@ queue.addEventListener("scroll", () => {
     } else {
         tableHead.classList.add("shadow");
     }
-})
+});
+
+if (hasGetParameter(location.href, "s")) {
+    location.replace(setGetParameter(location.href, "page", "music"));
+}
 
 /*
  * Funktion: Diverse Funktionen
@@ -533,6 +537,11 @@ bindEvent("click", "#queueInfo .info:not(.active)", function () {
 
     queueInfo.querySelector(".queue").classList.remove("active");
     this.classList.add("active");
+
+    if (onInfoCallback) {
+        onInfoCallback();
+        onInfoCallback = null;
+    }
 });
 
 /*
