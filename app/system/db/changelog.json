@@ -23,7 +23,7 @@
     {
       "title": "Version 1.1",
       "message": "I've finally managed to code my own player, after a long and stressful time!<br/> Feel free to report any errors. It hasn't been fully tested yet.<br/><br/> I hope you enjoy it!",
-      "details": "+ <a href='https://github.com/regosen/Gapless-5'>Gapless5</a> player has been replaced by my own player<br/> + <a href='https://github.com/BERNARDO31P/Audero-Wav-Extractor'>Audero-Wav-Extractor</a> has been replaced by my own audio-cut system.<br/> + Audio is now streamed in the WebM format, which is much more efficient.",
+      "details": "+ <a href='https://github.com/regosen/Gapless-5' target='_blank'>Gapless5</a> player has been replaced by my own player<br/> + <a href='https://github.com/BERNARDO31P/Audero-Wav-Extractor' target='_blank'>Audero-Wav-Extractor</a> has been replaced by my own audio-cut system.<br/> + Audio is now streamed in the WebM format, which is much more efficient.",
       "author": "Bernardo de Oliveira",
       "date": "Updated: 14. Jul. 2023"
     },
@@ -120,7 +120,7 @@
     },
     {
       "title": "Version 0.6.2",
-      "message": "Fixed the problem to be not able to use the spacebar in the search field.<br/> Fixed the loading problems in the firewall tab.<br/> Fixed some problems with the player.<br/> Fixed the firewall tab for mobile devices.<br/> Improved the search function, you can now search songs with multiple words.<br/> Improved the volumeslider.<br/><br/> Known bugs:<br/><a style=\"color: grey; text-decoration: line-through\">The songlist isn't showing completely on mobile devices.<br/> You can't play music with some mobile devices while holding it perpendicular, you have to turn it sideways.</a>",
+      "message": "Fixed the problem to be not able to use the spacebar in the search field.<br/> Fixed the loading problems in the firewall tab.<br/> Fixed some problems with the player.<br/> Fixed the firewall tab for mobile devices.<br/> Improved the search function, you can now search songs with multiple words.<br/> Improved the volumeslider.<br/><br/> Known bugs:<br/><span style=\"color: grey; text-decoration: line-through\">The songlist isn't showing completely on mobile devices.<br/> You can't play music with some mobile devices while holding it perpendicular, you have to turn it sideways.</span>",
       "author": "Bernardo de Oliveira",
       "date": "19. Mar. 2017"
     },

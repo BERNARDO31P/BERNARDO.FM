@@ -155,6 +155,10 @@ bindEvent("click", "#content .listAdd", function () {
 
 // TODO: Comment
 function playAction(card) {
+    if (!card.dataset.id) {
+        return;
+    }
+
     clearSongs();
 
     addSongToPlaylist(card);
