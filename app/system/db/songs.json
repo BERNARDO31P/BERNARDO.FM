@@ -4404,5 +4404,172 @@
     "fileName": "Undefined Behavior - Nice Dreams.wav",
     "category": "Psytrance",
     "info": "NIbPqdXf8U16xZ2DVrR"
+  },
+  {
+    "id": "d0gLAytPRRJkl3ceZk2",
+    "cover": "Melting Point - Madmens Quest - Album cover.png",
+    "name": "All The Freaks",
+    "artist": "Melting Point",
+    "length": "6:33",
+    "fileName": "Melting Point - All The Freaks.wav",
+    "category": "Psytrance",
+    "info": "EDsVbzvvy53WORJGF9X"
+  },
+  {
+    "id": "TFcqG9pU1ATxTSEFOd8",
+    "cover": "Melting Point - Madmens Quest - Album cover.png",
+    "name": "Bubble Trouble",
+    "artist": "Melting Point",
+    "length": "7:11",
+    "fileName": "Melting Point - Bubble Trouble.wav",
+    "category": "Psytrance",
+    "info": "EDsVbzvvy53WORJGF9X"
+  },
+  {
+    "id": "GbRRjLeRT49ckh8HP6W",
+    "cover": "Melting Point - Madmens Quest - Album cover.png",
+    "name": "Church Of Sound",
+    "artist": "Melting Point",
+    "length": "6:47",
+    "fileName": "Melting Point - Church Of Sound.wav",
+    "category": "Psytrance",
+    "info": "EDsVbzvvy53WORJGF9X"
+  },
+  {
+    "id": "oLullwoLXwM04wvab15",
+    "cover": "Melting Point - Madmens Quest - Album cover.png",
+    "name": "Frank's Couch Trip",
+    "artist": "Melting Point",
+    "length": "7:20",
+    "fileName": "Melting Point - Franks Couch Trip.wav",
+    "category": "Psytrance",
+    "info": "EDsVbzvvy53WORJGF9X"
+  },
+  {
+    "id": "lUcbtnM5N6dfZCuBS8V",
+    "cover": "Melting Point - Madmens Quest - Album cover.png",
+    "name": "OSCillating",
+    "artist": "Melting Point",
+    "length": "7:00",
+    "fileName": "Melting Point - OSCillating.wav",
+    "category": "Psytrance",
+    "info": "EDsVbzvvy53WORJGF9X"
+  },
+  {
+    "id": "WTWUVBWf26mfbtacUlH",
+    "cover": "Melting Point - Madmens Quest - Album cover.png",
+    "name": "Outer World",
+    "artist": "Melting Point",
+    "length": "6:43",
+    "fileName": "Melting Point - Outer World.wav",
+    "category": "Psytrance",
+    "info": "EDsVbzvvy53WORJGF9X"
+  },
+  {
+    "id": "XpfLuIce1Dk7rzZroRV",
+    "cover": "Melting Point - Madmens Quest - Album cover.png",
+    "name": "Signal 404",
+    "artist": "Melting Point & Ingrained Instincts",
+    "length": "6:50",
+    "fileName": "Melting Point & Ingrained Instincts - Signal 404.wav",
+    "category": "Psytrance",
+    "info": [
+      "EDsVbzvvy53WORJGF9X",
+      "dsXqg6A9ehoF7v4q6Je"
+    ]
+  },
+  {
+    "id": "6mtvP2xJwvyUyUMGuw2",
+    "cover": "Melting Point - Madmens Quest - Album cover.png",
+    "name": "Encounters",
+    "artist": "Melting Point & Neo Shaman",
+    "length": "7:11",
+    "fileName": "Melting Point & Neo Shaman - Encounters.wav",
+    "category": "Psytrance",
+    "info": [
+      "EDsVbzvvy53WORJGF9X",
+      "3upWLibph23W0W2P4s8"
+    ]
+  },
+  {
+    "id": "YDVyzDKYvCMaT943Lwu",
+    "cover": "Melting Point - Madmens Quest - Album cover.png",
+    "name": "Woke & Wasted",
+    "artist": "Melting Point & Technology",
+    "length": "7:15",
+    "fileName": "Melting Point & Technology - Woke & Wasted.wav",
+    "category": "Psytrance",
+    "info": [
+      "EDsVbzvvy53WORJGF9X",
+      "ZTRvpWL8qdtOBGfGXde"
+    ]
+  },
+  {
+    "id": "hUkdxL9t87qKIBkCq5U",
+    "cover": "Melting Point - Madmens Quest - Album cover.png",
+    "name": "Delirium In Tacoland",
+    "artist": "Melting Point & Tron",
+    "length": "6:36",
+    "fileName": "Melting Point & Tron - Delirium In Tacoland.wav",
+    "category": "Psytrance",
+    "info": [
+      "EDsVbzvvy53WORJGF9X",
+      "G1rdJSeBZnOa38kj783"
+    ]
+  },
+  {
+    "id": "VtMaM9x3ABnKDIeDKnP",
+    "cover": "Melting Point - Madmens Quest - Album cover.png",
+    "name": "Melting Point - Madmen's Quest",
+    "category": "Albums",
+    "playlist": [
+      "d0gLAytPRRJkl3ceZk2",
+      "XpfLuIce1Dk7rzZroRV",
+      "WTWUVBWf26mfbtacUlH",
+      "lUcbtnM5N6dfZCuBS8V",
+      "GbRRjLeRT49ckh8HP6W",
+      "YDVyzDKYvCMaT943Lwu",
+      "TFcqG9pU1ATxTSEFOd8",
+      "hUkdxL9t87qKIBkCq5U",
+      "oLullwoLXwM04wvab15",
+      "6mtvP2xJwvyUyUMGuw2"
+    ]
+  },
+  {
+    "id": "WiRamED8IxhXncCB1CE",
+    "cover": "OxyFlux - A Sunny Day In Hell.jpg",
+    "name": "A Sunny Day In Hell",
+    "artist": "OxyFlux",
+    "length": "8:09",
+    "fileName": "OxyFlux - A Sunny Day In Hell.wav",
+    "category": "Psytrance",
+    "info": "AT4sQAa4d7Twpvh8Y7a"
+  },
+  {
+    "id": "v0C55xuiPxwR2UFtWt8",
+    "cover": "OxyFlux & Radikal Moodz - Fancy Footwork (Juggerknot Remix).jpg",
+    "name": "Fancy Footwork (Juggerknot Remix)",
+    "artist": "OxyFlux & Radikal Moodz",
+    "length": "6:56",
+    "fileName": "OxyFlux & Radikal Moodz - Fancy Footwork (Juggerknot Remix).wav",
+    "category": "Psytrance",
+    "info": [
+      "AT4sQAa4d7Twpvh8Y7a",
+      "Tzx4GnAqT2LyLEmSO4L",
+      "108sTRuC3UMjUJkNSVE"
+    ]
+  },
+  {
+    "id": "BL7UYPLMlS2tT9nuvx6",
+    "cover": "Oxyflux & Ajja - Quantum Tat Sat.jpg",
+    "name": "Quantum Tat Sat",
+    "artist": "Oxyflux & Ajja",
+    "length": "7:24",
+    "fileName": "Oxyflux & Ajja - Quantum Tat Sat.wav",
+    "category": "Psytrance",
+    "info": [
+      "AT4sQAa4d7Twpvh8Y7a",
+      "gXXgbAQBofIl0mh22iA"
+    ]
   }
 ]
