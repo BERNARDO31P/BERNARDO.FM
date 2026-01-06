@@ -4571,5 +4571,90 @@
       "AT4sQAa4d7Twpvh8Y7a",
       "gXXgbAQBofIl0mh22iA"
     ]
+  },
+  {
+    "id": "TDUN5XeIVt9ydu9TGuU",
+    "cover": "Ajja - Guitar Therapy - Album Cover.jpg",
+    "name": "Guitar Therapy - Session 1",
+    "artist": "Ajja",
+    "length": "24:18",
+    "fileName": "Ajja - Guitar Therapy - Session 1.wav",
+    "category": "Psybient",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "XupJRIAcWuRb7lA1stv",
+    "cover": "Ajja - Guitar Therapy - Album Cover.jpg",
+    "name": "Guitar Therapy - Session 2",
+    "artist": "Ajja",
+    "length": "22:28",
+    "fileName": "Ajja - Guitar Therapy - Session 2.wav",
+    "category": "Psybient",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "Y8DfgqqsLKY3M3cbrn9",
+    "cover": "Ajja - Guitar Therapy - Album Cover.jpg",
+    "name": "Guitar Therapy - Session 3",
+    "artist": "Ajja",
+    "length": "22:00",
+    "fileName": "Ajja - Guitar Therapy - Session 3.wav",
+    "category": "Psybient",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "yvupEcbGkTlQ2onRv6p",
+    "cover": "Ajja - Guitar Therapy - Album Cover.jpg",
+    "name": "Guitar Therapy - Session 4",
+    "artist": "Ajja",
+    "length": "8:14",
+    "fileName": "Ajja - Guitar Therapy - Session 4.wav",
+    "category": "Psybient",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "cGJuxx2lZVmjj7u2YnO",
+    "cover": "Ajja - Guitar Therapy - Album Cover.jpg",
+    "name": "Guitar Therapy - Session 5",
+    "artist": "Ajja",
+    "length": "9:12",
+    "fileName": "Ajja - Guitar Therapy - Session 5.wav",
+    "category": "Psybient",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "6xWpJLxidPqbmE4GLgA",
+    "cover": "Ajja - Guitar Therapy - Album Cover.jpg",
+    "name": "Guitar Therapy - Session 6",
+    "artist": "Ajja",
+    "length": "21:49",
+    "fileName": "Ajja - Guitar Therapy - Session 6.wav",
+    "category": "Psybient",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "5mmD6jMlJLZGnME5HpM",
+    "cover": "Ajja - Guitar Therapy - Album Cover.jpg",
+    "name": "Guitar Therapy - Session 7",
+    "artist": "Ajja",
+    "length": "16:10",
+    "fileName": "Ajja - Guitar Therapy - Session 7.wav",
+    "category": "Psybient",
+    "info": "gXXgbAQBofIl0mh22iA"
+  },
+  {
+    "id": "VtMaM9x3ABnKDIeDKnP",
+    "cover": "Ajja - Guitar Therapy - Album Cover.jpg",
+    "name": "Ajja - Guitar Therapy Live Sessions",
+    "category": "Albums",
+    "playlist": [
+      "TDUN5XeIVt9ydu9TGuU",
+      "XupJRIAcWuRb7lA1stv",
+      "Y8DfgqqsLKY3M3cbrn9",
+      "yvupEcbGkTlQ2onRv6p",
+      "cGJuxx2lZVmjj7u2YnO",
+      "6xWpJLxidPqbmE4GLgA",
+      "5mmD6jMlJLZGnME5HpM"
+    ]
   }
 ]
