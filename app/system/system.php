@@ -391,15 +391,23 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
         }
     }
 
+    if (isIosRequest()) {
+        $audioCodec = "pcm_s16le";
+        $format     = "wav";
+    } else {
+        $audioCodec = "flac";
+        $format     = "flac";
+    }
+
     $command_cut = "{$ffmpegPath} " .
         "-ss {$timeFrom} " .
         "-i \"{$cacheFile}\" " .
         "-vn " .
         "-af \"atrim=start=0:duration={$time},aformat=sample_fmts=s16:sample_rates=44100:channel_layouts=stereo\" " .
-        "-c:a flac " .
+        "-c:a {$audioCodec} " .
         "-compression_level 12 " .
         "-map_metadata -1 " .
-        "-f flac -";
+        "-f {$format} -";
 
     $process_cut = proc_open($command_cut, [
         0 => ["pipe", "r"],
@@ -424,8 +432,8 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
         throw new RuntimeException("FFmpeg cut failed\n{$cutError}");
     }
 
-    header("Content-Type: audio/flac");
-    header("Content-Disposition: attachment; filename=output.flac");
+    header("Content-Type: audio/{$format}");
+    header("Content-Disposition: attachment; filename=output.{$format}");
     header("Content-Length: " . strlen($audioData));
 
     echo $audioData;
@@ -528,12 +536,5 @@ $router->get("/temp/(.*)", function ($image) {
 $router->get("/phpinfo", function () {
     phpinfo();
 });
-
-function enable_cache($time): void
-{
-    header("Cache-Control: public, max-age=86400");
-    header("Expires: " . gmdate("D, d M Y H:i:s \G\M\T", time() + $time));
-    header("Pragma: ");
-}
 
 $router->run();

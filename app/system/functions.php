@@ -590,3 +590,29 @@ function analyzeAudio(string $fileName): array
 
     return $data;
 }
+
+function isIosRequest(): bool
+{
+    if (!isset($_SERVER["HTTP_USER_AGENT"])) {
+        return false;
+    }
+
+    $ua = $_SERVER["HTTP_USER_AGENT"];
+
+    if (preg_match("/(iPhone|iPad|iPod)/i", $ua)) {
+        return true;
+    }
+
+    if (preg_match("/Macintosh/i", $ua) && preg_match("/Mobile/i", $ua)) {
+        return true;
+    }
+
+    return false;
+}
+
+function enable_cache($time): void
+{
+    header("Cache-Control: public, max-age=86400");
+    header("Expires: " . gmdate("D, d M Y H:i:s \G\M\T", time() + $time));
+    header("Pragma: ");
+}
