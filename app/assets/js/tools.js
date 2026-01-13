@@ -256,7 +256,7 @@ function updateSearch() {
 
     if (search.style.width !== "") {
         setTimeout(function () {
-            showSearch();
+            showSearch(false);
         }, 200);
     }
 }
@@ -1009,19 +1009,22 @@ function muteAudio() {
  *
  * Zeigt das Suchfeld und fügt ein Fokus hinzu
  */
-function showSearch() {
+function showSearch(focus = true) {
     let searchToggler = document.getElementsByClassName("search-toggler")[0];
     let input = searchToggler.closest(".icons").querySelector("#search input");
     let width = "";
 
-    if (getWidth() <= 345) width = getWidth() - 155 + "px";
-    else if (getWidth() <= 500) width = getWidth() - 225 + "px";
-    else if (getWidth() <= 1150) width = getWidth() - 290 + "px";
+    if (getWidth() <= 345) width = getWidth() - 165 + "px";
+    else if (getWidth() <= 500) width = getWidth() - 235 + "px";
+    else if (getWidth() <= 1150) width = getWidth() - 310 + "px";
 
     input.style.width = width;
     input.classList.add("show");
 
-    input.focus();
+    if (focus) {
+        input.focus();
+    }
+
     document.getElementById("menu").classList.remove("show");
 }
 

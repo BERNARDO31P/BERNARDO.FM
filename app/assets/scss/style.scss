@@ -306,7 +306,7 @@ a.button {
 
   #menu {
     position: absolute;
-    top: 61px;
+    top: 60px;
     right: 0;
     background-color: var(--navbar-background);
 
@@ -1804,7 +1804,7 @@ a.button {
 
         #search {
           input {
-            margin: 0 90px 0 0;
+            margin: 0 100px 0 0;
             width: 5px;
             padding: 12px 0;
 
@@ -2024,13 +2024,19 @@ a.button {
 }
 
 @media screen and (max-width: 500px) {
-  #search {
-    input {
-      margin: 0 30px 0 0 !important;
+  #navbar #navigation .permanent {
+    .search-toggler {
+      margin: 0;
     }
 
-    .fa-times {
-      right: 75px !important;
+    #search {
+      input {
+        margin: 0 40px 0 0 !important;
+      }
+
+      .fa-times {
+        right: 75px !important;
+      }
     }
   }
 
