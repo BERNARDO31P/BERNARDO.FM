@@ -281,6 +281,8 @@ bindEvent("input", "#search input", function () {
     if (page !== "music") prevPage = getGetParameter(location.href, "page");
 
     searchTimeout = setTimeout(function () {
+        window.scrollTo(0, 0);
+
         if (!value) {
             times.classList.remove("show");
             page = (prevPage) ? prevPage : "music";
