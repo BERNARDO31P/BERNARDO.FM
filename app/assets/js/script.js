@@ -441,6 +441,8 @@ bindEvent("click", ".theme-toggler", function () {
  */
 bindEvent("click", ".search-toggler", function () {
     showSearch();
+
+    document.getElementById("menu").classList.remove("show");
 });
 
 /*

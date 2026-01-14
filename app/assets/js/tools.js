@@ -1024,8 +1024,6 @@ function showSearch(focus = true) {
     if (focus) {
         input.focus();
     }
-
-    document.getElementById("menu").classList.remove("show");
 }
 
 /*
