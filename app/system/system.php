@@ -213,7 +213,7 @@ $router->get("/song/([\\w-]+)(?:/([A-Za-z][\\w-]*))?$", function ($id, $mode = n
         unset($song["artist"]);
         unset($song["length"]);
         unset($song["cover"]);
-    } elseif ($mode === "single") {
+    } elseif (!isset($song["playlist"]) && $mode === "single") {
         $song["playlist"] = [$song["id"]];
     }
 
