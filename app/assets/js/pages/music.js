@@ -36,7 +36,7 @@ const menuItems = {
             addDiv.append(helperDiv);
             return addDiv;
         }, "action": (card) => {
-            addSongToPlaylist(card);
+            addSongToPlaylist(card, 0, false, true);
             showNotification("Song added to queue", 3000);
         }
     }, "next": {
@@ -59,7 +59,7 @@ const menuItems = {
             addDiv.append(helperDiv);
             return addDiv;
         }, "action": (card) => {
-            addSongToPlaylist(card, 0, true);
+            addSongToPlaylist(card, 0, true, true);
             showNotification("Song will be played next", 3000);
         }
     }, "share": {
@@ -791,11 +791,17 @@ window["music"] = async () => {    /*
  * Liest die ID vom Lied aus den Objekt-Eigenschaften aus
  * Lädt die Informationen vom Lied herunter und fügt diese zur Wiedergabenliste hinzu
  */
-function addSongToPlaylist(element, id = 0, next = false) {
+function addSongToPlaylist(element, id = 0, next = false, single = false) {
     let songID = id;
     if (element) songID = element.dataset.id;
 
-    let data = tryParseJSON(httpGet(pageURL + "system/song/" + songID));
+    let url = pageURL + "system/song/" + songID;
+
+    if (single) {
+        url = url + "/single";
+    }
+
+    let data = tryParseJSON(httpGet(url));
     if (!Object.values(data).length) return;
 
     if (typeof data[0] === "undefined") data = [data]; else deleteMultiple(data, ["cover", "name", "count"]);

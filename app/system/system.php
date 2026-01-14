@@ -177,13 +177,13 @@ $router->get("/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)", function ($search, $cat
  *
  * Fügt dem Cover weitere Pfadinformationen hinzu
  */
-$router->get("/song/([\w-]*)$", function ($id) {
+$router->get("/song/([\\w-]+)(?:/([A-Za-z][\\w-]*))?$", function ($id, $mode = null) {
     $db   = loadDatabase();
     $song = search_song($id, $db);
 
     $originalSong = $song;
 
-    if (!isset($song["playlist"])) {
+    if (!isset($song["playlist"]) && $mode !== "single") {
         if (!isset($song["category"])) {
             exit;
         }
@@ -213,6 +213,8 @@ $router->get("/song/([\w-]*)$", function ($id) {
         unset($song["artist"]);
         unset($song["length"]);
         unset($song["cover"]);
+    } elseif ($mode === "single") {
+        $song["playlist"] = [$song["id"]];
     }
 
     $playlist = array();
