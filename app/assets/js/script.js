@@ -6,15 +6,12 @@
  */
 window.addEventListener("scroll", () => {
     let navbar = document.getElementById("navbar");
-    let menu = document.getElementById("menu");
 
     if (window.scrollY === 0) {
         navbar.classList.remove("shadow");
     } else {
         navbar.classList.add("shadow");
     }
-
-    if (menu.classList.contains("show")) menu.classList.remove("show");
 });
 
 document.addEventListener("visibilitychange", function () {
@@ -170,9 +167,9 @@ bindEvent("click", "#navbar [data-page]", function (e) {
 bindEvent("click", "#navbar-toggler", function () {
     let navigation = document.querySelector("#navigation");
 
-    if (navigation.classList.contains("show"))
+    if (navigation.classList.contains("show")) {
         navigation.classList.remove("show");
-    else {
+    } else {
         navigation.classList.add("show");
 
         let menu = document.querySelector("#menu");
@@ -455,29 +452,13 @@ bindEvent("click", ".search-toggler", function () {
 bindEvent("click", "#menu-toggler", function () {
     let menu = this.parentNode.querySelector("#menu");
 
-    if (menu.classList.contains("show"))
+    if (menu.classList.contains("show")) {
         menu.classList.remove("show");
-    else {
+    } else {
         menu.classList.add("show");
 
         let navigation = document.querySelector("#navigation");
         navigation.classList.remove("show");
-    }
-});
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Versteckt das Menü, sobald die Maus es verlässt
- */
-bindEvent("mouseout", "#menu", function () {
-    if (!isTouchScreen()) {
-        let menu = this;
-
-        setTimeout(function () {
-            if (currentHover.closest("#menu") !== menu) menu.classList.remove("show");
-        });
     }
 });
 
