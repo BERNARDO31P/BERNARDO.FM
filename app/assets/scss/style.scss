@@ -2086,6 +2086,10 @@ a.button {
 }
 
 @media screen and (max-width: 385px) {
+  #navbar #logo {
+    font-size: 25px;
+  }
+
   .responsive-table tbody td {
     max-width: 85px;
   }
