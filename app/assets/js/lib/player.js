@@ -179,9 +179,9 @@ class MultiTrackPlayer extends EventTarget {
             this.removeTimeUpdate();
         }
 
-        navigator.mediaSession.playbackState = "paused";
-
         if (!this.#audioTag.paused) this.#audioTag.pause();
+
+        navigator.mediaSession.playbackState = "paused";
 
         this.#clearTimeouts();
         this.setOffset(this.getCurrentPartTime());
