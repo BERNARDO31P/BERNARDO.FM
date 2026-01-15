@@ -1953,6 +1953,7 @@ a.button {
       width: calc(100% + 10px);
       height: calc(100% - 35px);
       overflow-y: scroll;
+      overflow-x: hidden;
 
       box-shadow: -1px -1px 3px var(--shadow-light);
 
@@ -2081,6 +2082,12 @@ a.button {
     .volumeBackground {
       left: 5px !important;
     }
+  }
+}
+
+@media screen and (max-width: 385px) {
+  .responsive-table tbody td {
+    max-width: 85px;
   }
 }
 
