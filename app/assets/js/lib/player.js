@@ -119,7 +119,9 @@ class MultiTrackPlayer extends EventTarget {
         if (this.#audioTag.paused) await this.#audioTag.play();
         if (audioContext.state !== "running") await audioContext.resume();
 
-        navigator.mediaSession.playbackState = "playing";
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = "playing";
+        }
 
         this.#setPositionState();
         this.addTimeUpdate();
@@ -181,7 +183,14 @@ class MultiTrackPlayer extends EventTarget {
 
         if (!this.#audioTag.paused) this.#audioTag.pause();
 
-        navigator.mediaSession.playbackState = "paused";
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = "paused";
+            navigator.mediaSession.setPositionState({
+                duration: this.#audioTag.duration,
+                playbackRate: 0.00001,
+                position: this.#audioTag.currentTime
+            });
+        }
 
         this.#clearTimeouts();
         this.setOffset(this.getCurrentPartTime());
