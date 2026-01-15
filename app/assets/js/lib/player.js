@@ -74,6 +74,8 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     removeTimeUpdate() {
+        navigator.mediaSession.playbackState = "paused";
+
         if (this.#timeUpdateHandler !== null) {
             this.#audioTag.removeEventListener("timeupdate", this.#timeUpdateHandler);
             this.#timeUpdateHandler = null;
@@ -118,6 +120,8 @@ class MultiTrackPlayer extends EventTarget {
 
         if (this.#audioTag.paused) await this.#audioTag.play();
         if (audioContext.state !== "running") await audioContext.resume();
+
+        navigator.mediaSession.playbackState = "playing";
 
         this.#setPositionState();
         this.addTimeUpdate();
