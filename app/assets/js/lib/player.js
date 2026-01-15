@@ -74,8 +74,6 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     removeTimeUpdate() {
-        navigator.mediaSession.playbackState = "paused";
-
         if (this.#timeUpdateHandler !== null) {
             this.#audioTag.removeEventListener("timeupdate", this.#timeUpdateHandler);
             this.#timeUpdateHandler = null;
@@ -182,6 +180,8 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         if (!this.#audioTag.paused) this.#audioTag.pause();
+
+        navigator.mediaSession.playbackState = "paused";
 
         this.#clearTimeouts();
         this.setOffset(this.getCurrentPartTime());
