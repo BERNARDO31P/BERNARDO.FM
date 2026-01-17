@@ -100,7 +100,7 @@
     "cover": "Dillon Cooper - Knuckle Up.jpg",
     "name": "Knuckle Up",
     "artist": "Dillon Cooper",
-    "length": "3:05",
+    "length": "3:00",
     "fileName": "Dillon Cooper - Knuckle Up.wav",
     "category": "Hip Hop",
     "info": "9_85SxzXAA9uISNplYs"
@@ -4756,5 +4756,308 @@
     "fileName": "Animalien - Bamba Avenue.wav",
     "category": "Psytrance",
     "info": "9ntBwg8pQstMoa8sxew"
+  },
+  {
+    "id": "CJwzV5xsVkCFvAKCyfo",
+    "cover": "Mental Projection & Gigi - Cognitive Dissonance.jpg",
+    "name": "Cognitive Dissonance",
+    "artist": "Mental Projection & Gigi",
+    "length": "8:12",
+    "fileName": "Mental Projection & Gigi - Cognitive Dissonance.wav",
+    "category": "Psytrance",
+    "info": [
+      "X53ift8ieBO9zcofSvX",
+      "Q3YQNyFGh8b73pIJ5d8"
+    ]
+  },
+  {
+    "id": "0MrbtHY8ASjqwPClsmG",
+    "cover": "Mekkanikka & S-Range - Rave World.jpg",
+    "name": "Rave World",
+    "artist": "Mekkanikka & S-Range",
+    "length": "7:36",
+    "fileName": "Mekkanikka & S-Range - Rave World.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "KeLUY1EMUdpUY0gC3Zf"
+    ]
+  },
+  {
+    "id": "g7zSUFbChFlBxOKlWF5",
+    "cover": "Endeavour - Prismatic Oscillations - Album Cover.jpg",
+    "name": "Millenium",
+    "artist": "Endeavour",
+    "length": "7:14",
+    "fileName": "Endeavour - Millenium.wav",
+    "category": "Psytrance",
+    "info": "0Ycf551Zl2oAVTaJ1ZK"
+  },
+  {
+    "id": "Cpr97j5I5ectMRWhC4v",
+    "cover": "Endeavour - Prismatic Oscillations - Album Cover.jpg",
+    "name": "Call Me Crazy",
+    "artist": "Endeavour & Jumpstreet",
+    "length": "7:01",
+    "fileName": "Endeavour & Jumpstreet - Call Me Crazy.wav",
+    "category": "Psytrance",
+    "info": [
+      "0Ycf551Zl2oAVTaJ1ZK",
+      "XcKXf9D6d9vphLHhECz"
+    ]
+  },
+  {
+    "id": "IlYnPCDSBTfeuvD3vFG",
+    "cover": "Endeavour - Prismatic Oscillations - Album Cover.jpg",
+    "name": "Natural Selection",
+    "artist": "Endeavour & Daksinamurti",
+    "length": "7:32",
+    "fileName": "Endeavour & Daksinamurti - Natural Selection.wav",
+    "category": "Psytrance",
+    "info": [
+      "0Ycf551Zl2oAVTaJ1ZK",
+      "QxCJPjqX1g5OnqRQ5MH"
+    ]
+  },
+  {
+    "id": "zECfYAOynPaBTBsl3mm",
+    "cover": "Endeavour - Prismatic Oscillations - Album Cover.jpg",
+    "name": "Full Spectrum",
+    "artist": "Endeavour & Illumination",
+    "length": "6:52",
+    "fileName": "Endeavour & Illumination - Full Spectrum.wav",
+    "category": "Psytrance",
+    "info": [
+      "0Ycf551Zl2oAVTaJ1ZK",
+      "RYlbIfp6qhFSuTXpkFS"
+    ]
+  },
+  {
+    "id": "FIVbWK831EcmMcE6JgZ",
+    "cover": "Endeavour - Prismatic Oscillations - Album Cover.jpg",
+    "name": "Pharmaceutical",
+    "artist": "Endeavour & Fungus Funk",
+    "length": "7:43",
+    "fileName": "Endeavour & Fungus Funk - Pharmaceutical.wav",
+    "category": "Psytrance",
+    "info": [
+      "0Ycf551Zl2oAVTaJ1ZK",
+      "Q9CVu3rp7BWQdmfXPp5"
+    ]
+  },
+  {
+    "id": "iMgi8WDKADZ5oplMO9K",
+    "cover": "Endeavour - Prismatic Oscillations - Album Cover.jpg",
+    "name": "Culturally Appropriate",
+    "artist": "Endeavour",
+    "length": "7:27",
+    "fileName": "Endeavour - Culturally Appropriate.wav",
+    "category": "Psytrance",
+    "info": "0Ycf551Zl2oAVTaJ1ZK"
+  },
+  {
+    "id": "2LXvEgwr5vSQUra3HvK",
+    "cover": "Endeavour - Prismatic Oscillations - Album Cover.jpg",
+    "name": "The Golden Order",
+    "artist": "Endeavour & Ingrained Instincts",
+    "length": "7:56",
+    "fileName": "Endeavour & Ingrained Instincts - The Golden Order.wav",
+    "category": "Psytrance",
+    "info": [
+      "0Ycf551Zl2oAVTaJ1ZK",
+      "dsXqg6A9ehoF7v4q6Je"
+    ]
+  },
+  {
+    "id": "5Ogt6QwriCcSWDyJ2WB",
+    "cover": "Endeavour - Prismatic Oscillations - Album Cover.jpg",
+    "name": "Ballistic",
+    "artist": "Endeavour & Nektarios",
+    "length": "7:40",
+    "fileName": "Endeavour & Nektarios - Ballistic.wav",
+    "category": "Psytrance",
+    "info": [
+      "0Ycf551Zl2oAVTaJ1ZK",
+      "WTfFiR6B6OFxvwvXFsa"
+    ]
+  },
+  {
+    "id": "ze4pCc2NY1UY5ZUxPJx",
+    "cover": "Endeavour - Prismatic Oscillations - Album Cover.jpg",
+    "name": "E Allora (Endeavour Remix)",
+    "artist": "Kabayun, Ingrained Instincts, Fungus Funk, Dsompa & Drip Drop",
+    "length": "7:17",
+    "fileName": "Kabayun, Ingrained Instincts, Fungus Funk, Dsompa & Drip Drop - E Allora (Endeavour Remix).wav",
+    "category": "Psytrance",
+    "info": [
+      "YvzzqAwqRJFe3rRItGX",
+      "dsXqg6A9ehoF7v4q6Je",
+      "Q9CVu3rp7BWQdmfXPp5",
+      "UmAPuYNbkR5f0lEykOY",
+      "PMrIE9mR4TKy0luZXz9",
+      "0Ycf551Zl2oAVTaJ1ZK"
+    ]
+  },
+  {
+    "id": "bWFVymYmAhzOic5kffv",
+    "cover": "Endeavour - Prismatic Oscillations - Album Cover.jpg",
+    "name": "Endeavour - Prismatic Oscillations",
+    "category": "Albums",
+    "playlist": [
+      "g7zSUFbChFlBxOKlWF5",
+      "Cpr97j5I5ectMRWhC4v",
+      "IlYnPCDSBTfeuvD3vFG",
+      "zECfYAOynPaBTBsl3mm",
+      "FIVbWK831EcmMcE6JgZ",
+      "iMgi8WDKADZ5oplMO9K",
+      "2LXvEgwr5vSQUra3HvK",
+      "5Ogt6QwriCcSWDyJ2WB",
+      "ze4pCc2NY1UY5ZUxPJx"
+    ]
+  },
+  {
+    "id": "cb7nl57hdmDApLn5h0B",
+    "cover": "Fungus Funk - Emergency Dancefloor Kit - Album Cover.jpg",
+    "name": "Quantum Causality",
+    "artist": "Fungus Funk & Burn In Noise",
+    "length": "7:40",
+    "fileName": "Fungus Funk & Burn In Noise - Quantum Causality.wav",
+    "category": "Psytrance",
+    "info": [
+      "Q9CVu3rp7BWQdmfXPp5",
+      "Bj0tK88PaKdXFh14cKn"
+    ]
+  },
+  {
+    "id": "AbcaVOFCh6kEDlRVI1m",
+    "cover": "Fungus Funk - Emergency Dancefloor Kit - Album Cover.jpg",
+    "name": "The History of Imagination",
+    "artist": "Fungus Funk & Tristan",
+    "length": "7:46",
+    "fileName": "Fungus Funk & Tristan - The History of Imagination.wav",
+    "category": "Psytrance",
+    "info": [
+      "Q9CVu3rp7BWQdmfXPp5",
+      "1BgWpDfDllU6gUCD1bH"
+    ]
+  },
+  {
+    "id": "unIz0MdAwaYuFZHhygx",
+    "cover": "Fungus Funk - Emergency Dancefloor Kit - Album Cover.jpg",
+    "name": "Best Times",
+    "artist": "Fungus Funk & Ingrained Instincts",
+    "length": "7:44",
+    "fileName": "Fungus Funk & Ingrained Instincts - Best Times.wav",
+    "category": "Psytrance",
+    "info": [
+      "Q9CVu3rp7BWQdmfXPp5",
+      "dsXqg6A9ehoF7v4q6Je"
+    ]
+  },
+  {
+    "id": "bqvRji67kFWrykveqlB",
+    "cover": "Fungus Funk - Emergency Dancefloor Kit - Album Cover.jpg",
+    "name": "To the Future",
+    "artist": "Fungus Funk & Endeavour",
+    "length": "7:56",
+    "fileName": "Fungus Funk & Endeavour - To the Future.wav",
+    "category": "Psytrance",
+    "info": [
+      "Q9CVu3rp7BWQdmfXPp5",
+      "0Ycf551Zl2oAVTaJ1ZK"
+    ]
+  },
+  {
+    "id": "FhYGZ087jOXtyyHWeBA",
+    "cover": "Fungus Funk - Emergency Dancefloor Kit - Album Cover.jpg",
+    "name": "Luna Park",
+    "artist": "Fungus Funk & Assioma",
+    "length": "7:13",
+    "fileName": "Fungus Funk & Assioma - Luna Park.wav",
+    "category": "Psytrance",
+    "info": [
+      "Q9CVu3rp7BWQdmfXPp5",
+      "vEU96PDox3GUAW2upyI"
+    ]
+  },
+  {
+    "id": "3HIgFxVje9hPri8Hs2p",
+    "cover": "Fungus Funk - Emergency Dancefloor Kit - Album Cover.jpg",
+    "name": "Spirit Animal",
+    "artist": "Fungus Funk & Virtual Light",
+    "length": "8:00",
+    "fileName": "Fungus Funk & Virtual Light - Spirit Animal.wav",
+    "category": "Psytrance",
+    "info": [
+      "Q9CVu3rp7BWQdmfXPp5",
+      "cr3kZHk_GN4GRNuvKWY"
+    ]
+  },
+  {
+    "id": "jsTQRmbXK3q3Xc11Kji",
+    "cover": "Fungus Funk - Emergency Dancefloor Kit - Album Cover.jpg",
+    "name": "Sonic Elixir",
+    "artist": "Fungus Funk & Ajja",
+    "length": "8:42",
+    "fileName": "Fungus Funk & Ajja - Sonic Elixir.wav",
+    "category": "Psytrance",
+    "info": [
+      "Q9CVu3rp7BWQdmfXPp5",
+      "gXXgbAQBofIl0mh22iA"
+    ]
+  },
+  {
+    "id": "y7r7OZR2sWECeKW3fjO",
+    "cover": "Fungus Funk - Emergency Dancefloor Kit - Album Cover.jpg",
+    "name": "Space Cats",
+    "artist": "Fungus Funk & Circus Bent",
+    "length": "7:59",
+    "fileName": "Fungus Funk & Circus Bent - Space Cats.wav",
+    "category": "Psytrance",
+    "info": [
+      "Q9CVu3rp7BWQdmfXPp5",
+      "sFdZ3eXGn2B565s74dJ"
+    ]
+  },
+  {
+    "id": "ChzJnOpRzSb9gDFiZxe",
+    "cover": "Fungus Funk - Emergency Dancefloor Kit - Album Cover.jpg",
+    "name": "Moon Rock (Album Edit)",
+    "artist": "Fungus Funk",
+    "length": "7:23",
+    "fileName": "Fungus Funk - Moon Rock (Album Edit).wav",
+    "category": "Psytrance",
+    "info": "Q9CVu3rp7BWQdmfXPp5"
+  },
+  {
+    "id": "7UF35ubdfotnRD1OKgW",
+    "cover": "Fungus Funk - Emergency Dancefloor Kit - Album Cover.jpg",
+    "name": "Follow the Flow",
+    "artist": "Fungus Funk & Ace Ventura",
+    "length": "9:21",
+    "fileName": "Fungus Funk & Ace Ventura - Follow the Flow.wav",
+    "category": "Psytrance",
+    "info": [
+      "Q9CVu3rp7BWQdmfXPp5",
+      "Ri1N-jefJDXIcHCW1dJ"
+    ]
+  },
+  {
+    "id": "092r50vVPXVkXLs5Ew2",
+    "cover": "Fungus Funk - Emergency Dancefloor Kit - Album Cover.jpg",
+    "name": "Fungus Funk - Emergency Dancefloor Kit",
+    "category": "Albums",
+    "playlist": [
+      "cb7nl57hdmDApLn5h0B",
+      "AbcaVOFCh6kEDlRVI1m",
+      "unIz0MdAwaYuFZHhygx",
+      "bqvRji67kFWrykveqlB",
+      "FhYGZ087jOXtyyHWeBA",
+      "3HIgFxVje9hPri8Hs2p",
+      "jsTQRmbXK3q3Xc11Kji",
+      "y7r7OZR2sWECeKW3fjO",
+      "ChzJnOpRzSb9gDFiZxe",
+      "7UF35ubdfotnRD1OKgW"
+    ]
   }
 ]
