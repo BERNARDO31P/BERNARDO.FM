@@ -138,6 +138,9 @@ class MultiTrackPlayer extends EventTarget {
 
             this.#playing = true;
 
+            if (this.#audioTag.paused)
+                this.#audioTag.play();
+
             if (audioContext.state !== "running")
                 audioContext.resume();
 
