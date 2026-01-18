@@ -266,7 +266,7 @@ function showContext(e, card, items) {
         }
     }
 
-    const data = tryParseJSON(httpGet(pageURL + "system/song/" + card.dataset.id));
+    const data = tryParseJSON(httpGet(pageURL + "system/song/" + card.dataset.id + "/single"));
     const marquee = document.createElement("div");
     marquee.classList.add("marquee");
 
