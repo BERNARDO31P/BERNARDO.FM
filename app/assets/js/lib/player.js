@@ -134,6 +134,8 @@ class MultiTrackPlayer extends EventTarget {
             && (this.#currentTrackIndex !== index || this.#initialPlay)
             && (this.#waitIndex === null || this.#waitIndex === index)) {
 
+            this.#clearTimeouts();
+
             this.#playing = true;
 
             if (audioContext.state !== "running")
@@ -169,12 +171,20 @@ class MultiTrackPlayer extends EventTarget {
         }
     }
 
+    #pausePlayback() {
+        this.#clearTimeouts();
+
+        Object.values(this.#audioSources).forEach((source) => {
+            this.#killSource(source);
+        });
+    }
+
     pause(bypass = false) {
         this.#playing = false;
         this.#nextTrackIndex = false;
         this.#waitIndex = null;
 
-        this.#clearTimeouts();
+        this.#pausePlayback();
 
         if (!bypass) {
             this.#audioTag.removeEventListener("play", this.#playEventHandler);
@@ -201,10 +211,7 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         this.setOffset(this.getCurrentPartTime());
-
-        Object.values(this.#audioSources).forEach((source) => {
-            this.#killSource(source);
-        });
+        this.#pausePlayback();
 
         audioContext.suspend().finally(() => {
             if (!this.#stopped) this.dispatchEvent(new Event("pause"));
