@@ -174,6 +174,8 @@ class MultiTrackPlayer extends EventTarget {
         this.#nextTrackIndex = false;
         this.#waitIndex = null;
 
+        this.#clearTimeouts();
+
         if (!bypass) {
             this.#audioTag.removeEventListener("play", this.#playEventHandler);
             this.#audioTag.removeEventListener("pause", this.#pauseEventHandler);
@@ -184,15 +186,20 @@ class MultiTrackPlayer extends EventTarget {
         if (!this.#audioTag.paused) this.#audioTag.pause();
 
         if ('mediaSession' in navigator) {
+            let duration = this.#audioTag.duration;
+
+            if (isNaN(duration)) {
+                duration = 0;
+            }
+
             navigator.mediaSession.playbackState = "paused";
             navigator.mediaSession.setPositionState({
-                duration: this.#audioTag.duration,
+                duration: duration,
                 playbackRate: 0.00001,
                 position: this.#audioTag.currentTime
             });
         }
 
-        this.#clearTimeouts();
         this.setOffset(this.getCurrentPartTime());
 
         Object.values(this.#audioSources).forEach((source) => {
