@@ -1103,7 +1103,7 @@ a.button {
   top: 100%;
 
   width: calc(100% - 40px);
-  height: calc(100% - 200px);
+  height: calc(100% - 190px);
 
   overflow: hidden;
 
@@ -1181,7 +1181,7 @@ a.button {
 
   #queueInfo {
     width: 50%;
-    padding: 0 0 10px 10px;
+    padding: 0 0 0 10px;
 
     position: relative;
     overflow: hidden;
@@ -1203,7 +1203,7 @@ a.button {
 
   #queue, #info {
     overflow: auto;
-    height: calc(100vh - 240px);
+    height: calc(100vh - 230px);
 
     position: absolute;
     left: 10px;
@@ -1908,8 +1908,15 @@ a.button {
   }
 
   #player {
+    height: 110px;
+
     #timeline {
       height: 15px;
+      top: 8px;
+    }
+
+    #data {
+      height: 60px;
     }
   }
 }
@@ -1917,9 +1924,9 @@ a.button {
 @media screen and (max-width: 750px) {
   #queueView {
     width: 100%;
-    height: calc(100% - 175px);
+    height: calc(100% - 165px);
 
-    padding: 0 0 40px;
+    padding: 0 0 30px;
 
     h3 {
       margin: 10px 10px 10px 15px;
