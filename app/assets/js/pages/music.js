@@ -119,7 +119,6 @@ const menuItems = {
             }
 
             playlist = generateNumericalOrder(playlist);
-            delete partlist[id];
 
             if (index <= playIndex && !sameIndex) playIndex--;
             if (sameIndex) {

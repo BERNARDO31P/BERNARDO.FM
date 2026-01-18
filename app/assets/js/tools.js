@@ -1,5 +1,4 @@
-let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [],
-    partlist = {}, volume = 0, previousVolume = null, repeatMode = 0,
+let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], volume = 0, previousVolume = null, repeatMode = 0,
     touched = null, contextTimeout = null, touchTimeout = null, touchedElement = null, currentButton = null,
     changedQueue = false, width = getWidth(), height = getHeight() + 100;
 
@@ -1143,16 +1142,6 @@ function play(diffSong = false, pageLoad = false) {
     if (!player.isPlaying()) {
         player.initialize().then(() => {
             hideConfirmation();
-
-            /**
-             * TODO: Change this system to be a single index..
-             *
-             *  Maintaining two indexes in sync is impossible
-             *  Save the from - till information somehow inside the player
-             *  Part index management must be done fully by the player
-             *
-             *  Get index by time etc. must be done by the player
-              */
             player.playNext(partIndex);
 
             if (!document.hidden) {
@@ -1270,7 +1259,6 @@ function clearSongs() {
     nextPartIndex = 0;
 
     playlist = [];
-    partlist = {};
 }
 
 /*
@@ -1377,18 +1365,17 @@ function onTimelineRelease(value, rangeEvent = null) {
     player.setMediaSessionPosition(value);
     pauseSong();
 
-    let songID = playlist[playIndex]["id"];
-    let partInfo = getPartIndexByTime(value);
+    let partInfo = player.getPartIndexByTime(value);
     nextPartIndex = partInfo[2];
 
     if (nextPartIndex === null) {
         playPauseButton("load");
 
-        nextPartIndex = Object.keys(partlist[songID]).length;
+        nextPartIndex = player.getNextPartIndex();
         downloadPart(value, playIndex, nextPartIndex);
     } else {
         if (player.isPlaying()) return;
-        player.setOffset(value - Number(partlist[songID][nextPartIndex]["from"]));
+        player.setOffset(value - player.getPartFrom(nextPartIndex));
 
         partIndex = nextPartIndex;
         play();
@@ -1398,10 +1385,7 @@ function onTimelineRelease(value, rangeEvent = null) {
 // TODO: Comment
 function partIsPlayable(sIndex, pIndex) {
     const song = playlist[sIndex];
-    return !((typeof song["player"] === 'undefined'
-        || typeof partlist[song["id"]] === "undefined"
-        || typeof partlist[song["id"]][pIndex] === "undefined"
-        || typeof partlist[song["id"]][pIndex]["from"] === "undefined"));
+    return !((typeof song["player"] === 'undefined' || !song["player"].partIsPlayable(pIndex)));
 }
 
 /*
@@ -1483,10 +1467,10 @@ function previousSong(bypass = false) {
  */
 function prepareNextPart() {
     const currentSong = playlist[playIndex], songID = currentSong["id"];
-    const currentPart = partlist[songID][partIndex];
+    const currentPart = currentSong["player"].getPart(partIndex);
 
     let nextTime;
-    if (typeof currentPart !== "undefined" && currentPart["till"])
+    if (currentPart && currentPart["till"])
         nextTime = Math.round(currentPart["till"]);
     else return;
 
@@ -1506,15 +1490,15 @@ function prepareNextPart() {
         nextPlayIndex = playIndex;
 
         const player = playlist[nextPlayIndex]["player"];
-        let partInfo = getPartIndexByStartTime(nextTime);
+        let partInfo = player.getPartIndexByStartTime(nextTime);
 
         if (partInfo[2]) {
             nextPartIndex = partInfo[2];
             player.queueTrack(nextPartIndex);
         } else {
-            nextPartIndex = Object.keys(partlist[songID]).length;
+            nextPartIndex = player.getNextPartIndex();
 
-            let missingLength = findMissingLengthByCurrentPart(nextTime);
+            let missingLength = player.findMissingLengthByCurrentPart(nextTime);
             downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength);
         }
     } else if (nextSong && !partIsPlayable(nextPlayIndex, nextPartIndex))
@@ -1538,7 +1522,6 @@ function resetPlayer() {
  *  till: (Integer) Definiert die Zeit, bis wann der nächste Teil gehen soll
  *
  * Lädt ein Teilstück von einem Lied herunter, ab einer bestimmten Zeit
- * Fügt die Informationen zur partlist hinzu
  *
  * Optional kann man auch bis zu einer bestimmten Zeit herunterladen
  */
@@ -1562,25 +1545,7 @@ function downloadPart(time, sIndex, pIndex, till = null) {
         addEvents(player);
     }
 
-    if (typeof partlist[songID] === 'undefined') partlist[songID] = {};
-
-    partlist[songID][pIndex] = {};
-
-    player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), () => {
-        if (typeof partlist[songID] !== "undefined" && typeof partlist[songID][pIndex] !== "undefined") {
-            const length = player.getPartLength(pIndex);
-
-            if (length === 0) {
-                delete partlist[songID][pIndex];
-                return;
-            }
-
-            partlist[songID][pIndex] = {
-                "from": time,
-                "till": time + length
-            };
-        }
-    });
+    player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), time);
 }
 
 /*
@@ -1646,8 +1611,6 @@ function addEvents(player) {
     });
 
     player.addEventListener("downloadError", () => {
-        delete partlist[playlist[playIndex]["id"]][nextPartIndex];
-
         nextPartIndex = partIndex;
 
         if (!player.isPlaying())
@@ -2027,73 +1990,4 @@ function getColumns(data, level = 0, start = 0) {
     }
 
     return columns;
-}
-
-/*
- * Funktion: getPartLength()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  index: (Integer) Definiert den Teil, von welchem die Länge zurückgegeben werden soll
- *
- * Berechnet sich die Länge vom Teil den man benötigt
- */
-function getPartLength(index) {
-    return playlist[playIndex]["player"].getPartLength(index);
-}
-
-/*
- * Funktion: getPartIndexByTime()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  time: (Integer) Definiert die Zeit, welche der Teil beinhalten soll
- *
- * Sucht den Teil welcher die Zeit beinhaltet
- * Wenn die Startzeit kleiner als time und die Endzeit grösser als time ist
- * Wird dieser Teil zurückgegeben, sonst null
- */
-function getPartIndexByTime(time) {
-    let songID = playlist[playIndex]["id"];
-    for (let [index, part] of Object.entries(partlist[songID])) {
-        if (Number(index) !== 0 && part["from"] === 0) continue;
-        if (part["from"] <= time && part["till"] > time) return [part["from"], part["till"], Number(index)];
-    }
-
-    return [null, null, null];
-}
-
-/*
- * Funktion: getPartIndexByStartTime()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  time: (Integer) Definiert die Startzeit von einem Teil
- *
- * Sucht ein Teil, welcher mit der gewünschten Zeit beginnt
- * Gibt diesen zurück, sonst null
- */
-function getPartIndexByStartTime(time) {
-    let songID = playlist[playIndex]["id"];
-    for (let [index, part] of Object.entries(partlist[songID])) {
-        if (part["from"] === time && part["from"] !== part["till"]) return [part["from"], part["till"], Number(index)];
-    }
-
-    return [null, null, null];
-}
-
-/*
- * Funktion: findMissingLengthByCurrentPart()
- * Autor: Bernardo de Oliveira
- *
- * Berechnet wie viel Sekunden es zum nächsten Teil sind
- * Falls kein nächster Teil verfügbar ist oder es länger geht als der jetzige Teil selbst
- * Wird null zurückgegeben, sonst die Zeit in Sekunden
- */
-function findMissingLengthByCurrentPart(time) {
-    let currentLength = getPartLength(partIndex);
-    let songID = playlist[playIndex]["id"];
-
-    for (let part of Object.values(partlist[songID])) {
-        if (part["from"] - time > 1 && part["from"] - time <= currentLength)
-            return part["from"] - time;
-    }
-    return null;
 }

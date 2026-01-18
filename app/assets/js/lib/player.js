@@ -17,6 +17,7 @@ class MultiTrackPlayer extends EventTarget {
     #volume = 1;
     #gainNode = null;
 
+    #indexes = [];
     #urls = [];
     #audioBuffers = {};
     #audioSources = {};
@@ -84,7 +85,7 @@ class MultiTrackPlayer extends EventTarget {
         this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.getCurrentTime()}}));
     }
 
-    async addTrack(url, callback) {
+    async addTrack(url, time, callback) {
         this.#stopped = false;
         this.#nextTrackIndex = false;
 
@@ -103,6 +104,67 @@ class MultiTrackPlayer extends EventTarget {
             this.#waitIndex = index;
             this.#abortDownload();
         }
+
+        const length = this.getPartLength(index);
+        if (length === 0) {
+            return;
+        }
+
+        this.#indexes[index] = {
+            "from": time,
+            "till": time + length
+        }
+    }
+
+    getNextPartIndex() {
+        return Object.keys(this.#indexes).length
+    }
+
+    getPartFrom(index) {
+        if (typeof this.#indexes[index] === "undefined") {
+            return 0;
+        }
+
+        return Number(this.#indexes[index]["from"]);
+    }
+
+    getPartIndexByTime(time) {
+        for (let [index, part] of Object.entries(this.#indexes)) {
+            if (Number(index) !== 0 && part["from"] === 0) continue;
+            if (part["from"] <= time && part["till"] > time) return [part["from"], part["till"], Number(index)];
+        }
+
+        return [null, null, null];
+    }
+
+    getPartIndexByStartTime(time) {
+        for (let [index, part] of Object.entries(this.#indexes)) {
+            if (part["from"] === time && part["from"] !== part["till"]) return [part["from"], part["till"], Number(index)];
+        }
+
+        return [null, null, null];
+    }
+
+    getPart(index) {
+        if (typeof this.#indexes[index] === "undefined") {
+            return null;
+        }
+
+        return this.#indexes[index];
+    }
+
+    partIsPlayable(index) {
+        return !((typeof this.#indexes[index] === "undefined" || typeof this.#indexes[index]["from"] === "undefined"));
+    }
+
+    findMissingLengthByCurrentPart(time) {
+        let currentLength = this.getPartLength(this.#currentTrackIndex);
+
+        for (let part of Object.values(this.#indexes)) {
+            if (part["from"] - time > 1 && part["from"] - time <= currentLength)
+                return part["from"] - time;
+        }
+        return null;
     }
 
     async initialize() {
@@ -353,6 +415,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#audioBuffers = {};
         this.#audioSources = {};
         this.#urls = [];
+        this.#indexes = [];
     }
 
     reset() {
