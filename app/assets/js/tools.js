@@ -2044,7 +2044,7 @@ function getPartLength(index) {
 function getPartIndexByTime(time) {
     let songID = playlist[playIndex]["id"];
     for (let [index, part] of Object.entries(partlist[songID])) {
-        if (part["from"] <= time && part["till"] >= time) return [part["from"], part["till"], Number(index)];
+        if (part["from"] <= time && part["till"] > time) return [part["from"], part["till"], Number(index)];
     }
 
     return [null, null, null];

@@ -165,7 +165,7 @@ class MultiTrackPlayer extends EventTarget {
                 this.#startTime = source.when;
 
                 this.dispatchEvent(new Event("play"));
-            }, startTime * 1000);
+            }, startTime * 1000 + 200);
         }
     }
 
@@ -237,7 +237,7 @@ class MultiTrackPlayer extends EventTarget {
             && this.#audioBuffers[this.#currentTrackIndex] !== null) {
 
             if (startTime === null || this.isPlaying())
-                startTime = (this.#audioBuffers[this.#currentTrackIndex].duration - this.#offset) - this.getStartTime();
+                startTime = (this.getPartLength(this.#currentTrackIndex) - this.#offset) - this.getStartTime();
 
             if (this.#executedTask) {
                 this.#executedTask = false;
