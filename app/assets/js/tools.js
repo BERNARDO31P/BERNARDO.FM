@@ -1143,6 +1143,16 @@ function play(diffSong = false, pageLoad = false) {
     if (!player.isPlaying()) {
         player.initialize().then(() => {
             hideConfirmation();
+
+            /**
+             * TODO: Change this system to be a single index..
+             *
+             *  Maintaining two indexes in sync is impossible
+             *  Save the from - till information somehow inside the player
+             *  Part index management must be done fully by the player
+             *
+             *  Get index by time etc. must be done by the player
+              */
             player.playNext(partIndex);
 
             if (!document.hidden) {
@@ -2044,6 +2054,7 @@ function getPartLength(index) {
 function getPartIndexByTime(time) {
     let songID = playlist[playIndex]["id"];
     for (let [index, part] of Object.entries(partlist[songID])) {
+        if (Number(index) !== 0 && part["from"] === 0) continue;
         if (part["from"] <= time && part["till"] > time) return [part["from"], part["till"], Number(index)];
     }
 
