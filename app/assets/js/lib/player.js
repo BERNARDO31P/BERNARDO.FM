@@ -89,12 +89,14 @@ class MultiTrackPlayer extends EventTarget {
         this.#stopped = false;
         this.#nextTrackIndex = false;
 
-        let index;
-        if (!this.#urls.includes(url))
-            index = this.#urls.push(url) - 1;
-        else index = this.#urls.indexOf(url);
+        const index = this.#urls.includes(url) ? this.#urls.indexOf(url) : this.#urls.push(url) - 1;
 
         this.#audioBuffers[index] = null;
+        this.#indexes[index] = {
+            "from": time,
+            "till": null
+        };
+
         this.#decodingCallbacks[index] = callback;
         this.#decodingQueue[index] = url;
 
@@ -103,16 +105,6 @@ class MultiTrackPlayer extends EventTarget {
         } else {
             this.#waitIndex = index;
             this.#abortDownload();
-        }
-
-        const length = this.getPartLength(index);
-        if (length === 0) {
-            return;
-        }
-
-        this.#indexes[index] = {
-            "from": time,
-            "till": time + length
         }
     }
 
@@ -129,7 +121,9 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     getPartIndexByTime(time) {
-        for (let [index, part] of Object.entries(this.#indexes)) {
+        for (const [index, part] of Object.entries(this.#indexes)) {
+            if (!part) continue;
+
             if (Number(index) !== 0 && part["from"] === 0) continue;
             if (part["from"] <= time && part["till"] > time) return [part["from"], part["till"], Number(index)];
         }
@@ -138,7 +132,9 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     getPartIndexByStartTime(time) {
-        for (let [index, part] of Object.entries(this.#indexes)) {
+        for (const [index, part] of Object.entries(this.#indexes)) {
+            if (!part) continue;
+
             if (part["from"] === time && part["from"] !== part["till"]) return [part["from"], part["till"], Number(index)];
         }
 
@@ -160,7 +156,9 @@ class MultiTrackPlayer extends EventTarget {
     findMissingLengthByCurrentPart(time) {
         let currentLength = this.getPartLength(this.#currentTrackIndex);
 
-        for (let part of Object.values(this.#indexes)) {
+        for (const part of Object.values(this.#indexes)) {
+            if (!part) continue;
+
             if (part["from"] - time > 1 && part["from"] - time <= currentLength)
                 return part["from"] - time;
         }
@@ -495,6 +493,8 @@ class MultiTrackPlayer extends EventTarget {
                     await this.#processDecodeQueue();
                 }
             }
+
+            this.#indexes[bufferIndex]["till"] = this.#indexes[bufferIndex]["from"] + this.getPartLength(bufferIndex);
 
             if (Object.keys(this.#decodingQueue).length === 0 || this.#stopped)
                 this.#isDecoding = false;

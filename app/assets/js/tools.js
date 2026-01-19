@@ -1601,6 +1601,8 @@ function addEvents(player) {
         if (e.detail.set) {
             nextPartIndex = e.detail.index
 
+            console.log(e.detail);
+
             if (player.isPlaying()) {
                 player.queueTrack(nextPartIndex);
             } else {
