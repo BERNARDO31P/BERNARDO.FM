@@ -174,7 +174,6 @@ function playAction(card) {
  * Spielt das Lied ab
  */
 bindEvent("click", "#queueView tr[data-id]", function () {
-    pauseSong();
     stopSongs();
     playPauseButton("load");
 

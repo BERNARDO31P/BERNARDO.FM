@@ -1,4 +1,5 @@
-let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], volume = 0, previousVolume = null, repeatMode = 0,
+let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], volume = 0,
+    previousVolume = null, repeatMode = 0,
     touched = null, contextTimeout = null, touchTimeout = null, touchedElement = null, currentButton = null,
     changedQueue = false, width = getWidth(), height = getHeight() + 100;
 
@@ -1285,6 +1286,9 @@ function pauseSong() {
 }
 
 function stopSongs() {
+    if (typeof playlist[playIndex]["player"] !== 'undefined')
+        playlist[playIndex]["player"].stop();
+
     for (const index of Object.keys(playlist)) {
         if (typeof playlist[index]["player"] !== 'undefined')
             playlist[index]["player"].stop();
@@ -1397,7 +1401,6 @@ function partIsPlayable(sIndex, pIndex) {
  */
 function nextSong(bypass = false) {
     if (!bypass) {
-        pauseSong();
         stopSongs();
     }
     playPauseButton("load");
@@ -1427,7 +1430,6 @@ function previousSong(bypass = false) {
     const currentTime = playlist[playIndex]["player"].getCurrentTime();
 
     if (!bypass) {
-        pauseSong();
         stopSongs();
     }
 
