@@ -1431,7 +1431,7 @@ function previousSong(bypass = false) {
         stopSongs();
     }
 
-    if (currentTime > 20) {
+    if (currentTime >= 5) {
         partIndex = 0;
         nextPartIndex = 0;
 
