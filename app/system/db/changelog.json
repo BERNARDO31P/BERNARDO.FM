@@ -7,6 +7,13 @@
   },
   "changelog": [
     {
+      "title": "Version 1.4",
+      "message": "All playback problems have been resolved and the overall stability of the music player has been significantly improved.",
+      "details": "+ Fixed all playback issues (iOS support is now fully working)<br/> + Improved playback stability for slow or unstable internet connections<br/> + Unified and refined the design to ensure a consistent look across the entire platform<br/> + Music player is now fully stable",
+      "author": "Bernardo de Oliveira",
+      "date": "19. Jan. 2026"
+    },
+    {
       "title": "Version 1.3",
       "message": "Further improvements of the performance and small bug fixes.",
       "details": "+ Improved image generation<br> + Improved ffmpeg chunk cutting<br/> + Fixed design consistency<br/> + Minor bugfixes",
