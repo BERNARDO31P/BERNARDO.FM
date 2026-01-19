@@ -361,6 +361,7 @@ class MultiTrackPlayer extends EventTarget {
 
     setCurrentTime(time) {
         this.#audioTag.currentTime = time;
+        this.#setPositionState();
     }
 
     isPlaying() {
@@ -530,11 +531,6 @@ class MultiTrackPlayer extends EventTarget {
                 await this.#processDecodeQueue();
             }
         }
-    }
-
-    setMediaSessionPosition(value) {
-        this.setCurrentTime(value);
-        this.#setPositionState();
     }
 
     #clearTimeouts() {

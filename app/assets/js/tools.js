@@ -1362,7 +1362,7 @@ function onTimelineRelease(value, rangeEvent = null) {
         }
     }
 
-    player.setMediaSessionPosition(value);
+    player.setCurrentTime(value);
     pauseSong();
 
     let partInfo = player.getPartIndexByTime(value);
@@ -1424,10 +1424,21 @@ function nextSong(bypass = false) {
  * Die Wiedergabe wird gestartet
  */
 function previousSong(bypass = false) {
+    const currentTime = playlist[playIndex]["player"].getCurrentTime();
+
     if (!bypass) {
         pauseSong();
         stopSongs();
     }
+
+    if (currentTime > 20) {
+        partIndex = 0;
+        nextPartIndex = 0;
+
+        play();
+        return;
+    }
+
     playPauseButton("load");
 
     const previousIndex = previousSongIndex();
