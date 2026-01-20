@@ -138,20 +138,6 @@ const menuItems = {
 document.addEventListener("click", hideContext);
 
 
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Fügt ein Lied zur Wiedergabenliste hinzu
- */
-bindEvent("click", "#content .listAdd", function () {
-    addSongToPlaylist(this);
-
-    if (playlist.length === 1) downloadPart(0, playIndex, partIndex);
-
-    showNotification("Song added to queue", 3000);
-});
-
 // TODO: Comment
 function playAction(card) {
     if (!card.dataset.id) {
@@ -163,7 +149,7 @@ function playAction(card) {
     addSongToPlaylist(card);
     playPauseButton("load");
 
-    downloadPart(0, playIndex, partIndex);
+    downloadPart(0, playIndex, 0);
 }
 
 /*
@@ -180,10 +166,7 @@ bindEvent("click", "#queueView tr[data-id]", function () {
     playIndex = this.rowIndex - 1;
     nextPlayIndex = playIndex;
 
-    partIndex = 0;
-    nextPartIndex = 0;
-
-    if (!partIsPlayable(playIndex, partIndex)) downloadPart(0, playIndex, partIndex); else play(true);
+    if (!partIsPlayable(playIndex, 0)) downloadPart(0, playIndex, 0); else play(true);
 });
 
 /*
@@ -479,8 +462,6 @@ bindEvent("click", ".fa-random", function () {
         playIndex = 0;
         nextPlayIndex = 0;
 
-        nextPartIndex = partIndex;
-
         showNotification("Playlist has been shuffled", 2000);
 
         generateQueueView(playlist).then((listView) => {
@@ -771,7 +752,7 @@ window["music"] = async () => {    /*
             player.querySelector("[data-angle]").dispatchEvent(clickEvent);
 
             playPauseButton("load");
-            downloadPart(time, playIndex, partIndex);
+            downloadPart(time, playIndex, 0);
 
             playlist[playIndex]["player"].addEventListener("play", () => {
                 playlist[playIndex]["player"].setCurrentTime(time);

@@ -74,6 +74,10 @@ class MultiTrackPlayer extends EventTarget {
         }
     }
 
+    setCurrentIndex(index) {
+        this.#currentTrackIndex = index;
+    }
+
     removeTimeUpdate() {
         if (this.#timeUpdateHandler !== null) {
             this.#audioTag.removeEventListener("timeupdate", this.#timeUpdateHandler);
@@ -108,16 +112,25 @@ class MultiTrackPlayer extends EventTarget {
         }
     }
 
-    getNextPartIndex() {
+    getNextFreePartIndex() {
         return Object.keys(this.#indexes).length
     }
 
-    getPartFrom(index) {
+    getNextPartIndexByCurrent() {
+        const partTill = this.#getPartTill(this.#currentTrackIndex);
+        if (!partTill) {
+            return 0;
+        }
+
+        return this.getPartIndexByTime(partTill)[2];
+    }
+
+    #getPartTill(index) {
         if (typeof this.#indexes[index] === "undefined") {
             return 0;
         }
 
-        return Number(this.#indexes[index]["from"]);
+        return Number(this.#indexes[index]["till"]);
     }
 
     getPartIndexByTime(time) {
@@ -131,22 +144,12 @@ class MultiTrackPlayer extends EventTarget {
         return [null, null, null];
     }
 
-    getPartIndexByStartTime(time) {
-        for (const [index, part] of Object.entries(this.#indexes)) {
-            if (!part) continue;
-
-            if (part["from"] === time && part["from"] !== part["till"]) return [part["from"], part["till"], Number(index)];
-        }
-
-        return [null, null, null];
-    }
-
-    getPart(index) {
-        if (typeof this.#indexes[index] === "undefined") {
+    getCurrentPart() {
+        if (typeof this.#indexes[this.#currentTrackIndex] === "undefined") {
             return null;
         }
 
-        return this.#indexes[index];
+        return this.#indexes[this.#currentTrackIndex];
     }
 
     partIsPlayable(index) {
@@ -188,6 +191,14 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     playNext(index = 0, startTime = 0) {
+        if (index === 0) {
+            index = this.#currentTrackIndex;
+        }
+
+        if (this.#startTimeouts.length) {
+            this.#clearTimeouts();
+        }
+
         if (!this.hadError() && !this.#stopped
             && !(startTime === 0 && this.isPlaying())
             && (!this.#executedTask || this.#initialPlay)
@@ -495,7 +506,9 @@ class MultiTrackPlayer extends EventTarget {
                 }
             }
 
-            this.#indexes[bufferIndex]["till"] = this.#indexes[bufferIndex]["from"] + this.getPartLength(bufferIndex);
+            if (typeof this.#indexes[bufferIndex] !== "undefined") {
+                this.#indexes[bufferIndex]["till"] = this.#indexes[bufferIndex]["from"] + this.getPartLength(bufferIndex);
+            }
 
             if (Object.keys(this.#decodingQueue).length === 0 || this.#stopped)
                 this.#isDecoding = false;
@@ -511,7 +524,6 @@ class MultiTrackPlayer extends EventTarget {
 
                     this.dispatchEvent(new CustomEvent("processed", {
                         detail: {
-                            index: this.#waitIndex,
                             set: true,
                             initialPlay: false
                         }
@@ -521,7 +533,6 @@ class MultiTrackPlayer extends EventTarget {
                 } else {
                     this.dispatchEvent(new CustomEvent("processed", {
                         detail: {
-                            index: bufferIndex,
                             set: !this.#nextTrackIndex,
                             initialPlay: this.#urls.length === 1
                         }
@@ -602,8 +613,14 @@ class MultiTrackPlayer extends EventTarget {
 
     #setPositionState() {
         if ('mediaSession' in navigator) {
+            let duration = this.#audioTag.duration;
+
+            if (isNaN(duration)) {
+                duration = 0;
+            }
+
             navigator.mediaSession.setPositionState({
-                duration: this.#audioTag.duration,
+                duration: duration,
                 playbackRate: this.#audioTag.playbackRate,
                 position: this.#audioTag.currentTime
             });

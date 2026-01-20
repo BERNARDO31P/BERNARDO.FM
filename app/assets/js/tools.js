@@ -1,4 +1,4 @@
-let currentHover = null, playIndex = 0, nextPlayIndex = 0, partIndex = 0, nextPartIndex = 0, playlist = [], volume = 0,
+let currentHover = null, playIndex = 0, nextPlayIndex = 0, playlist = [], volume = 0,
     previousVolume = null, repeatMode = 0,
     touched = null, contextTimeout = null, touchTimeout = null, touchedElement = null, currentButton = null,
     changedQueue = false, width = getWidth(), height = getHeight() + 100;
@@ -1143,7 +1143,7 @@ function play(diffSong = false, pageLoad = false) {
     if (!player.isPlaying()) {
         player.initialize().then(() => {
             hideConfirmation();
-            player.playNext(partIndex);
+            player.playNext();
 
             if (!document.hidden) {
                 let animation = document.getElementsByClassName("lds-facebook")[0];
@@ -1255,9 +1255,7 @@ function clearSongs() {
     }
 
     playIndex = 0;
-    partIndex = 0;
     nextPlayIndex = 0;
-    nextPartIndex = 0;
 
     playlist = [];
 }
@@ -1377,22 +1375,25 @@ function onTimelineRelease(value, rangeEvent = null) {
      *  The problem is pretty sure the event "processed"
      */
 
-    stopSongs();
+    pauseSong();
     player.setCurrentTime(value);
 
     let partInfo = player.getPartIndexByTime(value);
-    nextPartIndex = partInfo[2];
+    const nextPartIndex = partInfo[2];
 
     if (nextPartIndex === null) {
         playPauseButton("load");
 
-        nextPartIndex = player.getNextPartIndex();
+        const nextPartIndex = player.getNextFreePartIndex();
+        player.setCurrentIndex(nextPartIndex);
+
         downloadPart(value, playIndex, nextPartIndex);
     } else {
         if (player.isPlaying()) return;
-        player.setOffset(value - player.getPartFrom(nextPartIndex));
 
-        partIndex = nextPartIndex;
+        player.setOffset(value - partInfo[0]);
+        player.setCurrentIndex(nextPartIndex);
+
         play();
     }
 }
@@ -1411,21 +1412,24 @@ function partIsPlayable(sIndex, pIndex) {
  * Die Wiedergabe wird gestartet
  */
 function nextSong(bypass = false) {
+    const player = playlist[playIndex]["player"];
+
     if (!bypass) {
         stopSongs();
     }
+
+    player.setCurrentIndex(player.getPartIndexByTime(0)[2]);
+
     playPauseButton("load");
 
     const nextIndex = nextSongIndex();
     if (typeof playlist[nextIndex] !== 'undefined') {
         playIndex = nextIndex;
-        partIndex = 0;
-        nextPartIndex = 0;
 
         updateSongData();
 
-        if (!partIsPlayable(nextIndex, partIndex))
-            downloadPart(0, playIndex, partIndex);
+        if (!partIsPlayable(nextIndex, 0))
+            downloadPart(0, playIndex, 0);
         else play(true);
     } else playPauseButton("pause");
 }
@@ -1438,16 +1442,16 @@ function nextSong(bypass = false) {
  * Die Wiedergabe wird gestartet
  */
 function previousSong(bypass = false) {
-    const currentTime = playlist[playIndex]["player"].getCurrentTime();
+    const player = playlist[playIndex]["player"];
+    const currentTime = player.getCurrentTime();
 
     if (!bypass) {
         stopSongs();
     }
 
-    if (currentTime >= 5) {
-        partIndex = 0;
-        nextPartIndex = 0;
+    player.setCurrentIndex(player.getPartIndexByTime(0)[2]);
 
+    if (currentTime >= 5) {
         play();
         return;
     }
@@ -1457,13 +1461,11 @@ function previousSong(bypass = false) {
     const previousIndex = previousSongIndex();
     if (typeof playlist[previousIndex] !== 'undefined') {
         playIndex = previousIndex;
-        partIndex = 0;
-        nextPartIndex = 0;
 
         updateSongData();
 
-        if (!partIsPlayable(previousIndex, partIndex))
-            downloadPart(0, playIndex, partIndex);
+        if (!partIsPlayable(previousIndex, 0))
+            downloadPart(0, playIndex, 0);
         else play(true);
     } else playPauseButton("pause");
 }
@@ -1490,8 +1492,8 @@ function previousSong(bypass = false) {
  *  - Jetzt fehlt ein 5 Sekunden langer Teil, dieser wird heruntergeladen (anstatt 10 Sekunden)
  */
 function prepareNextPart() {
-    const currentSong = playlist[playIndex], songID = currentSong["id"];
-    const currentPart = currentSong["player"].getPart(partIndex);
+    const player = playlist[playIndex]["player"];
+    const currentPart = player.getCurrentPart();
 
     let nextTime;
     if (currentPart && currentPart["till"])
@@ -1499,34 +1501,32 @@ function prepareNextPart() {
     else return;
 
     let songEnded = false, nextSong = false;
-    if (!(currentSong["player"].getDuration() - nextTime > 1)) {
+    if (!(player.getDuration() - nextTime > 1)) {
+        player.setCurrentIndex(player.getPartIndexByTime(0)[2]);
+
         songEnded = true;
         nextPlayIndex = nextSongIndex();
 
         if (typeof playlist[nextPlayIndex] !== 'undefined') {
             nextSong = true;
-            nextPartIndex = 0;
-            nextTime = 0;
         }
     }
 
     if (!nextSong && !songEnded) {
         nextPlayIndex = playIndex;
 
-        const player = playlist[nextPlayIndex]["player"];
-        let partInfo = player.getPartIndexByStartTime(nextTime);
+        const nextPlayer = playlist[nextPlayIndex]["player"];
+        const partInfo = nextPlayer.getPartIndexByTime(nextTime);
+        const nextPartIndex = partInfo[2];
 
-        if (partInfo[2]) {
-            nextPartIndex = partInfo[2];
-            player.queueTrack(nextPartIndex);
+        if (nextPartIndex === null) {
+            const missingLength = nextPlayer.findMissingLengthByCurrentPart(nextTime);
+            downloadPart(nextTime, nextPlayIndex, nextPlayer.getNextFreePartIndex(), missingLength);
         } else {
-            nextPartIndex = player.getNextPartIndex();
-
-            let missingLength = player.findMissingLengthByCurrentPart(nextTime);
-            downloadPart(nextTime, nextPlayIndex, nextPartIndex, missingLength);
+            nextPlayer.queueTrack(nextPartIndex);
         }
-    } else if (nextSong && !partIsPlayable(nextPlayIndex, nextPartIndex))
-        downloadPart(0, nextPlayIndex, nextPartIndex);
+    } else if (nextSong && !partIsPlayable(nextPlayIndex, 0))
+        downloadPart(0, nextPlayIndex, 0);
 }
 
 function resetPlayer() {
@@ -1590,8 +1590,6 @@ function addEvents(player) {
     player.addEventListener("play", () => {
         playPauseButton("play");
 
-        partIndex = nextPartIndex;
-
         prepareNextPart();
     });
 
@@ -1603,8 +1601,6 @@ function addEvents(player) {
                 player.stop();
 
                 playIndex = nextPlayIndex;
-                partIndex = 0;
-                nextPartIndex = 0;
 
                 play(true);
                 return;
@@ -1622,21 +1618,18 @@ function addEvents(player) {
     });
 
     player.addEventListener("processed", (e) => {
-        if (e.detail.set) {
-            nextPartIndex = e.detail.index
+        if (!e.detail.set) {
+            return
+        }
 
-            if (player.isPlaying()) {
-                player.queueTrack(nextPartIndex);
-            } else {
-                partIndex = nextPartIndex;
-                play(e.detail.initialPlay);
-            }
+        if (player.isPlaying()) {
+            player.queueTrack(player.getNextPartIndexByCurrent());
+        } else {
+            play(e.detail.initialPlay);
         }
     });
 
     player.addEventListener("downloadError", () => {
-        nextPartIndex = partIndex;
-
         if (!player.isPlaying())
             playPauseButton("load");
 
@@ -1646,8 +1639,6 @@ function addEvents(player) {
     });
 
     player.addEventListener("pause", () => {
-        nextPartIndex = partIndex;
-
         if (player.isDecoding()) playPauseButton("load");
         else playPauseButton("pause");
     });

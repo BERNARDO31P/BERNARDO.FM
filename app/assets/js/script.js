@@ -216,11 +216,10 @@ bindEvent("click", "#player .fa-play", () => {
     let timeline = document.getElementById("timeline");
     if (timeline.max === timeline.value) {
         let nextIndex = nextSongIndex();
-        partIndex = 0;
 
         if (typeof playlist[nextIndex] !== 'undefined') {
-            if (!partIsPlayable(nextIndex, partIndex))
-                downloadPart(0, nextIndex, partIndex);
+            if (!partIsPlayable(nextIndex, 0))
+                downloadPart(0, nextIndex, 0);
 
             playIndex = nextIndex;
         }
