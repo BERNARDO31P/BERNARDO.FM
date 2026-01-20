@@ -148,7 +148,7 @@ class MultiTrackPlayer extends EventTarget {
 
     getPartByStartTime(time) {
         for (const [index, part] of Object.entries(this.#indexes)) {
-            if (!part) continue;
+            if (!part || part["till"] === null) continue;
 
             if (part["from"] === time && part["from"] !== part["till"]) return [part["from"], part["till"], Number(index)];
         }

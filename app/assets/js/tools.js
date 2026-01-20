@@ -1523,8 +1523,6 @@ function prepareNextPart() {
         return;
     }
 
-    console.log(nextTime);
-
     let songEnded = false, nextSong = false;
     if (!(player.getDuration() - nextTime > 1)) {
         player.setCurrentIndex(player.getPartByTime(0)[2]);
