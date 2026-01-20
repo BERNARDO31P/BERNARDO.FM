@@ -1525,10 +1525,15 @@ function prepareNextPart() {
 
             downloadPart(nextTime, nextPlayIndex, nextPlayer.getNextFreePartIndex(), missingLength);
         } else {
-            nextPlayer.queueTrack(nextPartIndex);
+            if (!nextPlayer.queueTrack(nextPartIndex)) {
+                setTimeout(() => {
+                    prepareNextPart();
+                }, 200);
+            }
         }
-    } else if (nextSong && !partIsPlayable(nextPlayIndex, 0))
+    } else if (nextSong && !partIsPlayable(nextPlayIndex, 0)) {
         downloadPart(0, nextPlayIndex, 0);
+    }
 }
 
 function resetPlayer() {

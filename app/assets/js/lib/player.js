@@ -197,6 +197,10 @@ class MultiTrackPlayer extends EventTarget {
             index = this.#currentTrackIndex;
         }
 
+        if (this.#startTimeouts.length) {
+            return;
+        }
+
         if (!this.hadError() && !this.#stopped
             && !(startTime === 0 && this.isPlaying())
             && (!this.#executedTask || this.#initialPlay)
@@ -327,6 +331,10 @@ class MultiTrackPlayer extends EventTarget {
                 startTime = (this.getPartLength(this.#currentTrackIndex) - this.#offset) - this.getStartTime();
             }
 
+            if (typeof this.#startTimeouts[index] !== "undefined") {
+                return false;
+            }
+
             if (this.#executedTask) {
                 this.#executedTask = false;
                 this.#initialPlay = false;
@@ -337,6 +345,8 @@ class MultiTrackPlayer extends EventTarget {
                 this.playNext(index, (startTime >= 0) ? startTime : 0);
             }
         }
+
+        return true;
     }
 
     getStartTime() {
