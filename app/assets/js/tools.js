@@ -1508,7 +1508,11 @@ function prepareNextPart() {
     clearTimeout(retryTimeout);
 
     const player = playlist[playIndex]["player"];
-    const currentPart = player.getPartByTime(player.getCurrentTime());
+
+    let currentPart = player.getCurrentPart();
+    if (!currentPart || !currentPart[1]) {
+        currentPart = player.getPartByTime(player.getCurrentTime());
+    }
 
     let nextTime;
     if (currentPart && currentPart[1]) {
@@ -1518,6 +1522,8 @@ function prepareNextPart() {
         downloadPart(player.getCurrentTime(), playIndex, player.getNextFreePartIndex());
         return;
     }
+
+    console.log(nextTime);
 
     let songEnded = false, nextSong = false;
     if (!(player.getDuration() - nextTime > 1)) {

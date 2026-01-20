@@ -124,7 +124,7 @@ class MultiTrackPlayer extends EventTarget {
             return 0;
         }
 
-        return this.getPartByTime(partTill)[2];
+        return this.getPartByStartTime(partTill)[2];
     }
 
     #getPartTill(index) {
@@ -158,10 +158,12 @@ class MultiTrackPlayer extends EventTarget {
 
     getCurrentPart() {
         if (typeof this.#indexes[this.#currentTrackIndex] === "undefined") {
-            return null;
+            return [null, null, null];
         }
 
-        return this.#indexes[this.#currentTrackIndex];
+        const part = this.#indexes[this.#currentTrackIndex];
+
+        return [part["from"], part["till"], Number(this.#currentTrackIndex)];
     }
 
     partIsPlayable(index) {
