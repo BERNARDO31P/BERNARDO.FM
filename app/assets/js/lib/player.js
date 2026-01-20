@@ -146,6 +146,16 @@ class MultiTrackPlayer extends EventTarget {
         return [null, null, null];
     }
 
+    getPartByStartTime(time) {
+        for (const [index, part] of Object.entries(this.#indexes)) {
+            if (!part) continue;
+
+            if (part["from"] === time && part["from"] !== part["till"]) return [part["from"], part["till"], Number(index)];
+        }
+
+        return [null, null, null];
+    }
+
     getCurrentPart() {
         if (typeof this.#indexes[this.#currentTrackIndex] === "undefined") {
             return null;
@@ -173,6 +183,8 @@ class MultiTrackPlayer extends EventTarget {
     async initialize() {
         this.#initialPlay = true;
         this.#stopped = false;
+
+        this.#clearTimeouts();
 
         if (this.#audioTag.duration !== this.#length) {
             this.#audioTag.src = this.#createSilence(this.#length);
@@ -237,8 +249,6 @@ class MultiTrackPlayer extends EventTarget {
                 this.#currentOffset = 0;
 
                 if (!Object.keys(this.#startTimeouts).length || this.getCurrentTime() >= this.getDuration()) {
-                    this.#clearTimeouts();
-
                     this.dispatchEvent(new Event("end"));
                 }
             }
@@ -366,7 +376,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     getCurrentTime() {
-        return this.#audioTag.currentTime;
+        return parseInt(String(this.#audioTag.currentTime));
     }
 
     #removePart(index) {
@@ -447,8 +457,6 @@ class MultiTrackPlayer extends EventTarget {
 
     reset() {
         this.setCurrentTime(0);
-
-        this.setOffset(0);
         this.setOffset(0);
     }
 

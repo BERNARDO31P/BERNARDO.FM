@@ -1,6 +1,6 @@
 let currentHover = null, playIndex = 0, nextPlayIndex = 0, playlist = [], volume = 0,
     previousVolume = null, repeatMode = 0,
-    touched = null, contextTimeout = null, touchTimeout = null, touchedElement = null, currentButton = null,
+    touched = null, contextTimeout = null, retryTimeout = null, touchTimeout = null, touchedElement = null, currentButton = null,
     changedQueue = false, isRetrying = false, width = getWidth(), height = getHeight() + 100;
 
 let onInfoCallback = null;
@@ -1107,6 +1107,8 @@ function updateSongData() {
  * Beginnt die Wiedergabe
  */
 function play(diffSong = false, pageLoad = false) {
+    clearTimeout(retryTimeout);
+
     const player = playlist[playIndex]["player"];
 
     if (diffSong) {
@@ -1267,6 +1269,8 @@ function clearSongs() {
  * Pausiert die Wiedergabe
  */
 function pauseSong() {
+    clearTimeout(retryTimeout);
+
     playlist[playIndex]["player"].pause();
     playPauseButton("pause");
 
@@ -1284,6 +1288,8 @@ function pauseSong() {
 }
 
 function stopSongs() {
+    clearTimeout(retryTimeout);
+
     if (typeof playlist[playIndex]["player"] !== 'undefined')
         playlist[playIndex]["player"].stop();
 
@@ -1340,6 +1346,8 @@ function onElement(element, event) {
  * Die Wiedergabe beginnt
  */
 function onTimelineRelease(value, rangeEvent = null) {
+    clearTimeout(retryTimeout);
+
     const player = playlist[playIndex]["player"];
     const timeline = document.getElementById("timeline");
 
@@ -1409,6 +1417,8 @@ function partIsPlayable(sIndex, pIndex) {
  * Die Wiedergabe wird gestartet
  */
 function nextSong(bypass = false) {
+    clearTimeout(retryTimeout);
+
     const player = playlist[playIndex]["player"];
 
     if (!bypass) {
@@ -1425,9 +1435,11 @@ function nextSong(bypass = false) {
 
         updateSongData();
 
-        if (!partIsPlayable(nextIndex, 0))
+        if (!partIsPlayable(nextIndex, 0)) {
             downloadPart(0, playIndex, 0);
-        else play(true);
+        } else {
+            play(true);
+        }
     } else playPauseButton("pause");
 }
 
@@ -1439,6 +1451,8 @@ function nextSong(bypass = false) {
  * Die Wiedergabe wird gestartet
  */
 function previousSong(bypass = false) {
+    clearTimeout(retryTimeout);
+
     const player = playlist[playIndex]["player"];
     const currentTime = player.getCurrentTime();
 
@@ -1461,9 +1475,11 @@ function previousSong(bypass = false) {
 
         updateSongData();
 
-        if (!partIsPlayable(previousIndex, 0))
+        if (!partIsPlayable(previousIndex, 0)) {
             downloadPart(0, playIndex, 0);
-        else play(true);
+        } else {
+            play(true);
+        }
     } else playPauseButton("pause");
 }
 
@@ -1489,6 +1505,8 @@ function previousSong(bypass = false) {
  *  - Jetzt fehlt ein 5 Sekunden langer Teil, dieser wird heruntergeladen (anstatt 10 Sekunden)
  */
 function prepareNextPart() {
+    clearTimeout(retryTimeout);
+
     const player = playlist[playIndex]["player"];
     const currentPart = player.getPartByTime(player.getCurrentTime());
 
@@ -1517,7 +1535,7 @@ function prepareNextPart() {
         nextPlayIndex = playIndex;
 
         const nextPlayer = playlist[nextPlayIndex]["player"];
-        const partInfo = nextPlayer.getPartByTime(nextTime);
+        const partInfo = nextPlayer.getPartByStartTime(nextTime);
         const nextPartIndex = partInfo[2];
 
         if (nextPartIndex === null) {
@@ -1526,7 +1544,7 @@ function prepareNextPart() {
             downloadPart(nextTime, nextPlayIndex, nextPlayer.getNextFreePartIndex(), missingLength);
         } else {
             if (!nextPlayer.queueTrack(nextPartIndex)) {
-                setTimeout(() => {
+                retryTimeout = setTimeout(() => {
                     prepareNextPart();
                 }, 200);
             }
