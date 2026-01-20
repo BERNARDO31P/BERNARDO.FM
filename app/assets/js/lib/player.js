@@ -238,6 +238,8 @@ class MultiTrackPlayer extends EventTarget {
                 this.#currentTrackIndex = index;
                 this.#startTime = source.when;
 
+                this.#clearTimeouts();
+
                 this.dispatchEvent(new Event("play"));
             }, startTime * 1000 + 200);
         }
