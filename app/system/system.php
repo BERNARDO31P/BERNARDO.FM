@@ -300,13 +300,11 @@ $router->get("/info/([\w-]*)$", function ($id) {
  * Gibt den Teil aus
  */
 $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $duration = null) {
-    // TODO: Fix the jumping of the timeline (it plays the wrong part)
-    // TODO: Commenting out this, should help make the occurrence less but it doesn't fix the issue!
     $time = match (true) {
-        //$timeFrom < 5 => 1,
-        //$timeFrom < 15 => 3,
-        //$timeFrom < 50 => 5,
-        //$timeFrom < 75 => 7,
+        $timeFrom < 5 => 1,
+        $timeFrom < 15 => 3,
+        $timeFrom < 50 => 5,
+        $timeFrom < 75 => 7,
         default => 10,
     };
 

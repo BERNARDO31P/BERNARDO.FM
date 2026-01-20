@@ -1366,8 +1366,19 @@ function onTimelineRelease(value, rangeEvent = null) {
         }
     }
 
+    /**
+     * TODO: Fix the jumping of the timeline (it plays the wrong part)
+     *  Calling stopSongs makes the occurrence less, but it doesn't fix the problem!
+     *
+     *  After the fix, it should call pauseSong()!
+     *  stopSongs() prevents the buffering of clicked areas, which is not correct.
+     *  They should download after the important parts were downloaded.
+     *
+     *  The problem is pretty sure the event "processed"
+     */
+
+    stopSongs();
     player.setCurrentTime(value);
-    pauseSong();
 
     let partInfo = player.getPartIndexByTime(value);
     nextPartIndex = partInfo[2];
