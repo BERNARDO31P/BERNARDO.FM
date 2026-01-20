@@ -1,7 +1,7 @@
 let currentHover = null, playIndex = 0, nextPlayIndex = 0, playlist = [], volume = 0,
     previousVolume = null, repeatMode = 0,
     touched = null, contextTimeout = null, touchTimeout = null, touchedElement = null, currentButton = null,
-    changedQueue = false, width = getWidth(), height = getHeight() + 100;
+    changedQueue = false, isRetrying = false, width = getWidth(), height = getHeight() + 100;
 
 let onInfoCallback = null;
 
@@ -1371,7 +1371,11 @@ function onTimelineRelease(value, rangeEvent = null) {
     pauseSong();
     player.setCurrentTime(value);
 
-    let partInfo = player.getPartIndexByTime(value);
+    if (isRetrying) {
+        return;
+    }
+
+    let partInfo = player.getPartByTime(value);
     const nextPartIndex = partInfo[2];
 
     if (nextPartIndex === null) {
@@ -1411,7 +1415,7 @@ function nextSong(bypass = false) {
         stopSongs();
     }
 
-    player.setCurrentIndex(player.getPartIndexByTime(0)[2]);
+    player.setCurrentIndex(player.getPartByTime(0)[2]);
 
     playPauseButton("load");
 
@@ -1442,7 +1446,7 @@ function previousSong(bypass = false) {
         stopSongs();
     }
 
-    player.setCurrentIndex(player.getPartIndexByTime(0)[2]);
+    player.setCurrentIndex(player.getPartByTime(0)[2]);
 
     if (currentTime >= 5) {
         play();
@@ -1486,16 +1490,20 @@ function previousSong(bypass = false) {
  */
 function prepareNextPart() {
     const player = playlist[playIndex]["player"];
-    const currentPart = player.getCurrentPart();
+    const currentPart = player.getPartByTime(player.getCurrentTime());
 
     let nextTime;
-    if (currentPart && currentPart["till"])
-        nextTime = Math.round(currentPart["till"]);
-    else return;
+    if (currentPart && currentPart[1]) {
+        nextTime = Math.round(currentPart[1]);
+    } else {
+        player.setCurrentIndex(player.getNextPartIndexByCurrent());
+        downloadPart(player.getCurrentTime(), playIndex, player.getNextFreePartIndex());
+        return;
+    }
 
     let songEnded = false, nextSong = false;
     if (!(player.getDuration() - nextTime > 1)) {
-        player.setCurrentIndex(player.getPartIndexByTime(0)[2]);
+        player.setCurrentIndex(player.getPartByTime(0)[2]);
 
         songEnded = true;
         nextPlayIndex = nextSongIndex();
@@ -1509,11 +1517,12 @@ function prepareNextPart() {
         nextPlayIndex = playIndex;
 
         const nextPlayer = playlist[nextPlayIndex]["player"];
-        const partInfo = nextPlayer.getPartIndexByTime(nextTime);
+        const partInfo = nextPlayer.getPartByTime(nextTime);
         const nextPartIndex = partInfo[2];
 
         if (nextPartIndex === null) {
             const missingLength = nextPlayer.findMissingLengthByCurrentPart(nextTime);
+
             downloadPart(nextTime, nextPlayIndex, nextPlayer.getNextFreePartIndex(), missingLength);
         } else {
             nextPlayer.queueTrack(nextPartIndex);
@@ -1581,6 +1590,8 @@ function addEvents(player) {
      * Sobald die Wiedergabe beginnt, soll der nächste Teil im Hintergrund heruntergeladen werden
      */
     player.addEventListener("play", () => {
+        isRetrying = false;
+
         playPauseButton("play");
 
         prepareNextPart();
@@ -1618,13 +1629,17 @@ function addEvents(player) {
         if (player.isPlaying()) {
             player.queueTrack(player.getNextPartIndexByCurrent());
         } else {
+            player.setCurrentIndex(player.getPartByTime(player.getCurrentTime())[2]);
             play(e.detail.initialPlay);
         }
     });
 
     player.addEventListener("downloadError", () => {
-        if (!player.isPlaying())
+        isRetrying = true;
+
+        if (!player.isPlaying()) {
             playPauseButton("load");
+        }
 
         setTimeout(() => {
             prepareNextPart();
@@ -1632,8 +1647,11 @@ function addEvents(player) {
     });
 
     player.addEventListener("pause", () => {
-        if (player.isDecoding()) playPauseButton("load");
-        else playPauseButton("pause");
+        if (player.isDecoding()) {
+            playPauseButton("load");
+        } else {
+            playPauseButton("pause");
+        }
     });
 
     player.addEventListener("timeupdate", (e) => {
