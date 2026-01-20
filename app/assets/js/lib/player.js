@@ -156,16 +156,6 @@ class MultiTrackPlayer extends EventTarget {
         return [null, null, null];
     }
 
-    getCurrentPart() {
-        if (typeof this.#indexes[this.#currentTrackIndex] === "undefined") {
-            return [null, null, null];
-        }
-
-        const part = this.#indexes[this.#currentTrackIndex];
-
-        return [part["from"], part["till"], Number(this.#currentTrackIndex)];
-    }
-
     partIsPlayable(index) {
         return !((typeof this.#indexes[index] === "undefined" || typeof this.#indexes[index]["from"] === "undefined"));
     }

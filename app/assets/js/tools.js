@@ -1508,11 +1508,7 @@ function prepareNextPart() {
     clearTimeout(retryTimeout);
 
     const player = playlist[playIndex]["player"];
-
-    let currentPart = player.getCurrentPart();
-    if (!currentPart || !currentPart[1]) {
-        currentPart = player.getPartByTime(player.getCurrentTime());
-    }
+    const currentPart = player.getPartByTime(player.getCurrentTime());
 
     let nextTime;
     if (currentPart && currentPart[1]) {
