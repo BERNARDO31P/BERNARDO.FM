@@ -1365,14 +1365,7 @@ function onTimelineRelease(value, rangeEvent = null) {
     }
 
     /**
-     * TODO: Fix the jumping of the timeline (it plays the wrong part)
-     *  Calling stopSongs makes the occurrence less, but it doesn't fix the problem!
-     *
-     *  After the fix, it should call pauseSong()!
-     *  stopSongs() prevents the buffering of clicked areas, which is not correct.
-     *  They should download after the important parts were downloaded.
-     *
-     *  The problem is pretty sure the event "processed"
+     * TODO: Check if the current implementation works...
      */
 
     pauseSong();
