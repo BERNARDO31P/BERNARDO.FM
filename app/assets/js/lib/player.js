@@ -572,7 +572,7 @@ class MultiTrackPlayer extends EventTarget {
             this.#indexes[bufferIndex]["decoding"] = false;
 
             if (typeof this.#indexes[bufferIndex]["callback"] !== "undefined") {
-                this.#indexes[bufferIndex]["callback"](this.#indexes, bufferIndex, url);
+                this.#indexes[bufferIndex]["callback"](this.#indexes, bufferIndex);
                 delete this.#indexes[bufferIndex]["callback"];
             }
 

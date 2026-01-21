@@ -1511,7 +1511,7 @@ function prepareNextPart() {
 
     let nextTime;
     if (currentPart && currentPart[1]) {
-        nextTime = Math.round(currentPart[1]);
+        nextTime = parseInt(currentPart[1]);
     } else {
         player.setCurrentIndex(player.getNextPartIndexByCurrent());
         downloadPart(player.getCurrentTime(), playIndex, player.getNextFreePartIndex());
@@ -1593,8 +1593,8 @@ function downloadPart(time, sIndex, pIndex, till = null) {
         addEvents(player);
     }
 
-    player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), (indexes, index, url) => {
-        const from = parseInt(url.match(/system\/song\/[^\/]+\/(\d+)(?:\/\d+)?$/)?.[1]);
+    player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), (indexes, index) => {
+        const from = parseInt(indexes[index]["url"].match(/system\/song\/[^\/]+\/(\d+)(?:\/\d+)?$/)?.[1]);
 
         indexes[index]["from"] = from;
         indexes[index]["till"] = from + player.getPartLength(index);
