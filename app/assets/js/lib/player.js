@@ -517,7 +517,7 @@ class MultiTrackPlayer extends EventTarget {
                 url = this.#getDecodingQueue()[lastKey];
                 delete this.#getDecodingQueue()[lastKey];
             }
-            const bufferIndex = this.#getUrls().indexOf(url);
+            let bufferIndex = null;
 
             let response = null;
             try {
@@ -534,6 +534,8 @@ class MultiTrackPlayer extends EventTarget {
                 this.#hadError = true;
                 this.#isDecoding = false;
 
+                bufferIndex = this.#getUrls().indexOf(url);
+                
                 if (!e.toString().includes("AbortError")) {
                     this.#removePart(bufferIndex);
 
@@ -549,6 +551,8 @@ class MultiTrackPlayer extends EventTarget {
             }
 
             try {
+                bufferIndex = this.#getUrls().indexOf(url);
+                
                 const arrayBuffer = await response.arrayBuffer();
                 this.#indexes[bufferIndex]["buffer"] = await audioContext.decodeAudioData(arrayBuffer);
 
@@ -556,6 +560,8 @@ class MultiTrackPlayer extends EventTarget {
             } catch (e) {
                 this.#hadError = true;
                 this.#isDecoding = false;
+
+                bufferIndex = this.#getUrls().indexOf(url);
 
                 if (!e.toString().includes("AbortError")) {
                     this.#removePart(bufferIndex);
@@ -569,6 +575,8 @@ class MultiTrackPlayer extends EventTarget {
                 }
             }
 
+            bufferIndex = this.#getUrls().indexOf(url);
+
             this.#indexes[bufferIndex]["decoding"] = false;
 
             if (typeof this.#indexes[bufferIndex]["callback"] !== "undefined") {
@@ -580,6 +588,8 @@ class MultiTrackPlayer extends EventTarget {
                 this.#isDecoding = false;
 
             if (!this.#stopped) {
+                bufferIndex = this.#getUrls().indexOf(url);
+
                 if (bufferIndex === this.#waitIndex) {
                     this.#clearTimeouts();
                     
