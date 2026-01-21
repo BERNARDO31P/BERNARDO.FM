@@ -1656,7 +1656,10 @@ function addEvents(player) {
         if (player.isPlaying()) {
             player.queueTrack(player.getNextPartIndexByCurrent());
         } else {
-            player.setCurrentIndex(player.getPartByTime(player.getCurrentTime())[2]);
+            const partInfo = player.getPartByTime(player.getCurrentTime());
+            player.setCurrentIndex(partInfo[2]);
+            player.setCurrentTime(partInfo[0]); // Small hack, anti de-sync
+
             play(e.detail.initialPlay);
         }
     });
