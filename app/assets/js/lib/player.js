@@ -12,32 +12,23 @@ class MultiTrackPlayer extends EventTarget {
     #audioTag = new Audio();
     #initialPlay = true;
     #stopped = true;
+    #isDecoding = false;
+    #playing = false;
+    #executedTask = true;
+    #hadError = false;
 
     #length = 0;
     #volume = 1;
     #gainNode = null;
 
     #indexes = [];
-    #urls = [];
-    #audioBuffers = {};
-    #audioSources = {};
-
-    #isDecoding = false;
-    #decodingQueue = {};
 
     #currentTrackIndex = 0;
     #nextTrackIndex = false;
 
     #startTime = 0;
-    #startTimeouts = {};
-
     #offset = 0;
     #currentOffset = 0;
-
-    #playing = false;
-    #executedTask = true;
-
-    #hadError = false;
 
     #timeUpdateHandler = null;
     #playEventHandler = null;
@@ -66,6 +57,59 @@ class MultiTrackPlayer extends EventTarget {
         this.#pauseEventHandler = this.#pauseEvent.bind(this);
     }
 
+    #getUrls() {
+        const urls = [];
+        for (const index of this.#indexes) {
+            if (typeof index === "undefined") {
+                continue;
+            }
+
+            urls.push(index["url"]);
+        }
+
+        return urls;
+    }
+
+    #getDecodingQueue() {
+        const decodingQueue = [];
+        for (const [index, info] of Object.entries(this.#indexes)) {
+            if (!info["decoding"]) {
+                continue;
+            }
+
+            decodingQueue[index] = info["url"];
+        }
+
+        return decodingQueue;
+    }
+
+    #getAudioSources() {
+        const audioSources = [];
+        for (const [index, info] of Object.entries(this.#indexes)) {
+            if (!info["source"]) {
+                continue;
+            }
+
+            audioSources[index] = info["source"];
+        }
+
+        return audioSources;
+    }
+
+
+    #getStartTimeouts() {
+        const startTimeouts = [];
+        for (const [index, info] of Object.entries(this.#indexes)) {
+            if (info["timeout"] === null) {
+                continue;
+            }
+
+            startTimeouts[index] = info["timeout"];
+        }
+
+        return startTimeouts;
+    }
+
     addTimeUpdate() {
         if (this.#timeUpdateHandler === null) {
             this.#timeUpdateHandler = this.#dispatchTimeUpdate.bind(this);
@@ -92,19 +136,22 @@ class MultiTrackPlayer extends EventTarget {
         this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.getCurrentTime()}}));
     }
 
-    async addTrack(url, time) {
+    async addTrack(url, callback) {
         this.#stopped = false;
         this.#nextTrackIndex = false;
 
-        const index = this.#urls.includes(url) ? this.#urls.indexOf(url) : this.#urls.push(url) - 1;
+        const index = this.#getUrls().includes(url) ? this.#getUrls().indexOf(url) : this.#getUrls().length;
 
-        this.#audioBuffers[index] = null;
         this.#indexes[index] = {
-            "from": time,
-            "till": null
-        };
-
-        this.#decodingQueue[index] = url;
+            "url": url,
+            "from": null,
+            "till": null,
+            "buffer": null,
+            "callback": callback,
+            "source": null,
+            "decoding": true,
+            "timeout": null
+        }
 
         if (!this.isDecoding()) {
             await this.#processDecodeQueue();
@@ -201,10 +248,6 @@ class MultiTrackPlayer extends EventTarget {
             index = this.#currentTrackIndex;
         }
 
-        if (this.#startTimeouts.length) {
-            return;
-        }
-
         if (!this.hadError() && !this.#stopped
             && !(startTime === 0 && this.isPlaying())
             && (!this.#executedTask || this.#initialPlay)
@@ -220,16 +263,17 @@ class MultiTrackPlayer extends EventTarget {
                 audioContext.resume();
 
             const source = audioContext.createBufferSource();
-            this.#audioSources[index] = source;
+            this.#indexes[index]["source"] = source;
+
 
             source.when = Math.max(0, audioContext.currentTime + Math.max(0, startTime));
-            source.buffer = this.#audioBuffers[index];
+            source.buffer = this.#indexes[index]["buffer"];
             source.connect(this.#gainNode);
             source.start(source.when, this.#offset);
 
             source.onended = () => {
-                clearTimeout(this.#startTimeouts[index]);
-                delete this.#startTimeouts[index];
+                clearTimeout(this.#indexes[index]["timeout"]);
+                this.#indexes[index]["timeout"] = null;
 
                 if ((audioContext.currentTime - source.when) * 1000 < 50) {
                     this.pause();
@@ -240,12 +284,12 @@ class MultiTrackPlayer extends EventTarget {
 
                 this.#currentOffset = 0;
 
-                if (!Object.keys(this.#startTimeouts).length || this.getCurrentTime() >= this.getDuration()) {
+                if (!Object.keys(this.#getStartTimeouts()).length || this.getCurrentTime() >= this.getDuration()) {
                     this.dispatchEvent(new Event("end"));
                 }
             }
 
-            this.#startTimeouts[index] = setTimeout(() => {
+            this.#indexes[index]["timeout"] = setTimeout(() => {
                 this.#executedTask = true;
                 this.#currentTrackIndex = index;
                 this.#startTime = source.when;
@@ -288,7 +332,7 @@ class MultiTrackPlayer extends EventTarget {
 
         this.setOffset(this.getCurrentPartTime());
 
-        Object.values(this.#audioSources).forEach((source) => {
+        Object.values(this.#getAudioSources()).forEach((source) => {
             this.#killSource(source);
         });
 
@@ -324,16 +368,17 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     queueTrack(index, startTime = null) {
-        if (typeof this.#audioBuffers[index] !== "undefined"
-            && this.#audioBuffers[index] !== null
-            && typeof this.#audioBuffers[this.#currentTrackIndex] !== "undefined"
-            && this.#audioBuffers[this.#currentTrackIndex] !== null) {
-
+        if (
+            typeof this.#indexes[index] !== "undefined" &&
+            typeof this.#indexes[index]["buffer"] !== "undefined" && this.#indexes[index]["buffer"] !== null &&
+            typeof this.#indexes[this.#currentTrackIndex] !== "undefined" &&
+            typeof this.#indexes[this.#currentTrackIndex]["buffer"] !== "undefined" && this.#indexes[this.#currentTrackIndex]["buffer"] !== null
+        ) {
             if (startTime === null || this.isPlaying()) {
                 startTime = (this.getPartLength(this.#currentTrackIndex) - this.#offset) - this.getStartTime();
             }
 
-            if (typeof this.#startTimeouts[index] !== "undefined") {
+            if (this.#indexes[index]["timeout"] !== null) {
                 return false;
             }
 
@@ -360,9 +405,12 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     getPartLength(partIndex) {
-        if (typeof this.#audioBuffers[partIndex] !== "undefined"
-            && this.#audioBuffers[partIndex] !== null) {
-            return this.#audioBuffers[partIndex].duration;
+        if (
+            typeof this.#indexes[partIndex] !== "undefined" &&
+            typeof this.#indexes[partIndex]["buffer"] !== "undefined" &&
+            this.#indexes[partIndex]["buffer"] !== null
+        ) {
+            return parseInt(this.#indexes[partIndex]["buffer"].duration);
         }
         return 0;
     }
@@ -372,9 +420,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #removePart(index) {
-        delete this.#audioBuffers[index];
-        delete this.#audioSources[index];
-        this.#urls.splice(index, 1);
+        delete this.#indexes[index];
     }
 
     setVolume(volume) {
@@ -441,9 +487,6 @@ class MultiTrackPlayer extends EventTarget {
         this.pause();
         this.reset();
 
-        this.#audioBuffers = {};
-        this.#audioSources = {};
-        this.#urls = [];
         this.#indexes = [];
     }
 
@@ -460,19 +503,19 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     async #processDecodeQueue() {
-        if (Object.values(this.#decodingQueue).length && !this.#stopped) {
+        if (Object.values(this.#getDecodingQueue()).length && !this.#stopped) {
             this.#isDecoding = true;
 
             let url;
             if (this.#waitIndex !== null) {
-                url = this.#decodingQueue[this.#waitIndex];
-                delete this.#decodingQueue[this.#waitIndex];
+                url = this.#getDecodingQueue()[this.#waitIndex];
+                delete this.#getDecodingQueue()[this.#waitIndex];
             } else {
-                const lastKey = Object.keys(this.#decodingQueue).pop();
-                url = this.#decodingQueue[lastKey];
-                delete this.#decodingQueue[lastKey];
+                const lastKey = Object.keys(this.#getDecodingQueue()).pop();
+                url = this.#getDecodingQueue()[lastKey];
+                delete this.#getDecodingQueue()[lastKey];
             }
-            const bufferIndex = this.#urls.indexOf(url);
+            const bufferIndex = this.#getUrls().indexOf(url);
 
             let response = null;
             try {
@@ -495,8 +538,8 @@ class MultiTrackPlayer extends EventTarget {
                     if (!this.#stopped) {
                         this.dispatchEvent(new Event("downloadError"));
                     }
-                } else if (this.#urls.indexOf(url) !== -1 && !this.#stopped) {
-                    this.#decodingQueue[bufferIndex] = url;
+                } else if (this.#getUrls().indexOf(url) !== -1 && !this.#stopped) {
+                    this.#indexes[bufferIndex]["decoding"] = true;
 
                     await this.#processDecodeQueue();
                 }
@@ -505,7 +548,7 @@ class MultiTrackPlayer extends EventTarget {
 
             try {
                 const arrayBuffer = await response.arrayBuffer();
-                this.#audioBuffers[bufferIndex] = await audioContext.decodeAudioData(arrayBuffer);
+                this.#indexes[bufferIndex]["buffer"] = await audioContext.decodeAudioData(arrayBuffer);
 
                 this.#hadError = false;
             } catch (e) {
@@ -517,18 +560,21 @@ class MultiTrackPlayer extends EventTarget {
 
                     if (!this.#stopped)
                         this.dispatchEvent(new Event("downloadError"));
-                } else if (this.#urls.indexOf(url) !== -1 && !this.#stopped) {
-                    this.#decodingQueue[bufferIndex] = url;
+                } else if (this.#getUrls().indexOf(url) !== -1 && !this.#stopped) {
+                    this.#indexes[bufferIndex]["decoding"] = true;
 
                     await this.#processDecodeQueue();
                 }
             }
 
-            if (typeof this.#indexes[bufferIndex] !== "undefined") {
-                this.#indexes[bufferIndex]["till"] = this.#indexes[bufferIndex]["from"] + this.getPartLength(bufferIndex);
+            this.#indexes[bufferIndex]["decoding"] = false;
+
+            if (typeof this.#indexes[bufferIndex]["callback"] !== "undefined") {
+                this.#indexes[bufferIndex]["callback"](this.#indexes, bufferIndex, url);
+                delete this.#indexes[bufferIndex]["callback"];
             }
 
-            if (Object.keys(this.#decodingQueue).length === 0 || this.#stopped)
+            if (Object.keys(this.#getDecodingQueue()).length === 0 || this.#stopped)
                 this.#isDecoding = false;
 
             if (!this.#stopped) {
@@ -547,7 +593,7 @@ class MultiTrackPlayer extends EventTarget {
                     this.dispatchEvent(new CustomEvent("processed", {
                         detail: {
                             set: !this.#nextTrackIndex,
-                            initialPlay: this.#urls.length === 1
+                            initialPlay: this.#getUrls().length === 1
                         }
                     }));
                 }
@@ -558,9 +604,9 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #clearTimeouts() {
-        for (const [index, timeout] of Object.entries(this.#startTimeouts)) {
+        for (const [index, timeout] of Object.entries(this.#getStartTimeouts())) {
             clearTimeout(Number(timeout));
-            delete this.#startTimeouts[index];
+            this.#indexes[index]["timeout"] = null;
         }
     }
 
