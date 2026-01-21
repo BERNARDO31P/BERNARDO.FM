@@ -1,6 +1,6 @@
 let currentHover = null, playIndex = 0, nextPlayIndex = 0, playlist = [], volume = 0,
     previousVolume = null, repeatMode = 0,
-    touched = null, contextTimeout = null, retryTimeout = null, touchTimeout = null, touchedElement = null, currentButton = null,
+    touched = null, contextTimeout = null, timelineReleaseTimeout = null, retryTimeout = null, touchTimeout = null, touchedElement = null, currentButton = null,
     changedQueue = false, isRetrying = false, width = getWidth(), height = getHeight() + 100;
 
 let onInfoCallback = null;
@@ -1372,10 +1372,6 @@ function onTimelineRelease(value, rangeEvent = null) {
         }
     }
 
-    /**
-     * TODO: Check if the current implementation works...
-     */
-
     pauseSong();
     player.setCurrentTime(value);
 
@@ -1383,24 +1379,27 @@ function onTimelineRelease(value, rangeEvent = null) {
         return;
     }
 
-    let partInfo = player.getPartByTime(value);
-    const nextPartIndex = partInfo[2];
+    clearTimeout(timelineReleaseTimeout);
+    timelineReleaseTimeout = setTimeout(() => {
+        let partInfo = player.getPartByTime(value);
+        const nextPartIndex = partInfo[2];
 
-    if (nextPartIndex === null) {
-        playPauseButton("load");
+        if (nextPartIndex === null) {
+            playPauseButton("load");
 
-        const nextPartIndex = player.getNextFreePartIndex();
-        player.setCurrentIndex(nextPartIndex);
+            const nextPartIndex = player.getNextFreePartIndex();
+            player.setCurrentIndex(nextPartIndex);
 
-        downloadPart(value, playIndex, nextPartIndex);
-    } else {
-        if (player.isPlaying()) return;
+            downloadPart(value, playIndex, nextPartIndex);
+        } else {
+            if (player.isPlaying()) return;
 
-        player.setOffset(value - partInfo[0]);
-        player.setCurrentIndex(nextPartIndex);
+            player.setOffset(value - partInfo[0]);
+            player.setCurrentIndex(nextPartIndex);
 
-        play();
-    }
+            play();
+        }
+    }, 200);
 }
 
 // TODO: Comment
