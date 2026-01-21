@@ -491,6 +491,8 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     reset() {
+        this.#currentTrackIndex = parseInt(this.getPartByStartTime(0)[2]);
+
         this.setCurrentTime(0);
         this.setOffset(0);
     }
