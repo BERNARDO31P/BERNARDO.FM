@@ -1415,6 +1415,9 @@ function onTimelineRelease(value, rangeEvent = null) {
     player.setCurrentTime(value);
 
     if (isRetrying) {
+        const nextPartIndex = player.getNextFreePartIndex();
+        player.setCurrentIndex(nextPartIndex);
+
         return;
     }
 
