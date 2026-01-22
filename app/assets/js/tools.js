@@ -1,4 +1,4 @@
-let currentHover = null, playIndex = 0, nextPlayIndex = 0, playlist = [], volume = 0,
+let currentHover = null, playIndex = 0, playlist = [], volume = 0,
     previousVolume = null, repeatMode = 0,
     touched = null, contextTimeout = null, retryTimeout = null, touchTimeout = null,
     touchedElement = null, currentButton = null,
@@ -1261,7 +1261,6 @@ function clearSongs() {
     }
 
     playIndex = 0;
-    nextPlayIndex = 0;
 
     playlist = [];
 }
@@ -1518,10 +1517,10 @@ function prepareNextPart() {
         return;
     }
 
+    const nextPlayIndex = nextSongIndex();
     let songEnded = false, nextSong = false;
     if (!(player.getDuration() - nextTime > 1)) {
         songEnded = true;
-        nextPlayIndex = nextSongIndex();
 
         if (typeof playlist[nextPlayIndex] !== 'undefined') {
             nextSong = true;
@@ -1629,25 +1628,20 @@ function addEvents(player) {
     player.addEventListener("end", () => {
         pauseSong();
 
-        function trackEvent(retry = false) {
-            if (playIndex !== nextPlayIndex || repeatMode !== 0) {
-                player.stop();
+        if (repeatMode !== 0) {
+            player.stop();
 
-                playIndex = nextPlayIndex;
-
-                play(true);
-                return;
-            }
-
-            if (!player.isDecoding()) {
-                if (!retry && !player.hadError()) {
-                    prepareNextPart();
-                    trackEvent(true);
-                }
-            } else playPauseButton("load");
+            play(true);
+            return;
         }
 
-        trackEvent();
+        if (!player.isDecoding() && !player.hadError()) {
+            playIndex = nextSongIndex();
+
+            player.reset();
+
+            prepareNextPart();
+        } else playPauseButton("load");
     });
 
     player.addEventListener("processed", (e) => {

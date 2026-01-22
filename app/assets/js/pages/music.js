@@ -164,7 +164,6 @@ bindEvent("click", "#queueView tr[data-id]", function () {
     playPauseButton("load");
 
     playIndex = this.rowIndex - 1;
-    nextPlayIndex = playIndex;
 
     if (!partIsPlayable(playIndex, 0)) downloadPart(0, playIndex, 0); else play(true);
 });
@@ -460,7 +459,6 @@ bindEvent("click", ".fa-random", function () {
         playlist.unshift(currentSong);
 
         playIndex = 0;
-        nextPlayIndex = 0;
 
         showNotification("Playlist has been shuffled", 2000);
 
