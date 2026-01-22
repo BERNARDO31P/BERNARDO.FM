@@ -504,14 +504,12 @@ class MultiTrackPlayer extends EventTarget {
             let url;
             if (this.#waitIndex !== null) {
                 url = this.#getDecodingQueue()[this.#waitIndex];
-                delete this.#getDecodingQueue()[this.#waitIndex];
             } else {
                 const lastKey = Object.keys(this.#getDecodingQueue()).pop();
                 url = this.#getDecodingQueue()[lastKey];
-                delete this.#getDecodingQueue()[lastKey];
             }
-            let bufferIndex = null;
 
+            let bufferIndex = null;
             let response = null;
             try {
                 if (typeof url === "undefined") throw new Error();
@@ -575,6 +573,10 @@ class MultiTrackPlayer extends EventTarget {
             if (typeof this.#indexes[bufferIndex]["callback"] !== "undefined") {
                 this.#indexes[bufferIndex]["callback"](this.#indexes, bufferIndex);
                 delete this.#indexes[bufferIndex]["callback"];
+
+                this.#indexes[bufferIndex]["till"] = this.#indexes[bufferIndex]["from"] + this.getPartLength(bufferIndex);
+            } else {
+                return;
             }
 
             if (Object.keys(this.#getDecodingQueue()).length === 0 || this.#stopped)
@@ -603,7 +605,9 @@ class MultiTrackPlayer extends EventTarget {
                     }));
                 }
 
-                await this.#processDecodeQueue();
+                if (!this.isDecoding()) {
+                    await this.#processDecodeQueue();
+                }
             }
         }
     }

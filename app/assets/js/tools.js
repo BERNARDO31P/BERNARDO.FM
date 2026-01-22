@@ -1,8 +1,6 @@
-let currentHover = null, playIndex = 0, playlist = [], volume = 0,
-    previousVolume = null, repeatMode = 0,
-    touched = null, contextTimeout = null, retryTimeout = null, touchTimeout = null,
-    touchedElement = null, currentButton = null,
-    changedQueue = false, isRetrying = false, width = getWidth(), height = getHeight() + 100;
+let currentHover = null, playIndex = 0, playlist = [], volume = 0, previousVolume = null, repeatMode = 0,
+    touched = null, contextTimeout = null, retryTimeout = null, touchTimeout = null, touchedElement = null,
+    currentButton = null, changedQueue = false, isRetrying = false, width = getWidth(), height = getHeight() + 100;
 
 let onInfoCallback = null;
 
@@ -19,8 +17,7 @@ let pageURL = window.location.protocol + '//' + window.location.host + new URL(w
 let page, prevPage, mouseX = 0, mouseY = 0;
 
 let clickEvent = new Event('click', {
-    bubbles: true,
-    cancelable: true,
+    bubbles: true, cancelable: true,
 });
 
 /*
@@ -30,7 +27,9 @@ let clickEvent = new Event('click', {
  * Hier wird dieser ausgelesen und das Design angewendet
  */
 let theme = getCookie('theme');
-if (!theme) theme = 'light';
+if (!theme) {
+    theme = 'light';
+}
 document.getElementsByTagName("html")[0].setAttribute("data-theme", theme);
 
 // TODO: Comment
@@ -67,7 +66,9 @@ document.onkeydown = function (e) {
             const playerHTML = document.getElementById("player");
             const song = playlist[playIndex];
 
-            if (typeof song === "undefined") return;
+            if (typeof song === "undefined") {
+                return;
+            }
 
             const player = song["player"];
             switch (key) {
@@ -83,10 +84,11 @@ document.onkeydown = function (e) {
                     break;
                 case "K":
                 case "Space":
-                    if (player.isPlaying())
+                    if (player.isPlaying()) {
                         pauseSong();
-                    else
+                    } else {
                         play();
+                    }
                     break;
                 case "M":
                     muteAudio();
@@ -105,13 +107,17 @@ document.onkeydown = function (e) {
                     break;
                 case "ArrowUp":
                     volume = volume + 0.1;
-                    if (volume > 1) volume = 1;
+                    if (volume > 1) {
+                        volume = 1;
+                    }
 
                     setVolume(volume);
                     break;
                 case "ArrowDown":
                     volume = volume - 0.1
-                    if (volume < 0) volume = 0;
+                    if (volume < 0) {
+                        volume = 0;
+                    }
 
                     setVolume(volume);
                     break;
@@ -148,8 +154,9 @@ function seek(value) {
     seekTimeout = setTimeout(() => {
         const song = playlist[playIndex];
 
-        if (typeof song === "undefined")
+        if (typeof song === "undefined") {
             return;
+        }
 
         const player = song["player"];
 
@@ -216,7 +223,9 @@ const bindEvent = (eventNames, selectors, handler) => {
 const prev = (element, className = "") => {
     let prev = element.previousElementSibling;
 
-    if (!className || prev.classList.contains(className)) return prev;
+    if (!className || prev.classList.contains(className)) {
+        return prev;
+    }
 }
 
 /*
@@ -299,15 +308,20 @@ function updatePlaying() {
         const animationRow = animation ? animation.closest("tr") : null;
 
         if (animationRow !== row) {
-            if (animation) animation.remove();
+            if (animation) {
+                animation.remove();
+            }
 
             animation = createElementFromHTML("<div class=\"lds-facebook\"><div></div><div></div><div></div></div>");
             row.querySelector("td").appendChild(animation);
         }
 
         const divs = row.querySelector(".lds-facebook").querySelectorAll("div");
-        if (song["player"].isPlaying()) for (const div of divs) div.style.animationPlayState = "running";
-        else for (const div of divs) div.style.animationPlayState = "paused";
+        if (song["player"].isPlaying()) {
+            for (const div of divs) div.style.animationPlayState = "running";
+        } else {
+            for (const div of divs) div.style.animationPlayState = "paused";
+        }
 
         const queue = queueView.querySelector("#queue");
         const imageStyle = window.getComputedStyle(row.querySelector(".cover"));
@@ -324,8 +338,9 @@ function updatePlaying() {
 
     const angleUp = document.getElementsByClassName("fa-angle-up")[0];
 
-    if (angleUp.getAttribute("data-angle") === "up")
+    if (angleUp.getAttribute("data-angle") === "up") {
         location.replace(setGetParameter(location.href, "s", playlist[playIndex]["id"]));
+    }
 }
 
 /*
@@ -611,8 +626,7 @@ function hideNotification(notification) {
  * Überprüft, ob ein Gerät touch-fähig ist
  */
 function isTouchScreen() {
-    return 'ontouchstart' in window
-        || navigator.maxTouchPoints;
+    return 'ontouchstart' in window || navigator.maxTouchPoints;
 }
 
 /*
@@ -703,14 +717,17 @@ function getGetParameter(url, parameter) {
  * Entspricht dem HTTP-GET Standard
  */
 function setGetParameter(url, parameter, value) {
-    if (hasGetParameter(url, parameter))
+    if (hasGetParameter(url, parameter)) {
         url = removeGetParameter(url, parameter);
+    }
 
-    if (!url.includes("#!"))
+    if (!url.includes("#!")) {
         url += "#!";
+    }
 
-    if (!url.endsWith("!") && !url.endsWith("&"))
+    if (!url.endsWith("!") && !url.endsWith("&")) {
         url += "&";
+    }
 
     if (value) {
         return url + parameter + "=" + value;
@@ -757,18 +774,21 @@ function removeGetParameter(url, parameter) {
             let pair = singlePair.split("=");
             if (pair[0] !== parameter) {
                 cleanUrl += pair[0] + "=" + pair[1];
-                if (parameterNum !== count && !cleanUrl.endsWith("&"))
+                if (parameterNum !== count && !cleanUrl.endsWith("&")) {
                     cleanUrl += "&";
+                }
             }
             count++;
         });
     }
 
-    if (cleanUrl.endsWith("&"))
+    if (cleanUrl.endsWith("&")) {
         cleanUrl = cleanUrl.slice(0, -1);
+    }
 
-    if (cleanUrl.endsWith("!"))
+    if (cleanUrl.endsWith("!")) {
         cleanUrl = cleanUrl.slice(0, -2);
+    }
 
     return cleanUrl;
 }
@@ -850,9 +870,7 @@ function getReadableTime(seconds) {
     const s = seconds % 60;
 
     if (h > 0) {
-        return h + ":" +
-            m.toString().padStart(2, "0") + ":" +
-            s.toString().padStart(2, "0");
+        return h + ":" + m.toString().padStart(2, "0") + ":" + s.toString().padStart(2, "0");
     }
 
     return m + ":" + s.toString().padStart(2, "0");
@@ -886,12 +904,13 @@ function createIconElement(classes, title = "") {
 function setVolumeIcon(volumeIcon, volumeSlider) {
     volumeIcon.classList.remove("fa-volume-*");
 
-    if (volumeSlider.value >= 50)
+    if (volumeSlider.value >= 50) {
         volumeIcon.classList.add("fa-volume-up");
-    else if (volumeSlider.value >= 1)
+    } else if (volumeSlider.value >= 1) {
         volumeIcon.classList.add("fa-volume-down");
-    else
+    } else {
         volumeIcon.classList.add("fa-volume-off");
+    }
 }
 
 /*
@@ -916,10 +935,8 @@ function hideVolumeSlider(timeout = 2000) {
  * Versteckt die Playlist-Ansicht
  */
 function hidePlaylist() {
-    const queueView = document.getElementById("queueView"),
-        html = document.getElementsByTagName("html")[0],
-        body = document.getElementsByTagName("body")[0],
-        angleIcon = document.getElementsByClassName("fa-angle-up")[0];
+    const queueView = document.getElementById("queueView"), html = document.getElementsByTagName("html")[0],
+        body = document.getElementsByTagName("body")[0], angleIcon = document.getElementsByClassName("fa-angle-up")[0];
 
     clearTimeout(overflowTimeout);
 
@@ -998,11 +1015,14 @@ function muteAudio() {
             setCookie("muted", true, getExpireTime(8));
         }
 
-        if (typeof playlist[playIndex] !== 'undefined')
+        if (typeof playlist[playIndex] !== 'undefined') {
             playlist[playIndex]["player"].setVolume(volume);
+        }
 
         hideVolumeSlider();
-    } else touched = true;
+    } else {
+        touched = true;
+    }
 }
 
 /*
@@ -1016,9 +1036,13 @@ function showSearch(focus = true) {
     let input = searchToggler.closest(".icons").querySelector("#search input");
     let width = "";
 
-    if (getWidth() <= 345) width = getWidth() - 165 + "px";
-    else if (getWidth() <= 500) width = getWidth() - 235 + "px";
-    else if (getWidth() <= 1150) width = getWidth() - 310 + "px";
+    if (getWidth() <= 345) {
+        width = getWidth() - 165 + "px";
+    } else if (getWidth() <= 500) {
+        width = getWidth() - 235 + "px";
+    } else if (getWidth() <= 1150) {
+        width = getWidth() - 310 + "px";
+    }
 
     input.style.width = width;
     input.classList.add("show");
@@ -1065,7 +1089,9 @@ function updateSongData() {
     let cover = queueView.querySelector("#playingCover .cover");
     let size = Math.round(width / 100 * 80);
 
-    if (size > 1024) size = 1024;
+    if (size > 1024) {
+        size = 1024;
+    }
 
     cover.style.backgroundImage = "url(\"" + song["cover"] + "?size=" + size + "\")";
 
@@ -1138,8 +1164,7 @@ function play(diffSong = false, pageLoad = false) {
             }
         }
 
-        for (const [action, handler] of Object.entries(actionHandlers))
-            player.setActionHandler(action, handler);
+        for (const [action, handler] of Object.entries(actionHandlers)) player.setActionHandler(action, handler);
 
         player.setMetadata(song["name"], song["artist"], song["cover"]);
         player.setVolume(volume);
@@ -1168,7 +1193,9 @@ function play(diffSong = false, pageLoad = false) {
                 }
             }
         }).catch((e) => {
-            if (e.toString().includes("AbortError")) return;
+            if (e.toString().includes("AbortError")) {
+                return;
+            }
             showConfirmation("Confirmation", "An error occurred while trying to automatically start the playback. Confirm to play the song.", () => play(diffSong, pageLoad), pauseSong);
         });
     }
@@ -1184,10 +1211,14 @@ function nextSongIndex() {
     const nextIndex = Number(playIndex) + 1;
     switch (repeatMode) {
         case 0:
-            if (typeof playlist[nextIndex] === 'undefined') return playIndex;
+            if (typeof playlist[nextIndex] === 'undefined') {
+                return playIndex;
+            }
             break;
         case 1:
-            if (typeof playlist[nextIndex] === 'undefined') return 0;
+            if (typeof playlist[nextIndex] === 'undefined') {
+                return 0;
+            }
             break;
         case 2:
             return playIndex;
@@ -1206,14 +1237,18 @@ function previousSongIndex() {
     switch (repeatMode) {
         case 0:
         case 1:
-            if (typeof playlist[previousIndex] === 'undefined') return 0;
+            if (typeof playlist[previousIndex] === 'undefined') {
+                return 0;
+            }
             break;
         case 2:
             return playIndex;
     }
 
     if (typeof playlist[playlist] !== 'undefined') {
-        if (playlist[playIndex]["player"].getCurrentTime() > 10) return playIndex;
+        if (playlist[playIndex]["player"].getCurrentTime() > 10) {
+            return playIndex;
+        }
     }
     return previousIndex;
 }
@@ -1293,12 +1328,14 @@ function pauseSong() {
 function stopSongs() {
     clearTimeout(retryTimeout);
 
-    if (typeof playlist[playIndex]["player"] !== 'undefined')
+    if (typeof playlist[playIndex]["player"] !== 'undefined') {
         playlist[playIndex]["player"].stop();
+    }
 
     for (const index of Object.keys(playlist)) {
-        if (typeof playlist[index]["player"] !== 'undefined')
+        if (typeof playlist[index]["player"] !== 'undefined') {
             playlist[index]["player"].stop();
+        }
     }
 }
 
@@ -1329,10 +1366,7 @@ function onElement(element, event) {
         clientY = event.clientY;
     }
 
-    return clientX >= (element.left - buffer) &&
-        clientX <= (element.right + buffer) &&
-        clientY >= (element.top - buffer) &&
-        clientY <= (element.bottom + buffer);
+    return clientX >= (element.left - buffer) && clientX <= (element.right + buffer) && clientY >= (element.top - buffer) && clientY <= (element.bottom + buffer);
 }
 
 /*
@@ -1359,7 +1393,9 @@ function onTimelineRelease(value, rangeEvent = null) {
         return;
     }
 
-    if (value < 0) value = 0;
+    if (value < 0) {
+        value = 0;
+    }
     value = Math.round(Number(value));
 
     if (!document.hidden) {
@@ -1393,7 +1429,9 @@ function onTimelineRelease(value, rangeEvent = null) {
 
         downloadPart(value, playIndex, nextPartIndex);
     } else {
-        if (player.isPlaying()) return;
+        if (player.isPlaying()) {
+            return;
+        }
 
         player.setOffset(value - partInfo[0]);
         player.setCurrentIndex(nextPartIndex);
@@ -1439,7 +1477,9 @@ function nextSong(bypass = false) {
         } else {
             play(true);
         }
-    } else playPauseButton("pause");
+    } else {
+        playPauseButton("pause");
+    }
 }
 
 /*
@@ -1479,7 +1519,9 @@ function previousSong(bypass = false) {
         } else {
             play(true);
         }
-    } else playPauseButton("pause");
+    } else {
+        playPauseButton("pause");
+    }
 }
 
 /*
@@ -1595,10 +1637,7 @@ function downloadPart(time, sIndex, pIndex, till = null) {
     }
 
     player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), (indexes, index) => {
-        const from = parseInt(indexes[index]["url"].match(/system\/song\/[^\/]+\/(\d+)(?:\/\d+)?$/)?.[1]);
-
-        indexes[index]["from"] = from;
-        indexes[index]["till"] = from + player.getPartLength(index);
+        indexes[index]["from"] = parseInt(indexes[index]["url"].match(/system\/song\/[^\/]+\/(\d+)(?:\/\d+)?$/)?.[1]);
     });
 }
 
@@ -1641,7 +1680,9 @@ function addEvents(player) {
             player.reset();
 
             prepareNextPart();
-        } else playPauseButton("load");
+        } else {
+            playPauseButton("load");
+        }
     });
 
     player.addEventListener("processed", (e) => {
@@ -1697,7 +1738,11 @@ function onTimelineMove(rangeEvent) {
 
     playlist[playIndex]["player"].removeTimeUpdate();
 
-    if (leftPos < 0) leftPos = 0; else if ((leftPos + measurementTimeInfo["width"]) > getWidth()) leftPos = getWidth() - measurementTimeInfo["width"];
+    if (leftPos < 0) {
+        leftPos = 0;
+    } else if ((leftPos + measurementTimeInfo["width"]) > getWidth()) {
+        leftPos = getWidth() - measurementTimeInfo["width"];
+    }
 
     timeInfo.style.top = (measurementRange["top"] - measurementTimeInfo["height"] - 10) + "px";
     timeInfo.style.left = leftPos + "px";
@@ -1730,7 +1775,9 @@ async function generatePlaylistInfo(song) {
     context.canvas.height = 160;
 
     for (let i = 0, j = 0; i < 4; i++) {
-        if (i % 2 === 0 && i !== 0) j++;
+        if (i % 2 === 0 && i !== 0) {
+            j++;
+        }
 
         const image = new Image();
         image.src = "system/img/" + playlist[i]["cover"].toString() + "?size=80";
@@ -1747,19 +1794,26 @@ async function generatePlaylistInfo(song) {
 
     let artistCount = 0;
     for (let i = 0; i < count; i++) {
-        if (artistCount >= 4) break;
+        if (artistCount >= 4) {
+            break;
+        }
         const artists = song["playlist"][i]["artist"].split(/[,&]+/).map(artist => artist.trim());
         for (let artist of artists) {
-            if (artistCount >= 4) break;
-            if (info["artists"].includes(artist)) continue;
+            if (artistCount >= 4) {
+                break;
+            }
+            if (info["artists"].includes(artist)) {
+                continue;
+            }
             info["artists"] += artist + ", ";
             artistCount++;
         }
     }
 
     info["artists"] = info["artists"].substring(0, info["artists"].length - 2)
-    if (artistCount > 4)
+    if (artistCount > 4) {
         info["artists"] += " and more..";
+    }
 
     return info;
 }
@@ -1860,7 +1914,9 @@ function createCell(content) {
  * Generiert die Tabellenzeilen aus den Daten
  */
 async function generateTableBody(data, columns, tbody = null, cover = null) {
-    if (!tbody) tbody = document.createElement('tbody');
+    if (!tbody) {
+        tbody = document.createElement('tbody');
+    }
 
     const fragment = document.createDocumentFragment();
     const lowerColumns = columns.map(column => column.toLowerCase());
@@ -1868,7 +1924,9 @@ async function generateTableBody(data, columns, tbody = null, cover = null) {
 
     for (const row of rows) {
         const tr = document.createElement('tr');
-        if (row.id) tr.dataset.id = row.id;
+        if (row.id) {
+            tr.dataset.id = row.id;
+        }
 
         if (!row['playlist']) {
             if (cover) {
@@ -1927,9 +1985,7 @@ async function generateTableBody(data, columns, tbody = null, cover = null) {
 function setPositionState(length, position) {
     if ('mediaSession' in navigator) {
         navigator.mediaSession.setPositionState({
-            duration: length,
-            playbackRate: 1,
-            position: position
+            duration: length, playbackRate: 1, position: position
         });
     }
 }
@@ -1950,7 +2006,9 @@ function removeFromObject(object, toRemove = null, recursive = true) {
         cleaned = [];
 
         for (let value of object) {
-            if (value !== toRemove && !toRemove.includes(value)) cleaned.push(value);
+            if (value !== toRemove && !toRemove.includes(value)) {
+                cleaned.push(value);
+            }
         }
     } else {
         cleaned = {};
@@ -1961,8 +2019,12 @@ function removeFromObject(object, toRemove = null, recursive = true) {
                 if (typeof value === 'object' && recursive) {
                     cleaned[key] = removeFromObject(Object.assign({}, value), toRemove);
                 } else {
-                    if (!isNum(key)) cleaned[key] = value; else {
-                        if (!Array.isArray(cleaned)) cleaned = [];
+                    if (!isNum(key)) {
+                        cleaned[key] = value;
+                    } else {
+                        if (!Array.isArray(cleaned)) {
+                            cleaned = [];
+                        }
                         cleaned.push(value);
                     }
                 }
@@ -2027,10 +2089,14 @@ function getColumns(data, level = 0, start = 0) {
         if (typeof value === 'object' && start < level) {
             let tempColumns = getColumns(value, level, start + 1);
 
-            if (tempColumns.length > columns.length) columns = tempColumns;
+            if (tempColumns.length > columns.length) {
+                columns = tempColumns;
+            }
         }
 
-        if (start >= level) return Object.keys(data);
+        if (start >= level) {
+            return Object.keys(data);
+        }
     }
 
     return columns;
