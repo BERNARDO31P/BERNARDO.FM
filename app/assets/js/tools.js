@@ -1,6 +1,7 @@
 let currentHover = null, playIndex = 0, nextPlayIndex = 0, playlist = [], volume = 0,
     previousVolume = null, repeatMode = 0,
-    touched = null, contextTimeout = null, timelineReleaseTimeout = null, retryTimeout = null, touchTimeout = null, touchedElement = null, currentButton = null,
+    touched = null, contextTimeout = null, retryTimeout = null, touchTimeout = null,
+    touchedElement = null, currentButton = null,
     changedQueue = false, isRetrying = false, width = getWidth(), height = getHeight() + 100;
 
 let onInfoCallback = null;
@@ -1379,27 +1380,24 @@ function onTimelineRelease(value, rangeEvent = null) {
         return;
     }
 
-    clearTimeout(timelineReleaseTimeout);
-    timelineReleaseTimeout = setTimeout(() => {
-        let partInfo = player.getPartByTime(value);
-        const nextPartIndex = partInfo[2];
+    let partInfo = player.getPartByTime(value);
+    const nextPartIndex = partInfo[2];
 
-        if (nextPartIndex === null) {
-            playPauseButton("load");
+    if (nextPartIndex === null) {
+        playPauseButton("load");
 
-            const nextPartIndex = player.getNextFreePartIndex();
-            player.setCurrentIndex(nextPartIndex);
+        const nextPartIndex = player.getNextFreePartIndex();
+        player.setCurrentIndex(nextPartIndex);
 
-            downloadPart(value, playIndex, nextPartIndex);
-        } else {
-            if (player.isPlaying()) return;
+        downloadPart(value, playIndex, nextPartIndex);
+    } else {
+        if (player.isPlaying()) return;
 
-            player.setOffset(value - partInfo[0]);
-            player.setCurrentIndex(nextPartIndex);
+        player.setOffset(value - partInfo[0]);
+        player.setCurrentIndex(nextPartIndex);
 
-            play();
-        }
-    }, 200);
+        play();
+    }
 }
 
 // TODO: Comment
@@ -1507,21 +1505,18 @@ function prepareNextPart() {
     clearTimeout(retryTimeout);
 
     const player = playlist[playIndex]["player"];
-    const currentPart = player.getPartByTime(player.getCurrentTime());
+    const currentPart = player.getCurrentPart();
 
     let nextTime;
-    if (currentPart && currentPart[1]) {
+    if (currentPart[1]) {
         nextTime = parseInt(currentPart[1]);
     } else {
-        player.setCurrentIndex(player.getNextPartIndexByCurrent());
         downloadPart(player.getCurrentTime(), playIndex, player.getNextFreePartIndex());
         return;
     }
 
     let songEnded = false, nextSong = false;
     if (!(player.getDuration() - nextTime > 1)) {
-        player.setCurrentIndex(player.getPartByTime(0)[2]);
-
         songEnded = true;
         nextPlayIndex = nextSongIndex();
 
@@ -1531,18 +1526,20 @@ function prepareNextPart() {
     }
 
     if (!nextSong && !songEnded) {
-        nextPlayIndex = playIndex;
-
-        const nextPlayer = playlist[nextPlayIndex]["player"];
-        const partInfo = nextPlayer.getPartByStartTime(nextTime);
-        const nextPartIndex = partInfo[2];
+        const partInfo = player.getPartByStartTime(nextTime);
+        let nextPartIndex = partInfo[2];
 
         if (nextPartIndex === null) {
-            const missingLength = nextPlayer.findMissingLengthByCurrentPart(nextTime);
+            const missingLength = player.findMissingLengthByCurrentPart(nextTime);
 
-            downloadPart(nextTime, nextPlayIndex, nextPlayer.getNextFreePartIndex(), missingLength);
+            downloadPart(nextTime, playIndex, player.getNextFreePartIndex(), missingLength);
         } else {
-            if (!nextPlayer.queueTrack(nextPartIndex)) {
+            if (!player.isPlaying()) {
+                play();
+                return;
+            }
+
+            if (!player.queueTrack(nextPartIndex)) {
                 retryTimeout = setTimeout(() => {
                     prepareNextPart();
                 }, 200);
@@ -1550,6 +1547,8 @@ function prepareNextPart() {
         }
     } else if (nextSong && !partIsPlayable(nextPlayIndex, 0)) {
         downloadPart(0, nextPlayIndex, 0);
+    } else {
+        play(true);
     }
 }
 
@@ -1653,15 +1652,7 @@ function addEvents(player) {
             return
         }
 
-        if (player.isPlaying()) {
-            player.queueTrack(player.getNextPartIndexByCurrent());
-        } else {
-            const partInfo = player.getPartByTime(player.getCurrentTime());
-            player.setCurrentIndex(partInfo[2]);
-            player.setCurrentTime(partInfo[0]); // Small hack, anti de-sync
-
-            play(e.detail.initialPlay);
-        }
+        prepareNextPart();
     });
 
     player.addEventListener("downloadError", () => {
@@ -1687,7 +1678,7 @@ function addEvents(player) {
     player.addEventListener("timeupdate", (e) => {
         if (!document.hidden) {
             const timeline = document.getElementById("timeline");
-            timeline.value = e.detail.index;
+            timeline.value = e.detail.value;
         }
     });
 }

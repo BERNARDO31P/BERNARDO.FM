@@ -133,7 +133,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #dispatchTimeUpdate() {
-        this.dispatchEvent(new CustomEvent("timeupdate", {detail: {index: this.getCurrentTime()}}));
+        this.dispatchEvent(new CustomEvent("timeupdate", {detail: {value: this.getCurrentTime()}}));
     }
 
     async addTrack(url, callback) {
@@ -165,28 +165,20 @@ class MultiTrackPlayer extends EventTarget {
         return Object.keys(this.#indexes).length
     }
 
-    getNextPartIndexByCurrent() {
-        const partTill = this.#getPartTill(this.#currentTrackIndex);
-        if (!partTill) {
-            return 0;
+    getCurrentPart() {
+        if (typeof this.#indexes[this.#currentTrackIndex] === "undefined") {
+            return [null, null, null];
         }
 
-        return this.getPartByStartTime(partTill)[2];
-    }
+        const part = this.#indexes[this.#currentTrackIndex];
 
-    #getPartTill(index) {
-        if (typeof this.#indexes[index] === "undefined") {
-            return 0;
-        }
-
-        return Number(this.#indexes[index]["till"]);
+        return [part["from"], part["till"], this.#currentTrackIndex];
     }
 
     getPartByTime(time) {
         for (const [index, part] of Object.entries(this.#indexes)) {
-            if (!part) continue;
+            if (!part || part["till"] === null) continue;
 
-            if (Number(index) !== 0 && part["from"] === 0) continue;
             if (part["from"] <= time && part["till"] > time) return [part["from"], part["till"], Number(index)];
         }
 
@@ -491,6 +483,10 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     reset() {
+        if (this.isPlaying()) {
+            return;
+        }
+
         this.#currentTrackIndex = parseInt(this.getPartByStartTime(0)[2]);
 
         this.setCurrentTime(0);
