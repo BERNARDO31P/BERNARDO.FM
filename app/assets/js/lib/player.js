@@ -153,12 +153,12 @@ class MultiTrackPlayer extends EventTarget {
             "timeout": null
         }
 
-        if (!this.isDecoding()) {
-            await this.#processDecodeQueue();
-        } else {
+        if (this.isDecoding()) {
             this.#waitIndex = index;
             this.#abortDownload();
         }
+
+        await this.#processDecodeQueue();
     }
 
     getNextFreePartIndex() {
@@ -535,9 +535,8 @@ class MultiTrackPlayer extends EventTarget {
                     }
                 } else if (this.#getUrls().indexOf(url) !== -1 && !this.#stopped) {
                     this.#indexes[bufferIndex]["decoding"] = true;
-
-                    await this.#processDecodeQueue();
                 }
+
                 return;
             }
 
@@ -561,9 +560,9 @@ class MultiTrackPlayer extends EventTarget {
                         this.dispatchEvent(new Event("downloadError"));
                 } else if (this.#getUrls().indexOf(url) !== -1 && !this.#stopped) {
                     this.#indexes[bufferIndex]["decoding"] = true;
-
-                    await this.#processDecodeQueue();
                 }
+
+                return;
             }
 
             bufferIndex = this.#getUrls().indexOf(url);
