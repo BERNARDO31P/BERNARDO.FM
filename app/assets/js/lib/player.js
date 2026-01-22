@@ -274,8 +274,6 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
-                this.#currentOffset = 0;
-
                 if (!Object.keys(this.#getStartTimeouts()).length || this.getCurrentTime() >= this.getDuration()) {
                     this.dispatchEvent(new Event("end"));
                 }
@@ -283,9 +281,9 @@ class MultiTrackPlayer extends EventTarget {
 
             this.#indexes[index]["timeout"] = setTimeout(() => {
                 this.#executedTask = true;
-                this.#currentTrackIndex = index;
                 this.#startTime = source.when;
 
+                this.setCurrentIndex(index);
                 this.dispatchEvent(new Event("play"));
             }, startTime * 1000 + 200);
         }
@@ -487,8 +485,7 @@ class MultiTrackPlayer extends EventTarget {
             return;
         }
 
-        this.#currentTrackIndex = parseInt(this.getPartByStartTime(0)[2]);
-
+        this.setCurrentIndex(parseInt(this.getPartByStartTime(0)[2]));
         this.setCurrentTime(0);
         this.setOffset(0);
     }
