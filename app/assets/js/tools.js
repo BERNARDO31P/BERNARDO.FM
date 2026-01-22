@@ -290,8 +290,9 @@ function updatePlaying() {
     let row = null;
 
     const table = queueView.querySelector(".responsive-table");
-    if (table) row = table.rows[playIndex + 1];
-
+    if (table) {
+        row = table.rows[playIndex + 1];
+    }
 
     if (row && typeof song["player"] !== "undefined") {
         let animation = queueView.querySelector(".lds-facebook");
@@ -1117,7 +1118,9 @@ function play(diffSong = false, pageLoad = false) {
         const title = document.querySelector("title");
         title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
 
-        if (!document.hidden) updateSongData();
+        if (!document.hidden) {
+            updateSongData();
+        }
 
         const actionHandlers = {
             "play": () => play(),
@@ -1535,7 +1538,7 @@ function prepareNextPart() {
             downloadPart(nextTime, playIndex, player.getNextFreePartIndex(), missingLength);
         } else {
             if (!player.isPlaying()) {
-                play();
+                play(!player.getCurrentTime());
                 return;
             }
 
