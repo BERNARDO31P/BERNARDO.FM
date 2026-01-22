@@ -1547,7 +1547,7 @@ function prepareNextPart() {
         }
     } else if (nextSong && !partIsPlayable(nextPlayIndex, 0)) {
         downloadPart(0, nextPlayIndex, 0);
-    } else {
+    } else if (!player.isPlaying()) {
         play(true);
     }
 }
