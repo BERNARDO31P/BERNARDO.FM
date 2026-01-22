@@ -1673,6 +1673,8 @@ function addEvents(player) {
         pauseSong();
 
         if (repeatMode !== 0) {
+            playIndex = nextSongIndex();
+
             player.stop();
 
             play(true);
