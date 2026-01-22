@@ -1415,8 +1415,10 @@ function onTimelineRelease(value, rangeEvent = null) {
     player.setCurrentTime(value);
 
     if (isRetrying) {
-        const nextPartIndex = player.getNextFreePartIndex();
-        player.setCurrentIndex(nextPartIndex);
+        if (!player.isPlaying()) {
+            const nextPartIndex = player.getNextFreePartIndex();
+            player.setCurrentIndex(nextPartIndex);
+        }
 
         return;
     }
