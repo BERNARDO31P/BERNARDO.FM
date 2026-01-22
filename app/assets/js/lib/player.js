@@ -159,6 +159,7 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         await this.#processDecodeQueue();
+        this.#isDecoding = false;
     }
 
     getNextFreePartIndex() {
