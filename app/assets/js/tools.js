@@ -1166,11 +1166,23 @@ function play(diffSong = false, pageLoad = false) {
             "previoustrack": () => previousSong(),
             "nexttrack": () => nextSong(),
             "stop": () => stopSongs(),
-            "seekbackward": () => seek(-10),
-            "seekforward": () => seek(10),
-            "seekto": (details) => {
+            "seekbackward": (details = {}) => {
+                if ('seekOffset' in details) {
+                    seek(-Math.abs(parseInt(details.seekOffset)));
+                } else {
+                    seek(-10);
+                }
+            },
+            "seekforward": (details = {}) => {
+                if ('seekOffset' in details) {
+                    seek(Math.abs(parseInt(details.seekOffset)));
+                } else {
+                    seek(10);
+                }
+            },
+            "seekto": (details = {}) => {
                 if ('seekTime' in details) {
-                    const time = Math.round(details.seekTime);
+                    const time = parseInt(details.seekTime);
                     onTimelineRelease(time);
                 }
             }
@@ -1419,7 +1431,7 @@ function onTimelineRelease(value, rangeEvent = null) {
     if (value < 0) {
         value = 0;
     }
-    value = Math.round(Number(value));
+    value = parseInt(value);
 
     if (!document.hidden) {
         document.getElementById("timeInfo").style.display = "none";
