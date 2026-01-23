@@ -1678,14 +1678,16 @@ function addEvents(player) {
     player.addEventListener("end", () => {
         pauseSong();
 
+        const nextPlayIndex = nextSongIndex();
+
         if (repeatMode !== 0) {
-            playIndex = nextSongIndex();
+            playIndex = nextPlayIndex;
 
             player.stop();
 
             play(true);
             return;
-        } else {
+        } else if (playIndex === nextPlayIndex) {
             const player = playlist[playIndex]["player"];
             const currentPart = player.getCurrentPart();
 
@@ -1701,7 +1703,7 @@ function addEvents(player) {
         }
 
         if (!player.isDecoding() && !player.hadError()) {
-            playIndex = nextSongIndex();
+            playIndex = nextPlayIndex;
 
             player.reset();
 
