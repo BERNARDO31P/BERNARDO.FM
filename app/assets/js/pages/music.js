@@ -383,8 +383,6 @@ bindEvent("click", "[data-angle='up']", function () {
     if (window.scrollY !== 0) navbar.classList.add("shadow");
 });
 
-let playTimeout = null;
-
 bindEvent("click", "#playingCover", function (event) {
     clearTimeout(playTimeout);
 
@@ -397,6 +395,7 @@ bindEvent("click", "#playingCover", function (event) {
 
         const player = playlist[playIndex]["player"];
         if (player.isPlaying()) {
+            console.log("pause!");
             pauseSong();
         } else {
             play();
@@ -411,6 +410,7 @@ bindEvent("touchstart", "#playingCover", function (event) {
     const tapLength = currentTime - lastTap;
 
     clearTimeout(playTimeout);
+    clearTimeout(retryTimeout);
 
     if (tapLength < 300 && tapLength > 0) {
         const touch = event.touches[0];
@@ -431,6 +431,7 @@ bindEvent("dblclick", "#playingCover", function (event) {
     }
 
     clearTimeout(playTimeout);
+    clearTimeout(retryTimeout);
 
     const element = event.target.closest("#playingCover");
     const rect = element.getBoundingClientRect();

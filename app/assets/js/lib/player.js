@@ -580,6 +580,10 @@ class MultiTrackPlayer extends EventTarget {
 
                 this.#indexes[bufferIndex]["till"] = this.#indexes[bufferIndex]["from"] + this.getPartLength(bufferIndex);
             } else {
+                this.#indexes[bufferIndex]["url"] = null;
+                this.#indexes[bufferIndex]["from"] = null;
+                this.#indexes[bufferIndex]["till"] = null;
+
                 return;
             }
 

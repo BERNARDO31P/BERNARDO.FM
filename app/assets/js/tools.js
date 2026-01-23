@@ -1,5 +1,5 @@
 let currentHover = null, playIndex = 0, playlist = [], volume = 0, previousVolume = null, repeatMode = 0,
-    touched = null, contextTimeout = null, retryTimeout = null, touchTimeout = null, touchedElement = null,
+    touched = null, contextTimeout = null, retryTimeout = null, touchTimeout = null, touchedElement = null, playTimeout = null,
     currentButton = null, changedQueue = false, isRetrying = false, width = getWidth(), height = getHeight() + 100;
 
 let onInfoCallback = null;
@@ -1141,6 +1141,7 @@ function updateSongData() {
  * Beginnt die Wiedergabe
  */
 function play(diffSong = false, pageLoad = false) {
+    clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
     const player = playlist[playIndex]["player"];
@@ -1313,6 +1314,7 @@ function clearSongs() {
  * Pausiert die Wiedergabe
  */
 function pauseSong() {
+    clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
     playlist[playIndex]["player"].pause();
@@ -1332,6 +1334,7 @@ function pauseSong() {
 }
 
 function stopSongs() {
+    clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
     if (typeof playlist[playIndex]["player"] !== 'undefined') {
@@ -1389,6 +1392,7 @@ function onElement(element, event) {
  * Die Wiedergabe beginnt
  */
 function onTimelineRelease(value, rangeEvent = null) {
+    clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
     const player = playlist[playIndex]["player"];
@@ -1465,6 +1469,7 @@ function partIsPlayable(sIndex, pIndex) {
  * Die Wiedergabe wird gestartet
  */
 function nextSong(bypass = false) {
+    clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
     const player = playlist[playIndex]["player"];
@@ -1501,6 +1506,7 @@ function nextSong(bypass = false) {
  * Die Wiedergabe wird gestartet
  */
 function previousSong(bypass = false) {
+    clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
     const player = playlist[playIndex]["player"];
@@ -1557,6 +1563,7 @@ function previousSong(bypass = false) {
  *  - Jetzt fehlt ein 5 Sekunden langer Teil, dieser wird heruntergeladen (anstatt 10 Sekunden)
  */
 function prepareNextPart() {
+    clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
     const player = playlist[playIndex]["player"];
@@ -1668,6 +1675,9 @@ function addEvents(player) {
      * Sobald die Wiedergabe beginnt, soll der nächste Teil im Hintergrund heruntergeladen werden
      */
     player.addEventListener("play", () => {
+        clearTimeout(playTimeout);
+        clearTimeout(retryTimeout);
+
         isRetrying = false;
 
         playPauseButton("play");
