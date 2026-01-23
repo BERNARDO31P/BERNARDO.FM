@@ -535,8 +535,4 @@ $router->get("/temp/(.*)", function ($image) {
     exit("Forbidden");
 });
 
-$router->get("/phpinfo", function () {
-    phpinfo();
-});
-
 $router->run();
