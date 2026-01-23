@@ -1144,6 +1144,11 @@ function play(diffSong = false, pageLoad = false) {
     clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
+    if (typeof playlist[playIndex]["player"] === "undefined") {
+        downloadPart(0, playIndex, 0);
+        return;
+    }
+
     const player = playlist[playIndex]["player"];
 
     if (diffSong) {
