@@ -1180,6 +1180,14 @@ function play(diffSong = false, pageLoad = false) {
 
     if (!player.isPlaying()) {
         player.initialize().then(() => {
+            const currentPart = player.getCurrentPart();
+            if (!currentPart[1] || !partIsPlayable(playIndex, currentPart[2])) {
+                pauseSong();
+
+                prepareNextPart();
+                return;
+            }
+
             hideConfirmation();
             player.playNext();
 
