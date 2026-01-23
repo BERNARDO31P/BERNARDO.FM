@@ -421,24 +421,41 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
         throw new RuntimeException("Failed to start FFmpeg (cut stage)");
     }
 
-    $audioData = stream_get_contents($pipes_cut[1]);
-    $cutError  = stream_get_contents($pipes_cut[2]);
+    // Disable buffering
+    if (ob_get_level()) {
+        ob_end_clean();
+    }
+
+    set_time_limit(0);
+
+    header("Content-Type: audio/{$format}");
+    header("Content-Disposition: attachment; filename=output.{$format}");
+    header("Cache-Control: no-store");
+    header("Transfer-Encoding: chunked");
+
+    $stdout = $pipes_cut[1];
+    $stderr = $pipes_cut[2];
+
+    while (!feof($stdout)) {
+        $chunk = fread($stdout, 8192);
+        if ($chunk === false) {
+            break;
+        }
+        echo $chunk;
+        flush();
+    }
 
     fclose($pipes_cut[0]);
-    fclose($pipes_cut[1]);
-    fclose($pipes_cut[2]);
+    fclose($stdout);
+
+    $cutError = stream_get_contents($stderr);
+    fclose($stderr);
 
     $exitCut = proc_close($process_cut);
 
     if ($exitCut !== 0) {
         throw new RuntimeException("FFmpeg cut failed\n{$cutError}");
     }
-
-    header("Content-Type: audio/{$format}");
-    header("Content-Disposition: attachment; filename=output.{$format}");
-    header("Content-Length: " . strlen($audioData));
-
-    echo $audioData;
 });
 
 /*

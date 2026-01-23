@@ -241,6 +241,10 @@ class MultiTrackPlayer extends EventTarget {
             index = this.#currentTrackIndex;
         }
 
+        if (typeof this.#indexes[index] === "undefined") {
+            return;
+        }
+
         if (!this.hadError() && !this.#stopped
             && !(startTime === 0 && this.isPlaying())
             && (!this.#executedTask || this.#initialPlay)
