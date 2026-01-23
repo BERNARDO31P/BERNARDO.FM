@@ -5086,9 +5086,9 @@
     "id": "vsz9SLqmeztG1eQgykk",
     "cover": "Alpha Portal - Dimension 007 - Album Cover.jpg",
     "name": "History Of Gods",
-    "artist": "Avalon & Starlab",
+    "artist": "Avalon & StarLab",
     "length": "7:53",
-    "fileName": "Avalon & Starlab - History Of Gods.wav",
+    "fileName": "Avalon & StarLab - History Of Gods.wav",
     "category": "Psytrance",
     "info": [
       "pKh9SbbeBBTXMTaXyJf",
@@ -5413,5 +5413,38 @@
     "fileName": "Fox Stevenson - Knowhow.wav",
     "category": "Drum and Bass",
     "info": "JHBsPgXmY9inBU45pjN"
+  },
+  {
+    "id": "NgEG85CuQxoaMlJN9z8",
+    "cover": "Braingames Records - Boogie Buffet - Album Cover.jpg",
+    "name": "Bit of Juice",
+    "artist": "Gigi & Convert-X",
+    "length": "7:46",
+    "fileName": "Gigi & Convert-X - Bit of Juice.wav",
+    "category": "Psytrance",
+    "info": [
+      "Q3YQNyFGh8b73pIJ5d8",
+      "NQdMdshK8pOZfmZLLjm"
+    ]
+  },
+  {
+    "id": "3HakEu0Xoa4vtyvC7U4",
+    "cover": "Braingames Records - Boogie Buffet - Album Cover.jpg",
+    "name": "21 Minutes Later",
+    "artist": "Art Materials",
+    "length": "7:08",
+    "fileName": "Art Materials - 21 Minutes Later.wav",
+    "category": "Psytrance",
+    "info": "5r1DiPY3xOnGBiYcozG"
+  },
+  {
+    "id": "qJuYbTZ2LbwoHFsesjX",
+    "cover": "StarLab - Oceans From Silence.jpg",
+    "name": "Oceans From Silence",
+    "artist": "StarLab",
+    "length": "8:13",
+    "fileName": "StarLab - Oceans From Silence.wav",
+    "category": "Psytrance",
+    "info": "suqY96DuqMC7NFHzKrh"
   }
 ]
