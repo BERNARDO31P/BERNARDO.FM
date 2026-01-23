@@ -7,7 +7,7 @@ let onInfoCallback = null;
 let lastScroll = 0;
 let overflowTimeout = null;
 
-let seekTimeout = null, seekTime = 0;
+let seekTimeout = null, seekTime = 0, seekDirection = null;
 
 const defaultDelay = 500;
 
@@ -147,21 +147,27 @@ function showSeekLabel(amount, isRight) {
 function seek(value) {
     clearTimeout(seekTimeout);
 
+    const newSeekDirection = value > 0 ? "forwards" : "backwards";
+    if (seekDirection !== newSeekDirection) {
+        seekTime = 0;
+    }
+
+    seekDirection = newSeekDirection;
     seekTime += value;
 
     showSeekLabel(seekTime, value > 0);
 
+    const song = playlist[playIndex];
+
+    if (typeof song === "undefined") {
+        return;
+    }
+
+    const player = song["player"];
+
+    onTimelineRelease(player.getCurrentTime() + value);
+
     seekTimeout = setTimeout(() => {
-        const song = playlist[playIndex];
-
-        if (typeof song === "undefined") {
-            return;
-        }
-
-        const player = song["player"];
-
-        onTimelineRelease(player.getCurrentTime() + seekTime);
-
         seekTime = 0;
     }, 1000);
 }
