@@ -1099,8 +1099,8 @@ function updateSongData() {
 
     let playerHTML = document.getElementById("player");
     playerHTML.querySelector("#timeline").max = length;
-    playerHTML.querySelector("#name").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["name"] + "'>" + song["name"] + "</div>" + "<div class='spacer'>" + song["name"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
-    playerHTML.querySelector("#artist").innerHTML = "<div class='truncate'>" + "<div class='content' title='" + song["artist"] + "'>" + song["artist"] + "</div>" + "<div class='spacer'>" + song["artist"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
+    playerHTML.querySelector("#name").innerHTML = "<div class='truncate'>" + "<div class='content' data-title='" + song["name"] + "'>" + song["name"] + "</div>" + "<div class='spacer'>" + song["name"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
+    playerHTML.querySelector("#artist").innerHTML = "<div class='truncate'>" + "<div class='content' data-title='" + song["artist"] + "'>" + song["artist"] + "</div>" + "<div class='spacer'>" + song["artist"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
     playerHTML.style.display = "initial";
 
     let data = tryParseJSON(httpGet(pageURL + "system/info/" + song["id"]));
