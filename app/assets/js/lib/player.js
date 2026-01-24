@@ -118,7 +118,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     setCurrentIndex(index) {
-        if (index === null) {
+        if (index === null || !isFinite(index)) {
             return;
         }
 
@@ -585,6 +585,10 @@ class MultiTrackPlayer extends EventTarget {
                 this.#indexes[bufferIndex]["till"] = null;
 
                 return;
+            }
+
+            if (!isFinite(this.#currentTrackIndex)) {
+                this.#currentTrackIndex = this.getPartByStartTime(this.getCurrentTime())[2];
             }
 
             if (Object.keys(this.#getDecodingQueue()).length === 0 || this.#stopped)
