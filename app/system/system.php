@@ -123,6 +123,8 @@ $router->get("/songs/([^\/]*)/([\d]+)", function ($search, $count) {
         generate_pictures($db);
     }
 
+    shuffle_level($db, 1);
+
     header("Content-Type: application/json");
     echo json_encode($db);
 });
@@ -156,6 +158,8 @@ $router->get("/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)", function ($search, $cat
     if (count($db)) {
         generate_pictures($db);
     }
+
+    shuffle_level($db, 0);
 
     header("Content-Type: application/json");
     echo json_encode($db);

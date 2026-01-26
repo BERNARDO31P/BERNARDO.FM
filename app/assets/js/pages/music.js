@@ -395,7 +395,6 @@ bindEvent("click", "#playingCover", function (event) {
 
         const player = playlist[playIndex]["player"];
         if (player.isPlaying()) {
-            console.log("pause!");
             pauseSong();
         } else {
             play();

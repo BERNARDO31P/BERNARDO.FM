@@ -55,6 +55,14 @@ class MultiTrackPlayer extends EventTarget {
         this.#audioTag.volume = 0;
         this.#playEventHandler = this.#playEvent.bind(this);
         this.#pauseEventHandler = this.#pauseEvent.bind(this);
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden || this.#stopped) {
+                return;
+            }
+
+            this.#dispatchTimeUpdate();
+        });
     }
 
     #getUrls() {
@@ -178,9 +186,13 @@ class MultiTrackPlayer extends EventTarget {
 
     getPartByTime(time) {
         for (const [index, part] of Object.entries(this.#indexes)) {
-            if (!part || part["till"] === null) continue;
+            if (!part || part["till"] === null) {
+                continue;
+            }
 
-            if (part["from"] <= time && part["till"] > time) return [part["from"], part["till"], Number(index)];
+            if (part["from"] <= time && part["till"] > time) {
+                return [part["from"], part["till"], Number(index)];
+            }
         }
 
         return [null, null, null];
@@ -188,9 +200,13 @@ class MultiTrackPlayer extends EventTarget {
 
     getPartByStartTime(time) {
         for (const [index, part] of Object.entries(this.#indexes)) {
-            if (!part || part["till"] === null) continue;
+            if (!part || part["till"] === null) {
+                continue;
+            }
 
-            if (part["from"] === time && part["from"] !== part["till"]) return [part["from"], part["till"], Number(index)];
+            if (part["from"] === time && part["from"] !== part["till"]) {
+                return [part["from"], part["till"], Number(index)];
+            }
         }
 
         return [null, null, null];
@@ -204,10 +220,13 @@ class MultiTrackPlayer extends EventTarget {
         let currentLength = this.getPartLength(this.#currentTrackIndex);
 
         for (const part of Object.values(this.#indexes)) {
-            if (!part) continue;
+            if (!part) {
+                continue;
+            }
 
-            if (part["from"] - time > 1 && part["from"] - time <= currentLength)
+            if (part["from"] - time > 1 && part["from"] - time <= currentLength) {
                 return part["from"] - time;
+            }
         }
         return null;
     }
@@ -215,6 +234,7 @@ class MultiTrackPlayer extends EventTarget {
     async initialize() {
         this.#initialPlay = true;
         this.#stopped = false;
+        this.#hadError = false;
 
         this.#clearTimeouts();
 
@@ -225,8 +245,12 @@ class MultiTrackPlayer extends EventTarget {
         this.#audioTag.addEventListener("play", this.#playEventHandler);
         this.#audioTag.addEventListener("pause", this.#pauseEventHandler);
 
-        if (this.#audioTag.paused) await this.#audioTag.play();
-        if (audioContext.state !== "running") await audioContext.resume();
+        if (this.#audioTag.paused) {
+            await this.#audioTag.play();
+        }
+        if (audioContext.state !== "running") {
+            await audioContext.resume();
+        }
 
         if ('mediaSession' in navigator) {
             navigator.mediaSession.playbackState = "playing";
@@ -253,11 +277,13 @@ class MultiTrackPlayer extends EventTarget {
 
             this.#playing = true;
 
-            if (this.#audioTag.paused)
+            if (this.#audioTag.paused) {
                 this.#audioTag.play();
+            }
 
-            if (audioContext.state !== "running")
+            if (audioContext.state !== "running") {
                 audioContext.resume();
+            }
 
             const source = audioContext.createBufferSource();
             this.#indexes[index]["source"] = source;
@@ -279,7 +305,7 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
-                if (!Object.keys(this.#getStartTimeouts()).length || this.getCurrentTime() >= this.getDuration()) {
+                if (!Object.keys(this.#getStartTimeouts()).length || !(this.getDuration() - this.getCurrentTime() > 1)) {
                     this.dispatchEvent(new Event("end"));
                 }
             }
@@ -289,9 +315,22 @@ class MultiTrackPlayer extends EventTarget {
                 this.#startTime = source.when;
 
                 this.setCurrentIndex(index);
+                this.#clearStartup();
                 this.dispatchEvent(new Event("play"));
             }, startTime * 1000 + 200);
         }
+    }
+
+    #clearStartup() {
+        this.#clearTimeouts();
+
+        Object.entries(this.#getAudioSources()).forEach(([index, source]) => {
+            if (parseInt(index) === this.#currentTrackIndex) {
+                return;
+            }
+
+            this.#killSource(source);
+        });
     }
 
     pause(bypass = false) {
@@ -300,6 +339,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#waitIndex = null;
 
         this.#clearTimeouts();
+        this.#abortDownload();
 
         if (!bypass) {
             this.#audioTag.removeEventListener("play", this.#playEventHandler);
@@ -308,7 +348,9 @@ class MultiTrackPlayer extends EventTarget {
             this.removeTimeUpdate();
         }
 
-        if (!this.#audioTag.paused) this.#audioTag.pause();
+        if (!this.#audioTag.paused) {
+            this.#audioTag.pause();
+        }
 
         if ('mediaSession' in navigator) {
             let duration = this.#audioTag.duration;
@@ -332,7 +374,9 @@ class MultiTrackPlayer extends EventTarget {
         });
 
         audioContext.suspend().finally(() => {
-            if (!this.#stopped) this.dispatchEvent(new Event("pause"));
+            if (!this.#stopped) {
+                this.dispatchEvent(new Event("pause"));
+            }
         });
     }
 
@@ -343,7 +387,6 @@ class MultiTrackPlayer extends EventTarget {
         this.#stopped = true;
         this.#initialPlay = true;
 
-        this.#abortDownload();
         this.pause();
         this.reset();
     }
@@ -358,8 +401,9 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #pauseEvent() {
-        if (this.isPlaying() && !this.#initialPlay)
+        if (this.isPlaying() && !this.#initialPlay) {
             this.pause(true);
+        }
     }
 
     queueTrack(index, startTime = null) {
@@ -433,6 +477,8 @@ class MultiTrackPlayer extends EventTarget {
     setCurrentTime(time) {
         this.#audioTag.currentTime = time;
         this.#setPositionState();
+
+        this.#dispatchTimeUpdate();
     }
 
     isPlaying() {
@@ -517,21 +563,25 @@ class MultiTrackPlayer extends EventTarget {
             let bufferIndex = null;
             let response = null;
             try {
-                if (typeof url === "undefined") throw new Error();
+                if (typeof url === "undefined") {
+                    throw new Error();
+                }
 
                 response = await fetch(url, {
                     signal: this.#abortSignal
                 });
 
-                if (!response.ok) throw new Error();
-                
+                if (!response.ok) {
+                    throw new Error();
+                }
+
                 this.#hadError = false;
             } catch (e) {
                 this.#hadError = true;
                 this.#isDecoding = false;
 
                 bufferIndex = this.#getUrls().indexOf(url);
-                
+
                 if (!e.toString().includes("AbortError")) {
                     this.#removePart(bufferIndex);
 
@@ -547,7 +597,7 @@ class MultiTrackPlayer extends EventTarget {
 
             try {
                 bufferIndex = this.#getUrls().indexOf(url);
-                
+
                 const arrayBuffer = await response.arrayBuffer();
                 this.#indexes[bufferIndex]["buffer"] = await audioContext.decodeAudioData(arrayBuffer);
 
@@ -561,8 +611,9 @@ class MultiTrackPlayer extends EventTarget {
                 if (!e.toString().includes("AbortError")) {
                     this.#removePart(bufferIndex);
 
-                    if (!this.#stopped)
+                    if (!this.#stopped) {
                         this.dispatchEvent(new Event("downloadError"));
+                    }
                 } else if (this.#getUrls().indexOf(url) !== -1 && !this.#stopped) {
                     this.#indexes[bufferIndex]["decoding"] = true;
                 }
@@ -579,7 +630,7 @@ class MultiTrackPlayer extends EventTarget {
                 delete this.#indexes[bufferIndex]["callback"];
 
                 this.#indexes[bufferIndex]["till"] = this.#indexes[bufferIndex]["from"] + this.getPartLength(bufferIndex);
-            } else {
+            } else if (this.#currentTrackIndex !== bufferIndex && this.getCurrentPart()[2] !== bufferIndex) {
                 this.#indexes[bufferIndex]["url"] = null;
                 this.#indexes[bufferIndex]["from"] = null;
                 this.#indexes[bufferIndex]["till"] = null;
@@ -591,15 +642,16 @@ class MultiTrackPlayer extends EventTarget {
                 this.#currentTrackIndex = this.getPartByStartTime(this.getCurrentTime())[2];
             }
 
-            if (Object.keys(this.#getDecodingQueue()).length === 0 || this.#stopped)
+            if (Object.keys(this.#getDecodingQueue()).length === 0 || this.#stopped) {
                 this.#isDecoding = false;
+            }
 
             if (!this.#stopped) {
                 bufferIndex = this.#getUrls().indexOf(url);
 
                 if (bufferIndex === this.#waitIndex) {
                     this.#clearTimeouts();
-                    
+
                     this.dispatchEvent(new CustomEvent("processed", {
                         detail: {
                             set: true,
