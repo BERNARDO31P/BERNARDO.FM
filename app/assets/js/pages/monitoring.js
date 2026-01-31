@@ -88,21 +88,25 @@ function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
     let canvasWidth = Number(canvasStyle.width.replace("px", ""));
     let canvasHeight = Number(canvasStyle.height.replace("px", ""));
 
-    let GRAPH_TOP = 30;
-    let GRAPH_BOTTOM = canvasHeight - (GRAPH_TOP * 2);
-    let GRAPH_LEFT = 20;
-    let GRAPH_RIGHT = canvasWidth - (GRAPH_LEFT * 5);
-
-    canvas.width = canvasWidth;
+    // Hiermit passt sich der Graph an
+    let GRAPH_HEIGHT = canvasHeight;
+    let GRAPH_WIDTH = canvasWidth;
     canvas.height = canvasHeight;
+    canvas.width = canvasWidth;
+
+    // Definition von den Rändern
+    let GRAPH_TOP = 30;
+    let GRAPH_BOTTOM = GRAPH_HEIGHT - (GRAPH_TOP * 2);
+    let GRAPH_LEFT = 20;
+    let GRAPH_RIGHT = GRAPH_WIDTH - (GRAPH_LEFT * 5);
 
     let arrayLen = dataArr.length;
-    if (!arrayLen) return;
-
     let largest = Math.max(...dataArr);
     let smallest = Math.min(...dataArr);
 
+    // Graph-Clear
     context.clearRect(0, 0, canvasWidth, canvasHeight);
+    // Setze Schriftart für fillText()
     context.font = "13px Arial";
 
     if (theme === "light") {
@@ -113,103 +117,103 @@ function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
         context.fillStyle = "#b9b9b9";
     }
 
-    // axes
+    // Umriss Generierung
     context.beginPath();
     context.moveTo(GRAPH_LEFT, GRAPH_BOTTOM);
     context.lineTo(GRAPH_RIGHT, GRAPH_BOTTOM);
     context.lineTo(GRAPH_RIGHT, GRAPH_TOP);
     context.stroke();
 
-    // reference lines
-    const refs = [
-        { y: GRAPH_TOP, v: largest },
-        { y: canvasHeight / 4 + GRAPH_TOP, v: smallest + (largest - smallest) * 2 / 3 },
-        { y: canvasHeight / 2 + GRAPH_TOP, v: smallest + (largest - smallest) / 3 },
-        { y: canvasHeight * 3 / 4 - GRAPH_TOP, v: smallest }
-    ];
+    // Referenzlinien zeichnen
+    context.beginPath();
+    context.moveTo(GRAPH_LEFT, GRAPH_TOP);
+    context.lineTo(GRAPH_RIGHT, GRAPH_TOP);
+    // Referenz für die Daten: Erster Wert
 
-    for (let r of refs) {
-        context.beginPath();
-        context.moveTo(GRAPH_LEFT, r.y);
-        context.lineTo(GRAPH_RIGHT, r.y);
-        context.stroke();
-        context.fillText(
-            Math.round(r.v * 100) / 100 + (r === refs[2] ? " " + measurement : ""),
-            GRAPH_RIGHT + 15,
-            r.y
-        );
-    }
+    context.fillText((Math.round(largest * 100) / 100).toString(), GRAPH_RIGHT + 15, GRAPH_TOP);
+    context.stroke();
 
+    // Referenzlinien zeichnen
+    context.beginPath();
+    context.moveTo(GRAPH_LEFT, (GRAPH_HEIGHT) / 4 + GRAPH_TOP);
+    context.lineTo(GRAPH_RIGHT, (GRAPH_HEIGHT) / 4 + GRAPH_TOP);
+    // Referenz für die Daten: Zweiter Wert
+    context.fillText((Math.round((smallest + ((largest - smallest) / 3) * 2) * 100) / 100).toString(), GRAPH_RIGHT + 15, (GRAPH_HEIGHT) / 4 + GRAPH_TOP);
+    context.stroke();
+
+    // Referenzlinien zeichnen
+    context.beginPath();
+    context.moveTo(GRAPH_LEFT, (GRAPH_HEIGHT) / 2 + GRAPH_TOP);
+    context.lineTo(GRAPH_RIGHT, (GRAPH_HEIGHT) / 2 + GRAPH_TOP);
+    // Referenz für die Daten: Dritter Wert
+    context.fillText((Math.round((smallest + (largest - smallest) / 3) * 100) / 100).toString() + " " + measurement, GRAPH_RIGHT + 15, (GRAPH_HEIGHT) / 2 + GRAPH_TOP);
+    context.stroke();
+
+    // Referenzlinien zeichnen
+    context.beginPath();
+    context.moveTo(GRAPH_LEFT, (GRAPH_HEIGHT) / 4 * 3 + GRAPH_TOP);
+    context.lineTo(GRAPH_RIGHT, (GRAPH_HEIGHT) / 4 * 3 + GRAPH_TOP);
+    // Referenz für die Daten: Letzter Wert
+    context.fillText((Math.round(smallest * 100) / 100).toString(), GRAPH_RIGHT + 15, (GRAPH_HEIGHT) / 4 * 3 + GRAPH_TOP);
+    context.stroke();
+
+    // Information, dass die Werte Uhrzeiten sind
     context.fillText("Time", GRAPH_RIGHT / 2 + GRAPH_LEFT, GRAPH_BOTTOM + 50);
 
-    // clocks (max 7)
     const maxClocks = 7;
-    const clockStep = Math.max(1, Math.floor((arrayLen - 1) / (maxClocks - 1)));
+    const step = Math.max(1, Math.floor((arrayLen - 1) / (maxClocks - 1)));
 
     for (let n = 0; n < maxClocks; n++) {
-        const dataIndex = n * clockStep;
+        const dataIndex = n * step;
         if (dataIndex >= arrayLen) break;
 
-        const timeIndex = Math.round(
-            (dataIndex / (arrayLen - 1)) * (timeArr.length - 1)
-        );
+        const timeIndex = Math.round((dataIndex / (arrayLen - 1)) * (timeArr.length - 1));
 
         const x = (GRAPH_RIGHT / (arrayLen - 1)) * dataIndex + GRAPH_LEFT;
         context.fillText(timeArr[timeIndex], x, GRAPH_BOTTOM + GRAPH_TOP);
     }
 
-    // line + dots decimation (max 120)
-    const maxDots = 120;
-    const dotStep = Math.max(1, Math.ceil(arrayLen / maxDots));
+    // Verbindungslinie Zeichnen
+    context.beginPath();
 
     if (theme === "light") {
-        context.strokeStyle = "black";
         context.fillStyle = "black";
+        context.strokeStyle = "black";
     } else {
-        context.strokeStyle = "#d0d0d0";
         context.fillStyle = "#d0d0d0";
+        context.strokeStyle = "#d0d0d0";
     }
 
-    context.lineWidth = getWidth() > 1000 ? 2 : 1;
-    const radius = getWidth() > 1000 ? 3 : 2;
+    let radius;
+    if (getWidth() > 1000) {
+        radius = 3;
+        context.lineWidth = 2;
+    } else {
+        radius = 2;
+        context.lineWidth = 1;
+    }
 
-    points[canvasID] = {};
+    for (let i = 0; i < arrayLen; i++) {
+        context.lineTo((GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * i + GRAPH_LEFT, ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[i] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP);
 
-    // line
-    context.beginPath();
-    let first = true;
-
-    for (let i = 0; i < arrayLen; i += dotStep) {
-        const x = (GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * i + GRAPH_LEFT;
-        const y = ((GRAPH_BOTTOM - GRAPH_TOP)
-                - dataArr[i] / largest * (GRAPH_BOTTOM - GRAPH_TOP))
-            + GRAPH_TOP;
-
-        if (first) {
-            context.moveTo(x, y);
-            first = false;
-        } else {
-            context.lineTo(x, y);
-        }
     }
     context.stroke();
 
-    // dots
-    for (let i = 0; i < arrayLen; i += dotStep) {
-        const x = (GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * i + GRAPH_LEFT;
-        const y = ((GRAPH_BOTTOM - GRAPH_TOP)
-                - dataArr[i] / largest * (GRAPH_BOTTOM - GRAPH_TOP))
-            + GRAPH_TOP;
+    if (typeof points[canvasID] === 'undefined') points[canvasID] = {};
 
+    // Punkte zeichnen
+    for (let i = 0; i < arrayLen; i++) {
         const circle = new Path2D();
+        let x = (GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * i + GRAPH_LEFT;
+        let y = ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[i] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP;
+
+        points[canvasID][i] = {};
+        points[canvasID][i]["coordinates"] = [x, y];
+        points[canvasID][i]["value"] = dataArr[i];
+        points[canvasID][i]["measurement"] = measurement;
+
         circle.arc(x, y, radius, 0, 2 * Math.PI);
         context.fill(circle);
-
-        points[canvasID][i] = {
-            coordinates: [x, y],
-            value: dataArr[i],
-            measurement: measurement
-        };
     }
 }
 
