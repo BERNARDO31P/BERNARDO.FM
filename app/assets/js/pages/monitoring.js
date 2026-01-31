@@ -219,7 +219,9 @@ function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
  * Holt die Graph-Werte und speichert diese separat ab
  */
 function getData() {
-    let data = tryParseJSON(httpGet("/system/monitoring"));
+    const select = document.getElementById("time");
+    const time = (select) ? parseInt(select.value) : 4;
+    const data = tryParseJSON(httpGet("/system/monitoring/" + time));
 
     if (typeof data === 'object') {
         let timestamps = Object.keys(data);

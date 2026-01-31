@@ -468,9 +468,30 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
  *
  * Lädt die Monitoring-Daten und gibt sie aus
  */
-$router->get("/monitoring", function () {
+$router->get("/monitoring(?:/)?([\d]+)?", function ($time = 4) {
     header("Content-Type: application/json");
-    echo file_get_contents(__DIR__ . "/db/monitoring.json");
+
+    if ($time > 43800 || $time < 4) {
+        $time = 4;
+    }
+
+    /**
+     * 30 entries in one minute because of 2x sleep(1)
+     * 4 minutes
+     */
+    $amount = 30 * $time;
+    $dbFile = __DIR__ . "/db/monitoring.json";
+
+    if (!file_exists($dbFile)) {
+        file_put_contents($dbFile, json_encode(array()));
+    }
+
+    $db = json_decode(file_get_contents($dbFile), true);
+    if (!is_array($db)) {
+        $db = array();
+    }
+
+    echo json_encode(array_slice($db, -$amount, $amount, true));
 });
 
 /*

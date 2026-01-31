@@ -1,6 +1,11 @@
 <?php
 
-$amount = 30;
+/**
+  * 30 entries in one minute because of 2x sleep(1)
+  * 43'800 minutes // 1~ month
+  */
+//
+$amount = 30 * 43800;
 $dbFile = __DIR__ . "/db/monitoring.json";
 
 if (!file_exists($dbFile)) {
@@ -12,7 +17,7 @@ if (!is_array($db)) {
     $db = array();
 }
 
-$db = array_slice($db, -($amount * 4), $amount * 4, true);
+$db = array_slice($db, -$amount, $amount, true);
 
 function get_server_memory_usage(): ?float
 {
@@ -115,7 +120,7 @@ while (true) {
             continue;
         }
 
-        if (count($db) >= $amount * 4) {
+        if (count($db) >= $amount) {
             unset($db[array_key_first($db)]);
         }
 
