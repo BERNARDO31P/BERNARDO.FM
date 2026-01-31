@@ -560,6 +560,8 @@ class MultiTrackPlayer extends EventTarget {
                 url = this.#getDecodingQueue()[lastKey];
             }
 
+            this.dispatchEvent(new Event("processing"));
+
             let bufferIndex = null;
             let response = null;
             try {
@@ -595,6 +597,8 @@ class MultiTrackPlayer extends EventTarget {
                 return;
             }
 
+            this.dispatchEvent(new Event("processing"));
+
             try {
                 bufferIndex = this.#getUrls().indexOf(url);
 
@@ -620,6 +624,8 @@ class MultiTrackPlayer extends EventTarget {
 
                 return;
             }
+
+            this.dispatchEvent(new Event("processing"));
 
             bufferIndex = this.#getUrls().indexOf(url);
 

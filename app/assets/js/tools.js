@@ -1756,6 +1756,12 @@ function addEvents(player) {
         prepareNextPart();
     });
 
+    player.addEventListener("processing", () => {
+        if (!player.isPlaying() && playlist[playIndex]["player"] === player) {
+            playPauseButton("load");
+        }
+    });
+
     player.addEventListener("downloadError", () => {
         isRetrying = true;
 
