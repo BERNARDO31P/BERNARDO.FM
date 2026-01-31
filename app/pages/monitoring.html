@@ -5,17 +5,15 @@
     <title>monitoring</title>
 </head>
 <body>
-    <div class="hidden">
-        <label for="time">Time showing:</label>
-        <select name="time" id="time">
-            <option value="4" selected>4 minutes</option>
-            <option value="60">1 hour</option>
-            <option value="300">5 hours</option>
-            <option value="1440">1 day</option>
-            <option value="10080">1 week</option>
-            <option value="43800">1 month</option>
-        </select>
-    </div>
+    <label for="time">Time showing:</label>
+    <select name="time" id="time">
+        <option value="4" selected>4 minutes</option>
+        <option value="60">1 hour</option>
+        <option value="300">5 hours</option>
+        <option value="1440">1 day</option>
+        <option value="10080">1 week</option>
+        <option value="43800">1 month</option>
+    </select>
     <h2 class="download">Network IN</h2>
     <div class="fullWidth"><canvas id="download" class="graph"></canvas></div>
     <h2 class="upload">Network OUT</h2>
