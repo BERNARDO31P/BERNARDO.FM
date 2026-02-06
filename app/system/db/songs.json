@@ -5748,5 +5748,101 @@
       "csdcDyXjkwvUtZIlZyg",
       "KRNXyAxe503H6y2OXu5"
     ]
+  },
+  {
+    "id": "5Ipr6uqjJbdfG3hyhxv",
+    "cover": "ESP - Interplanetary Transmissions - Album Cover.jpg",
+    "name": "Dimension of Sound",
+    "artist": "ESP",
+    "length": "7:33",
+    "fileName": "ESP - Dimension of Sound.wav",
+    "category": "Psytrance",
+    "info": "Xc34yNqzyUyMSPiln4j"
+  },
+  {
+    "id": "kXVMNW9QAfl6i6AuuKI",
+    "cover": "ESP - Interplanetary Transmissions - Album Cover.jpg",
+    "name": "Escape Velocity",
+    "artist": "ESP",
+    "length": "7:12",
+    "fileName": "ESP - Escape Velocity.wav",
+    "category": "Psytrance",
+    "info": "Xc34yNqzyUyMSPiln4j"
+  },
+  {
+    "id": "fYrKaGzTFByRbaK5JxT",
+    "cover": "ESP - Interplanetary Transmissions - Album Cover.jpg",
+    "name": "Intricate Web",
+    "artist": "ESP",
+    "length": "7:53",
+    "fileName": "ESP - Intricate Web.wav",
+    "category": "Psytrance",
+    "info": "Xc34yNqzyUyMSPiln4j"
+  },
+  {
+    "id": "1vqfRRHmOJz7Vu9Mw1X",
+    "cover": "ESP - Interplanetary Transmissions - Album Cover.jpg",
+    "name": "Infinite Universe",
+    "artist": "ESP",
+    "length": "6:57",
+    "fileName": "ESP - Infinite Universe.wav",
+    "category": "Psytrance",
+    "info": "Xc34yNqzyUyMSPiln4j"
+  },
+  {
+    "id": "EQCvldviO4Osie1J4ye",
+    "cover": "ESP - Interplanetary Transmissions - Album Cover.jpg",
+    "name": "The Acid Test 2015",
+    "artist": "ESP",
+    "length": "7:07",
+    "fileName": "ESP - The Acid Test 2015.wav",
+    "category": "Psytrance",
+    "info": "Xc34yNqzyUyMSPiln4j"
+  },
+  {
+    "id": "v6n31Pv7kNdSyoBBf4w",
+    "cover": "ESP - Interplanetary Transmissions - Album Cover.jpg",
+    "name": "Wormhole",
+    "artist": "ESP",
+    "length": "6:55",
+    "fileName": "ESP - Wormhole.wav",
+    "category": "Psytrance",
+    "info": "Xc34yNqzyUyMSPiln4j"
+  },
+  {
+    "id": "6nUs76E2SF4VmKpmB7E",
+    "cover": "ESP - Interplanetary Transmissions - Album Cover.jpg",
+    "name": "Electric Space Travel",
+    "artist": "ESP",
+    "length": "7:23",
+    "fileName": "ESP - Electric Space Travel.wav",
+    "category": "Psytrance",
+    "info": "Xc34yNqzyUyMSPiln4j"
+  },
+  {
+    "id": "3yWrAkKv7gREAIUPro0",
+    "cover": "ESP - Interplanetary Transmissions - Album Cover.jpg",
+    "name": "UFOZ",
+    "artist": "ESP",
+    "length": "8:03",
+    "fileName": "ESP - UFOZ.wav",
+    "category": "Psytrance",
+    "info": "Xc34yNqzyUyMSPiln4j"
+  },
+  {
+    "id": "beuBaad9ufRfzhN1fkO",
+    "cover": "ESP - Interplanetary Transmissions - Album Cover.jpg",
+    "name": "ESP - Interplanetary Transmissions",
+    "category": "Albums",
+    "playlist": [
+      "5Ipr6uqjJbdfG3hyhxv",
+      "kXVMNW9QAfl6i6AuuKI",
+      "fYrKaGzTFByRbaK5JxT",
+      "1vqfRRHmOJz7Vu9Mw1X",
+      "EQCvldviO4Osie1J4ye",
+      "v6n31Pv7kNdSyoBBf4w",
+      "6nUs76E2SF4VmKpmB7E",
+      "3yWrAkKv7gREAIUPro0"
+    ]
   }
 ]
