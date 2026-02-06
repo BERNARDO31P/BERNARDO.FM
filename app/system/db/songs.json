@@ -5844,5 +5844,124 @@
       "6nUs76E2SF4VmKpmB7E",
       "3yWrAkKv7gREAIUPro0"
     ]
+  },
+  {
+    "id": "FQUZTh7QjIJbcb7PMNz",
+    "cover": "Mekkanikka - Atom Smasher - Album Cover.jpg",
+    "name": "Dangerous",
+    "artist": "Mekkanikka & Mad Maxx",
+    "length": "9:16",
+    "fileName": "Mekkanikka & Mad Maxx - Dangerous.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "n4oy4sSB0Du8upiAKlr"
+    ]
+  },
+  {
+    "id": "sAAqVRXcjJ6tXyEtFqf",
+    "cover": "Mekkanikka - Atom Smasher - Album Cover.jpg",
+    "name": "The System",
+    "artist": "Mekkanikka",
+    "length": "6:57",
+    "fileName": "Mekkanikka - The System.wav",
+    "category": "Psytrance",
+    "info": "1dJCJeeHKZzl8jpcbR5"
+  },
+  {
+    "id": "HEqb0BdL17SrqUvICwx",
+    "cover": "Mekkanikka - Atom Smasher - Album Cover.jpg",
+    "name": "Mystical Consciousness",
+    "artist": "Mekkanikka & Space Tribe",
+    "length": "6:31",
+    "fileName": "Mekkanikka & Space Tribe - Mystical Consciousness.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "5sXfLytrZKLKqchB0X3"
+    ]
+  },
+  {
+    "id": "OrYQkOAB4yuZhqO3BQS",
+    "cover": "Mekkanikka - Atom Smasher - Album Cover.jpg",
+    "name": "Into the Nucleus",
+    "artist": "Mekkanikka & Ajja",
+    "length": "6:54",
+    "fileName": "Mekkanikka & Ajja - Into the Nucleus.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "gXXgbAQBofIl0mh22iA"
+    ]
+  },
+  {
+    "id": "gb6oCrc1G55G5nmBC4Z",
+    "cover": "Mekkanikka - Atom Smasher - Album Cover.jpg",
+    "name": "Atom Smasher",
+    "artist": "Mekkanikka",
+    "length": "7:38",
+    "fileName": "Mekkanikka - Atom Smasher.wav",
+    "category": "Psytrance",
+    "info": "1dJCJeeHKZzl8jpcbR5"
+  },
+  {
+    "id": "w26VKImNmtiSs8bWFE2",
+    "cover": "Mekkanikka - Atom Smasher - Album Cover.jpg",
+    "name": "Just a Machine",
+    "artist": "Mekkanikka",
+    "length": "6:33",
+    "fileName": "Mekkanikka - Just a Machine.wav",
+    "category": "Psytrance",
+    "info": "1dJCJeeHKZzl8jpcbR5"
+  },
+  {
+    "id": "y7rj5WiK6IAtYwS5WqJ",
+    "cover": "Mekkanikka - Atom Smasher - Album Cover.jpg",
+    "name": "Macho Man",
+    "artist": "Mekkanikka & Stryker",
+    "length": "7:23",
+    "fileName": "Mekkanikka & Stryker - Macho Man.wav",
+    "category": "Psytrance",
+    "info": [
+      "1dJCJeeHKZzl8jpcbR5",
+      "UyVErVqu3JgsuCNZxMU"
+    ]
+  },
+  {
+    "id": "XmtP7j68tgoaN76YE3X",
+    "cover": "Mekkanikka - Atom Smasher - Album Cover.jpg",
+    "name": "Take a Shot",
+    "artist": "Mekkanikka",
+    "length": "6:20",
+    "fileName": "Mekkanikka - Take a Shot.wav",
+    "category": "Psytrance",
+    "info": "1dJCJeeHKZzl8jpcbR5"
+  },
+  {
+    "id": "Fd23dBiZGfKImtTRA16",
+    "cover": "Mekkanikka - Atom Smasher - Album Cover.jpg",
+    "name": "Summer Slam",
+    "artist": "Mekkanikka",
+    "length": "7:43",
+    "fileName": "Mekkanikka - Summer Slam.wav",
+    "category": "Psytrance",
+    "info": "1dJCJeeHKZzl8jpcbR5"
+  },
+  {
+    "id": "NrbYoIIaYsyLgGtv5ac",
+    "cover": "Mekkanikka - Atom Smasher - Album Cover.jpg",
+    "name": "Mekkanikka - Atom Smasher",
+    "category": "Albums",
+    "playlist": [
+      "FQUZTh7QjIJbcb7PMNz",
+      "sAAqVRXcjJ6tXyEtFqf",
+      "HEqb0BdL17SrqUvICwx",
+      "OrYQkOAB4yuZhqO3BQS",
+      "gb6oCrc1G55G5nmBC4Z",
+      "w26VKImNmtiSs8bWFE2",
+      "y7rj5WiK6IAtYwS5WqJ",
+      "XmtP7j68tgoaN76YE3X",
+      "Fd23dBiZGfKImtTRA16"
+    ]
   }
 ]
