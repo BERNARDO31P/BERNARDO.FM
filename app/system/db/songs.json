@@ -5649,5 +5649,104 @@
       "51kHRbV2FkY3WC3NR0R",
       "4tSknNCc3qPuqNANUkc"
     ]
+  },
+  {
+    "id": "OdrIxYGooaOdFStStxa",
+    "cover": "Space Tribe - Space Between Atoms - Album Cover.jpg",
+    "name": "Be Yourself",
+    "artist": "Space Tribe",
+    "length": "7:43",
+    "fileName": "Space Tribe - Be Yourself.wav",
+    "category": "Psytrance",
+    "info": "5sXfLytrZKLKqchB0X3"
+  },
+  {
+    "id": "MPwtK0hU4EViK1AsmyM",
+    "cover": "Space Tribe - Space Between Atoms - Album Cover.jpg",
+    "name": "Awake",
+    "artist": "Space Tribe",
+    "length": "7:27",
+    "fileName": "Space Tribe - Awake.wav",
+    "category": "Psytrance",
+    "info": "5sXfLytrZKLKqchB0X3"
+  },
+  {
+    "id": "wndmyTa9qSlRoHdbkvq",
+    "cover": "Space Tribe - Space Between Atoms - Album Cover.jpg",
+    "name": "Home Entertainment",
+    "artist": "Space Tribe",
+    "length": "8:11",
+    "fileName": "Space Tribe - Home Entertainment.wav",
+    "category": "Psytrance",
+    "info": "5sXfLytrZKLKqchB0X3"
+  },
+  {
+    "id": "zDeiECX4eW5AJND85Mu",
+    "cover": "Space Tribe - Space Between Atoms - Album Cover.jpg",
+    "name": "Space Between Atoms",
+    "artist": "Space Tribe",
+    "length": "7:46",
+    "fileName": "Space Tribe - Space Between Atoms.wav",
+    "category": "Psytrance",
+    "info": "5sXfLytrZKLKqchB0X3"
+  },
+  {
+    "id": "zEkdsQUfEafcdxWnCUC",
+    "cover": "Space Tribe - Space Between Atoms - Album Cover.jpg",
+    "name": "Pause of Deception",
+    "artist": "Space Tribe & Mekkanikka",
+    "length": "6:21",
+    "fileName": "Space Tribe & Mekkanikka - Pause of Deception.wav",
+    "category": "Psytrance",
+    "info": [
+      "5sXfLytrZKLKqchB0X3",
+      "1dJCJeeHKZzl8jpcbR5"
+    ]
+  },
+  {
+    "id": "rmD0pmqXXMJ9jekK6Gx",
+    "cover": "Space Tribe - Space Between Atoms - Album Cover.jpg",
+    "name": "Taking an Acid Trip",
+    "artist": "Space Tribe",
+    "length": "7:50",
+    "fileName": "Space Tribe - Taking an Acid Trip.wav",
+    "category": "Psytrance",
+    "info": "5sXfLytrZKLKqchB0X3"
+  },
+  {
+    "id": "csdcDyXjkwvUtZIlZyg",
+    "cover": "Space Tribe - Space Between Atoms - Album Cover.jpg",
+    "name": "One Step Beyond",
+    "artist": "Space Tribe",
+    "length": "7:33",
+    "fileName": "Space Tribe - One Step Beyond.wav",
+    "category": "Psytrance",
+    "info": "5sXfLytrZKLKqchB0X3"
+  },
+  {
+    "id": "KRNXyAxe503H6y2OXu5",
+    "cover": "Space Tribe - Space Between Atoms - Album Cover.jpg",
+    "name": "Third from the Sun",
+    "artist": "Space Tribe",
+    "length": "8:31",
+    "fileName": "Space Tribe - Third from the Sun.wav",
+    "category": "Psytrance",
+    "info": "5sXfLytrZKLKqchB0X3"
+  },
+  {
+    "id": "7GojHwlA053hw3aVdGH",
+    "cover": "Space Tribe - Space Between Atoms - Album Cover.jpg",
+    "name": "Space Tribe - Space Between Atoms",
+    "category": "Albums",
+    "playlist": [
+      "OdrIxYGooaOdFStStxa",
+      "MPwtK0hU4EViK1AsmyM",
+      "wndmyTa9qSlRoHdbkvq",
+      "zDeiECX4eW5AJND85Mu",
+      "zEkdsQUfEafcdxWnCUC",
+      "rmD0pmqXXMJ9jekK6Gx",
+      "csdcDyXjkwvUtZIlZyg",
+      "KRNXyAxe503H6y2OXu5"
+    ]
   }
 ]
