@@ -5542,5 +5542,112 @@
     "fileName": "Fox Stevenson - Dont Care Crown.wav",
     "category": "Drum and Bass",
     "info": "JHBsPgXmY9inBU45pjN"
+  },
+  {
+    "id": "OtakZU7nF3Hxyl85vMS",
+    "cover": "Mad Tribe - Spaced Out (Remastered) - Album Cover.jpg",
+    "name": "Spaced Out (Remastered)",
+    "artist": "Mad Tribe",
+    "length": "7:23",
+    "fileName": "Mad Tribe - Spaced Out (Remastered).wav",
+    "category": "Psytrance",
+    "info": "xchjR7U9ug2bI7wZCII"
+  },
+  {
+    "id": "M8Oz31uIcPtdP8SUiNg",
+    "cover": "Mad Tribe - Spaced Out (Remastered) - Album Cover.jpg",
+    "name": "Evolution of Revolution (Remastered)",
+    "artist": "Mad Tribe",
+    "length": "9:17",
+    "fileName": "Mad Tribe - Evolution of Revolution (Remastered).wav",
+    "category": "Psytrance",
+    "info": "xchjR7U9ug2bI7wZCII"
+  },
+  {
+    "id": "O5ZsRixfdQ8t9abyOrq",
+    "cover": "Mad Tribe - Spaced Out (Remastered) - Album Cover.jpg",
+    "name": "Eternity (Remastered)",
+    "artist": "Mad Tribe",
+    "length": "7:24",
+    "fileName": "Mad Tribe - Eternity (Remastered).wav",
+    "category": "Psytrance",
+    "info": "xchjR7U9ug2bI7wZCII"
+  },
+  {
+    "id": "bXSHXmZfqJpPaz3z6yt",
+    "cover": "Mad Tribe - Spaced Out (Remastered) - Album Cover.jpg",
+    "name": "Trippers (Remastered)",
+    "artist": "Mad Tribe",
+    "length": "7:42",
+    "fileName": "Mad Tribe - Trippers (Remastered).wav",
+    "category": "Psytrance",
+    "info": "xchjR7U9ug2bI7wZCII"
+  },
+  {
+    "id": "AHB4q36RTTb0azQHnu1",
+    "cover": "Mad Tribe - Spaced Out (Remastered) - Album Cover.jpg",
+    "name": "Faster than Light (Remastered)",
+    "artist": "Mad Tribe",
+    "length": "7:46",
+    "fileName": "Mad Tribe - Faster than Light (Remastered).wav",
+    "category": "Psytrance",
+    "info": "xchjR7U9ug2bI7wZCII"
+  },
+  {
+    "id": "eX15nmUsZAaCjJs1RHT",
+    "cover": "Mad Tribe - Spaced Out (Remastered) - Album Cover.jpg",
+    "name": "Keys To The Universe (Remastered)",
+    "artist": "Mad Tribe",
+    "length": "8:09",
+    "fileName": "Mad Tribe - Keys To The Universe (Remastered).wav",
+    "category": "Psytrance",
+    "info": "xchjR7U9ug2bI7wZCII"
+  },
+  {
+    "id": "yuXuGV6QGAb04nBXSnh",
+    "cover": "Mad Tribe - Spaced Out (Remastered) - Album Cover.jpg",
+    "name": "Mind is God (Remastered)",
+    "artist": "Mad Tribe",
+    "length": "8:56",
+    "fileName": "Mad Tribe - Mind is God (Remastered).wav",
+    "category": "Psytrance",
+    "info": "xchjR7U9ug2bI7wZCII"
+  },
+  {
+    "id": "51kHRbV2FkY3WC3NR0R",
+    "cover": "Mad Tribe - Spaced Out (Remastered) - Album Cover.jpg",
+    "name": "Into the Future (Remastered)",
+    "artist": "Mad Tribe",
+    "length": "8:09",
+    "fileName": "Mad Tribe - Into the Future (Remastered).wav",
+    "category": "Psytrance",
+    "info": "xchjR7U9ug2bI7wZCII"
+  },
+  {
+    "id": "4tSknNCc3qPuqNANUkc",
+    "cover": "Mad Tribe - Spaced Out (Remastered) - Album Cover.jpg",
+    "name": "Just a Ride (Remastered)",
+    "artist": "Mad Tribe",
+    "length": "9:19",
+    "fileName": "Mad Tribe - Just a Ride (Remastered).wav",
+    "category": "Psytrance",
+    "info": "xchjR7U9ug2bI7wZCII"
+  },
+  {
+    "id": "9rF3PE94GTYR9L0UMH0",
+    "cover": "Mad Tribe - Spaced Out (Remastered) - Album Cover.jpg",
+    "name": "Mad Tribe - Spaced Out (2021 Remaster)",
+    "category": "Albums",
+    "playlist": [
+      "OtakZU7nF3Hxyl85vMS",
+      "M8Oz31uIcPtdP8SUiNg",
+      "O5ZsRixfdQ8t9abyOrq",
+      "bXSHXmZfqJpPaz3z6yt",
+      "AHB4q36RTTb0azQHnu1",
+      "eX15nmUsZAaCjJs1RHT",
+      "yuXuGV6QGAb04nBXSnh",
+      "51kHRbV2FkY3WC3NR0R",
+      "4tSknNCc3qPuqNANUkc"
+    ]
   }
 ]
