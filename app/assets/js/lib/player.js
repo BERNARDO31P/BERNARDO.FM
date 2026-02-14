@@ -305,6 +305,24 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
+                if (Object.keys(this.#getDecodingQueue()).length && !this.isDecoding()) {
+                    this.#abortDownload();
+                    this.#processDecodeQueue();
+
+                    return;
+                }
+
+                if (Object.keys(this.#getStartTimeouts()).length) {
+                    return;
+                }
+
+                const nextPart = this.getPartByStartTime(this.getCurrentTime());
+                if (nextPart[2]) {
+                    this.playNext(nextPart[2]);
+
+                    return;
+                }
+
                 if (!Object.keys(this.#getStartTimeouts()).length || !(this.getDuration() - this.getCurrentTime() > 1)) {
                     this.dispatchEvent(new Event("end"));
                 }
@@ -392,16 +410,16 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #playEvent() {
-        if (!this.isPlaying() && !this.#initialPlay) {
+        if (!this.isPlaying()) {
             this.#initialPlay = true;
 
             this.#setPositionState();
-            this.playNext(this.#currentTrackIndex, 0);
+            this.playNext();
         }
     }
 
     #pauseEvent() {
-        if (this.isPlaying() && !this.#initialPlay) {
+        if (this.isPlaying()) {
             this.pause(true);
         }
     }
