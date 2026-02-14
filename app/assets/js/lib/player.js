@@ -309,6 +309,18 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
+                const durationExceeded = !(this.getDuration() - this.getCurrentTime() > 1);
+                if (durationExceeded) {
+                    this.dispatchEvent(new Event("end"));
+
+                    return;
+                }
+
+                const hasTimeouts = Object.keys(this.#getStartTimeouts()).length;
+                if (hasTimeouts) {
+                    return;
+                }
+
                 if (Object.keys(this.#getDecodingQueue()).length && !this.isDecoding()) {
                     this.#abortDownload();
                     this.#processDecodeQueue();
@@ -316,23 +328,14 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
-                if (Object.keys(this.#getStartTimeouts()).length) {
-                    return;
-                }
-
-                const durationExceeded = !(this.getDuration() - this.getCurrentTime() > 1);
-                const hasTimeouts = Object.keys(this.#getStartTimeouts()).length;
-
                 const nextPart = this.getPartByStartTime(this.getCurrentPart()[1] ?? this.getCurrentTime());
-                if (nextPart[2] && !hasTimeouts && !durationExceeded) {
+                if (nextPart[2]) {
                     this.playNext(nextPart[2]);
 
                     return;
                 }
 
-                if (!hasTimeouts || durationExceeded) {
-                    this.dispatchEvent(new Event("end"));
-                }
+                this.dispatchEvent(new Event("end"));
             }
 
             this.#indexes[index]["timeout"] = setTimeout(() => {

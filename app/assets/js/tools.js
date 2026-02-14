@@ -1722,22 +1722,14 @@ function addEvents(player) {
 
             play(true);
             return;
-        } else if (playIndex === nextPlayIndex) {
-            const player = playlist[playIndex]["player"];
-            const currentPart = player.getCurrentPart();
-
-            let nextTime;
-            if (currentPart[1]) {
-                nextTime = parseInt(currentPart[1]);
-
-                if (!(player.getDuration() - nextTime > 1)) {
-                    stopSongs();
-                    return;
-                }
-            }
         }
 
         if (!player.isDecoding() && !player.hadError()) {
+            if (playIndex === nextPlayIndex) {
+                stopSongs();
+                return;
+            }
+
             playIndex = nextPlayIndex;
 
             player.reset();
