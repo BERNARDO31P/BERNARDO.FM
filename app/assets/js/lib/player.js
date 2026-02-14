@@ -61,7 +61,7 @@ class MultiTrackPlayer extends EventTarget {
                 return;
             }
 
-            this.#dispatchTimeUpdate();
+            this.#dispatchTimeUpdate(true);
         });
     }
 
@@ -140,8 +140,8 @@ class MultiTrackPlayer extends EventTarget {
         }
     }
 
-    #dispatchTimeUpdate() {
-        if (!this.isPlaying()) {
+    #dispatchTimeUpdate(bypass = false) {
+        if (!bypass && !this.isPlaying()) {
             this.pause();
         }
 
