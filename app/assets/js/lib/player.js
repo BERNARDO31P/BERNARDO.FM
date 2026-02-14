@@ -320,14 +320,17 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
-                const nextPart = this.getPartByStartTime(this.getCurrentTime());
-                if (nextPart[2]) {
+                const durationExceeded = !(this.getDuration() - this.getCurrentTime() > 1);
+                const hasTimeouts = Object.keys(this.#getStartTimeouts()).length;
+
+                const nextPart = this.getPartByStartTime(this.getCurrentPart()[1] ?? this.getCurrentTime());
+                if (nextPart[2] && !hasTimeouts && !durationExceeded) {
                     this.playNext(nextPart[2]);
 
                     return;
                 }
 
-                if (!Object.keys(this.#getStartTimeouts()).length || !(this.getDuration() - this.getCurrentTime() > 1)) {
+                if (!hasTimeouts || durationExceeded) {
                     this.dispatchEvent(new Event("end"));
                 }
             }
