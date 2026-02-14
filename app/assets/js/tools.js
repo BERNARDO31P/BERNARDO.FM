@@ -1724,7 +1724,8 @@ function addEvents(player) {
             return;
         }
 
-        if (!player.isDecoding() && !player.hadError()) {
+        const durationExceeded = !(player.getDuration() - player.getCurrentTime() > 1);
+        if (durationExceeded || (!player.isDecoding() && !player.hadError())) {
             if (playIndex === nextPlayIndex) {
                 stopSongs();
                 return;
