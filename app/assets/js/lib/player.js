@@ -141,7 +141,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #dispatchTimeUpdate(bypass = false) {
-        if (!bypass && !this.isPlaying()) {
+        if (!bypass && !this.isPlaying() && !this.isDecoding()) {
             this.pause();
         }
 
