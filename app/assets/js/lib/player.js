@@ -141,6 +141,10 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #dispatchTimeUpdate() {
+        if (!this.isPlaying()) {
+            this.pause();
+        }
+
         this.dispatchEvent(new CustomEvent("timeupdate", {detail: {value: this.getCurrentTime()}}));
     }
 
