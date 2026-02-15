@@ -141,7 +141,11 @@ class MultiTrackPlayer extends EventTarget {
             this.pause();
         }
 
-        this.dispatchEvent(new CustomEvent("timeupdate", {detail: {value: this.getCurrentTime()}}));
+        this.dispatchEvent(new CustomEvent("timeupdate", {
+            detail: {
+                value: this.getCurrentTime()
+            }
+        }));
     }
 
     async addTrack(url, callback) {
