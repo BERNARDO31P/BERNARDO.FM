@@ -1778,6 +1778,7 @@ function addEvents(player) {
         }
 
         if (currentButton !== "play") {
+            pauseSong();
             play();
         }
     });
