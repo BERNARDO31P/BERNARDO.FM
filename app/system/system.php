@@ -305,10 +305,10 @@ $router->get("/info/([\w-]*)$", function ($id) {
  */
 $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $duration = null) {
     $time = match (true) {
-        $timeFrom < 5 => 1,
-        $timeFrom < 15 => 3,
-        $timeFrom < 50 => 5,
-        $timeFrom < 75 => 7,
+        $timeFrom < 5 => 2,
+        $timeFrom < 15 => 4,
+        $timeFrom < 50 => 6,
+        $timeFrom < 75 => 8,
         default => 10,
     };
 

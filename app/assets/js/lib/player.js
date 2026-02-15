@@ -14,7 +14,6 @@ class MultiTrackPlayer extends EventTarget {
     #stopped = true;
     #isDecoding = false;
     #playing = false;
-    #executedTask = true;
     #hadError = false;
 
     #length = 0;
@@ -27,8 +26,6 @@ class MultiTrackPlayer extends EventTarget {
     #nextTrackIndex = false;
 
     #startTime = 0;
-    #offset = 0;
-    #currentOffset = 0;
 
     #timeUpdateHandler = null;
     #playEventHandler = null;
@@ -162,7 +159,8 @@ class MultiTrackPlayer extends EventTarget {
             "callback": callback,
             "source": null,
             "decoding": true,
-            "timeout": null
+            "timeout": null,
+            "offset": 0
         }
 
         if (this.isDecoding()) {
@@ -275,7 +273,6 @@ class MultiTrackPlayer extends EventTarget {
 
         if (!this.hadError() && !this.#stopped
             && !(startTime === 0 && this.isPlaying())
-            && (!this.#executedTask || this.#initialPlay)
             && (this.#currentTrackIndex !== index || this.#initialPlay)
             && (this.#waitIndex === null || this.#waitIndex === index)) {
 
@@ -296,7 +293,7 @@ class MultiTrackPlayer extends EventTarget {
             source.when = Math.max(0, audioContext.currentTime + Math.max(0, startTime));
             source.buffer = this.#indexes[index]["buffer"];
             source.connect(this.#gainNode);
-            source.start(source.when, this.#offset);
+            source.start(source.when, this.getOffset(index));
 
             source.onended = () => {
                 clearTimeout(this.#indexes[index]["timeout"]);
@@ -328,9 +325,9 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
-                const nextPart = this.getPartByStartTime(this.getCurrentPart()[1] ?? this.getCurrentTime());
+                const nextPart = this.getPartByStartTime(parseInt(this.getCurrentPart()[1]) ?? this.getCurrentTime());
                 if (nextPart[2]) {
-                    this.playNext(nextPart[2]);
+                    this.playNext(parseInt(nextPart[2]));
 
                     return;
                 }
@@ -339,10 +336,11 @@ class MultiTrackPlayer extends EventTarget {
             }
 
             this.#indexes[index]["timeout"] = setTimeout(() => {
-                this.#executedTask = true;
                 this.#startTime = source.when;
 
                 this.setCurrentIndex(index);
+                this.setCurrentTime(this.getCurrentWebAudioTime());
+
                 this.#clearStartup();
                 this.dispatchEvent(new Event("play"));
             }, startTime * 1000 + 200);
@@ -395,7 +393,7 @@ class MultiTrackPlayer extends EventTarget {
             });
         }
 
-        this.setOffset(this.getCurrentPartTime());
+        this.setOffset(this.getCurrentPartTime(), this.#currentTrackIndex);
 
         Object.values(this.#getAudioSources()).forEach((source) => {
             this.#killSource(source);
@@ -409,7 +407,6 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     stop() {
-        this.#executedTask = true;
         this.#hadError = false;
         this.#isDecoding = false;
         this.#stopped = true;
@@ -442,22 +439,18 @@ class MultiTrackPlayer extends EventTarget {
             typeof this.#indexes[this.#currentTrackIndex]["buffer"] !== "undefined" && this.#indexes[this.#currentTrackIndex]["buffer"] !== null
         ) {
             if (startTime === null || this.isPlaying()) {
-                startTime = (this.getPartLength(this.#currentTrackIndex) - this.#offset) - this.getStartTime();
+                startTime = (this.getPartLength(this.#currentTrackIndex) - this.getOffset(this.#currentTrackIndex)) - this.getStartTime();
             }
 
             if (this.#indexes[index]["timeout"] !== null) {
                 return false;
             }
 
-            if (this.#executedTask) {
-                this.#executedTask = false;
-                this.#initialPlay = false;
+            this.#initialPlay = false;
+            this.#nextTrackIndex = true;
 
-                this.#nextTrackIndex = true;
-
-                this.setOffset(0);
-                this.playNext(index, (startTime >= 0) ? startTime : 0);
-            }
+            this.setOffset(0, index);
+            this.playNext(index, (startTime >= 0) ? startTime : 0);
         }
 
         return true;
@@ -468,7 +461,13 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     getCurrentPartTime() {
-        return (!this.#initialPlay) ? this.getStartTime() + this.#currentOffset : 0;
+        const currentPart = this.getCurrentPart();
+
+        if (!currentPart[2]) {
+            return 0;
+        }
+
+        return this.getStartTime() + this.getOffset(parseInt(currentPart[2]));
     }
 
     getPartLength(partIndex) {
@@ -486,6 +485,15 @@ class MultiTrackPlayer extends EventTarget {
         return parseInt(String(this.#audioTag.currentTime));
     }
 
+    getCurrentWebAudioTime() {
+        const currentPart = this.getCurrentPart();
+        if (currentPart[0]) {
+            return parseInt(currentPart[0]) + this.getCurrentPartTime();
+        }
+
+        return this.getCurrentTime();
+    }
+
     #removePart(index) {
         delete this.#indexes[index];
     }
@@ -497,9 +505,20 @@ class MultiTrackPlayer extends EventTarget {
         this.#audioTag.volume = volume;
     }
 
-    setOffset(offset) {
-        this.#currentOffset = this.#offset;
-        this.#offset = (offset >= 0) ? offset : 0;
+    getOffset(index) {
+        if (typeof this.#indexes[index] === "undefined") {
+            return 0;
+        }
+
+        return parseInt(this.#indexes[index]["offset"]);
+    }
+
+    setOffset(offset, index) {
+        if (typeof this.#indexes[index] === "undefined") {
+            return;
+        }
+
+        this.#indexes[index]["offset"] = offset;
     }
 
     setCurrentTime(time) {
@@ -564,9 +583,10 @@ class MultiTrackPlayer extends EventTarget {
             return;
         }
 
-        this.setCurrentIndex(parseInt(this.getPartByStartTime(0)[2]));
+        const currentPartIndex = parseInt(this.getPartByStartTime(0)[2]);
+        this.setCurrentIndex(currentPartIndex);
         this.setCurrentTime(0);
-        this.setOffset(0);
+        this.setOffset(0, currentPartIndex);
     }
 
     #abortDownload() {

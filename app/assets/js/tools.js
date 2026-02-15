@@ -1473,7 +1473,7 @@ function onTimelineRelease(value, rangeEvent = null) {
             return;
         }
 
-        player.setOffset(value - partInfo[0]);
+        player.setOffset(value - parseInt(partInfo[0]), nextPartIndex);
         player.setCurrentIndex(nextPartIndex);
 
         play();
