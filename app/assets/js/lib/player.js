@@ -708,8 +708,7 @@ class MultiTrackPlayer extends EventTarget {
 
                     this.dispatchEvent(new CustomEvent("processed", {
                         detail: {
-                            set: true,
-                            initialPlay: false
+                            set: true
                         }
                     }));
 
@@ -717,8 +716,7 @@ class MultiTrackPlayer extends EventTarget {
                 } else {
                     this.dispatchEvent(new CustomEvent("processed", {
                         detail: {
-                            set: !this.#nextTrackIndex,
-                            initialPlay: this.#getUrls().length === 1
+                            set: !this.#nextTrackIndex
                         }
                     }));
                 }
