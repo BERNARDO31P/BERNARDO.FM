@@ -1680,7 +1680,7 @@ function downloadPart(time, sIndex, pIndex, till = null) {
     }
 
     player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), (indexes, index) => {
-        indexes[index]["from"] = parseInt(indexes[index]["url"].match(/system\/song\/[^\/]+\/(\d+)(?:\/\d+)?$/)?.[1]);
+        return parseInt(indexes[index]["url"].match(/system\/song\/[^\/]+\/(\d+)(?:\/\d+)?$/)?.[1]);
     });
 }
 
