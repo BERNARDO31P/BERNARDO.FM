@@ -1777,7 +1777,7 @@ function addEvents(player) {
             timeline.value = e.detail.value;
         }
 
-        if (currentButton === "pause") {
+        if (currentButton !== "play") {
             play();
         }
     });
