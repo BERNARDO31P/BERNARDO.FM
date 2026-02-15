@@ -1780,6 +1780,10 @@ function addEvents(player) {
             const timeline = document.getElementById("timeline");
             timeline.value = e.detail.value;
         }
+
+        if (currentButton === "pause") {
+            play();
+        }
     });
 }
 

@@ -1,6 +1,5 @@
 const audioContext = new (window.AudioContext || window.webkitAudioContext)({
-    latencyHint: "playback",
-    sampleRate: 44100
+    latencyHint: "playback", sampleRate: 44100
 });
 
 class MultiTrackPlayer extends EventTarget {
@@ -432,12 +431,13 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     queueTrack(index, startTime = null) {
-        if (
-            typeof this.#indexes[index] !== "undefined" &&
-            typeof this.#indexes[index]["buffer"] !== "undefined" && this.#indexes[index]["buffer"] !== null &&
-            typeof this.#indexes[this.#currentTrackIndex] !== "undefined" &&
-            typeof this.#indexes[this.#currentTrackIndex]["buffer"] !== "undefined" && this.#indexes[this.#currentTrackIndex]["buffer"] !== null
-        ) {
+        if (typeof this.#indexes[index] !== "undefined"
+            && typeof this.#indexes[index]["buffer"] !== "undefined"
+            && this.#indexes[index]["buffer"] !== null
+            && typeof this.#indexes[this.#currentTrackIndex] !== "undefined"
+            && typeof this.#indexes[this.#currentTrackIndex]["buffer"] !== "undefined"
+            && this.#indexes[this.#currentTrackIndex]["buffer"] !== null) {
+
             if (startTime === null || this.isPlaying()) {
                 startTime = (this.getPartLength(this.#currentTrackIndex) - this.getOffset(this.#currentTrackIndex)) - this.getStartTime();
             }
@@ -471,11 +471,10 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     getPartLength(partIndex) {
-        if (
-            typeof this.#indexes[partIndex] !== "undefined" &&
-            typeof this.#indexes[partIndex]["buffer"] !== "undefined" &&
-            this.#indexes[partIndex]["buffer"] !== null
-        ) {
+        if (typeof this.#indexes[partIndex] !== "undefined"
+            && typeof this.#indexes[partIndex]["buffer"] !== "undefined"
+            && this.#indexes[partIndex]["buffer"] !== null) {
+
             return parseInt(this.#indexes[partIndex]["buffer"].duration);
         }
         return 0;
