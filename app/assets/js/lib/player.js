@@ -359,6 +359,10 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     pause(bypass = false) {
+        if (!this.#playing) {
+            return;
+        }
+
         this.#playing = false;
         this.#nextTrackIndex = false;
         this.#waitIndex = null;
