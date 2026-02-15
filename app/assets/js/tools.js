@@ -1778,6 +1778,7 @@ function addEvents(player) {
         }
 
         if (e.detail.empty && currentButton !== "play") {
+            player.removeTimeUpdate();
             onTimelineRelease(player.getCurrentTime());
         }
     });

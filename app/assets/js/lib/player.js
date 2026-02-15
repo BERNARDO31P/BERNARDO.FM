@@ -144,7 +144,7 @@ class MultiTrackPlayer extends EventTarget {
         this.dispatchEvent(new CustomEvent("timeupdate", {
             detail: {
                 value: this.getCurrentTime(),
-                empty: !Object.keys(this.#getDecodingQueue()).length && !Object.keys(this.#getStartTimeouts()).length
+                empty: this.#currentTrackIndex !== 0 && !Object.keys(this.#getDecodingQueue()).length && !Object.keys(this.#getStartTimeouts()).length
             }
         }));
     }
