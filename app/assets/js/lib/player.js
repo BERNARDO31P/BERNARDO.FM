@@ -280,7 +280,7 @@ class MultiTrackPlayer extends EventTarget {
         if (!this.hadError() && !this.#stopped
             && !(startTime === 0 && this.isPlaying())
             && (this.#currentTrackIndex !== index || this.#initialPlay)
-            && (this.#waitIndex === null || this.#waitIndex === index)) {
+            && (this.#waitIndex === null || this.#waitIndex === index || this.hadError())) {
 
             this.#playing = true;
 
@@ -737,6 +737,12 @@ class MultiTrackPlayer extends EventTarget {
                     await this.#processDecodeQueue();
                 }
             }
+        } else {
+            this.dispatchEvent(new CustomEvent("processed", {
+                detail: {
+                    set: true
+                }
+            }));
         }
     }
 
