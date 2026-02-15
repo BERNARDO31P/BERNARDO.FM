@@ -143,7 +143,8 @@ class MultiTrackPlayer extends EventTarget {
 
         this.dispatchEvent(new CustomEvent("timeupdate", {
             detail: {
-                value: this.getCurrentTime()
+                value: this.getCurrentTime(),
+                empty: !Object.keys(this.#getDecodingQueue()).length && !Object.keys(this.#getStartTimeouts()).length
             }
         }));
     }
@@ -154,16 +155,18 @@ class MultiTrackPlayer extends EventTarget {
 
         const index = this.#getUrls().includes(url) ? this.#getUrls().indexOf(url) : this.#getUrls().length;
 
-        this.#indexes[index] = {
-            "url": url,
-            "from": null,
-            "till": null,
-            "buffer": null,
-            "callback": callback,
-            "source": null,
-            "decoding": true,
-            "timeout": null,
-            "offset": 0
+        if (!this.#getUrls().includes(url)) {
+            this.#indexes[index] = {
+                "url": url,
+                "from": null,
+                "till": null,
+                "buffer": null,
+                "callback": callback,
+                "source": null,
+                "decoding": true,
+                "timeout": null,
+                "offset": 0
+            }
         }
 
         if (this.isDecoding()) {
@@ -528,11 +531,13 @@ class MultiTrackPlayer extends EventTarget {
         this.#indexes[index]["offset"] = offset;
     }
 
-    setCurrentTime(time) {
+    setCurrentTime(time, bypass = false) {
         this.#audioTag.currentTime = time;
         this.#setPositionState();
 
-        this.#dispatchTimeUpdate();
+        if (!bypass) {
+            this.#dispatchTimeUpdate();
+        }
     }
 
     isPlaying() {

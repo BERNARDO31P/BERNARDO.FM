@@ -1443,7 +1443,7 @@ function onTimelineRelease(value, rangeEvent = null) {
     }
 
     pauseSong();
-    player.setCurrentTime(value);
+    player.setCurrentTime(value, true);
 
     if (isRetrying) {
         if (!player.isPlaying()) {
@@ -1777,8 +1777,8 @@ function addEvents(player) {
             timeline.value = e.detail.value;
         }
 
-        if (currentButton !== "play") {
-            prepareNextPart();
+        if (e.detail.empty && currentButton !== "play") {
+            onTimelineRelease(player.getCurrentTime());
         }
     });
 }
