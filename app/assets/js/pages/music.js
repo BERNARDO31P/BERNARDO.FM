@@ -165,7 +165,7 @@ bindEvent("click", "#queueView tr[data-id]", function () {
 
     playIndex = this.rowIndex - 1;
 
-    if (!partIsPlayable(playIndex, 0)) downloadPart(0, playIndex, 0); else play(true);
+    if (!partIsPlayable(playIndex, 0)) downloadPart(0, playIndex, 0); else play();
 });
 
 /*

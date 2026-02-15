@@ -1140,7 +1140,7 @@ function updateSongData() {
  * Fügt die neuen Informationen vom Lied in den Player ein und in die MediaSession API ein
  * Beginnt die Wiedergabe
  */
-function play(diffSong = false, pageLoad = false) {
+function play() {
     clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
@@ -1150,11 +1150,12 @@ function play(diffSong = false, pageLoad = false) {
     }
 
     const player = playlist[playIndex]["player"];
+    const song = playlist[playIndex];
+    const title = document.querySelector("title");
+    const nextTitle = song["name"] + " - " + title.textContent.split(" - ")[1];
 
-    if (diffSong) {
-        const song = playlist[playIndex];
-        const title = document.querySelector("title");
-        title.textContent = song["name"] + " - " + title.textContent.split(" - ")[1];
+    if (title.textContent !== nextTitle) {
+        title.textContent = nextTitle;
 
         if (!document.hidden) {
             updateSongData();
@@ -1218,17 +1219,12 @@ function play(diffSong = false, pageLoad = false) {
                         }
                     }
                 }
-
-                if (pageLoad) {
-                    let angleUp = document.getElementsByClassName("fa-angle-up")[0];
-                    angleUp.dispatchEvent(clickEvent);
-                }
             }
         }).catch((e) => {
             if (e.toString().includes("AbortError")) {
                 return;
             }
-            showConfirmation("Confirmation", "An error occurred while trying to automatically start the playback. Confirm to play the song.", () => play(diffSong, pageLoad), pauseSong);
+            showConfirmation("Confirmation", "An error occurred while trying to automatically start the playback. Confirm to play the song.", () => play(), pauseSong);
         });
     }
 }
@@ -1516,7 +1512,7 @@ function nextSong(bypass = false) {
         if (!partIsPlayable(nextIndex, 0)) {
             downloadPart(0, playIndex, 0);
         } else {
-            play(true);
+            play();
         }
     } else {
         playPauseButton("pause");
@@ -1559,7 +1555,7 @@ function previousSong(bypass = false) {
         if (!partIsPlayable(previousIndex, 0)) {
             downloadPart(0, playIndex, 0);
         } else {
-            play(true);
+            play();
         }
     } else {
         playPauseButton("pause");
@@ -1622,7 +1618,7 @@ function prepareNextPart() {
             downloadPart(nextTime, playIndex, player.getNextFreePartIndex(), missingLength);
         } else {
             if (!player.isPlaying()) {
-                play(!player.getCurrentTime());
+                play();
                 return;
             }
 
@@ -1635,7 +1631,7 @@ function prepareNextPart() {
     } else if (nextSong && !partIsPlayable(nextPlayIndex, 0)) {
         downloadPart(0, nextPlayIndex, 0);
     } else if (!player.isPlaying()) {
-        play(true);
+        play();
     }
 }
 
@@ -1720,11 +1716,11 @@ function addEvents(player) {
 
             player.stop();
 
-            play(true);
+            play();
             return;
         }
 
-        const durationExceeded = !(player.getDuration() - player.getCurrentTime() > 1);
+        const durationExceeded = !(player.getDuration() - player.getCurrentWebAudioTime() > 1);
         if (durationExceeded || (!player.isDecoding() && !player.hadError())) {
             if (playIndex === nextPlayIndex) {
                 stopSongs();

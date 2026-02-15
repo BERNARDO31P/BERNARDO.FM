@@ -305,7 +305,7 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
-                const durationExceeded = !(this.getDuration() - this.getCurrentTime() > 1);
+                const durationExceeded = !(this.getDuration() - this.getCurrentWebAudioTime() > 1);
                 if (durationExceeded) {
                     this.dispatchEvent(new Event("end"));
 
