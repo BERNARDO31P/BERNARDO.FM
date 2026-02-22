@@ -1617,7 +1617,6 @@ function prepareNextPart() {
     }
 
     if (!(player.getDuration() - nextTime > 1)) {
-        nextSong();
         return;
     }
 
