@@ -1463,17 +1463,20 @@ function onTimelineRelease(value, rangeEvent = null) {
     pauseSong();
     player.setCurrentTime(value, true);
 
+    let partInfo = player.getPartByTime(value);
+    let nextPartIndex = partInfo[2];
+
     if (isRetrying) {
+        if (nextPartIndex === null) {
+            nextPartIndex = player.getNextFreePartIndex();
+        }
+
         if (!player.isPlaying()) {
-            const nextPartIndex = player.getNextFreePartIndex();
             player.setCurrentIndex(nextPartIndex);
         }
 
         return;
     }
-
-    let partInfo = player.getPartByTime(value);
-    const nextPartIndex = partInfo[2];
 
     if (nextPartIndex === null) {
         playPauseButton("load");
