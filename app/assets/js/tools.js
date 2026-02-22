@@ -1311,15 +1311,15 @@ function playPauseButton(option = "pause") {
 function getCurrentButton() {
     const button = document.getElementById("player").querySelector("#dynamicButton");
 
-    if (!button || button.querySelector(".fas.fa-pause").length) {
+    if (!button || button.querySelector(".fas.fa-pause")) {
         return "play";
     }
 
-    if (button.querySelector(".fas.fa-play").length) {
+    if (button.querySelector(".fas.fa-play")) {
         return "pause";
     }
 
-    if (button.querySelector(".lds-ring").length) {
+    if (button.querySelector(".lds-ring")) {
         return "load";
     }
 
