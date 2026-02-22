@@ -1,6 +1,6 @@
 let currentHover = null, playIndex = 0, playlist = [], volume = 0, previousVolume = null, repeatMode = 0,
     touched = null, contextTimeout = null, retryTimeout = null, touchTimeout = null, touchedElement = null, playTimeout = null,
-    currentButton = null, changedQueue = false, isRetrying = false, width = getWidth(), height = getHeight() + 100;
+    changedQueue = false, isRetrying = false, width = getWidth(), height = getHeight() + 100;
 
 let onInfoCallback = null;
 
@@ -1290,7 +1290,7 @@ function previousSongIndex() {
  * Ändert das Icon von "abspielen/pausieren"
  */
 function playPauseButton(option = "pause") {
-    if (currentButton !== option) {
+    if (getCurrentButton() !== option) {
         const button = document.getElementById("player").querySelector("#dynamicButton");
         button.innerHTML = "";
 
@@ -1305,8 +1305,25 @@ function playPauseButton(option = "pause") {
             ldsRing.append(...Array.from({length: 4}, () => document.createElement('div')));
             button.appendChild(ldsRing);
         }
-        currentButton = option;
     }
+}
+
+function getCurrentButton() {
+    const button = document.getElementById("player").querySelector("#dynamicButton");
+
+    if (!button || button.querySelector(".fas.fa-pause").length) {
+        return "play";
+    }
+
+    if (button.querySelector(".fas.fa-play").length) {
+        return "pause";
+    }
+
+    if (button.querySelector(".lds-ring").length) {
+        return "load";
+    }
+
+    return "play";
 }
 
 /*
@@ -1777,7 +1794,7 @@ function addEvents(player) {
             timeline.value = e.detail.value;
         }
 
-        if (e.detail.empty && currentButton !== "play") {
+        if (e.detail.empty && getCurrentButton() !== "play") {
             player.removeTimeUpdate();
             onTimelineRelease(player.getCurrentTime());
         }
