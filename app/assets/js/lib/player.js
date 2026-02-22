@@ -305,13 +305,6 @@ class MultiTrackPlayer extends EventTarget {
                 clearTimeout(this.#indexes[index]["timeout"]);
                 this.#indexes[index]["timeout"] = null;
 
-                if ((audioContext.currentTime - source.when) * 1000 < 50) {
-                    this.pause();
-                    this.initialize().then(() => this.playNext(index, startTime));
-
-                    return;
-                }
-
                 const durationExceeded = !(this.getDuration() - this.getCurrentWebAudioTime() > 1);
                 if (durationExceeded) {
                     this.dispatchEvent(new Event("end"));
@@ -331,11 +324,7 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
-                this.dispatchEvent(new Event("processed", {
-                    detail: {
-                        set: true
-                    }
-                }));
+                this.pause();
             }
 
             this.#indexes[index]["timeout"] = setTimeout(() => {
@@ -517,7 +506,13 @@ class MultiTrackPlayer extends EventTarget {
             return 0;
         }
 
-        return parseInt(this.#indexes[index]["offset"]);
+        const offset = parseInt(this.#indexes[index]["offset"]);
+
+        if (this.getPartLength(index) === offset) {
+            return 0;
+        }
+
+        return offset;
     }
 
     setOffset(offset, index) {
