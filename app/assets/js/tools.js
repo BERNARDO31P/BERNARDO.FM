@@ -1,5 +1,6 @@
 let currentHover = null, playIndex = 0, playlist = [], volume = 0, previousVolume = null, repeatMode = 0,
-    touched = null, contextTimeout = null, retryTimeout = null, touchTimeout = null, touchedElement = null, playTimeout = null,
+    touched = null, contextTimeout = null, retryTimeout = null, touchTimeout = null, touchedElement = null,
+    playTimeout = null,
     changedQueue = false, isRetrying = false, width = getWidth(), height = getHeight() + 100;
 
 let onInfoCallback = null;
@@ -1615,40 +1616,29 @@ function prepareNextPart() {
         return;
     }
 
-    const nextPlayIndex = nextSongIndex();
-    let songEnded = false, nextSong = false;
     if (!(player.getDuration() - nextTime > 1)) {
-        songEnded = true;
-
-        if (typeof playlist[nextPlayIndex] !== 'undefined') {
-            nextSong = true;
-        }
+        nextSong();
+        return;
     }
 
-    if (!nextSong && !songEnded) {
-        const partInfo = player.getPartByStartTime(nextTime);
-        let nextPartIndex = partInfo[2];
+    const partInfo = player.getPartByStartTime(nextTime);
+    let nextPartIndex = partInfo[2];
 
-        if (nextPartIndex === null) {
-            const missingLength = player.findMissingLengthByCurrentPart(nextTime);
+    if (nextPartIndex === null) {
+        const missingLength = player.findMissingLengthByCurrentPart(nextTime);
 
-            downloadPart(nextTime, playIndex, player.getNextFreePartIndex(), missingLength);
-        } else {
-            if (!player.isPlaying()) {
-                play();
-                return;
-            }
-
-            if (!player.queueTrack(nextPartIndex)) {
-                retryTimeout = setTimeout(() => {
-                    prepareNextPart();
-                }, 200);
-            }
+        downloadPart(nextTime, playIndex, player.getNextFreePartIndex(), missingLength);
+    } else {
+        if (!player.isPlaying()) {
+            play();
+            return;
         }
-    } else if (nextSong && !partIsPlayable(nextPlayIndex, 0)) {
-        downloadPart(0, nextPlayIndex, 0);
-    } else if (!player.isPlaying()) {
-        play();
+
+        if (!player.queueTrack(nextPartIndex)) {
+            retryTimeout = setTimeout(() => {
+                prepareNextPart();
+            }, 200);
+        }
     }
 }
 
@@ -1724,34 +1714,7 @@ function addEvents(player) {
     });
 
     player.addEventListener("end", () => {
-        pauseSong();
-
-        const nextPlayIndex = nextSongIndex();
-
-        if (repeatMode !== 0) {
-            playIndex = nextPlayIndex;
-
-            player.stop();
-
-            play();
-            return;
-        }
-
-        const durationExceeded = !(player.getDuration() - player.getCurrentWebAudioTime() > 1);
-        if (durationExceeded || (!player.isDecoding() && !player.hadError())) {
-            if (playIndex === nextPlayIndex) {
-                stopSongs();
-                return;
-            }
-
-            playIndex = nextPlayIndex;
-
-            player.reset();
-
-            prepareNextPart();
-        } else {
-            playPauseButton("load");
-        }
+        nextSong();
     });
 
     player.addEventListener("processed", (e) => {

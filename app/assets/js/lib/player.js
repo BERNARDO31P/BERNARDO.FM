@@ -331,14 +331,11 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
-                const nextPart = this.getPartByStartTime(parseInt(this.getCurrentPart()[1]) ?? this.getCurrentTime());
-                if (nextPart[2]) {
-                    this.playNext(parseInt(nextPart[2]));
-
-                    return;
-                }
-
-                this.dispatchEvent(new Event("end"));
+                this.dispatchEvent(new Event("processed", {
+                    detail: {
+                        set: true
+                    }
+                }));
             }
 
             this.#indexes[index]["timeout"] = setTimeout(() => {
