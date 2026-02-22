@@ -1311,11 +1311,11 @@ function playPauseButton(option = "pause") {
 function getCurrentButton() {
     const button = document.getElementById("player").querySelector("#dynamicButton");
 
-    if (!button || button.querySelector(".fas.fa-pause")) {
+    if (!button || button.querySelector(".fa-pause")) {
         return "play";
     }
 
-    if (button.querySelector(".fas.fa-play")) {
+    if (button.querySelector(".fa-play")) {
         return "pause";
     }
 
