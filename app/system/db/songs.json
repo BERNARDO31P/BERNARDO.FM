@@ -6279,5 +6279,104 @@
       "uBzymXZEtowfwhuiVyD",
       "elxhCqsTUV7GJmdWJES"
     ]
+  },
+  {
+    "id": "tRdqe49cSKjUxGrnykW",
+    "cover": "Dribble - Sun Seeker - Album Cover.jpg",
+    "name": "Fiasco",
+    "artist": "Dribble",
+    "length": "5:20",
+    "fileName": "Dribble - Fiasco.wav",
+    "category": "Psytrance",
+    "info": "gzU5VKHMLWcOUTpqHwS"
+  },
+  {
+    "id": "ErOe5cPUjefrNPrfQfu",
+    "cover": "Dribble - Sun Seeker - Album Cover.jpg",
+    "name": "Planted Roots",
+    "artist": "Dribble",
+    "length": "7:32",
+    "fileName": "Dribble - Planted Roots.wav",
+    "category": "Psytrance",
+    "info": "gzU5VKHMLWcOUTpqHwS"
+  },
+  {
+    "id": "kYVBOIAWZNbxfqAKcwq",
+    "cover": "Dribble - Sun Seeker - Album Cover.jpg",
+    "name": "Make It or Break It",
+    "artist": "Dribble",
+    "length": "5:36",
+    "fileName": "Dribble - Make It or Break It.wav",
+    "category": "Psytrance",
+    "info": "gzU5VKHMLWcOUTpqHwS"
+  },
+  {
+    "id": "D2N9dsvJh8cUrbFG9HY",
+    "cover": "Dribble - Sun Seeker - Album Cover.jpg",
+    "name": "Woke Club",
+    "artist": "Dribble",
+    "length": "6:40",
+    "fileName": "Dribble - Woke Club.wav",
+    "category": "Psytrance",
+    "info": "gzU5VKHMLWcOUTpqHwS"
+  },
+  {
+    "id": "CYcnqokPHbuM8G5JKee",
+    "cover": "Dribble - Sun Seeker - Album Cover.jpg",
+    "name": "Mako Attack",
+    "artist": "Dribble",
+    "length": "5:21",
+    "fileName": "Dribble - Mako Attack.wav",
+    "category": "Psytrance",
+    "info": "gzU5VKHMLWcOUTpqHwS"
+  },
+  {
+    "id": "h9Dgt1CfyJZLwXTBVEm",
+    "cover": "Dribble - Sun Seeker - Album Cover.jpg",
+    "name": "Sun Seeker",
+    "artist": "Dribble",
+    "length": "6:28",
+    "fileName": "Dribble - Sun Seeker.wav",
+    "category": "Psytrance",
+    "info": "gzU5VKHMLWcOUTpqHwS"
+  },
+  {
+    "id": "R5ILGcWxgSlFcruezJ5",
+    "cover": "Dribble - Sun Seeker - Album Cover.jpg",
+    "name": "Bambo Rambo",
+    "artist": "Dribble & Bandicoot",
+    "length": "6:30",
+    "fileName": "Dribble & Bandicoot - Bambo Rambo.wav",
+    "category": "Psytrance",
+    "info": [
+      "gzU5VKHMLWcOUTpqHwS",
+      "ZX8CrRTbLhnsDYsDBjd"
+    ]
+  },
+  {
+    "id": "2rtm6frg9GjErgWos7Y",
+    "cover": "Dribble - Sun Seeker - Album Cover.jpg",
+    "name": "Broken Machines",
+    "artist": "Dribble",
+    "length": "5:34",
+    "fileName": "Dribble - Broken Machines.wav",
+    "category": "Psytrance",
+    "info": "gzU5VKHMLWcOUTpqHwS"
+  },
+  {
+    "id": "x5fThTyBoKviFlJoGtn",
+    "cover": "Dribble - Sun Seeker - Album Cover.jpg",
+    "name": "Dribble - Sun Seeker",
+    "category": "Albums",
+    "playlist": [
+      "tRdqe49cSKjUxGrnykW",
+      "ErOe5cPUjefrNPrfQfu",
+      "kYVBOIAWZNbxfqAKcwq",
+      "D2N9dsvJh8cUrbFG9HY",
+      "CYcnqokPHbuM8G5JKee",
+      "h9Dgt1CfyJZLwXTBVEm",
+      "R5ILGcWxgSlFcruezJ5",
+      "2rtm6frg9GjErgWos7Y"
+    ]
   }
 ]
