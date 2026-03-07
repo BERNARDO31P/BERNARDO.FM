@@ -2,6 +2,7 @@ if (typeof window["monitoring"] !== 'undefined') throw new Error("Dieses Skript 
 
 let timeValues = [], downValues = [], upValues = [], cpuValues = [], ramValues = [];
 let canvasDown, canvasUp, canvasCpu, canvasRam;
+let currentSelect = 4;
 let points = {};
 
 let tooltip = document.getElementById("tooltip");
@@ -13,13 +14,7 @@ window["monitoring"] = () => {
     canvasRam = document.getElementById("ram");
 
     getData();
-    backgroundProcesses[0] = setInterval(function () {
-        getData();
-    }, 2000);
-
-    backgroundProcesses[1] = setInterval(function () {
-        redraw();
-    }, 500);
+    startBackgroundProcesses();
 
     canvasDown.parentNode.scrollLeft = canvasDown.scrollWidth;
     canvasUp.parentNode.scrollLeft = canvasUp.scrollWidth;
@@ -46,6 +41,10 @@ window["monitoring"] = () => {
     canvasDown.parentNode.onscroll = canvasUp.parentNode.onscroll = canvasCpu.parentNode.onscroll = canvasRam.parentNode.onscroll = function () {
         tooltip.style.display = "none";
     }
+    
+    document.getElementById("time").addEventListener("change", function () {
+        getData();
+    });
 }
 
 /*
@@ -61,13 +60,31 @@ function timestampToTime(timestamps) {
 
     for (let timestamp of timestamps) {
         let date = new Date(timestamp * 1000);
-        let hours = ("0" + date.getHours()).substr(-2);
-        let minutes = ("0" + date.getMinutes()).substr(-2);
 
-        time.push(hours + ":" + minutes);
+        let hours = ("0" + date.getHours()).slice(-2);
+        let minutes = ("0" + date.getMinutes()).slice(-2);
+
+        let day = ("0" + date.getDate()).slice(-2);
+        let month = ("0" + (date.getMonth() + 1)).slice(-2);
+        let year = date.getFullYear().toString().slice(-2);
+
+        time.push(hours + ":" + minutes + "\n" + day + "." + month + "." + year);
     }
 
     return time;
+}
+
+function startBackgroundProcesses() {
+    clearInterval(backgroundProcesses[0] ?? 0);
+    clearInterval(backgroundProcesses[1] ?? 0);
+
+    backgroundProcesses[0] = setInterval(function () {
+        getData();
+    }, currentSelect * 500);
+
+    backgroundProcesses[1] = setInterval(function () {
+        redraw();
+    }, currentSelect * 125);
 }
 
 /*
@@ -101,8 +118,21 @@ function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
     let GRAPH_RIGHT = GRAPH_WIDTH - (GRAPH_LEFT * 5);
 
     let arrayLen = dataArr.length;
-    let largest = Math.max(...dataArr);
-    let smallest = Math.min(...dataArr);
+
+    // Limit number of drawn points to canvas width
+    const PIXELS_PER_POINT = 10;
+
+    const MAX_POINTS = (GRAPH_RIGHT - GRAPH_LEFT) / PIXELS_PER_POINT;
+    const skip = Math.max(1, Math.ceil(arrayLen / MAX_POINTS));
+
+    let largest = -Infinity;
+    let smallest = Infinity;
+
+    for (let i = 0; i < dataArr.length; i++) {
+        const v = dataArr[i];
+        if (v > largest) largest = v;
+        if (v < smallest) smallest = v;
+    }
 
     // Graph-Clear
     context.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -157,11 +187,11 @@ function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
     context.fillText((Math.round(smallest * 100) / 100).toString(), GRAPH_RIGHT + 15, (GRAPH_HEIGHT) / 4 * 3 + GRAPH_TOP);
     context.stroke();
 
-    // Information, dass die Werte Uhrzeiten sind
-    context.fillText("Time", GRAPH_RIGHT / 2 + GRAPH_LEFT, GRAPH_BOTTOM + 50);
-
     const maxClocks = 7;
     const step = Math.max(1, Math.floor((arrayLen - 1) / (maxClocks - 1)));
+
+    context.textAlign = "center";
+    context.textBaseline = "top";
 
     for (let n = 0; n < maxClocks; n++) {
         const dataIndex = n * step;
@@ -169,9 +199,16 @@ function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
 
         const timeIndex = Math.round((dataIndex / (arrayLen - 1)) * (timeArr.length - 1));
 
-        const x = (GRAPH_RIGHT / (arrayLen - 1)) * dataIndex + GRAPH_LEFT;
-        context.fillText(timeArr[timeIndex], x, GRAPH_BOTTOM + GRAPH_TOP);
+        const x = (GRAPH_RIGHT / (arrayLen - 1)) * dataIndex + GRAPH_LEFT + 20;
+        const label = timeArr[timeIndex].split("\n");
+
+        for (let i = 0; i < label.length; i++) {
+            context.fillText(label[i], x, GRAPH_BOTTOM + 15 + (i * 14));
+        }
     }
+
+    context.textAlign = "left";
+    context.textBaseline = "alphabetic";
 
     // Verbindungslinie Zeichnen
     context.beginPath();
@@ -193,28 +230,79 @@ function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
         context.lineWidth = 1;
     }
 
-    for (let i = 0; i < arrayLen; i++) {
-        context.lineTo((GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * i + GRAPH_LEFT, ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[i] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP);
+    for (let i = 0; i < arrayLen; i += skip) {
 
+        let end = Math.min(i + skip, arrayLen);
+
+        let minIndex = i;
+        let maxIndex = i;
+
+        for (let j = i; j < end; j++) {
+            if (dataArr[j] < dataArr[minIndex]) minIndex = j;
+            if (dataArr[j] > dataArr[maxIndex]) maxIndex = j;
+        }
+
+        const indices = [minIndex, maxIndex].sort((a, b) => a - b);
+
+        for (let idx of indices) {
+            context.lineTo(
+                (GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * idx + GRAPH_LEFT,
+                ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[idx] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP
+            );
+        }
     }
+
     context.stroke();
 
     if (typeof points[canvasID] === 'undefined') points[canvasID] = {};
 
-    // Punkte zeichnen
-    for (let i = 0; i < arrayLen; i++) {
-        const circle = new Path2D();
-        let x = (GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * i + GRAPH_LEFT;
-        let y = ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[i] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP;
+    for (let i = 0; i < arrayLen; i += skip) {
 
-        points[canvasID][i] = {};
-        points[canvasID][i]["coordinates"] = [x, y];
-        points[canvasID][i]["value"] = dataArr[i];
-        points[canvasID][i]["measurement"] = measurement;
+        let end = Math.min(i + skip, arrayLen);
 
-        circle.arc(x, y, radius, 0, 2 * Math.PI);
-        context.fill(circle);
+        let minIndex = i;
+        let maxIndex = i;
+
+        for (let j = i; j < end; j++) {
+            if (dataArr[j] < dataArr[minIndex]) minIndex = j;
+            if (dataArr[j] > dataArr[maxIndex]) maxIndex = j;
+        }
+
+        const indices = [minIndex, maxIndex];
+
+        for (let idx of indices) {
+
+            const circle = new Path2D();
+            let x = (GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * idx + GRAPH_LEFT;
+            let y = ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[idx] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP;
+
+            points[canvasID][idx] = {};
+            points[canvasID][idx]["coordinates"] = [x, y];
+            points[canvasID][idx]["value"] = dataArr[idx];
+            points[canvasID][idx]["measurement"] = measurement;
+
+            circle.arc(x, y, radius, 0, 2 * Math.PI);
+            context.fill(circle);
+        }
     }
+}
+
+function sanitizeNetworkValues(values, maxValue) {
+    let result = [];
+    let lastValid = 0;
+
+    for (let i = 0; i < values.length; i++) {
+        let v = Number(values[i]);
+
+        if (!Number.isFinite(v) || v < 0 || v > maxValue) {
+            result.push(lastValid);
+        } else {
+            lastValid = v;
+            result.push(v);
+        }
+    }
+
+    return result;
 }
 
 /*
@@ -225,25 +313,47 @@ function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
  */
 function getData() {
     const select = document.getElementById("time");
-    const time = (select) ? parseInt(select.value) : 4;
-    const data = tryParseJSON(httpGet("/system/monitoring/" + time));
+    const lastTime = currentSelect;
+
+    currentSelect = parseInt(select.value) ?? 4;
+
+    if (select && lastTime !== parseInt(select.value)) {
+        startBackgroundProcesses();
+    }
+
+    currentSelect = parseInt(select.value) ?? 4;
+
+    const data = tryParseJSON(httpGet("/system/monitoring/" + currentSelect));
 
     if (typeof data === 'object') {
         let timestamps = Object.keys(data);
         timeValues = [...new Set(timestampToTime(timestamps))];
 
-        downValues = Object.values(data).map(function (d) {
-            return d["network"]["down"];
-        });
-        upValues = Object.values(data).map(function (d) {
-            return d["network"]["up"];
-        });
+        const MAX_NETWORK = 12000;
+
+        downValues = sanitizeNetworkValues(
+            Object.values(data).map(function (d) {
+                return d["network"]["down"];
+            }),
+            MAX_NETWORK
+        );
+
+        upValues = sanitizeNetworkValues(
+            Object.values(data).map(function (d) {
+                return d["network"]["up"];
+            }),
+            MAX_NETWORK
+        );
         cpuValues = Object.values(data).map(function (d) {
             return d["cpu"];
         });
         ramValues = Object.values(data).map(function (d) {
             return d["ram"];
         });
+    }
+
+    if (select && lastTime !== parseInt(select.value)) {
+        redraw();
     }
 }
 
