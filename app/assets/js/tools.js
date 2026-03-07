@@ -1716,6 +1716,10 @@ function addEvents(player) {
     });
 
     player.addEventListener("end", () => {
+        if (nextSongIndex() === playIndex) {
+            return;
+        }
+
         nextSong();
     });
 
