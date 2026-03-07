@@ -5,7 +5,6 @@ const oneDay = 86400;
 use Bramus\Router\Router;
 
 include_once __DIR__ . "/vendor/autoload.php";
-ini_set("memory_limit", "256M");
 
 ini_set("session.gc_maxlifetime", oneDay);
 ini_set("session.cookie_lifetime", oneDay);
