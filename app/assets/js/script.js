@@ -212,19 +212,7 @@ bindEvent("click", "#player .fa-step-backward", () => previousSong());
  * Handler, wenn im Player auf den Play Knopf drückt
  * Wenn das Lied beendet wurde, wird überprüft, ob ein nächstes Lied abgespielt werden kann
  */
-bindEvent("click", "#player .fa-play", () => {
-    let timeline = document.getElementById("timeline");
-    if (timeline.max === timeline.value) {
-        let nextIndex = nextSongIndex();
-
-        if (typeof playlist[nextIndex] !== 'undefined') {
-            if (!partIsPlayable(nextIndex, 0))
-                downloadPart(0, nextIndex, 0);
-
-            playIndex = nextIndex;
-        }
-    } else play();
-});
+bindEvent("click", "#player .fa-play", () => play());
 
 /*
  * Funktion: Anonym

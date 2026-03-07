@@ -1717,6 +1717,11 @@ function addEvents(player) {
 
     player.addEventListener("end", () => {
         if (nextSongIndex() === playIndex) {
+            pauseSong();
+
+            player.setCurrentIndex(0);
+            player.setCurrentTime(0, true);
+
             return;
         }
 
