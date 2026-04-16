@@ -6,10 +6,7 @@ let currentSelect = 4;
 let points = {};
 
 let ctxDown, ctxUp, ctxCpu, ctxRam;
-
-
-
-let tooltip = document.getElementById("tooltip");
+let tooltip;
 
 window["monitoring"] = () => {
     canvasDown = document.getElementById("download");
@@ -20,6 +17,8 @@ window["monitoring"] = () => {
     getData();
     startBackgroundProcesses();
     initDropdown();
+
+    tooltip = document.getElementById("tooltip");
 
     canvasDown.parentNode.scrollLeft = canvasDown.scrollWidth;
     canvasUp.parentNode.scrollLeft = canvasUp.scrollWidth;
