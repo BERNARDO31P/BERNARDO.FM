@@ -1,23 +1,32 @@
 <?php
 
 /**
-  * 30 entries in one minute because of 2x sleep(1)
-  * 43'800 minutes // 1~ month
-  */
+ * 30 entries in one minute because of 2x sleep(1)
+ * 43'800 minutes // 1~ month
+ */
 //
-$amount = 30 * 43800;
-$dbFile = __DIR__ . "/db/monitoring.json";
+
+$allowedTime = [4, 60, 300, 1440, 10080, 43800];
+$amount      = 30 * 43800;
+$dbFile      = __DIR__ . "/db/monitoring.json";
 
 if (!file_exists($dbFile)) {
     file_put_contents($dbFile, json_encode(array()));
+}
+
+foreach ($allowedTime as $time) {
+    $amountTime = 30 * $time;
+    $dbFileTime = __DIR__ . "/db/monitoring-$time.json";
+
+    if (!file_exists($dbFileTime)) {
+        file_put_contents($dbFileTime, json_encode(array()));
+    }
 }
 
 $db = json_decode(file_get_contents($dbFile), true);
 if (!is_array($db)) {
     $db = array();
 }
-
-$db = array_slice($db, -$amount, $amount, true);
 
 function get_server_memory_usage(): ?float
 {
@@ -52,7 +61,7 @@ function get_server_cpu_usage(): ?float
         return null;
     }
 
-    $idle1 = $a[3] + $a[4];
+    $idle1  = $a[3] + $a[4];
     $total1 = array_sum(array_slice($a, 1, 7));
 
     sleep(1);
@@ -67,7 +76,7 @@ function get_server_cpu_usage(): ?float
         return null;
     }
 
-    $idle2 = $b[3] + $b[4];
+    $idle2  = $b[3] + $b[4];
     $total2 = array_sum(array_slice($b, 1, 7));
 
     $totalDiff = $total2 - $total1;
@@ -120,17 +129,24 @@ while (true) {
             continue;
         }
 
-        if (count($db) >= $amount) {
-            unset($db[array_key_first($db)]);
-        }
-
         $db[time()] = array(
-            "cpu" => $cpu,
-            "ram" => $ram,
+            "cpu"     => $cpu,
+            "ram"     => $ram,
             "network" => $net
         );
 
+        $db = array_slice($db, -$amount, $amount, true);
+
         file_put_contents($dbFile, json_encode($db));
+
+        foreach ($allowedTime as $time) {
+            $amountTime = 30 * $time;
+            $dbFileTime = __DIR__ . "/db/monitoring-$time.json";
+
+            $dbTime = array_slice($db, -$amountTime, $amountTime, true);
+
+            file_put_contents($dbFileTime, json_encode($dbTime));
+        }
     } catch (Throwable $e) {
         continue;
     }

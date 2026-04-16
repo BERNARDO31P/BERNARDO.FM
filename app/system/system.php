@@ -470,27 +470,19 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
 $router->get("/monitoring(?:/)?([\d]+)?", function ($time = 4) {
     header("Content-Type: application/json");
 
+    $time = intval($time);
+
     if ($time > 43800 || $time < 4) {
         $time = 4;
     }
 
-    /**
-     * 30 entries in one minute because of 2x sleep(1)
-     * 4 minutes
-     */
-    $amount = 30 * $time;
-    $dbFile = __DIR__ . "/db/monitoring.json";
+    $dbFile = __DIR__ . "/db/monitoring-$time.json";
 
     if (!file_exists($dbFile)) {
-        file_put_contents($dbFile, json_encode(array()));
+        file_put_contents($dbFile, "[]");
     }
 
-    $db = json_decode(file_get_contents($dbFile), true);
-    if (!is_array($db)) {
-        $db = array();
-    }
-
-    echo json_encode(array_slice($db, -$amount, $amount, true));
+    readfile($dbFile);
 });
 
 /*

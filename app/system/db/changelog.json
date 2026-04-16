@@ -7,6 +7,12 @@
   },
   "changelog": [
     {
+      "title": "Version 1.4",
+      "message": "Improved performance and design of the monitoring tab.",
+      "author":  "Bernardo de Oliveira",
+      "date": "16. April. 2026"
+    },
+    {
       "title": "Version 1.3",
       "message": "Further improvements of the performance and small bug fixes.",
       "details": "+ Improved image generation<br> + Improved ffmpeg chunk cutting<br/> + Fixed design consistency<br/> + Minor bugfixes",

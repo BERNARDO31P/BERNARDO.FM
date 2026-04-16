@@ -2132,3 +2132,107 @@ a.button {
 .hidden {
   display: none;
 }
+
+.dropdown {
+  display: inline-block;
+  position: relative;
+  width: 200px;
+  font-family: "Roboto Regular", sans-serif;
+
+  .dropdown-selected {
+    display: flex;
+    align-items: center; // <-- real vertical centering
+    justify-content: space-between;
+
+    padding: 12px 16px;
+    border-radius: 15px;
+    cursor: pointer;
+
+    background-color: var(--primary-color);
+    color: var(--text-color);
+
+    box-shadow: -2px -2px 3px var(--shadow-light),
+    2px 2px 3px var(--shadow-dark);
+
+    transition: 0.2s;
+
+    &:hover {
+      box-shadow: -1px -1px 2px var(--shadow-light),
+      1px 1px 2px var(--shadow-dark);
+    }
+
+    // arrow
+    &::after {
+      transition: 0.2s;
+
+      content: "";
+      position: absolute;
+      right: 15px;
+
+      width: 10px;
+      height: 10px;
+
+      border-right: 2px solid var(--text-color);
+      border-bottom: 2px solid var(--text-color);
+
+      top: calc(50% - 5px);
+      transform: translateY(-50%) rotate(45deg);
+
+      transform-origin: center;
+    }
+  }
+
+  &.open {
+    .dropdown-selected {
+      box-shadow: inset 1px 1px 2px var(--shadow-dark),
+      inset -1px -1px 2px var(--shadow-light);
+
+      &::after {
+        transform: rotate(-135deg);
+      }
+    }
+
+    .dropdown-list {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+  }
+
+  .dropdown-list {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+
+    background-color: var(--navbar-background);
+    border-radius: 15px;
+    border: 1px solid var(--border-color);
+
+    box-shadow: 2px 2px 5px var(--shadow-dark),
+    -2px -2px 5px var(--shadow-light);
+
+    overflow: hidden;
+
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-5px);
+
+    transition: 0.2s ease;
+    z-index: 10;
+
+    div {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: 0.15s;
+
+      &:hover {
+        background-color: var(--hover-background);
+      }
+
+      &.active {
+        background-color: var(--active-background);
+      }
+    }
+  }
+}

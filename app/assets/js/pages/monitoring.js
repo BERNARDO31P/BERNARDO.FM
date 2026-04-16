@@ -1,9 +1,13 @@
-if (typeof window["monitoring"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
+if (typeof window["monitoring"] !== "undefined") throw new Error("Dieses Skript wurde bereits geladen.");
 
 let timeValues = [], downValues = [], upValues = [], cpuValues = [], ramValues = [];
 let canvasDown, canvasUp, canvasCpu, canvasRam;
 let currentSelect = 4;
 let points = {};
+
+let ctxDown, ctxUp, ctxCpu, ctxRam;
+
+
 
 let tooltip = document.getElementById("tooltip");
 
@@ -30,22 +34,40 @@ window["monitoring"] = () => {
         = canvasCpu.onclick
         = canvasRam.onclick = function (e) {
         showTooltip(this, e);
-    }
+    };
 
     canvasDown.onmouseout = canvasUp.onmouseout = canvasCpu.onmouseout = canvasRam.onmouseout = function () {
         setTimeout(function () {
             if (currentHover !== tooltip) tooltip.style.display = "none";
         }, 0);
-    }
+    };
 
-    canvasDown.parentNode.onscroll = canvasUp.parentNode.onscroll = canvasCpu.parentNode.onscroll = canvasRam.parentNode.onscroll = function () {
-        tooltip.style.display = "none";
-    }
-    
-    document.getElementById("time").addEventListener("change", function () {
-        getData();
-    });
-}
+    canvasDown.parentNode.addEventListener(
+        "scroll",
+        () => tooltip.style.display = "none",
+        { passive: true }
+    );
+    canvasUp.parentNode.addEventListener(
+        "scroll",
+        () => tooltip.style.display = "none",
+        { passive: true }
+    );
+    canvasCpu.parentNode.addEventListener(
+        "scroll",
+        () => tooltip.style.display = "none",
+        { passive: true }
+    );
+    canvasRam.parentNode.addEventListener(
+        "scroll",
+        () => tooltip.style.display = "none",
+        { passive: true }
+    );
+
+    ctxDown = canvasDown.getContext("2d");
+    ctxUp = canvasUp.getContext("2d");
+    ctxCpu = canvasCpu.getContext("2d");
+    ctxRam = canvasRam.getContext("2d");
+};
 
 /*
  * Funktion: timestampToTime()
@@ -58,8 +80,8 @@ window["monitoring"] = () => {
 function timestampToTime(timestamps) {
     let time = [];
 
-    for (let timestamp of timestamps) {
-        let date = new Date(timestamp * 1000);
+    for (let i = 0; i < timestamps.length; i++) {
+        let date = new Date(timestamps[i] * 1000);
 
         let hours = ("0" + date.getHours()).slice(-2);
         let minutes = ("0" + date.getMinutes()).slice(-2);
@@ -74,17 +96,29 @@ function timestampToTime(timestamps) {
     return time;
 }
 
+let redrawScheduled = false;
+let lastDraw = 0;
+
+function scheduleRedraw() {
+    if (performance.now() - lastDraw < 500) return;
+    lastDraw = performance.now();
+
+    if (redrawScheduled) return;
+
+    redrawScheduled = true;
+
+    requestAnimationFrame(() => {
+        redrawScheduled = false;
+        redraw();
+    });
+}
+
 function startBackgroundProcesses() {
     clearInterval(backgroundProcesses[0] ?? 0);
     clearInterval(backgroundProcesses[1] ?? 0);
 
-    backgroundProcesses[0] = setInterval(function () {
-        getData();
-    }, currentSelect * 500);
-
-    backgroundProcesses[1] = setInterval(function () {
-        redraw();
-    }, currentSelect * 125);
+    backgroundProcesses[0] = setInterval(getData, currentSelect * 800);
+    backgroundProcesses[1] = setInterval(scheduleRedraw, currentSelect * 600);
 }
 
 /*
@@ -99,44 +133,42 @@ function startBackgroundProcesses() {
  * Zeichnet einen Graphen anhand von Werten und Zeiten
  * !Inline-Kommentare beachten!
  */
-function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
-    let context = canvas.getContext("2d");
-    let canvasStyle = window.getComputedStyle(canvas);
-    let canvasWidth = Number(canvasStyle.width.replace("px", ""));
-    let canvasHeight = Number(canvasStyle.height.replace("px", ""));
+function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
+    let canvasWidth = canvas.clientWidth;
+    let canvasHeight = canvas.clientHeight;
 
-    // Hiermit passt sich der Graph an
+    if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+    }
+
     let GRAPH_HEIGHT = canvasHeight;
     let GRAPH_WIDTH = canvasWidth;
-    canvas.height = canvasHeight;
-    canvas.width = canvasWidth;
 
-    // Definition von den Rändern
     let GRAPH_TOP = 30;
     let GRAPH_BOTTOM = GRAPH_HEIGHT - (GRAPH_TOP * 2);
     let GRAPH_LEFT = 20;
     let GRAPH_RIGHT = GRAPH_WIDTH - (GRAPH_LEFT * 5);
 
+    let graphRange = GRAPH_BOTTOM - GRAPH_TOP;
+
     let arrayLen = dataArr.length;
+    if (!arrayLen) return;
 
-    // Limit number of drawn points to canvas width
     const PIXELS_PER_POINT = 10;
-
     const MAX_POINTS = (GRAPH_RIGHT - GRAPH_LEFT) / PIXELS_PER_POINT;
     const skip = Math.max(1, Math.ceil(arrayLen / MAX_POINTS));
 
     let largest = -Infinity;
     let smallest = Infinity;
 
-    for (let i = 0; i < dataArr.length; i++) {
+    for (let i = 0; i < arrayLen; i++) {
         const v = dataArr[i];
         if (v > largest) largest = v;
         if (v < smallest) smallest = v;
     }
 
-    // Graph-Clear
     context.clearRect(0, 0, canvasWidth, canvasHeight);
-    // Setze Schriftart für fillText()
     context.font = "13px Arial";
 
     if (theme === "light") {
@@ -147,45 +179,26 @@ function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
         context.fillStyle = "#b9b9b9";
     }
 
-    // Umriss Generierung
+    // axes
     context.beginPath();
     context.moveTo(GRAPH_LEFT, GRAPH_BOTTOM);
     context.lineTo(GRAPH_RIGHT, GRAPH_BOTTOM);
     context.lineTo(GRAPH_RIGHT, GRAPH_TOP);
     context.stroke();
 
-    // Referenzlinien zeichnen
-    context.beginPath();
-    context.moveTo(GRAPH_LEFT, GRAPH_TOP);
-    context.lineTo(GRAPH_RIGHT, GRAPH_TOP);
-    // Referenz für die Daten: Erster Wert
+    // grid + labels
+    const drawLine = (y, text) => {
+        context.beginPath();
+        context.moveTo(GRAPH_LEFT, y);
+        context.lineTo(GRAPH_RIGHT, y);
+        context.fillText(text, GRAPH_RIGHT + 15, y);
+        context.stroke();
+    };
 
-    context.fillText((Math.round(largest * 100) / 100).toString(), GRAPH_RIGHT + 15, GRAPH_TOP);
-    context.stroke();
-
-    // Referenzlinien zeichnen
-    context.beginPath();
-    context.moveTo(GRAPH_LEFT, (GRAPH_HEIGHT) / 4 + GRAPH_TOP);
-    context.lineTo(GRAPH_RIGHT, (GRAPH_HEIGHT) / 4 + GRAPH_TOP);
-    // Referenz für die Daten: Zweiter Wert
-    context.fillText((Math.round((smallest + ((largest - smallest) / 3) * 2) * 100) / 100).toString(), GRAPH_RIGHT + 15, (GRAPH_HEIGHT) / 4 + GRAPH_TOP);
-    context.stroke();
-
-    // Referenzlinien zeichnen
-    context.beginPath();
-    context.moveTo(GRAPH_LEFT, (GRAPH_HEIGHT) / 2 + GRAPH_TOP);
-    context.lineTo(GRAPH_RIGHT, (GRAPH_HEIGHT) / 2 + GRAPH_TOP);
-    // Referenz für die Daten: Dritter Wert
-    context.fillText((Math.round((smallest + (largest - smallest) / 3) * 100) / 100).toString() + " " + measurement, GRAPH_RIGHT + 15, (GRAPH_HEIGHT) / 2 + GRAPH_TOP);
-    context.stroke();
-
-    // Referenzlinien zeichnen
-    context.beginPath();
-    context.moveTo(GRAPH_LEFT, (GRAPH_HEIGHT) / 4 * 3 + GRAPH_TOP);
-    context.lineTo(GRAPH_RIGHT, (GRAPH_HEIGHT) / 4 * 3 + GRAPH_TOP);
-    // Referenz für die Daten: Letzter Wert
-    context.fillText((Math.round(smallest * 100) / 100).toString(), GRAPH_RIGHT + 15, (GRAPH_HEIGHT) / 4 * 3 + GRAPH_TOP);
-    context.stroke();
+    drawLine(GRAPH_TOP, (Math.round(largest * 100) / 100).toString());
+    drawLine(GRAPH_HEIGHT / 4 + GRAPH_TOP, (Math.round((smallest + ((largest - smallest) / 3) * 2) * 100) / 100).toString());
+    drawLine(GRAPH_HEIGHT / 2 + GRAPH_TOP, (Math.round((smallest + (largest - smallest) / 3) * 100) / 100).toString() + " " + measurement);
+    drawLine(GRAPH_HEIGHT / 4 * 3 + GRAPH_TOP, (Math.round(smallest * 100) / 100).toString());
 
     const maxClocks = 7;
     const step = Math.max(1, Math.floor((arrayLen - 1) / (maxClocks - 1)));
@@ -198,20 +211,16 @@ function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
         if (dataIndex >= arrayLen) break;
 
         const timeIndex = Math.round((dataIndex / (arrayLen - 1)) * (timeArr.length - 1));
-
         const x = (GRAPH_RIGHT / (arrayLen - 1)) * dataIndex + GRAPH_LEFT + 20;
+
         const label = timeArr[timeIndex].split("\n");
 
-        for (let i = 0; i < label.length; i++) {
-            context.fillText(label[i], x, GRAPH_BOTTOM + 15 + (i * 14));
-        }
+        context.fillText(label[0], x, GRAPH_BOTTOM + 15);
+        context.fillText(label[1], x, GRAPH_BOTTOM + 29);
     }
 
     context.textAlign = "left";
     context.textBaseline = "alphabetic";
-
-    // Verbindungslinie Zeichnen
-    context.beginPath();
 
     if (theme === "light") {
         context.fillStyle = "black";
@@ -221,17 +230,30 @@ function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
         context.strokeStyle = "#d0d0d0";
     }
 
-    let radius;
-    if (getWidth() > 1000) {
-        radius = 3;
-        context.lineWidth = 2;
-    } else {
-        radius = 2;
-        context.lineWidth = 1;
+    let radius = getWidth() > 1000 ? 3 : 2;
+    context.lineWidth = getWidth() > 1000 ? 2 : 1;
+
+    const scale = graphRange / largest;
+
+    // ✅ SINGLE SOURCE OF TRUTH
+    function getPoint(idx) {
+        let x = (GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * idx + GRAPH_LEFT;
+        let y = (graphRange - dataArr[idx] * scale) + GRAPH_TOP;
+
+        // optional pixel alignment (uncomment if you want ultra crisp lines)
+        // x = Math.round(x) + 0.5;
+        // y = Math.round(y) + 0.5;
+
+        return { x, y };
     }
 
-    for (let i = 0; i < arrayLen; i += skip) {
+    // draw line
+    context.beginPath();
 
+    context.lineJoin = "round";
+    context.lineCap = "round";
+
+    for (let i = 0; i < arrayLen; i += skip) {
         let end = Math.min(i + skip, arrayLen);
 
         let minIndex = i;
@@ -242,22 +264,20 @@ function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
             if (dataArr[j] > dataArr[maxIndex]) maxIndex = j;
         }
 
-        const indices = [minIndex, maxIndex].sort((a, b) => a - b);
+        const indices = minIndex < maxIndex ? [minIndex, maxIndex] : [maxIndex, minIndex];
 
-        for (let idx of indices) {
-            context.lineTo(
-                (GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * idx + GRAPH_LEFT,
-                ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[idx] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP
-            );
+        for (let k = 0; k < 2; k++) {
+            const p = getPoint(indices[k]);
+            context.lineTo(p.x, p.y);
         }
     }
 
     context.stroke();
 
-    if (typeof points[canvasID] === 'undefined') points[canvasID] = {};
+    if (typeof points[canvasID] === "undefined") points[canvasID] = {};
 
+    // draw dots
     for (let i = 0; i < arrayLen; i += skip) {
-
         let end = Math.min(i + skip, arrayLen);
 
         let minIndex = i;
@@ -270,20 +290,22 @@ function drawGraph(canvas, dataArr, timeArr, measurement, canvasID) {
 
         const indices = [minIndex, maxIndex];
 
-        for (let idx of indices) {
+        context.beginPath();
 
-            const circle = new Path2D();
-            let x = (GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * idx + GRAPH_LEFT;
-            let y = ((GRAPH_BOTTOM - GRAPH_TOP) - dataArr[idx] / largest * (GRAPH_BOTTOM - GRAPH_TOP)) + GRAPH_TOP;
+        for (let k = 0; k < 2; k++) {
+            const idx = indices[k];
+            const p = getPoint(idx);
 
-            points[canvasID][idx] = {};
-            points[canvasID][idx]["coordinates"] = [x, y];
-            points[canvasID][idx]["value"] = dataArr[idx];
-            points[canvasID][idx]["measurement"] = measurement;
+            points[canvasID][idx] = {
+                coordinates: [p.x, p.y],
+                value: dataArr[idx],
+                measurement: measurement
+            };
 
-            circle.arc(x, y, radius, 0, 2 * Math.PI);
-            context.fill(circle);
+            context.arc(p.x, p.y, radius, 0, Math.PI * 2);
         }
+
+        context.fill();
     }
 }
 
@@ -312,49 +334,56 @@ function sanitizeNetworkValues(values, maxValue) {
  * Holt die Graph-Werte und speichert diese separat ab
  */
 function getData() {
-    const select = document.getElementById("time");
+    const dropdown = document.getElementById("time");
+    const input = dropdown.querySelector("input");
+    const newValue = parseInt(input.value) ?? 4;
+
+    if (isNaN(newValue)) {
+        return;
+    }
+
     const lastTime = currentSelect;
+    currentSelect = newValue;
 
-    currentSelect = parseInt(select.value) ?? 4;
-
-    if (select && lastTime !== parseInt(select.value)) {
+    if (lastTime !== newValue) {
         startBackgroundProcesses();
     }
 
-    currentSelect = parseInt(select.value) ?? 4;
-
     const data = tryParseJSON(httpGet("/system/monitoring/" + currentSelect));
 
-    if (typeof data === 'object') {
-        let timestamps = Object.keys(data);
-        timeValues = [...new Set(timestampToTime(timestamps))];
+    if (Array.isArray(data) && !data.length) {
+        return;
+    }
+
+    if (typeof data === "object") {
+
+        const keys = Object.keys(data);
+        const values = Object.values(data);
+
+        timeValues = [...new Set(timestampToTime(keys))];
 
         const MAX_NETWORK = 12000;
 
-        downValues = sanitizeNetworkValues(
-            Object.values(data).map(function (d) {
-                return d["network"]["down"];
-            }),
-            MAX_NETWORK
-        );
+        let down = [];
+        let up = [];
+        let cpu = [];
+        let ram = [];
 
-        upValues = sanitizeNetworkValues(
-            Object.values(data).map(function (d) {
-                return d["network"]["up"];
-            }),
-            MAX_NETWORK
-        );
-        cpuValues = Object.values(data).map(function (d) {
-            return d["cpu"];
-        });
-        ramValues = Object.values(data).map(function (d) {
-            return d["ram"];
-        });
+        for (let i = 0; i < values.length; i++) {
+            let d = values[i];
+            down.push(d.network.down);
+            up.push(d.network.up);
+            cpu.push(d.cpu);
+            ram.push(d.ram);
+        }
+
+        downValues = sanitizeNetworkValues(down, MAX_NETWORK);
+        upValues = sanitizeNetworkValues(up, MAX_NETWORK);
+        cpuValues = cpu;
+        ramValues = ram;
     }
 
-    if (select && lastTime !== parseInt(select.value)) {
-        redraw();
-    }
+    if (lastTime !== newValue) redraw();
 }
 
 /*
@@ -364,10 +393,10 @@ function getData() {
  * Führt die Funktionen zum die Graphen zu zeichnen mit den Werten aus
  */
 function redraw() {
-    drawGraph(canvasDown, downValues, timeValues, "Mbit/s", canvasDown.id);
-    drawGraph(canvasUp, upValues, timeValues, "Mbit/s", canvasUp.id);
-    drawGraph(canvasCpu, cpuValues, timeValues, "%", canvasCpu.id);
-    drawGraph(canvasRam, ramValues, timeValues, "%", canvasRam.id);
+    drawGraph(canvasDown, ctxDown, downValues, timeValues, "Mbit/s", canvasDown.id);
+    drawGraph(canvasUp, ctxUp, upValues, timeValues, "Mbit/s", canvasUp.id);
+    drawGraph(canvasCpu, ctxCpu, cpuValues, timeValues, "%", canvasCpu.id);
+    drawGraph(canvasRam, ctxRam, ramValues, timeValues, "%", canvasRam.id);
 }
 
 /*
@@ -398,6 +427,39 @@ function showTooltip(object, e) {
     }
 }
 
-window.addEventListener('resize', () => {
-    redraw();
+let resizeTimer;
+
+window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(redraw, 150);
+});
+
+const dropdown = document.getElementById("time");
+const selected = dropdown.querySelector(".dropdown-selected");
+const list = dropdown.querySelector(".dropdown-list");
+const input = dropdown.querySelector("input");
+
+selected.addEventListener("click", () => {
+    dropdown.classList.toggle("open");
+});
+
+list.querySelectorAll("div").forEach(option => {
+    option.addEventListener("click", () => {
+        selected.textContent = "Time: " + option.textContent;
+
+        input.value = option.dataset.value;
+
+        list.querySelectorAll("div").forEach(o => o.classList.remove("active"));
+        option.classList.add("active");
+
+        dropdown.classList.remove("open");
+
+        getData();
+    });
+});
+
+document.addEventListener("click", (e) => {
+    if (!dropdown.contains(e.target)) {
+        dropdown.classList.remove("open");
+    }
 });
