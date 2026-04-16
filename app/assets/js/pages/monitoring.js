@@ -19,6 +19,7 @@ window["monitoring"] = () => {
 
     getData();
     startBackgroundProcesses();
+    initDropdown();
 
     canvasDown.parentNode.scrollLeft = canvasDown.scrollWidth;
     canvasUp.parentNode.scrollLeft = canvasUp.scrollWidth;
@@ -68,6 +69,44 @@ window["monitoring"] = () => {
     ctxCpu = canvasCpu.getContext("2d");
     ctxRam = canvasRam.getContext("2d");
 };
+
+function initDropdown() {
+    const dropdown = document.getElementById("time");
+    if (!dropdown) return;
+
+    // prevent double binding
+    if (dropdown.dataset.initialized) return;
+    dropdown.dataset.initialized = "1";
+
+    const selected = dropdown.querySelector(".dropdown-selected");
+    const list = dropdown.querySelector(".dropdown-list");
+    const input = dropdown.querySelector("input");
+
+    selected.addEventListener("click", () => {
+        dropdown.classList.toggle("open");
+    });
+
+    list.querySelectorAll("div").forEach(option => {
+        option.addEventListener("click", () => {
+            selected.textContent = "Time: " + option.textContent;
+
+            input.value = option.dataset.value;
+
+            list.querySelectorAll("div").forEach(o => o.classList.remove("active"));
+            option.classList.add("active");
+
+            dropdown.classList.remove("open");
+
+            getData();
+        });
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!dropdown.contains(e.target)) {
+            dropdown.classList.remove("open");
+        }
+    });
+}
 
 /*
  * Funktion: timestampToTime()
@@ -432,34 +471,4 @@ let resizeTimer;
 window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(redraw, 150);
-});
-
-const dropdown = document.getElementById("time");
-const selected = dropdown.querySelector(".dropdown-selected");
-const list = dropdown.querySelector(".dropdown-list");
-const input = dropdown.querySelector("input");
-
-selected.addEventListener("click", () => {
-    dropdown.classList.toggle("open");
-});
-
-list.querySelectorAll("div").forEach(option => {
-    option.addEventListener("click", () => {
-        selected.textContent = "Time: " + option.textContent;
-
-        input.value = option.dataset.value;
-
-        list.querySelectorAll("div").forEach(o => o.classList.remove("active"));
-        option.classList.add("active");
-
-        dropdown.classList.remove("open");
-
-        getData();
-    });
-});
-
-document.addEventListener("click", (e) => {
-    if (!dropdown.contains(e.target)) {
-        dropdown.classList.remove("open");
-    }
 });
