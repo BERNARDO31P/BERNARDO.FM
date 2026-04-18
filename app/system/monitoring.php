@@ -1,22 +1,16 @@
 <?php
 
-/**
- * 30 entries in one minute because of 2x sleep(1)
- * 43'800 minutes // 1~ month
- */
-//
+$maxAmount      = 43800;
+$allowedAmounts = [4, 60, 300, 1440, 10080, $maxAmount];
 
-$allowedTime = [4, 60, 300, 1440, 10080, 43800];
-$amount      = 30 * 43800;
-$dbFile      = __DIR__ . "/db/monitoring.json";
+$dbFile = __DIR__ . "/db/monitoring.json";
 
 if (!file_exists($dbFile)) {
     file_put_contents($dbFile, json_encode(array()));
 }
 
-foreach ($allowedTime as $time) {
-    $amountTime = 30 * $time;
-    $dbFileTime = __DIR__ . "/db/monitoring-$time.json";
+foreach ($allowedAmounts as $allowedAmount) {
+    $dbFileTime = __DIR__ . "/db/monitoring-$allowedAmount.json";
 
     if (!file_exists($dbFileTime)) {
         file_put_contents($dbFileTime, json_encode(array()));
@@ -135,15 +129,21 @@ while (true) {
             "network" => $net
         );
 
-        $db = array_slice($db, -$amount, $amount, true);
+        $cutoff = intval(time() - ($maxAmount * 60));
+
+        $db = array_filter($db, function ($key) use ($cutoff) {
+            return intval($key) >= $cutoff;
+        }, ARRAY_FILTER_USE_KEY);
 
         file_put_contents($dbFile, json_encode($db));
 
-        foreach ($allowedTime as $time) {
-            $amountTime = 30 * $time;
-            $dbFileTime = __DIR__ . "/db/monitoring-$time.json";
+        foreach ($allowedAmounts as $allowedAmount) {
+            $dbFileTime = __DIR__ . "/db/monitoring-$allowedAmount.json";
+            $cutoffTime = intval(time() - ($allowedAmount * 60));
 
-            $dbTime = array_slice($db, -$amountTime, $amountTime, true);
+            $dbTime = array_filter($db, function ($key) use ($cutoffTime) {
+                return intval($key) >= $cutoffTime;
+            }, ARRAY_FILTER_USE_KEY);
 
             file_put_contents($dbFileTime, json_encode($dbTime));
         }
