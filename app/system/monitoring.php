@@ -43,81 +43,99 @@ function get_server_memory_usage(): ?float
     return ($value >= 0 && is_finite($value)) ? round($value, 2) : null;
 }
 
-function get_server_cpu_usage(): ?float
+function get_server_cpu_usage(&$callbacks): void
 {
     $stat1 = @file(__DIR__ . "/data/stat");
     if ($stat1 === false || !isset($stat1[0])) {
-        return null;
+        $callbacks["cpu"] = function () {
+            return null;
+        };
+        return;
     }
 
     $a = array_values(array_filter(explode(" ", $stat1[0])));
     if (count($a) < 6) {
-        return null;
+        $callbacks["cpu"] = function () {
+            return null;
+        };
+        return;
     }
 
     $idle1  = $a[3] + $a[4];
     $total1 = array_sum(array_slice($a, 1, 7));
 
-    sleep(1);
+    $callbacks["cpu"] = function () use ($idle1, $total1) {
+        $stat2 = @file(__DIR__ . "/data/stat");
+        if ($stat2 === false || !isset($stat2[0])) {
+            return null;
+        }
 
-    $stat2 = @file(__DIR__ . "/data/stat");
-    if ($stat2 === false || !isset($stat2[0])) {
-        return null;
-    }
+        $b = array_values(array_filter(explode(" ", $stat2[0])));
+        if (count($b) < 6) {
+            return null;
+        }
 
-    $b = array_values(array_filter(explode(" ", $stat2[0])));
-    if (count($b) < 6) {
-        return null;
-    }
+        $idle2  = $b[3] + $b[4];
+        $total2 = array_sum(array_slice($b, 1, 7));
 
-    $idle2  = $b[3] + $b[4];
-    $total2 = array_sum(array_slice($b, 1, 7));
+        $totalDiff = $total2 - $total1;
+        $idleDiff  = $idle2 - $idle1;
 
-    $totalDiff = $total2 - $total1;
-    $idleDiff  = $idle2 - $idle1;
+        if ($totalDiff <= 0) {
+            return null;
+        }
 
-    if ($totalDiff <= 0) {
-        return null;
-    }
-
-    $usage = (1 - ($idleDiff / $totalDiff)) * 100;
-    return ($usage >= 0 && is_finite($usage)) ? round($usage, 2) : null;
+        $usage = (1 - ($idleDiff / $totalDiff)) * 100;
+        return ($usage >= 0 && is_finite($usage)) ? round($usage, 2) : null;
+    };
 }
 
-function get_server_network_usage(): ?array
+function get_server_network_usage(&$callbacks): void
 {
     $rx1 = @file_get_contents(__DIR__ . "/data/rx_bytes");
     $tx1 = @file_get_contents(__DIR__ . "/data/tx_bytes");
     if ($rx1 === false || $tx1 === false) {
-        return null;
+        $callbacks["net"] = function () {
+            return null;
+        };
+        return;
     }
 
-    sleep(1);
+    $callbacks["net"] = function () use ($rx1, $tx1) {
+        $rx2 = @file_get_contents(__DIR__ . "/data/rx_bytes");
+        $tx2 = @file_get_contents(__DIR__ . "/data/tx_bytes");
+        if ($rx2 === false || $tx2 === false) {
+            return null;
+        }
 
-    $rx2 = @file_get_contents(__DIR__ . "/data/rx_bytes");
-    $tx2 = @file_get_contents(__DIR__ . "/data/tx_bytes");
-    if ($rx2 === false || $tx2 === false) {
-        return null;
-    }
+        $rbps = intval($rx2) - intval($rx1);
+        $tbps = intval($tx2) - intval($tx1);
 
-    $rbps = intval($rx2) - intval($rx1);
-    $tbps = intval($tx2) - intval($tx1);
+        if ($rbps < 0 || $tbps < 0) {
+            return null;
+        }
 
-    if ($rbps < 0 || $tbps < 0) {
-        return null;
-    }
-
-    return array(
-        "down" => round(($rbps * 8) / 1000000, 2),
-        "up"   => round(($tbps * 8) / 1000000, 2)
-    );
+        return array(
+            "down" => round(($rbps * 8) / 1000000, 2),
+            "up"   => round(($tbps * 8) / 1000000, 2)
+        );
+    };
 }
 
 while (true) {
     try {
-        $cpu = get_server_cpu_usage();
+        $start = microtime(true);
+
+        $callbacks = [];
+        get_server_cpu_usage($callbacks);
+        get_server_network_usage($callbacks);
+
+        $elapsed = microtime(true) - $start;
+        usleep(max(0, (1 - $elapsed) * 1000000));
+
+        $cpu = $callbacks["cpu"]();
+        $net = $callbacks["net"]();
         $ram = get_server_memory_usage();
-        $net = get_server_network_usage();
 
         if ($cpu === null || $ram === null || $net === null) {
             continue;

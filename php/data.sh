@@ -17,5 +17,5 @@ do
  (iptables -t nat -L -v | sed '/^[[:space:]]*$/d') > ${folder}data/nat
  (iptables -t filter -L -v | sed '/^[[:space:]]*$/d') > ${folder}data/filter
 
- sleep 1
+ sleep 0.5
 done
