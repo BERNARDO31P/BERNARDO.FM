@@ -8,6 +8,8 @@ let points = {};
 let ctxDown, ctxUp, ctxCpu, ctxRam;
 let tooltip;
 
+const HITBOX = 6;
+
 window["monitoring"] = () => {
     canvasDown = document.getElementById("download");
     canvasUp = document.getElementById("upload");
@@ -67,6 +69,8 @@ window["monitoring"] = () => {
     ctxUp = canvasUp.getContext("2d");
     ctxCpu = canvasCpu.getContext("2d");
     ctxRam = canvasRam.getContext("2d");
+
+    redraw();
 };
 
 function initDropdown() {
@@ -151,6 +155,16 @@ function scheduleRedraw() {
     });
 }
 
+function format2(value) {
+    const num = Number(value);
+    return Number.isFinite(num) ? num.toFixed(2) : "0.00";
+}
+
+function safePercent(v) {
+    v = Number(v);
+    return Number.isFinite(v) ? Math.min(100, Math.max(0, v)) : 0;
+}
+
 function startBackgroundProcesses() {
     clearInterval(backgroundProcesses[0] ?? 0);
     clearInterval(backgroundProcesses[1] ?? 0);
@@ -172,6 +186,8 @@ function startBackgroundProcesses() {
  * !Inline-Kommentare beachten!
  */
 function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
+    points[canvasID] = {};
+
     let canvasWidth = canvas.clientWidth;
     let canvasHeight = canvas.clientHeight;
 
@@ -206,6 +222,11 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
         if (v < smallest) smallest = v;
     }
 
+    if (largest === smallest) {
+        largest += 1;
+        smallest -= 1;
+    }
+
     context.clearRect(0, 0, canvasWidth, canvasHeight);
     context.font = "13px Arial";
 
@@ -233,10 +254,24 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
         context.stroke();
     };
 
-    drawLine(GRAPH_TOP, (Math.round(largest * 100) / 100).toString());
-    drawLine(GRAPH_HEIGHT / 4 + GRAPH_TOP, (Math.round((smallest + ((largest - smallest) / 3) * 2) * 100) / 100).toString());
-    drawLine(GRAPH_HEIGHT / 2 + GRAPH_TOP, (Math.round((smallest + (largest - smallest) / 3) * 100) / 100).toString() + " " + measurement);
-    drawLine(GRAPH_HEIGHT / 4 * 3 + GRAPH_TOP, (Math.round(smallest * 100) / 100).toString());
+    const valueRange = largest - smallest || 1;
+
+    drawLine(GRAPH_TOP, format2(largest));
+
+    drawLine(
+        GRAPH_TOP + graphRange * (1/3),
+        format2(smallest + (valueRange * 2/3))
+    );
+
+    drawLine(
+        GRAPH_TOP + graphRange * (2/3),
+        format2(smallest + (valueRange * 1/3)) + " " + measurement
+    );
+
+    drawLine(
+        GRAPH_BOTTOM,
+        format2(smallest)
+    );
 
     const maxClocks = 7;
     const step = Math.max(1, Math.floor((arrayLen - 1) / (maxClocks - 1)));
@@ -271,16 +306,13 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
     let radius = getWidth() > 1000 ? 3 : 2;
     context.lineWidth = getWidth() > 1000 ? 2 : 1;
 
-    const scale = graphRange / largest;
+    const xStep = (GRAPH_RIGHT - GRAPH_LEFT) / (arrayLen - 1);
 
-    // ✅ SINGLE SOURCE OF TRUTH
     function getPoint(idx) {
-        let x = (GRAPH_RIGHT - GRAPH_LEFT) / arrayLen * idx + GRAPH_LEFT;
-        let y = (graphRange - dataArr[idx] * scale) + GRAPH_TOP;
+        let x = xStep * idx + GRAPH_LEFT;
 
-        // optional pixel alignment (uncomment if you want ultra crisp lines)
-        // x = Math.round(x) + 0.5;
-        // y = Math.round(y) + 0.5;
+        let normalized = (dataArr[idx] - smallest) / valueRange;
+        let y = GRAPH_BOTTOM - (normalized * graphRange);
 
         return { x, y };
     }
@@ -312,8 +344,6 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
 
     context.stroke();
 
-    if (typeof points[canvasID] === "undefined") points[canvasID] = {};
-
     // draw dots
     for (let i = 0; i < arrayLen; i += skip) {
         let end = Math.min(i + skip, arrayLen);
@@ -337,7 +367,8 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
             points[canvasID][idx] = {
                 coordinates: [p.x, p.y],
                 value: dataArr[idx],
-                measurement: measurement
+                measurement: measurement,
+                time: timeArr[idx]
             };
 
             context.arc(p.x, p.y, radius, 0, Math.PI * 2);
@@ -398,7 +429,7 @@ function getData() {
         const keys = Object.keys(data);
         const values = Object.values(data);
 
-        timeValues = [...new Set(timestampToTime(keys))];
+        timeValues = timestampToTime(keys);
 
         const MAX_NETWORK = 12000;
 
@@ -409,10 +440,11 @@ function getData() {
 
         for (let i = 0; i < values.length; i++) {
             let d = values[i];
-            down.push(d.network.down);
-            up.push(d.network.up);
-            cpu.push(d.cpu);
-            ram.push(d.ram);
+
+            down.push(Number(d.network.down));
+            up.push(Number(d.network.up));
+            cpu.push(safePercent(d.cpu));
+            ram.push(safePercent(d.ram));
         }
 
         downValues = sanitizeNetworkValues(down, MAX_NETWORK);
@@ -420,7 +452,7 @@ function getData() {
         cpuValues = cpu;
         ramValues = ram;
     }
-
+    
     if (lastTime !== newValue) redraw();
 }
 
@@ -452,7 +484,7 @@ function showTooltip(object, e) {
         let point = points[object.id][objectID]["coordinates"];
         let pointX = point[0], pointY = point[1];
 
-        if ((e.offsetY - 3 < pointY && e.offsetY + 3 > pointY) && (e.offsetX - 3 < pointX && e.offsetX + 3 > pointX)) {
+        if (Math.abs(e.offsetX - pointX) < HITBOX && Math.abs(e.offsetY - pointY) < HITBOX) {
             let content = document.getElementById("content");
             let contentRect = content.getBoundingClientRect();
 
@@ -460,7 +492,10 @@ function showTooltip(object, e) {
             tooltip.style.left = mouseX - contentRect.left + 10 + "px";
             tooltip.style.display = "initial";
 
-            tooltip.textContent = points[object.id][objectID]["value"] + " " + points[object.id][objectID]["measurement"];
+            const point = points[object.id][objectID];
+
+            tooltip.innerHTML =
+                format2(point.value) + " " + point.measurement + "<br/>" + point.time;
         }
     }
 }
