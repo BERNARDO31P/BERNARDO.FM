@@ -8,6 +8,8 @@ let points = {};
 let ctxDown, ctxUp, ctxCpu, ctxRam;
 let tooltip;
 
+let initialScrollDone = false;
+
 const HITBOX = 6;
 
 window["monitoring"] = () => {
@@ -16,16 +18,12 @@ window["monitoring"] = () => {
     canvasCpu = document.getElementById("cpu");
     canvasRam = document.getElementById("ram");
 
+    setLoading(true);
     getData();
     startBackgroundProcesses();
     initDropdown();
 
     tooltip = document.getElementById("tooltip");
-
-    canvasDown.parentNode.scrollLeft = canvasDown.scrollWidth;
-    canvasUp.parentNode.scrollLeft = canvasUp.scrollWidth;
-    canvasCpu.parentNode.scrollLeft = canvasCpu.scrollWidth;
-    canvasRam.parentNode.scrollLeft = canvasRam.scrollWidth;
 
     canvasDown.onmousemove
         = canvasUp.onmousemove
@@ -44,33 +42,18 @@ window["monitoring"] = () => {
         }, 0);
     };
 
-    canvasDown.parentNode.addEventListener(
-        "scroll",
-        () => tooltip.style.display = "none",
-        { passive: true }
-    );
-    canvasUp.parentNode.addEventListener(
-        "scroll",
-        () => tooltip.style.display = "none",
-        { passive: true }
-    );
-    canvasCpu.parentNode.addEventListener(
-        "scroll",
-        () => tooltip.style.display = "none",
-        { passive: true }
-    );
-    canvasRam.parentNode.addEventListener(
-        "scroll",
-        () => tooltip.style.display = "none",
-        { passive: true }
-    );
+    [canvasDown, canvasUp, canvasCpu, canvasRam].forEach(canvas => {
+        canvas.closest(".fullWidth").addEventListener(
+            "scroll",
+            () => tooltip.style.display = "none",
+            { passive: true }
+        );
+    });
 
     ctxDown = canvasDown.getContext("2d");
     ctxUp = canvasUp.getContext("2d");
     ctxCpu = canvasCpu.getContext("2d");
     ctxRam = canvasRam.getContext("2d");
-
-    redraw();
 };
 
 function initDropdown() {
@@ -100,6 +83,7 @@ function initDropdown() {
 
             dropdown.classList.remove("open");
 
+            setLoading(true);
             getData();
         });
     });
@@ -109,33 +93,6 @@ function initDropdown() {
             dropdown.classList.remove("open");
         }
     });
-}
-
-/*
- * Funktion: timestampToTime()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  timestamps: (Array) Die Timestamps welche umgewandelt werden sollen
- *
- * Konvertiert Timestamps zu einer leserlichen Zeit um
- */
-function timestampToTime(timestamps) {
-    let time = [];
-
-    for (let i = 0; i < timestamps.length; i++) {
-        let date = new Date(timestamps[i] * 1000);
-
-        let hours = ("0" + date.getHours()).slice(-2);
-        let minutes = ("0" + date.getMinutes()).slice(-2);
-
-        let day = ("0" + date.getDate()).slice(-2);
-        let month = ("0" + (date.getMonth() + 1)).slice(-2);
-        let year = date.getFullYear().toString().slice(-2);
-
-        time.push(hours + ":" + minutes + "\n" + day + "." + month + "." + year);
-    }
-
-    return time;
 }
 
 let redrawScheduled = false;
@@ -163,6 +120,24 @@ function format2(value) {
 function safePercent(v) {
     v = Number(v);
     return Number.isFinite(v) ? Math.min(100, Math.max(0, v)) : 0;
+}
+
+function setLoading(state) {
+    document.querySelectorAll(".graph-loader").forEach(loader => {
+        loader.classList.toggle("show", state);
+    });
+}
+
+function scrollToEnd() {
+    const downContainer = canvasDown.closest(".fullWidth");
+    const upContainer = canvasUp.closest(".fullWidth");
+    const cpuContainer = canvasCpu.closest(".fullWidth");
+    const ramContainer = canvasRam.closest(".fullWidth");
+
+    downContainer.scrollLeft = downContainer.scrollWidth;
+    upContainer.scrollLeft = upContainer.scrollWidth;
+    cpuContainer.scrollLeft = cpuContainer.scrollWidth;
+    ramContainer.scrollLeft = ramContainer.scrollWidth;
 }
 
 function startBackgroundProcesses() {
@@ -402,14 +377,12 @@ function sanitizeNetworkValues(values, maxValue) {
  *
  * Holt die Graph-Werte und speichert diese separat ab
  */
-function getData() {
+async function getData() {
     const dropdown = document.getElementById("time");
     const input = dropdown.querySelector("input");
     const newValue = parseInt(input.value) ?? 4;
 
-    if (isNaN(newValue)) {
-        return;
-    }
+    if (isNaN(newValue)) return;
 
     const lastTime = currentSelect;
     currentSelect = newValue;
@@ -418,42 +391,67 @@ function getData() {
         startBackgroundProcesses();
     }
 
-    const data = tryParseJSON(httpGet("/system/monitoring/" + currentSelect));
+    const response = await fetch("/system/monitoring/" + currentSelect);
+    const data = await response.json();
 
-    if (Array.isArray(data) && !data.length) {
-        return;
-    }
+    await processDataAsync(data);
 
-    if (typeof data === "object") {
+    requestAnimationFrame(() => {
+        redraw();
 
-        const keys = Object.keys(data);
-        const values = Object.values(data);
-
-        timeValues = timestampToTime(keys);
-
-        const MAX_NETWORK = 12000;
-
-        let down = [];
-        let up = [];
-        let cpu = [];
-        let ram = [];
-
-        for (let i = 0; i < values.length; i++) {
-            let d = values[i];
-
-            down.push(Number(d.network.down));
-            up.push(Number(d.network.up));
-            cpu.push(safePercent(d.cpu));
-            ram.push(safePercent(d.ram));
+        if (!initialScrollDone) {
+            requestAnimationFrame(scrollToEnd); // ensure layout is ready
+            initialScrollDone = true;
         }
 
-        downValues = sanitizeNetworkValues(down, MAX_NETWORK);
-        upValues = sanitizeNetworkValues(up, MAX_NETWORK);
-        cpuValues = cpu;
-        ramValues = ram;
+        setLoading(false); // hide spinner when done
+    });
+}
+
+async function processDataAsync(data) {
+    if (!data || typeof data !== "object") return;
+
+    const keys = Object.keys(data);
+    const values = Object.values(data);
+
+    const MAX_NETWORK = 12000;
+    const CHUNK_SIZE = 2000;
+
+    timeValues = [];
+    downValues = [];
+    upValues = [];
+    cpuValues = [];
+    ramValues = [];
+
+    for (let i = 0; i < values.length; i++) {
+        let d = values[i];
+
+        timeValues.push(formatTimestamp(keys[i]));
+        downValues.push(Number(d.network.down));
+        upValues.push(Number(d.network.up));
+        cpuValues.push(safePercent(d.cpu));
+        ramValues.push(safePercent(d.ram));
+
+        if (i > 0 && i % CHUNK_SIZE === 0) {
+            await new Promise((resolve) => setTimeout(resolve, 0));
+        }
     }
-    
-    if (lastTime !== newValue) redraw();
+
+    downValues = sanitizeNetworkValues(downValues, MAX_NETWORK);
+    upValues = sanitizeNetworkValues(upValues, MAX_NETWORK);
+}
+
+function formatTimestamp(timestamp) {
+    let date = new Date(timestamp * 1000);
+
+    let hours = ("0" + date.getHours()).slice(-2);
+    let minutes = ("0" + date.getMinutes()).slice(-2);
+
+    let day = ("0" + date.getDate()).slice(-2);
+    let month = ("0" + (date.getMonth() + 1)).slice(-2);
+    let year = date.getFullYear().toString().slice(-2);
+
+    return hours + ":" + minutes + "\n" + day + "." + month + "." + year;
 }
 
 /*
@@ -496,6 +494,8 @@ function showTooltip(object, e) {
 
             tooltip.innerHTML =
                 format2(point.value) + " " + point.measurement + "<br/>" + point.time;
+
+            return;
         }
     }
 }
