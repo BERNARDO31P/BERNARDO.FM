@@ -761,11 +761,6 @@ a.button {
     }
   }
 
-  .graph {
-    width: 100%;
-    height: 350px;
-  }
-
   .blockquote {
     position: relative;
     padding: 0 0 0 10px;
@@ -883,11 +878,6 @@ a.button {
     }
   }
 
-}
-
-.fullWidth {
-  width: 100%;
-  overflow-x: auto;
 }
 
 .controlsContent, .controlsQueue {
@@ -2237,69 +2227,64 @@ a.button {
   }
 }
 
-/* NEW wrapper (important) */
+
 .graph-container {
   position: relative;
   width: 100%;
+
+  .graph-loader {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+
+    &.show {
+      opacity: 1;
+    }
+  }
+
+  &:has(.graph-loader.show) {
+    canvas {
+      filter: blur(4px);
+    }
+  }
+
+  .lds-ring {
+    width: 40px;
+    height: 40px;
+
+    display: block;
+    padding: 0;
+    margin: 0;
+
+    position: relative;
+
+    div {
+      width: 100%;
+      height: 100%;
+
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+    }
+  }
 }
 
-/* keep horizontal scroll ONLY here */
 .fullWidth {
   width: 100%;
   overflow-x: auto;
 }
 
-/* canvas stays normal */
 .graph {
   width: 100%;
   height: 350px;
   display: block;
-}
-
-/* loader overlay (fixed relative to container, NOT scrolling) */
-.graph-loader {
-  position: absolute;
-  inset: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: rgba(0, 0, 0, 0.15);
-
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-}
-
-/* visible state */
-.graph-loader.show {
-  opacity: 1;
-}
-
-/* blur canvas when loading */
-.graph-container:has(.graph-loader.show) canvas {
-  filter: blur(4px);
-}
-
-.graph-container .lds-ring {
-  width: 40px;
-  height: 40px;
-
-  display: block;     /* kill inline-flex behavior */
-  padding: 0;         /* remove horizontal offset */
-  margin: 0;          /* remove left/right drift */
-
-  position: relative; /* keep internal absolute children working */
-}
-
-.graph-container .lds-ring div {
-  width: 100%;
-  height: 100%;
-
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  margin: auto;
 }
