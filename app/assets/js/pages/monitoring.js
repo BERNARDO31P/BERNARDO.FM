@@ -19,7 +19,7 @@ window["monitoring"] = () => {
     canvasRam = document.getElementById("ram");
 
     setLoading(true);
-    getData();
+    getData().then(scrollToEnd);
     startBackgroundProcesses();
     initDropdown();
 
