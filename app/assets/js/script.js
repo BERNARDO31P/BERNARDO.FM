@@ -249,7 +249,11 @@ bindEvent("click", "[data-title]", function (e) {
  *
  * Ändert die Unterseite zu "music" und speichert sich die vorherige Seite
  */
-bindEvent("input", "#search input", function () {
+bindEvent("input", "#search input", function (e) {
+    if (e.cancelable) {
+        return;
+    }
+
     clearTimeout(searchTimeout);
     let value = this.value;
     let times = this.closest("#search").querySelector(".fa-times");
