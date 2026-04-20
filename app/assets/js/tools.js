@@ -1056,6 +1056,8 @@ function showSearch(focus = true) {
 
     if (focus) {
         input.focus();
+
+        setTimeout(() => input.focus());
     }
 }
 
