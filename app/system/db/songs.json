@@ -6538,5 +6538,134 @@
     "fileName": "Zeds Dead & Memorecks - Collapse.wav",
     "category": "Dubstep",
     "info": ""
+  },
+  {
+    "id": "QSm1PJ8u0Jk2qdFW06G",
+    "cover": "Imaginarium - Eternal Now - Album Cover.jpg",
+    "name": "Satori",
+    "artist": "Imaginarium",
+    "length": "7:34",
+    "fileName": "Imaginarium - Satori.wav",
+    "category": "Psytrance",
+    "info": "1F4whD4WXIIy88gCa1n"
+  },
+  {
+    "id": "FH8MuzCldRKVmLAAW4X",
+    "cover": "Imaginarium - Eternal Now - Album Cover.jpg",
+    "name": "Spice Of Life",
+    "artist": "Imaginarium",
+    "length": "7:23",
+    "fileName": "Imaginarium - Spice Of Life.wav",
+    "category": "Psytrance",
+    "info": "1F4whD4WXIIy88gCa1n"
+  },
+  {
+    "id": "vBaoVHRZ3DrczYzKo2B",
+    "cover": "Imaginarium - Eternal Now - Album Cover.jpg",
+    "name": "Candyflip",
+    "artist": "Imaginarium & Mindplex",
+    "length": "7:56",
+    "fileName": "Imaginarium & Mindplex - Candyflip.wav",
+    "category": "Psytrance",
+    "info": [
+      "1F4whD4WXIIy88gCa1n",
+      "bAs9sioELESVBII0Sq4"
+    ]
+  },
+  {
+    "id": "uvDHtfXbGToCgMSeUbT",
+    "cover": "Imaginarium - Eternal Now - Album Cover.jpg",
+    "name": "Waking Dream",
+    "artist": "Imaginarium",
+    "length": "6:55",
+    "fileName": "Imaginarium - Waking Dream.wav",
+    "category": "Psytrance",
+    "info": "1F4whD4WXIIy88gCa1n"
+  },
+  {
+    "id": "boyehkJjx9aOd86HhjS",
+    "cover": "Imaginarium - Eternal Now - Album Cover.jpg",
+    "name": "Synthetic",
+    "artist": "Imaginarium",
+    "length": "7:04",
+    "fileName": "Imaginarium - Synthetic.wav",
+    "category": "Psytrance",
+    "info": "1F4whD4WXIIy88gCa1n"
+  },
+  {
+    "id": "iG3ogoI4hcby8iRavA7",
+    "cover": "Imaginarium - Eternal Now - Album Cover.jpg",
+    "name": "Boogie Man",
+    "artist": "Imaginarium & Burn In Noise",
+    "length": "6:37",
+    "fileName": "Imaginarium & Burn In Noise - Boogie Man.wav",
+    "category": "Psytrance",
+    "info": [
+      "1F4whD4WXIIy88gCa1n",
+      "Bj0tK88PaKdXFh14cKn"
+    ]
+  },
+  {
+    "id": "48Fxr2drqcR35X6miBa",
+    "cover": "Imaginarium - Eternal Now - Album Cover.jpg",
+    "name": "Khaya",
+    "artist": "Imaginarium",
+    "length": "7:14",
+    "fileName": "Imaginarium - Khaya.wav",
+    "category": "Psytrance",
+    "info": "1F4whD4WXIIy88gCa1n"
+  },
+  {
+    "id": "w6L02Q6dYrzYMtwtoYP",
+    "cover": "Imaginarium - Eternal Now - Album Cover.jpg",
+    "name": "Space Nutella",
+    "artist": "Imaginarium & Djantrix",
+    "length": "6:55",
+    "fileName": "Imaginarium & Djantrix - Space Nutella.wav",
+    "category": "Psytrance",
+    "info": [
+      "1F4whD4WXIIy88gCa1n",
+      "KqKCsW9xywqIYqqQMSf"
+    ]
+  },
+  {
+    "id": "8SVSFKYuuP49ybMcNVz",
+    "cover": "Imaginarium - Eternal Now - Album Cover.jpg",
+    "name": "Silicon Intelligence",
+    "artist": "Imaginarium",
+    "length": "7:07",
+    "fileName": "Imaginarium - Silicon Intelligence.wav",
+    "category": "Psytrance",
+    "info": "1F4whD4WXIIy88gCa1n"
+  },
+  {
+    "id": "6ayO7NxyNjeNBjrJx04",
+    "cover": "Imaginarium - Eternal Now - Album Cover.jpg",
+    "name": "Imaginarium - Eternal Now",
+    "category": "Albums",
+    "playlist": [
+      "QSm1PJ8u0Jk2qdFW06G",
+      "FH8MuzCldRKVmLAAW4X",
+      "vBaoVHRZ3DrczYzKo2B",
+      "uvDHtfXbGToCgMSeUbT",
+      "boyehkJjx9aOd86HhjS",
+      "iG3ogoI4hcby8iRavA7",
+      "48Fxr2drqcR35X6miBa",
+      "w6L02Q6dYrzYMtwtoYP",
+      "8SVSFKYuuP49ybMcNVz"
+    ]
+  },
+  {
+    "id": "QZI0U1rhQNY2UJFFQgj",
+    "cover": "Ajja & Simiantics - Errodite.jpg",
+    "name": "Errodite",
+    "artist": "Ajja & Simiantics",
+    "length": "9:15",
+    "fileName": "Ajja & Simiantics - Errodite.wav",
+    "category": "Psytrance",
+    "info": [
+      "gXXgbAQBofIl0mh22iA",
+      "mVgOXROBJ44bnpkixlg"
+    ]
   }
 ]
