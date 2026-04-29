@@ -1981,9 +1981,11 @@ async function generateTableBody(data, columns, tbody = null, cover = null, call
     for (const [index, row] of rows.entries()) {
 
         const tr = document.createElement('tr');
-        if (tr && row) {
-            tr.dataset.key = row.id || index;
+        if (tr && row.id) {
+            tr.dataset.id = row.id;
         }
+
+        tr.dataset.key = index;
 
         if (!row['playlist']) {
             if (cover) {

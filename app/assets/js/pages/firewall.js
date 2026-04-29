@@ -148,6 +148,8 @@ async function generateFirewall(objects) {
  * Fügt noch zusätzlich den IPTables Kommentar hinzu
  *
  * Gibt diesen zurück
+ *
+ * TODO: Improve dynamic comment generation further
  */
 function generateCommentRow(row, comment, columnCount) {
     const tableRow = document.createElement("tr");
