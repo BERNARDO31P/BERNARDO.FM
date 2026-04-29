@@ -627,6 +627,7 @@ window["music"] = async () => {    /*
 
                 if (songs.length === count) div.setAttribute("data-load", String(1));
 
+                let fetching = false;
                 /*
                  * Funktion: handler()
                  * Author: Bernardo de Oliveira
@@ -637,6 +638,10 @@ window["music"] = async () => {    /*
                  * Wenn kein Touchgerät, dann werden die Knöpfe je nach Scroll-Position angepasst
                  */
                 div.addEventListener("scroll", async function handler(e) {
+                    if (fetching) {
+                        return;
+                    }
+
                     const element = e.target;
                     const rects = element.getBoundingClientRect();
 
@@ -644,6 +649,8 @@ window["music"] = async () => {    /*
                     const currentPage = Number(element.dataset.page);
 
                     if (scrollRight < 400) {
+                        fetching = true;
+
                         const search = document.querySelector("#search input");
                         const catPage = currentPage + 1;
                         const catCategory = prev(element.parentElement).textContent;
@@ -669,6 +676,8 @@ window["music"] = async () => {    /*
                         } else {
                             element.removeEventListener("scroll", handler);
                         }
+
+                        fetching = false;
                     }
                 });
 
