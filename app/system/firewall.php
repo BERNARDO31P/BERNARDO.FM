@@ -197,9 +197,28 @@ function structureArray($array): array
                 }
 
                 $extraKeys = array();
+                // --- FIX: also detect comment inside main rule columns ---
+                foreach ($rule as $col) {
+                    if (strpos($col, '/*') !== false && strpos($col, '*/') !== false) {
+                        if (preg_match('/\/\*\s*(.*?)\s*\*\//', $col, $matches)) {
+                            $extraKeys[] = "comment";
+                            $rule[] = $matches[1];
+                        }
+                        break;
+                    }
+                }
+
                 if (count($removed)) {
                     // TODO: Generate firewall explanations
-                    /*foreach ($removed as $column) {
+
+                    $commentBuffer = null;
+                    foreach ($removed as $column) {
+
+                        if (preg_match('/rpfilter/i', $column)) {
+                            $extraKeys[] = "rpfilter";
+                            $rule[] = trim($column);
+                        }
+
                         if (preg_match('/dpt:(.*?)($|\s)/', $column, $matches)) {
                             $extraKeys[] = "dport";
                             $rule[] = $matches[1];
@@ -215,28 +234,45 @@ function structureArray($array): array
                             $rule[] = $matches[1];
                         }
 
-                        $matches = array();
                         if (preg_match('/tcpmss match (.*?)($|\s)/', $column, $matches)) {
                             $extraKeys[] = "tcp mss";
                             $rule[] = $matches[1];
                         }
 
-                        if (preg_match('(NEW|RELATED|ESTABLISHED)', $column, $matches)) {
+                        if (preg_match('/(NEW|RELATED|ESTABLISHED)/', $column, $matches)) {
                             $extraKeys[] = "state";
                             $rule[] = $column;
                         }
 
-                        if (preg_match('/\/\* (.*?) \*\//', $column, $matches)) {
-                            $extraKeys[] = "comment";
-                            $rule[] = $matches[1];
+                        if ($commentBuffer !== null) {
+                            $commentBuffer .= " " . $column;
+
+                            if (strpos($column, "*/") !== false) {
+                                if (preg_match('/\/\*\s*(.*?)\s*\*\//', $commentBuffer, $matches)) {
+                                    $extraKeys[] = "comment";
+                                    $rule[] = $matches[1];
+                                }
+
+                                $commentBuffer = null;
+                            }
+
+                            continue;
                         }
-                    }*/
 
-                    $extra = end($removed);
+                        if (strpos($column, "/*") !== false) {
+                            $commentBuffer = $column;
 
-                    if (!preg_match('/\/\* (.*?) \*\//', $extra)) {
-                        $extraKeys[] = "rule";
-                        $rule[] = $extra;
+                            if (strpos($column, "*/") !== false) {
+                                if (preg_match('/\/\*\s*(.*?)\s*\*\//', $commentBuffer, $matches)) {
+                                    $extraKeys[] = "comment";
+                                    $rule[] = $matches[1];
+                                }
+
+                                $commentBuffer = null;
+                            }
+
+                            continue;
+                        }
                     }
                 }
 

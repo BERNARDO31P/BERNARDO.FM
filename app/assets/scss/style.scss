@@ -54,6 +54,10 @@ input:not([type="range"]) {
   }
 }
 
+tr {
+  cursor: pointer;
+}
+
 input[type="range"] {
   &::-webkit-slider-runnable-track {
     background: var(--range-background);
@@ -423,6 +427,23 @@ a.button {
     }
   }
 
+  .comment > td {
+    height: auto !important;
+    line-height: unset;
+
+    & > div {
+      transition: all 1s ease-in-out;
+
+      max-height: 0;
+      opacity: 0;
+    }
+  }
+
+  .comment.show > td > div {
+    max-height: 500px;
+    opacity: 1;
+  }
+
   .responsive-container {
     overflow-x: auto;
     overflow-y: hidden;
@@ -432,23 +453,6 @@ a.button {
 
     .responsive-table {
       margin: 0;
-    }
-
-    .comment > td {
-      height: auto !important;
-      line-height: unset;
-
-      & > div {
-        transition: all 1s ease-in-out;
-
-        max-height: 0;
-        opacity: 0;
-      }
-    }
-
-    .comment.show > td > div {
-      max-height: 500px;
-      opacity: 1;
     }
   }
 

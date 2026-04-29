@@ -1969,7 +1969,7 @@ function createCell(content) {
  * Erstellt einen Table Body, wenn keiner mitgesendet wird
  * Generiert die Tabellenzeilen aus den Daten
  */
-async function generateTableBody(data, columns, tbody = null, cover = null) {
+async function generateTableBody(data, columns, tbody = null, cover = null, callback = null) {
     if (!tbody) {
         tbody = document.createElement('tbody');
     }
@@ -1978,10 +1978,11 @@ async function generateTableBody(data, columns, tbody = null, cover = null) {
     const lowerColumns = columns.map(column => column.toLowerCase());
     const rows = Object.values(data);
 
-    for (const row of rows) {
+    for (const [index, row] of rows.entries()) {
+
         const tr = document.createElement('tr');
-        if (row.id) {
-            tr.dataset.id = row.id;
+        if (tr && row) {
+            tr.dataset.key = row.id || index;
         }
 
         if (!row['playlist']) {
@@ -2031,6 +2032,10 @@ async function generateTableBody(data, columns, tbody = null, cover = null) {
         }
 
         fragment.appendChild(tr);
+
+        if (typeof callback === "function") {
+            callback(row, fragment, tr, index);
+        }
     }
 
     tbody.appendChild(fragment);
