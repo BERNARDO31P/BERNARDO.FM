@@ -1,10 +1,10 @@
 if (typeof window["home"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
-window["home"] = () => {
+window["home"] = async () => {
     let objects = document.querySelectorAll("[data-url]");
 
     for (let object of objects) {
-        let data = tryParseJSON(httpGet(object.getAttribute("data-url")));
+        let data = await httpGetJSON(object.getAttribute("data-url"));
 
         if (data) {
             data = Array.prototype.concat(data["greeting"], data["changelog"]);

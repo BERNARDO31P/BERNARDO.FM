@@ -262,6 +262,11 @@ function httpGet(url) {
     }
 }
 
+async function httpGetJSON(url) {
+    const res = await fetch(url, { cache: "no-store" });
+    return res.ok ? res.json() : null;
+}
+
 /*
  * Funktion: updateSearch()
  * Autor: Bernardo de Oliveira
@@ -1089,7 +1094,7 @@ function getLengthByString(stringTime) {
 }
 
 // TODO: Comment
-function updateSongData() {
+async function updateSongData() {
     let song = playlist[playIndex];
     let length = getLengthByString(song["length"]);
 
@@ -1112,7 +1117,7 @@ function updateSongData() {
     playerHTML.querySelector("#artist").innerHTML = "<div class='truncate'>" + "<div class='content' data-title='" + song["artist"] + "'>" + song["artist"] + "</div>" + "<div class='spacer'>" + song["artist"] + "</div>" + "<span>&nbsp;</span>" + "</div>";
     playerHTML.style.display = "initial";
 
-    let data = tryParseJSON(httpGet(pageURL + "system/info/" + song["id"]));
+    let data = await httpGetJSON(pageURL + "system/info/" + song["id"]);
     let infoBox = queueView.querySelector("#info");
 
     if (Object.keys(data).length) {
@@ -1610,6 +1615,10 @@ function prepareNextPart() {
     clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
+    if (typeof playlist[playIndex]["player"] === "undefined") {
+        return;
+    }
+
     const player = playlist[playIndex]["player"];
     const currentPart = player.getCurrentPart();
 
@@ -1739,6 +1748,10 @@ function addEvents(player) {
     });
 
     player.addEventListener("processing", () => {
+        if (typeof playlist[playIndex] === "undefined" || typeof playlist[playIndex]["player"] === "undefined") {
+            return;
+        }
+
         if (!player.isPlaying() && playlist[playIndex]["player"] === player) {
             playPauseButton("load");
         }

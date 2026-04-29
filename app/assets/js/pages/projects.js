@@ -4,13 +4,13 @@
  *
  * Lädt die Projekte von Github und rendert alle notwendigen Dinge
  */
-window["projects"] = () => {
+window["projects"] = async () => {
     let object = document.querySelector("[data-url]");
 
     let cards = document.createElement("div");
     cards.classList.add("cards");
 
-    let data = tryParseJSON(httpGet(object.dataset.url));
+    let data = await httpGetJSON(object.dataset.url);
     if (data && data.length > 0) {
         for (let entry of data) {
             let card = document.createElement("div");

@@ -391,8 +391,7 @@ async function getData() {
         startBackgroundProcesses();
     }
 
-    const response = await fetch("/system/monitoring/" + currentSelect);
-    const data = await response.json();
+    const data = await httpGetJSON("/system/monitoring/" + currentSelect);
 
     await processDataAsync(data);
 

@@ -139,14 +139,14 @@ document.addEventListener("click", hideContext);
 
 
 // TODO: Comment
-function playAction(card) {
+async function playAction(card) {
     if (!card.dataset.id) {
         return;
     }
 
     clearSongs();
 
-    addSongToPlaylist(card);
+    await addSongToPlaylist(card);
     playPauseButton("load");
 
     downloadPart(0, playIndex, 0);
@@ -227,7 +227,7 @@ function hideContext() {
     contextMenu.innerHTML = "";
 }
 
-function showContext(e, card, items) {
+async function showContext(e, card, items) {
     hideContext();
 
     const contextMenu = document.getElementById("contextMenu");
@@ -246,7 +246,7 @@ function showContext(e, card, items) {
         }
     }
 
-    const data = tryParseJSON(httpGet(pageURL + "system/song/" + card.dataset.id + "/single"));
+    const data = await httpGetJSON(pageURL + "system/song/" + card.dataset.id + "/single");
     const marquee = document.createElement("div");
     marquee.classList.add("marquee");
 
@@ -584,7 +584,7 @@ window["music"] = async () => {    /*
         count = Math.round(getWidth() / 160) + 2;
 
         if (search.value !== "") {
-            data = tryParseJSON(httpGet(object.dataset.url + "/" + search.value + "/" + count));
+            data = await httpGetJSON(object.dataset.url + "/" + search.value + "/" + count);
 
             let div = document.createElement("div");
             div.classList.add("searchterm");
@@ -596,7 +596,7 @@ window["music"] = async () => {    /*
 
             object.parentNode.insertBefore(div, object);
         } else {
-            data = tryParseJSON(httpGet(object.dataset.url + "/" + count));
+            data = await httpGetJSON(object.dataset.url + "/" + count);
         }
 
 
@@ -650,9 +650,9 @@ window["music"] = async () => {    /*
 
                         let data;
                         if (search.value !== "") {
-                            data = tryParseJSON(httpGet(element.dataset.url + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count));
+                            data = await httpGetJSON(element.dataset.url + "/" + search.value + "/" + catCategory + "/" + catPage + "/" + count);
                         } else {
-                            data = tryParseJSON(httpGet(element.dataset.url + "/" + catCategory + "/" + catPage + "/" + count));
+                            data = await httpGetJSON(element.dataset.url + "/" + catCategory + "/" + catPage + "/" + count);
                         }
 
                         let cover = "", coverCols = COLS;
@@ -768,7 +768,7 @@ window["music"] = async () => {    /*
  * Liest die ID vom Lied aus den Objekt-Eigenschaften aus
  * Lädt die Informationen vom Lied herunter und fügt diese zur Wiedergabenliste hinzu
  */
-function addSongToPlaylist(element, id = 0, next = false, single = false) {
+async function addSongToPlaylist(element, id = 0, next = false, single = false) {
     let songID = id;
     if (element) songID = element.dataset.id;
 
@@ -778,7 +778,7 @@ function addSongToPlaylist(element, id = 0, next = false, single = false) {
         url = url + "/single";
     }
 
-    let data = tryParseJSON(httpGet(url));
+    let data = await httpGetJSON(url);
     if (!Object.values(data).length) return;
 
     if (typeof data[0] === "undefined") data = [data]; else deleteMultiple(data, ["cover", "name", "count"]);

@@ -73,7 +73,7 @@ function getColumnsForRules(rules) {
  */
 async function generateFirewall(objects) {
     for (let object of objects) {
-        const data = tryParseJSON(httpGet(object.getAttribute("data-url")));
+        const data = await httpGetJSON(object.getAttribute("data-url"));
 
         if (!data) {
             continue;
