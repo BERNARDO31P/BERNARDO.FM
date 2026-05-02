@@ -12,7 +12,54 @@
  */
 function special_split($string, $columns): array
 {
-    $column = (strpos(strtolower($string), 'pkts') !== false || strpos(strtolower($string), 'chain') !== false);
+    /*
+     * Special handling for iptables -L -n -v rows.
+     *
+     * Important cases:
+     *
+     * Normal rule:
+     * 0 0 DROP 0 -- * * 2.56.60.0/23 0.0.0.0/0
+     *
+     * Comment-only rule with empty target:
+     * 85183 276M            0 -- * * 0.0.0.0/0 0.0.0.0/0 /* comment *\/
+     *
+     * In the second case, target is intentionally empty.
+     */
+    $normalizedColumns = preg_replace("/\s+/", " ", trim($columns));
+
+    if ($normalizedColumns === "pkts bytes target prot opt in out source destination") {
+        $targetStart = strpos($columns, "target");
+        $protStart   = strpos($columns, "prot");
+
+        if ($targetStart !== false && $protStart !== false && $protStart > $targetStart) {
+            $targetArea    = substr($string, $targetStart, $protStart - $targetStart);
+            $targetIsEmpty = trim($targetArea) === "";
+
+            /*
+             * Without target:
+             * pkts bytes prot opt in out source destination [extra]
+             *
+             * With target:
+             * pkts bytes target prot opt in out source destination [extra]
+             *
+             * The limit keeps comments / extra data together as one field.
+             */
+            $parts = preg_split("/\s+/", trim($string), $targetIsEmpty ? 9 : 10);
+
+            if (is_array($parts)) {
+                if ($targetIsEmpty && count($parts) >= 8) {
+                    array_splice($parts, 2, 0, "");
+                    return $parts;
+                }
+
+                if (!$targetIsEmpty && count($parts) >= 9) {
+                    return $parts;
+                }
+            }
+        }
+    }
+
+    $column = (strpos(strtolower($string), "pkts") !== false || strpos(strtolower($string), "chain") !== false);
     $level = false;
     $ret = array("");
     $cur = 0;
@@ -28,20 +75,23 @@ function special_split($string, $columns): array
 
                 $ret[$cur] .= "/";
                 break;
-            case '(':
+
+            case "(":
                 $level = true;
-                $ret[$cur] .= '(';
+                $ret[$cur] .= "(";
                 break;
-            case ')':
+
+            case ")":
                 $level = false;
-                $ret[$cur] .= ')';
+                $ret[$cur] .= ")";
                 break;
-            case ' ':
+
+            case " ":
                 if (!$level) {
                     if (!$column) {
                         if (strlen($columns) < $i) {
                             $extra = true;
-                            $ret[$cur] .= ' ';
+                            $ret[$cur] .= " ";
                             break;
                         }
 
@@ -62,6 +112,7 @@ function special_split($string, $columns): array
 
                             if (isset($columns[$i + 1]) && $columns[$i + 1] !== " " && !$whitespace) {
                                 $hasValue = false;
+
                                 for ($j = $i + 1; $j < 999; $j++) {
                                     if (isset($columns[$j]) && $columns[$j] === " ") break;
 
@@ -88,8 +139,10 @@ function special_split($string, $columns): array
                         }
                     }
                 }
-            case '\t':
+
+            case "\t":
                 if (!$level) break;
+
             default:
                 $found = false;
                 $whitespace = false;
