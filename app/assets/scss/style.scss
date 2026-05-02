@@ -1535,6 +1535,37 @@ a.button {
     margin-bottom: 0;
   }
 
+  .firewall-chain-toggle {
+    transition: 0.2s;
+
+    margin: -25px 0 8px 0;
+    padding: 6px 12px;
+
+    height: auto;
+    min-height: 30px;
+    min-width: 90px;
+
+    float: right;
+
+    cursor: pointer;
+    user-select: none;
+
+    color: #8eb6ff;
+
+    font-family: "Roboto Regular", sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+
+    background-color: transparent;
+
+    border: none;
+    border-radius: 5px;
+
+    &:hover {
+      color: #4f8eff;
+    }
+  }
+
   thead th {
     border-bottom: 1px solid var(--border-color);
   }
@@ -2070,6 +2101,13 @@ a.button {
       margin: 0;
     }
   }
+
+  .firewall {
+    .firewall-chain-toggle {
+      float: initial;
+      margin-top: 8px;
+    }
+  }
 }
 
 @media screen and (max-width: 420px) {
@@ -2178,6 +2216,7 @@ a.button {
 
   &.open {
     .dropdown-selected {
+      background-color: var(--active-background);
       box-shadow: inset 1px 1px 2px var(--shadow-dark),
       inset -1px -1px 2px var(--shadow-light);
 
@@ -2213,7 +2252,7 @@ a.button {
     transform: translateY(-5px);
 
     transition: 0.2s ease;
-    z-index: 10;
+    z-index: 1;
 
     div {
       padding: 12px 16px;

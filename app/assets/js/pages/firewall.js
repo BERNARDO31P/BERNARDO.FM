@@ -1,6 +1,9 @@
 if (typeof window["firewall"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
 
+const FIREWALL_ROWS_PER_CHAIN = 20;
+
 let openRowKey = null;
+let expandedFirewallChains = {};
 
 window["firewall"] = async () => {
     let objects = document.querySelectorAll("[data-url]");
@@ -11,6 +14,21 @@ window["firewall"] = async () => {
     }, 2000);
 
 }
+
+bindEvent("click", ".firewall-chain-toggle", async function (event) {
+    event.preventDefault();
+
+    const tableName = this.dataset.tableName || "";
+    const chain = this.dataset.chain || "";
+
+    setFirewallChainExpanded(tableName, chain, !isFirewallChainExpanded(tableName, chain));
+
+    const object = this.closest("[data-url]");
+
+    if (object) {
+        await generateFirewall([object]);
+    }
+});
 
 /*
  * Funktion: Anonym
@@ -93,10 +111,19 @@ async function generateFirewall(objects) {
 
             for (const [chain, rules] of Object.entries(Object(chains))) {
                 const columns = getColumnsForRules(rules);
+                const totalRows = getFirewallRuleCount(rules);
+                const expanded = isFirewallChainExpanded(tableName, chain);
+                const visibleRules = expanded ? rules : limitFirewallRules(rules, FIREWALL_ROWS_PER_CHAIN);
 
                 const title = document.createElement("h3");
                 title.innerText = chain;
                 firewall.appendChild(title);
+
+                const toggle = generateFirewallChainToggle(tableName, chain, totalRows, expanded);
+
+                if (toggle) {
+                    firewall.appendChild(toggle);
+                }
 
                 const table = document.createElement("table");
                 table.classList.add("responsive-table");
@@ -113,13 +140,12 @@ async function generateFirewall(objects) {
                 thead.appendChild(tr);
 
                 table.appendChild(thead);
-                table.appendChild(await generateTableBody(rules, columns, null, null, (row, fragment, tr, index) => {
+                table.appendChild(await generateTableBody(visibleRules, columns, null, null, (row, fragment, tr, index) => {
                     const key = `${tableName}|${chain}|${index}`;
                     tr.dataset.key = key;
 
                     const commentRow = generateCommentRow(row, row.comment || "", columns.length);
 
-                    // restore open state
                     if (openRowKey && openRowKey === key) {
                         commentRow.classList.add("show");
                     }
@@ -440,4 +466,55 @@ function cleanFirewallValue(value) {
     }
 
     return String(value).replace(/\s+/g, " ").trim();
+}
+
+function getFirewallChainKey(tableName, chain) {
+    return tableName + "|" + chain;
+}
+
+function isFirewallChainExpanded(tableName, chain) {
+    return expandedFirewallChains[getFirewallChainKey(tableName, chain)] === true;
+}
+
+function setFirewallChainExpanded(tableName, chain, expanded) {
+    const key = getFirewallChainKey(tableName, chain);
+
+    if (expanded) {
+        expandedFirewallChains[key] = true;
+    } else {
+        delete expandedFirewallChains[key];
+    }
+}
+
+function limitFirewallRules(rules, limit) {
+    if (Array.isArray(rules)) {
+        return rules.slice(0, limit);
+    }
+
+    return Object.fromEntries(Object.entries(Object(rules)).slice(0, limit));
+}
+
+function getFirewallRuleCount(rules) {
+    return Object.keys(Object(rules)).length;
+}
+
+function generateFirewallChainToggle(tableName, chain, totalRows, expanded) {
+    if (totalRows <= FIREWALL_ROWS_PER_CHAIN) {
+        return null;
+    }
+
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.classList.add("firewall-chain-toggle");
+    button.dataset.tableName = tableName;
+    button.dataset.chain = chain;
+
+    if (expanded) {
+        button.innerText = "Show less";
+    } else {
+        button.innerText = "Show all rows (" + totalRows + ")";
+    }
+
+    return button;
 }
