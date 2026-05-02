@@ -12,10 +12,10 @@ do
  cat /sys/class/net/${int}/statistics/rx_bytes > ${folder}data/rx_bytes
  cat /sys/class/net/${int}/statistics/tx_bytes > ${folder}data/tx_bytes
 
- (iptables -t raw -L -v | sed '/^[[:space:]]*$/d') > ${folder}data/raw
- (iptables -t mangle -L -v | sed '/^[[:space:]]*$/d') > ${folder}data/mangle
- (iptables -t nat -L -v | sed '/^[[:space:]]*$/d') > ${folder}data/nat
- (iptables -t filter -L -v | sed '/^[[:space:]]*$/d') > ${folder}data/filter
+ (iptables -t raw -L -n -v | sed '/^[[:space:]]*$/d') > ${folder}data/raw
+ (iptables -t mangle -L -n -v | sed '/^[[:space:]]*$/d') > ${folder}data/mangle
+ (iptables -t nat -L -n -v | sed '/^[[:space:]]*$/d') > ${folder}data/nat
+ (iptables -t filter -L -n -v | sed '/^[[:space:]]*$/d') > ${folder}data/filter
 
  sleep 0.5
 done
