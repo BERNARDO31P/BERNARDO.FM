@@ -1,4 +1,6 @@
-if (typeof window["firewall"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
+if (typeof window["firewall"] !== 'undefined') {
+    throw new Error("Dieses Skript wurde bereits geladen.");
+}
 
 const FIREWALL_ROWS_PER_CHAIN = 20;
 
@@ -51,7 +53,9 @@ bindEvent("click", ".firewall-chain-toggle", async function (event) {
 bindEvent("click", ".firewall tr:not(.comment)", function () {
     const nextRow = this.nextElementSibling;
 
-    if (!nextRow || !nextRow.classList.contains("comment")) return;
+    if (!nextRow || !nextRow.classList.contains("comment")) {
+        return;
+    }
 
     const isOpen = nextRow.classList.contains("show");
 
@@ -96,8 +100,7 @@ function getColumnsForRules(rules) {
  * Autor: Bernardo de Oliveira
  *
  * Holt sich die Firewall Daten und verarbeitet diese
- * Generiert die Titel der Firewall Tabellen und Chains
- * Scrollt an die gleiche Position in der Tabelle wie vor dem Aktualisieren der Daten
+ * Generiert oder aktualisiert die Titel der Firewall Tabellen und Chains sowie Reihen
  * Öffnet die vorher geöffneten Kommentare
  */
 async function generateFirewall(objects) {
@@ -126,9 +129,12 @@ async function generateFirewall(objects) {
         });
 
         const usedContainers = new Set();
+        const usedTables = new Set();
 
         let chainCounter = 0;
         for (const [tableName, chains] of Object.entries(data)) {
+            usedTables.add(tableName);
+
             let tableHeading = firewall.querySelector(`h2[data-table-name="${tableName}"]`);
 
             if (!tableHeading) {
@@ -139,6 +145,7 @@ async function generateFirewall(objects) {
                 firewall.appendChild(tableHeading);
             }
 
+            let insertAfter = tableHeading;
             for (const [chain, rules] of Object.entries(Object(chains))) {
                 chainCounter++;
 
@@ -148,10 +155,7 @@ async function generateFirewall(objects) {
 
                 const columns = getColumnsForRules(rules);
                 const totalRows = getFirewallRuleCount(rules);
-                const expanded = isFirewallChainExpanded(
-                    tableName,
-                    chain
-                );
+                const expanded = isFirewallChainExpanded(tableName, chain);
 
                 const visibleRules = expanded ? rules : limitFirewallRules(rules, FIREWALL_ROWS_PER_CHAIN);
 
@@ -163,12 +167,16 @@ async function generateFirewall(objects) {
                     title.dataset.chain = chain;
                     title.innerText = chain;
 
-                    firewall.appendChild(title);
+                    insertAfter.after(title);
+
+                    insertAfter = title;
 
                     const toggle = generateFirewallChainToggle(tableName, chain, totalRows, expanded);
 
                     if (toggle) {
-                        firewall.appendChild(toggle);
+                        insertAfter.after(toggle);
+
+                        insertAfter = toggle;
                     }
 
                     container = document.createElement("div");
@@ -178,9 +186,18 @@ async function generateFirewall(objects) {
                     container.dataset.tableName = tableName;
                     container.dataset.chain = chain;
 
-                    firewall.appendChild(container);
+                    insertAfter.after(container);
+
+                    insertAfter = container;
                 } else {
+                    const existingTitle = firewall.querySelector(`h3[data-table-name="${tableName}"][data-chain="${chain}"]`);
+
+                    if (existingTitle) {
+                        insertAfter = existingTitle;
+                    }
+
                     const existingToggle = firewall.querySelector(`.firewall-chain-toggle[data-table-name="${tableName}"][data-chain="${chain}"]`);
+
                     const newToggle = generateFirewallChainToggle(tableName, chain, totalRows, expanded);
 
                     if (existingToggle) {
@@ -188,8 +205,12 @@ async function generateFirewall(objects) {
                     }
 
                     if (newToggle) {
-                        container.before(newToggle);
+                        insertAfter.after(newToggle);
+
+                        insertAfter = newToggle;
                     }
+
+                    insertAfter = container;
                 }
 
                 let table = container.querySelector("table");
@@ -199,10 +220,6 @@ async function generateFirewall(objects) {
 
                     container.appendChild(table);
                 }
-
-                /*
-                 * THEAD
-                 */
 
                 const thead = document.createElement("thead");
                 const headerRow = document.createElement("tr");
@@ -223,10 +240,6 @@ async function generateFirewall(objects) {
                 } else {
                     table.appendChild(thead);
                 }
-
-                /*
-                 * TBODY
-                 */
 
                 const tbody = await generateTableBody(visibleRules, columns, null, null, (row, fragment, tr, index) => {
                     const key = `${tableName}|${chain}|${index}`;
@@ -250,46 +263,40 @@ async function generateFirewall(objects) {
                     table.appendChild(tbody);
                 }
 
-                /*
-                 * YIELD
-                 */
-
                 if (chainCounter % 2 === 0) {
                     await yieldToBrowser();
                 }
             }
         }
 
-        /*
-         * REMOVE OLD CHAINS
-         */
-
+        // REMOVE OLD CHAINS
         firewall.querySelectorAll(".responsive-container").forEach(container => {
-
-            const key =
-                container.dataset.tableName +
-                "|" +
-                container.dataset.chain;
+            const key = container.dataset.tableName + "|" + container.dataset.chain;
 
             if (!usedContainers.has(key)) {
-
-                const title = firewall.querySelector(
-                    `h3[data-table-name="${container.dataset.tableName}"][data-chain="${container.dataset.chain}"]`
-                );
+                const title = firewall.querySelector(`h3[data-table-name="${container.dataset.tableName}"][data-chain="${container.dataset.chain}"]`);
 
                 if (title) {
                     title.remove();
                 }
 
-                const toggle = firewall.querySelector(
-                    `.firewall-chain-toggle[data-table-name="${container.dataset.tableName}"][data-chain="${container.dataset.chain}"]`
-                );
+                const toggle = firewall.querySelector(`.firewall-chain-toggle[data-table-name="${container.dataset.tableName}"][data-chain="${container.dataset.chain}"]`);
 
                 if (toggle) {
                     toggle.remove();
                 }
 
                 container.remove();
+            }
+        });
+
+
+        // REMOVE OLD TABLES
+        firewall.querySelectorAll("h2[data-table-name]").forEach(title => {
+            const tableName = title.dataset.tableName;
+
+            if (!usedTables.has(tableName)) {
+                title.remove();
             }
         });
     }
@@ -330,17 +337,13 @@ function generateFirewallExplanation(row, comment) {
     comment = cleanFirewallValue(comment || row.comment || "");
 
     if (comment) {
-        return [
-            "Comment: " + comment
-        ];
+        return ["Comment: " + comment];
     }
 
     const target = cleanFirewallValue(row.target);
 
     if (!target) {
-        return [
-            "No action is defined for this row. This is most likely an informational marker or counter row."
-        ];
+        return ["No action is defined for this row. This is most likely an informational marker or counter row."];
     }
 
     const protocol = describeProtocol(row);
@@ -349,44 +352,28 @@ function generateFirewallExplanation(row, comment) {
 
     switch (target) {
         case "DROP":
-            return [
-                "Drops " + protocol + suffix + "."
-            ];
+            return ["Drops " + protocol + suffix + "."];
 
         case "ACCEPT":
-            return [
-                "Accepts " + protocol + suffix + "."
-            ];
+            return ["Accepts " + protocol + suffix + "."];
 
         case "DNAT":
-            return [
-                "Redirects " + protocol + suffix + " using destination NAT."
-            ];
+            return ["Redirects " + protocol + suffix + " using destination NAT."];
 
         case "SNAT":
-            return [
-                "Rewrites the source address for " + protocol + suffix + " using source NAT."
-            ];
+            return ["Rewrites the source address for " + protocol + suffix + " using source NAT."];
 
         case "MASQUERADE":
-            return [
-                "Applies NAT masquerading to " + protocol + suffix + "."
-            ];
+            return ["Applies NAT masquerading to " + protocol + suffix + "."];
 
         case "RETURN":
-            return [
-                "Returns " + protocol + suffix + " to the previous chain."
-            ];
+            return ["Returns " + protocol + suffix + " to the previous chain."];
 
         case "REJECT":
-            return [
-                "Rejects " + protocol + suffix + "."
-            ];
+            return ["Rejects " + protocol + suffix + "."];
 
         default:
-            return [
-                "Sends " + protocol + suffix + " to chain " + target + "."
-            ];
+            return ["Sends " + protocol + suffix + " to chain " + target + "."];
     }
 }
 
@@ -480,7 +467,9 @@ function describeMatchModules(row) {
     const result = [];
 
     const rp = describeRpFilter(row);
-    if (rp) result.push(rp);
+    if (rp) {
+        result.push(rp);
+    }
 
     // future:
     // const conntrack = describeConntrack(row);
