@@ -4,16 +4,27 @@ const FIREWALL_ROWS_PER_CHAIN = 20;
 
 let openRowKey = null;
 let expandedFirewallChains = {};
+let firewallRendering = false;
 
 window["firewall"] = async () => {
-    let objects = document.querySelectorAll("[data-url]");
-
+    const objects = document.querySelectorAll("[data-url]");
     await generateFirewall(objects);
-    backgroundProcesses[0] = setInterval(async () => {
-        await generateFirewall(objects);
-    }, 2000);
 
-}
+    backgroundProcesses[0] = setInterval(async () => {
+        if (firewallRendering) {
+            return;
+        }
+
+        firewallRendering = true;
+
+        try {
+            await generateFirewall(objects);
+        } finally {
+            firewallRendering = false;
+        }
+
+    }, 2000);
+};
 
 bindEvent("click", ".firewall-chain-toggle", async function (event) {
     event.preventDefault();
@@ -71,7 +82,7 @@ function getColumnsForRules(rules) {
 
     for (const row of Object.values(rules)) {
         for (const key of Object.keys(row)) {
-            if (key !== "comment") { // exclude meta field
+            if (key !== "comment") {
                 columns.add(key);
             }
         }
@@ -90,93 +101,211 @@ function getColumnsForRules(rules) {
  * Öffnet die vorher geöffneten Kommentare
  */
 async function generateFirewall(objects) {
-    for (let object of objects) {
+    for (const object of objects) {
         const data = await httpGetJSON(object.getAttribute("data-url"));
 
         if (!data) {
             continue;
         }
 
-        const fragment = document.createDocumentFragment();
+        let firewall = object.querySelector(".firewall");
+        if (!firewall) {
+            firewall = document.createElement("div");
+            firewall.classList.add("firewall");
 
-        const firewall = document.createElement("div");
-        firewall.classList.add("firewall");
+            object.appendChild(firewall);
+        }
 
-        fragment.appendChild(firewall);
+        const existingContainers = new Map();
 
+        firewall.querySelectorAll(".responsive-container").forEach(container => {
+            const tableName = container.dataset.tableName;
+            const chain = container.dataset.chain;
+
+            existingContainers.set(tableName + "|" + chain, container);
+        });
+
+        const usedContainers = new Set();
+
+        let chainCounter = 0;
         for (const [tableName, chains] of Object.entries(data)) {
-            const title = document.createElement("h2");
-            title.innerText = ucFirst(tableName);
-            firewall.appendChild(title);
+            let tableHeading = firewall.querySelector(`h2[data-table-name="${tableName}"]`);
+
+            if (!tableHeading) {
+                tableHeading = document.createElement("h2");
+                tableHeading.dataset.tableName = tableName;
+                tableHeading.innerText = ucFirst(tableName);
+
+                firewall.appendChild(tableHeading);
+            }
 
             for (const [chain, rules] of Object.entries(Object(chains))) {
+                chainCounter++;
+
+                const containerKey = tableName + "|" + chain;
+
+                usedContainers.add(containerKey);
+
                 const columns = getColumnsForRules(rules);
                 const totalRows = getFirewallRuleCount(rules);
-                const expanded = isFirewallChainExpanded(tableName, chain);
+                const expanded = isFirewallChainExpanded(
+                    tableName,
+                    chain
+                );
+
                 const visibleRules = expanded ? rules : limitFirewallRules(rules, FIREWALL_ROWS_PER_CHAIN);
 
-                const title = document.createElement("h3");
-                title.innerText = chain;
-                firewall.appendChild(title);
+                let container = existingContainers.get(containerKey);
+                if (!container) {
+                    const title = document.createElement("h3");
 
-                const toggle = generateFirewallChainToggle(tableName, chain, totalRows, expanded);
+                    title.dataset.tableName = tableName;
+                    title.dataset.chain = chain;
+                    title.innerText = chain;
 
-                if (toggle) {
-                    firewall.appendChild(toggle);
+                    firewall.appendChild(title);
+
+                    const toggle = generateFirewallChainToggle(tableName, chain, totalRows, expanded);
+
+                    if (toggle) {
+                        firewall.appendChild(toggle);
+                    }
+
+                    container = document.createElement("div");
+
+                    container.classList.add("responsive-container");
+
+                    container.dataset.tableName = tableName;
+                    container.dataset.chain = chain;
+
+                    firewall.appendChild(container);
+                } else {
+                    const existingToggle = firewall.querySelector(`.firewall-chain-toggle[data-table-name="${tableName}"][data-chain="${chain}"]`);
+                    const newToggle = generateFirewallChainToggle(tableName, chain, totalRows, expanded);
+
+                    if (existingToggle) {
+                        existingToggle.remove();
+                    }
+
+                    if (newToggle) {
+                        container.before(newToggle);
+                    }
                 }
 
-                const table = document.createElement("table");
-                table.classList.add("responsive-table");
+                let table = container.querySelector("table");
+                if (!table) {
+                    table = document.createElement("table");
+                    table.classList.add("responsive-table");
+
+                    container.appendChild(table);
+                }
+
+                /*
+                 * THEAD
+                 */
 
                 const thead = document.createElement("thead");
-                const tr = document.createElement("tr");
+                const headerRow = document.createElement("tr");
 
                 for (const column of columns) {
                     const th = document.createElement("th");
+
                     th.innerText = column;
-                    tr.appendChild(th);
+
+                    headerRow.appendChild(th);
                 }
 
-                thead.appendChild(tr);
+                thead.appendChild(headerRow);
 
-                table.appendChild(thead);
-                table.appendChild(await generateTableBody(visibleRules, columns, null, null, (row, fragment, tr, index) => {
+                const oldThead = table.querySelector("thead");
+                if (oldThead) {
+                    oldThead.replaceWith(thead);
+                } else {
+                    table.appendChild(thead);
+                }
+
+                /*
+                 * TBODY
+                 */
+
+                const tbody = await generateTableBody(visibleRules, columns, null, null, (row, fragment, tr, index) => {
                     const key = `${tableName}|${chain}|${index}`;
+
                     tr.dataset.key = key;
 
                     const commentRow = generateCommentRow(row, row.comment || "", columns.length);
 
-                    if (openRowKey && openRowKey === key) {
+                    if (openRowKey === key) {
                         commentRow.classList.add("show");
                     }
 
                     fragment.appendChild(commentRow);
-                }));
+                });
 
-                firewall.appendChild(table);
+                const oldTbody = table.querySelector("tbody");
+
+                if (oldTbody) {
+                    oldTbody.replaceWith(tbody);
+                } else {
+                    table.appendChild(tbody);
+                }
+
+                /*
+                 * YIELD
+                 */
+
+                if (chainCounter % 2 === 0) {
+                    await yieldToBrowser();
+                }
             }
         }
 
-        object.innerHTML = "";
-        object.appendChild(fragment);
+        /*
+         * REMOVE OLD CHAINS
+         */
+
+        firewall.querySelectorAll(".responsive-container").forEach(container => {
+
+            const key =
+                container.dataset.tableName +
+                "|" +
+                container.dataset.chain;
+
+            if (!usedContainers.has(key)) {
+
+                const title = firewall.querySelector(
+                    `h3[data-table-name="${container.dataset.tableName}"][data-chain="${container.dataset.chain}"]`
+                );
+
+                if (title) {
+                    title.remove();
+                }
+
+                const toggle = firewall.querySelector(
+                    `.firewall-chain-toggle[data-table-name="${container.dataset.tableName}"][data-chain="${container.dataset.chain}"]`
+                );
+
+                if (toggle) {
+                    toggle.remove();
+                }
+
+                container.remove();
+            }
+        });
     }
 }
 
-/*
- * Funktion: generateCommentRow()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  row: (Objekt) Die Daten der Zeile um einen Kommentar zu generieren
- *  comment: (String) Definiert den vordefinierten Kommentar (IPTables Kommentar)
- *  columnCount: (Integer) Definiert die Spalten Anzahl
- *
- * Generiert aus den Daten ein Kommentar
- * Fügt noch zusätzlich den IPTables Kommentar hinzu
- *
- * Gibt diesen zurück
- *
- * TODO: Improve dynamic comment generation further
- */
+async function yieldToBrowser() {
+
+    return new Promise(resolve => {
+
+        requestAnimationFrame(() => {
+            resolve();
+        });
+
+    });
+}
+
 function generateCommentRow(row, comment, columnCount) {
     const tableRow = document.createElement("tr");
     tableRow.classList.add("comment");
@@ -468,16 +597,12 @@ function cleanFirewallValue(value) {
     return String(value).replace(/\s+/g, " ").trim();
 }
 
-function getFirewallChainKey(tableName, chain) {
-    return tableName + "|" + chain;
-}
-
 function isFirewallChainExpanded(tableName, chain) {
-    return expandedFirewallChains[getFirewallChainKey(tableName, chain)] === true;
+    return expandedFirewallChains[tableName + "|" + chain] === true;
 }
 
 function setFirewallChainExpanded(tableName, chain, expanded) {
-    const key = getFirewallChainKey(tableName, chain);
+    const key = tableName + "|" + chain;
 
     if (expanded) {
         expandedFirewallChains[key] = true;
