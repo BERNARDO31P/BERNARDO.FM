@@ -29,7 +29,7 @@ let clickEvent = new Event('click', {
  */
 let theme = getCookie('theme');
 if (!theme) {
-    theme = 'light';
+    theme = 'dark';
 }
 document.getElementsByTagName("html")[0].setAttribute("data-theme", theme);
 

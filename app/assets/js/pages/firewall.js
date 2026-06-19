@@ -131,6 +131,7 @@ async function generateFirewall(objects) {
         const usedContainers = new Set();
         const usedTables = new Set();
 
+        let ddosProtectionEnabled = false;
         let chainCounter = 0;
         for (const [tableName, chains] of Object.entries(data)) {
             usedTables.add(tableName);
@@ -148,6 +149,10 @@ async function generateFirewall(objects) {
             let insertAfter = tableHeading;
             for (const [chain, rules] of Object.entries(Object(chains))) {
                 chainCounter++;
+
+                if (chain.includes("-PM-")) {
+                    ddosProtectionEnabled = true;
+                }
 
                 const containerKey = tableName + "|" + chain;
 
@@ -267,6 +272,12 @@ async function generateFirewall(objects) {
                     await yieldToBrowser();
                 }
             }
+        }
+
+        if (ddosProtectionEnabled) {
+            showFirewallDdosNotice(firewall);
+        } else {
+            hideFirewallDdosNotice(firewall);
         }
 
         // REMOVE OLD CHAINS
@@ -631,4 +642,24 @@ function generateFirewallChainToggle(tableName, chain, totalRows, expanded) {
     }
 
     return button;
+}
+
+function showFirewallDdosNotice(firewall) {
+    let notice = firewall.querySelector(".firewall-ddos-notice");
+
+    if (!notice) {
+        notice = document.createElement("div");
+        notice.classList.add("firewall-ddos-notice");
+        notice.textContent = "An active DDoS attack has been detected. Permanent protection has been enabled automatically.";
+
+        firewall.prepend(notice);
+    }
+}
+
+function hideFirewallDdosNotice(firewall) {
+    const notice = firewall.querySelector(".firewall-ddos-notice");
+
+    if (notice) {
+        notice.remove();
+    }
 }

@@ -451,6 +451,8 @@ a.button {
     position: relative;
     padding: 2px;
 
+    width: 100%;
+
     .responsive-table {
       margin: 0;
     }
@@ -2330,4 +2332,21 @@ a.button {
   width: 100%;
   height: 350px;
   display: block;
+}
+
+.firewall-ddos-notice {
+  background-color: var(--navbar-background);
+
+  color: #c94a4a;
+
+  padding: 14px 18px;
+  margin-bottom: 20px;
+
+  border-radius: 10px;
+
+  box-shadow: inset 1px 1px 2px var(--shadow-dark),
+  inset -1px -1px 2px var(--shadow-light);
+
+  font-weight: 700;
+  text-align: center;
 }
