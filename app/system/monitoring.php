@@ -92,8 +92,9 @@ function get_server_cpu_usage(&$callbacks): void
 
 function get_server_network_usage(&$callbacks): void
 {
-    $rx1 = @file_get_contents(__DIR__ . "/data/rx_bytes");
+    $rx1 = @file_get_contents(__DIR__ . "/data/filter_network");
     $tx1 = @file_get_contents(__DIR__ . "/data/tx_bytes");
+
     if ($rx1 === false || $tx1 === false) {
         $callbacks["net"] = function () {
             return null;
@@ -101,14 +102,30 @@ function get_server_network_usage(&$callbacks): void
         return;
     }
 
-    $callbacks["net"] = function () use ($rx1, $tx1) {
-        $rx2 = @file_get_contents(__DIR__ . "/data/rx_bytes");
+    if (!preg_match('/^\s*\d+\s+(\d+)\s+ACCEPT.*monitoring/m', $rx1, $match1)) {
+        $callbacks["net"] = function () {
+            return null;
+        };
+        return;
+    }
+
+    $rb1 = intval($match1[1]);
+
+    $callbacks["net"] = function () use ($rb1, $tx1) {
+        $rx2 = @file_get_contents(__DIR__ . "/data/filter_network");
         $tx2 = @file_get_contents(__DIR__ . "/data/tx_bytes");
+
         if ($rx2 === false || $tx2 === false) {
             return null;
         }
 
-        $rbps = intval($rx2) - intval($rx1);
+        if (!preg_match('/^\s*\d+\s+(\d+)\s+ACCEPT.*monitoring/m', $rx2, $match2)) {
+            return null;
+        }
+
+        $rb2 = intval($match2[1]);
+
+        $rbps = $rb2 - $rb1;
         $tbps = intval($tx2) - intval($tx1);
 
         if ($rbps < 0 || $tbps < 0) {
