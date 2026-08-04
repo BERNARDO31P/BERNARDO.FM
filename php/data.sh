@@ -5,9 +5,9 @@ folder="/var/www/beta/app/system/";
 
 int=$(ip route get 8.8.8.8 | awk -- '{printf $5}');
 
-if ! iptables -w -t filter -C INPUT -m comment --comment "monitoring" -j ACCEPT >/dev/null 2>&1
+if ! iptables -w -t filter -C INPUT -i ${int} -m comment --comment "monitoring" -j ACCEPT >/dev/null 2>&1
 then
- iptables -w -t filter -I INPUT 1 -m comment --comment "monitoring" -j ACCEPT
+ iptables -w -t filter -I INPUT 1 -i ${int} -m comment --comment "monitoring" -j ACCEPT
 fi
 
 while true
