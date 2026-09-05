@@ -2,7 +2,6 @@
   <library name="Generated files" type="javaScript">
     <properties>
       <sourceFilesUrls>
-        <item url="file://$PROJECT_DIR$/app/assets/js/lib/all.min.js" />
         <item url="file://$PROJECT_DIR$/app/assets/js/lib/player.min.js" />
         <item url="file://$PROJECT_DIR$/app/assets/js/pages/firewall.min.js" />
         <item url="file://$PROJECT_DIR$/app/assets/js/pages/home.min.js" />
@@ -11,10 +10,10 @@
         <item url="file://$PROJECT_DIR$/app/assets/js/pages/projects.min.js" />
         <item url="file://$PROJECT_DIR$/app/assets/js/script.min.js" />
         <item url="file://$PROJECT_DIR$/app/assets/js/tools.min.js" />
+        <item url="file://$PROJECT_DIR$/app/sw.min.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/app/assets/js/lib/all.min.js" />
       <root url="file://$PROJECT_DIR$/app/assets/js/lib/player.min.js" />
       <root url="file://$PROJECT_DIR$/app/assets/js/pages/firewall.min.js" />
       <root url="file://$PROJECT_DIR$/app/assets/js/pages/home.min.js" />

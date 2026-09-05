@@ -256,6 +256,12 @@ function httpGet(url) {
 
     try {
         xmlHttp.send();
+
+        if (xmlHttp.getResponseHeader("X-L7-Challenge") === "required") {
+            location.reload();
+            return "";
+        }
+
         return xmlHttp.responseText;
     } catch (e) {
         return "<body>There was an error performing this request. Please try again later or reloading the page.</body>";
@@ -263,7 +269,15 @@ function httpGet(url) {
 }
 
 async function httpGetJSON(url) {
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(url, {
+        cache: "no-store"
+    });
+
+    if (res.headers.get("X-L7-Challenge") === "required") {
+        location.reload();
+        return null;
+    }
+
     return res.ok ? res.json() : null;
 }
 

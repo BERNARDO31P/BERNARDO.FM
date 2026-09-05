@@ -56,6 +56,20 @@ if ('orientation' in screen) {
     screen.orientation.addEventListener('change', updateSearch);
 }
 
+let l7Reloading = false;
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("message", event => {
+        if (event.data?.type !== "l7-challenge" || l7Reloading) {
+            return;
+        }
+
+        l7Reloading = true;
+
+        location.reload();
+    });
+}
+
 /*
  * Funktion: loadPage()
  * Autor: Bernardo de Oliveira
