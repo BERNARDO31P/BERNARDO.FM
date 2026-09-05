@@ -7,6 +7,13 @@
   },
   "changelog": [
     {
+      "title": "Version 1.6",
+      "message": "Improved and tweaked my own DDoS protection because of some recent DDoS attacks.",
+      "details": "+ Layers 3 up to 7 are now fully protected, again, by my own DDoS protection<br/> + Firewall tab now shows a notification when an active attack is detected<br/> + Improved performance of the DDoS protection",
+      "author": "Bernardo de Oliveira",
+      "date": "06. Sep. 2026"
+    },
+    {
       "title": "Version 1.5",
       "message": "Well well... it's been over 10 years since the initial publication of this website.<br/> A lot has changed since then and the project kept growing step by step over the years.<br/><br/> Thank you to everyone still visiting this small corner of the internet :)",
       "details": "+ Added 40 nostalgic Drum and Bass songs<br/> + Improved performance and design of the firewall tab<br/> + Improved mobile responsiveness of the firewall tables<br/> + Reduced UI blocking while updating firewall data<br/> + Minor bugfixes",
