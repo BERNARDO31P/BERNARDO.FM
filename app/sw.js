@@ -16,7 +16,23 @@ const MAX_CACHE_SIZE = 4500;
  */
 const APPLICATION = [
     "/",
-    "/manifest.json"
+    "/assets/css/lib/all.css",
+    "/assets/css/style.min.css",
+    "/assets/js/lib/all.js",
+    "/assets/js/lib/player.min.js",
+    "/assets/js/tools.min.js",
+    "/assets/js/script.min.js",
+    "/pages/home.html",
+    "/assets/js/pages/home.min.js",
+    "/pages/music.html",
+    "/assets/js/pages/music.min.js",
+    "/pages/monitoring.html",
+    "/assets/js/pages/monitoring.min.js",
+    "/pages/firewall.html",
+    "/assets/js/pages/firewall.min.js",
+    "/pages/projects.html",
+    "/assets/js/pages/projects.min.js",
+    "/manifest.webmanifest"
 ];
 
 
