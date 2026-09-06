@@ -132,10 +132,7 @@ function loadPage() {
  */
 async function getScript(source) {
     try {
-        const response = await fetch(source, {
-            credentials: "same-origin",
-            cache: "no-store"
-        });
+        const response = await fetch(source);
 
         if (response.headers.get("X-L7-Challenge") === "required") {
             location.reload();
