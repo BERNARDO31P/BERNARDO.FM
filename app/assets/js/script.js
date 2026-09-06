@@ -130,14 +130,61 @@ function loadPage() {
  *
  * Lädt ein Skript nachträglich nach und fügt dieses an dem Ort hinzu, wo es sich befand
  */
-function getScript(source) {
-    let script = document.createElement('script');
-    let prior = document.querySelectorAll("body script:last-child")[0];
-    script.async = true;
+async function getScript(source) {
+    try {
+        const response = await fetch(source, {
+            credentials: "same-origin",
+            cache: "no-store"
+        });
 
-    script.src = source;
-    prior.parentNode.insertBefore(script, prior);
-    prior.remove();
+        if (response.headers.get("X-L7-Challenge") === "required") {
+            location.reload();
+            return;
+        }
+
+        if (!response.ok) {
+            location.reload();
+            return;
+        }
+
+        const contentType = (response.headers.get("Content-Type") || "").toLowerCase();
+
+        const validJavaScript =
+            contentType.includes("javascript")
+            || contentType.includes("ecmascript");
+
+        if (!validJavaScript) {
+            location.reload();
+            return;
+        }
+
+        const sourceCode = await response.text();
+        const blob = new Blob([sourceCode], {
+            type: "text/javascript"
+        });
+
+        const blobUrl = URL.createObjectURL(blob);
+
+        const script = document.createElement("script");
+        const prior = document.querySelectorAll("body script:last-child")[0];
+
+        script.async = true;
+        script.src = blobUrl;
+
+        script.onload = () => {
+            URL.revokeObjectURL(blobUrl);
+        };
+
+        script.onerror = () => {
+            URL.revokeObjectURL(blobUrl);
+            location.reload();
+        };
+
+        prior.parentNode.insertBefore(script, prior);
+        prior.remove();
+    } catch (e) {
+        location.reload();
+    }
 }
 
 /*
