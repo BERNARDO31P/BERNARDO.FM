@@ -30,6 +30,8 @@ class MultiTrackPlayer extends EventTarget {
     #playEventHandler = null;
     #pauseEventHandler = null;
 
+    #decodeGeneration = 0;
+
     constructor(length) {
         super();
 
@@ -61,23 +63,25 @@ class MultiTrackPlayer extends EventTarget {
         });
     }
 
-    #getUrls() {
-        const urls = [];
-        for (const index of this.#indexes) {
-            if (typeof index === "undefined") {
+    #getIndexByUrl(url) {
+        for (const [index, info] of Object.entries(this.#indexes)) {
+            if (!info) {
                 continue;
             }
 
-            urls.push(index["url"]);
+            if (info["url"] === url) {
+                return Number(index);
+            }
         }
 
-        return urls;
+        return -1;
     }
 
     #getDecodingQueue() {
-        const decodingQueue = [];
+        const decodingQueue = {};
+
         for (const [index, info] of Object.entries(this.#indexes)) {
-            if (!info["decoding"]) {
+            if (!info || !info["decoding"]) {
                 continue;
             }
 
@@ -88,9 +92,10 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #getAudioSources() {
-        const audioSources = [];
+        const audioSources = {};
+
         for (const [index, info] of Object.entries(this.#indexes)) {
-            if (!info["source"]) {
+            if (!info || !info["source"]) {
                 continue;
             }
 
@@ -100,11 +105,11 @@ class MultiTrackPlayer extends EventTarget {
         return audioSources;
     }
 
-
     #getStartTimeouts() {
-        const startTimeouts = [];
+        const startTimeouts = {};
+
         for (const [index, info] of Object.entries(this.#indexes)) {
-            if (info["timeout"] === null) {
+            if (!info || info["timeout"] === null) {
                 continue;
             }
 
@@ -112,6 +117,14 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         return startTimeouts;
+    }
+
+    #isAbortError(error, signal = null) {
+        if (error?.name === "AbortError") {
+            return true;
+        }
+
+        return signal !== null && signal.aborted && error === signal.reason;
     }
 
     addTimeUpdate() {
@@ -150,36 +163,55 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     async addTrack(url, callback) {
-        this.#stopped = false;
-        this.#nextTrackIndex = false;
+        try {
+            this.#stopped = false;
+            this.#nextTrackIndex = false;
 
-        const index = this.#getUrls().includes(url) ? this.#getUrls().indexOf(url) : this.#getUrls().length;
+            let index = this.#getIndexByUrl(url);
 
-        if (!this.#getUrls().includes(url)) {
-            this.#indexes[index] = {
-                "url": url,
-                "from": null,
-                "till": null,
-                "buffer": null,
-                "callback": callback,
-                "source": null,
-                "decoding": true,
-                "timeout": null,
-                "offset": 0
+            if (index === -1) {
+                index = this.getNextFreePartIndex();
+
+                this.#indexes[index] = {
+                    "url": url,
+                    "from": null,
+                    "till": null,
+                    "buffer": null,
+                    "callback": callback,
+                    "source": null,
+                    "decoding": true,
+                    "timeout": null,
+                    "offset": 0
+                };
+            }
+
+            if (this.isDecoding()) {
+                if (this.#indexes[index] && this.#indexes[index]["decoding"]) {
+                    this.#waitIndex = index;
+                    this.#abortDownload();
+                } else {
+                    return;
+                }
+            }
+
+            await this.#processDecodeQueue();
+        } catch (error) {
+            if (!this.#isAbortError(error)) {
+                console.error(error);
             }
         }
-
-        if (this.isDecoding()) {
-            this.#waitIndex = index;
-            this.#abortDownload();
-        }
-
-        await this.#processDecodeQueue();
-        this.#isDecoding = false;
     }
 
     getNextFreePartIndex() {
-        return Object.keys(this.#indexes).length
+        const indexes = Object.keys(this.#indexes)
+            .map((index) => Number(index))
+            .filter((index) => Number.isFinite(index));
+
+        if (!indexes.length) {
+            return 0;
+        }
+
+        return Math.max(...indexes) + 1;
     }
 
     getCurrentPart() {
@@ -221,11 +253,14 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     partIsPlayable(index) {
-        return !((typeof this.#indexes[index] === "undefined" || typeof this.#indexes[index]["from"] === "undefined"));
+        return typeof this.#indexes[index] !== "undefined"
+            && this.#indexes[index] !== null
+            && typeof this.#indexes[index]["from"] !== "undefined"
+            && this.#indexes[index]["from"] !== null;
     }
 
     findMissingLengthByCurrentPart(time) {
-        let currentLength = this.getPartLength(this.#currentTrackIndex);
+        const currentLength = this.getPartLength(this.#currentTrackIndex);
 
         for (const part of Object.values(this.#indexes)) {
             if (!part) {
@@ -236,6 +271,7 @@ class MultiTrackPlayer extends EventTarget {
                 return part["from"] - time;
             }
         }
+
         return null;
     }
 
@@ -256,11 +292,12 @@ class MultiTrackPlayer extends EventTarget {
         if (this.#audioTag.paused) {
             await this.#audioTag.play();
         }
+
         if (audioContext.state !== "running") {
             await audioContext.resume();
         }
 
-        if ('mediaSession' in navigator) {
+        if ("mediaSession" in navigator) {
             navigator.mediaSession.playbackState = "playing";
         }
 
@@ -285,16 +322,21 @@ class MultiTrackPlayer extends EventTarget {
             this.#playing = true;
 
             if (this.#audioTag.paused) {
-                this.#audioTag.play();
+                void this.#audioTag.play().catch((error) => {
+                    if (error?.name !== "AbortError") {
+                        console.error(error);
+                    }
+                });
             }
 
             if (audioContext.state !== "running") {
-                audioContext.resume();
+                void audioContext.resume().catch((error) => {
+                    console.error(error);
+                });
             }
 
             const source = audioContext.createBufferSource();
             this.#indexes[index]["source"] = source;
-
 
             source.when = Math.max(0, audioContext.currentTime + Math.max(0, startTime));
             source.buffer = this.#indexes[index]["buffer"];
@@ -302,6 +344,10 @@ class MultiTrackPlayer extends EventTarget {
             source.start(source.when, this.getOffset(index));
 
             source.onended = () => {
+                if (typeof this.#indexes[index] === "undefined") {
+                    return;
+                }
+
                 clearTimeout(this.#indexes[index]["timeout"]);
                 this.#indexes[index]["timeout"] = null;
 
@@ -317,15 +363,21 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
-                if (Object.keys(this.#getDecodingQueue()).length && !this.isDecoding()) {
-                    this.#abortDownload();
-                    this.#processDecodeQueue();
+                const hasDecodingQueue = Object.keys(this.#getDecodingQueue()).length;
+                if (hasDecodingQueue) {
+                    if (!this.isDecoding()) {
+                        void this.#processDecodeQueue().catch((error) => {
+                            if (!this.#isAbortError(error)) {
+                                console.error(error);
+                            }
+                        });
+                    }
 
                     return;
                 }
 
                 this.pause();
-            }
+            };
 
             this.#indexes[index]["timeout"] = setTimeout(() => {
                 this.#startTime = source.when;
@@ -374,7 +426,7 @@ class MultiTrackPlayer extends EventTarget {
             this.#audioTag.pause();
         }
 
-        if ('mediaSession' in navigator) {
+        if ("mediaSession" in navigator) {
             let duration = this.#audioTag.duration;
 
             if (isNaN(duration)) {
@@ -395,20 +447,30 @@ class MultiTrackPlayer extends EventTarget {
             this.#killSource(source);
         });
 
-        audioContext.suspend().finally(() => {
+        void audioContext.suspend().then(() => {
             if (!this.#stopped) {
                 this.dispatchEvent(new Event("pause"));
             }
+        }).catch((error) => {
+            console.error(error);
         });
     }
 
     stop() {
         this.#hadError = false;
-        this.#isDecoding = false;
         this.#stopped = true;
         this.#initialPlay = true;
 
-        this.pause();
+        if (this.#playing) {
+            this.pause();
+        } else {
+            this.#nextTrackIndex = false;
+            this.#waitIndex = null;
+
+            this.#clearTimeouts();
+            this.#abortDownload();
+        }
+
         this.reset();
     }
 
@@ -447,7 +509,7 @@ class MultiTrackPlayer extends EventTarget {
             this.#nextTrackIndex = true;
 
             this.setOffset(0, index);
-            this.playNext(index, (startTime >= 0) ? startTime : 0);
+            this.playNext(index, startTime >= 0 ? startTime : 0);
         }
 
         return true;
@@ -460,7 +522,7 @@ class MultiTrackPlayer extends EventTarget {
     getCurrentPartTime() {
         const currentPart = this.getCurrentPart();
 
-        if (!currentPart[2]) {
+        if (currentPart[2] === null || !isFinite(currentPart[2])) {
             return 0;
         }
 
@@ -474,6 +536,7 @@ class MultiTrackPlayer extends EventTarget {
 
             return parseInt(this.#indexes[partIndex]["buffer"].duration);
         }
+
         return 0;
     }
 
@@ -483,7 +546,8 @@ class MultiTrackPlayer extends EventTarget {
 
     getCurrentWebAudioTime() {
         const currentPart = this.getCurrentPart();
-        if (currentPart[0]) {
+
+        if (currentPart[0] !== null && isFinite(currentPart[0])) {
             return parseInt(currentPart[0]) + this.getCurrentPartTime();
         }
 
@@ -491,6 +555,10 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #removePart(index) {
+        if (index === -1 || typeof this.#indexes[index] === "undefined") {
+            return;
+        }
+
         delete this.#indexes[index];
     }
 
@@ -549,12 +617,13 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #getUrlExtension(url) {
-        return url.split(/[#?]/)[0].split('.').pop().trim();
+        return url.split(/[#?]/)[0].split(".").pop().trim();
     }
 
     setMetadata(title, artist, cover) {
-        if ('mediaSession' in navigator) {
+        if ("mediaSession" in navigator) {
             const type = this.#getUrlExtension(cover);
+
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: title, artist: artist, artwork: [
                     {src: cover + "?size=512", type: "image/" + type, sizes: "512x512"},
@@ -562,23 +631,30 @@ class MultiTrackPlayer extends EventTarget {
                     {src: cover + "?size=256", type: "image/" + type, sizes: "256x256"},
                     {src: cover + "?size=192", type: "image/" + type, sizes: "192x192"},
                     {src: cover + "?size=128", type: "image/" + type, sizes: "128x128"},
-                    {src: cover + "?size=96", type: "image/" + type, sizes: "96x96"},
+                    {src: cover + "?size=96", type: "image/" + type, sizes: "96x96"}
                 ]
             });
-
         }
     }
 
     setActionHandler(action, handler) {
-        if ('mediaSession' in navigator) {
+        if ("mediaSession" in navigator) {
             navigator.mediaSession.setActionHandler(action, handler);
         }
     }
 
     clear() {
-        this.pause();
-        this.reset();
+        if (this.#playing) {
+            this.pause();
+        } else {
+            this.#nextTrackIndex = false;
+            this.#waitIndex = null;
 
+            this.#clearTimeouts();
+            this.#abortDownload();
+        }
+
+        this.reset();
         this.#indexes = [];
     }
 
@@ -588,124 +664,181 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         const currentPartIndex = parseInt(this.getPartByStartTime(0)[2]);
+
         this.setCurrentIndex(currentPartIndex);
         this.setCurrentTime(0);
         this.setOffset(0, currentPartIndex);
     }
 
     #abortDownload() {
-        this.#abortController.abort();
+        const abortController = this.#abortController;
 
+        this.#decodeGeneration++;
+        this.#isDecoding = false;
+
+        /*
+         * Install the controller for the next download BEFORE aborting
+         * the previous one.
+         */
         this.#abortController = new AbortController();
         this.#abortSignal = this.#abortController.signal;
+
+        if (!abortController.signal.aborted) {
+            abortController.abort(new DOMException("Audio download aborted", "AbortError"));
+        }
     }
 
     async #processDecodeQueue() {
-        if (Object.values(this.#getDecodingQueue()).length && !this.#stopped) {
-            this.#isDecoding = true;
+        const initialQueue = this.#getDecodingQueue();
 
-            let url;
-            if (this.#waitIndex !== null) {
-                url = this.#getDecodingQueue()[this.#waitIndex];
-            } else {
-                const lastKey = Object.keys(this.#getDecodingQueue()).pop();
-                url = this.#getDecodingQueue()[lastKey];
-            }
+        if (!Object.keys(initialQueue).length || this.#stopped) {
+            this.dispatchEvent(new CustomEvent("processed", {
+                detail: {
+                    set: true
+                }
+            }));
 
-            this.dispatchEvent(new Event("processing"));
+            return;
+        }
 
-            let bufferIndex = null;
-            let response = null;
-            try {
-                if (typeof url === "undefined") {
-                    throw new Error();
+        /*
+         * This worker owns this exact generation and this exact signal.
+         * #abortDownload() cannot replace the signal underneath it.
+         */
+        const generation = this.#decodeGeneration;
+        const signal = this.#abortSignal;
+
+        this.#isDecoding = true;
+
+        try {
+            while (!this.#stopped && generation === this.#decodeGeneration) {
+                const decodingQueue = this.#getDecodingQueue();
+                const queueIndexes = Object.keys(decodingQueue);
+
+                if (!queueIndexes.length) {
+                    break;
                 }
 
-                response = await fetch(url, {
-                    signal: this.#abortSignal
-                });
+                let queueIndex;
 
-                if (!response.ok) {
-                    throw new Error();
+                /*
+                 * The timeline-released part always has priority.
+                 * Once that part finishes, the interrupted part is still
+                 * marked "decoding" and remains in this queue.
+                 */
+                if (this.#waitIndex !== null && Object.prototype.hasOwnProperty.call(decodingQueue, this.#waitIndex)) {
+                    queueIndex = String(this.#waitIndex);
+                } else {
+                    queueIndex = queueIndexes[queueIndexes.length - 1];
                 }
 
-                this.#hadError = false;
-            } catch (e) {
-                this.#hadError = true;
-                this.#isDecoding = false;
+                const bufferIndex = Number(queueIndex);
+                const url = decodingQueue[queueIndex];
 
-                bufferIndex = this.#getUrls().indexOf(url);
+                if (typeof url === "undefined" || typeof this.#indexes[bufferIndex] === "undefined") {
+                    if (bufferIndex === this.#waitIndex) {
+                        this.#waitIndex = null;
+                    }
 
-                if (!e.toString().includes("AbortError")) {
+                    continue;
+                }
+
+                this.dispatchEvent(new Event("processing"));
+
+                let decodedBuffer;
+
+                try {
+                    const response = await fetch(url, {
+                        signal: signal
+                    });
+
+                    if (generation !== this.#decodeGeneration) {
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error("Unable to download audio track");
+                    }
+
+                    const arrayBuffer = await response.arrayBuffer();
+
+                    if (generation !== this.#decodeGeneration) {
+                        return;
+                    }
+
+                    decodedBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+                    if (generation !== this.#decodeGeneration) {
+                        return;
+                    }
+                } catch (error) {
+                    /*
+                     * Generation changed means this worker was explicitly
+                     * cancelled by #abortDownload(). The part deliberately
+                     * stays "decoding": true so the next worker can fetch it
+                     * after the priority part.
+                     */
+                    if (generation !== this.#decodeGeneration) {
+                        return;
+                    }
+
+                    if (this.#isAbortError(error, signal)) {
+                        return;
+                    }
+
+                    this.#hadError = true;
+
+                    if (bufferIndex === this.#waitIndex) {
+                        this.#waitIndex = null;
+                    }
+
                     this.#removePart(bufferIndex);
 
                     if (!this.#stopped) {
                         this.dispatchEvent(new Event("downloadError"));
                     }
-                } else if (this.#getUrls().indexOf(url) !== -1 && !this.#stopped) {
-                    this.#indexes[bufferIndex]["decoding"] = true;
+
+                    return;
                 }
 
-                return;
-            }
+                if (generation !== this.#decodeGeneration) {
+                    return;
+                }
 
-            this.dispatchEvent(new Event("processing"));
+                if (typeof this.#indexes[bufferIndex] === "undefined") {
+                    continue;
+                }
 
-            try {
-                bufferIndex = this.#getUrls().indexOf(url);
-
-                const arrayBuffer = await response.arrayBuffer();
-                this.#indexes[bufferIndex]["buffer"] = await audioContext.decodeAudioData(arrayBuffer);
-
+                this.#indexes[bufferIndex]["buffer"] = decodedBuffer;
+                this.#indexes[bufferIndex]["decoding"] = false;
                 this.#hadError = false;
-            } catch (e) {
-                this.#hadError = true;
-                this.#isDecoding = false;
 
-                bufferIndex = this.#getUrls().indexOf(url);
+                this.dispatchEvent(new Event("processing"));
 
-                if (!e.toString().includes("AbortError")) {
-                    this.#removePart(bufferIndex);
+                if (typeof this.#indexes[bufferIndex]["callback"] !== "undefined") {
+                    this.#indexes[bufferIndex]["from"] = this.#indexes[bufferIndex]["callback"](this.#indexes, bufferIndex);
+                    this.#indexes[bufferIndex]["till"] = this.#indexes[bufferIndex]["from"] + this.getPartLength(bufferIndex);
 
-                    if (!this.#stopped) {
-                        this.dispatchEvent(new Event("downloadError"));
+                    delete this.#indexes[bufferIndex]["callback"];
+                } else if (this.#currentTrackIndex !== bufferIndex && this.getCurrentPart()[2] !== bufferIndex) {
+                    this.#indexes[bufferIndex]["url"] = null;
+                    this.#indexes[bufferIndex]["from"] = null;
+                    this.#indexes[bufferIndex]["till"] = null;
+
+                    if (bufferIndex === this.#waitIndex) {
+                        this.#waitIndex = null;
                     }
-                } else if (this.#getUrls().indexOf(url) !== -1 && !this.#stopped) {
-                    this.#indexes[bufferIndex]["decoding"] = true;
+
+                    continue;
                 }
 
-                return;
-            }
+                if (!isFinite(this.#currentTrackIndex)) {
+                    this.#currentTrackIndex = this.getPartByStartTime(this.getCurrentTime())[2];
+                }
 
-            this.dispatchEvent(new Event("processing"));
-
-            bufferIndex = this.#getUrls().indexOf(url);
-
-            this.#indexes[bufferIndex]["decoding"] = false;
-
-            if (typeof this.#indexes[bufferIndex]["callback"] !== "undefined") {
-                this.#indexes[bufferIndex]["from"] = this.#indexes[bufferIndex]["callback"](this.#indexes, bufferIndex);
-                this.#indexes[bufferIndex]["till"] = this.#indexes[bufferIndex]["from"] + this.getPartLength(bufferIndex);
-
-                delete this.#indexes[bufferIndex]["callback"];
-            } else if (this.#currentTrackIndex !== bufferIndex && this.getCurrentPart()[2] !== bufferIndex) {
-                this.#indexes[bufferIndex]["url"] = null;
-                this.#indexes[bufferIndex]["from"] = null;
-                this.#indexes[bufferIndex]["till"] = null;
-
-                return;
-            }
-
-            if (!isFinite(this.#currentTrackIndex)) {
-                this.#currentTrackIndex = this.getPartByStartTime(this.getCurrentTime())[2];
-            }
-
-            if (Object.keys(this.#getDecodingQueue()).length === 0 || this.#stopped) {
-                this.#isDecoding = false;
-            }
-
-            if (!this.#stopped) {
-                bufferIndex = this.#getUrls().indexOf(url);
+                if (this.#stopped || generation !== this.#decodeGeneration) {
+                    return;
+                }
 
                 if (bufferIndex === this.#waitIndex) {
                     this.#clearTimeouts();
@@ -724,24 +857,33 @@ class MultiTrackPlayer extends EventTarget {
                         }
                     }));
                 }
-
-                if (!this.isDecoding()) {
-                    await this.#processDecodeQueue();
-                }
             }
-        } else {
-            this.dispatchEvent(new CustomEvent("processed", {
-                detail: {
-                    set: true
-                }
-            }));
+        } catch (error) {
+            /*
+             * Final safety boundary. AbortError must never leave this
+             * worker as a rejected Promise.
+             */
+            if (!this.#isAbortError(error, signal)) {
+                throw error;
+            }
+        } finally {
+            /*
+             * An aborted/stale worker must not clear #isDecoding after
+             * its replacement has already started.
+             */
+            if (generation === this.#decodeGeneration) {
+                this.#isDecoding = false;
+            }
         }
     }
 
     #clearTimeouts() {
         for (const [index, timeout] of Object.entries(this.#getStartTimeouts())) {
             clearTimeout(Number(timeout));
-            this.#indexes[index]["timeout"] = null;
+
+            if (typeof this.#indexes[index] !== "undefined") {
+                this.#indexes[index]["timeout"] = null;
+            }
         }
     }
 
@@ -801,12 +943,12 @@ class MultiTrackPlayer extends EventTarget {
             view.setUint8(offset, 128);
         }
 
-        const blob = new Blob([view], {type: 'audio/wav'});
+        const blob = new Blob([view], {type: "audio/wav"});
         return URL.createObjectURL(blob);
     }
 
     #setPositionState() {
-        if ('mediaSession' in navigator) {
+        if ("mediaSession" in navigator) {
             let duration = this.#audioTag.duration;
 
             if (isNaN(duration)) {
