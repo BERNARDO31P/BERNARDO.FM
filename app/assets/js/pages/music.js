@@ -493,7 +493,10 @@ bindEvent("click", ".scrollForward", function () {
 
     setTimeout(function () {
         let scrolled = Math.round(100 * categoryView.scrollLeft / (categoryView.scrollWidth - categoryView.clientWidth));
-        if (scrolled === 100) element.style.display = "none";
+        if (scrolled === 100) {
+            element.style.display = "none";
+            categoryView.parentElement.classList.remove("right-shaodw");
+        }
     }, defaultDelay);
 });
 
@@ -513,7 +516,10 @@ bindEvent("click", ".scrollBack", function () {
 
     setTimeout(function () {
         let scrolled = Math.round(100 * categoryView.scrollLeft / (categoryView.scrollWidth - categoryView.clientWidth));
-        if (scrolled === 0) element.style.display = "none";
+        if (scrolled === 0)  {
+            element.style.display = "none";
+            categoryView.parentElement.classList.remove("left-shadow");
+        }
     }, defaultDelay);
 });
 
@@ -687,11 +693,22 @@ window["music"] = async () => {    /*
 
                     if (!isTouchScreen()) {
                         let scrollBack = div.parentElement.querySelector(".scrollBack");
-
                         scrollBack.style.display = (scrolled === 0) ? "none" : "flex";
 
                         let scrollForward = div.parentElement.querySelector(".scrollForward");
-                        if (scrolled === 100) scrollForward.style.display = "none"; else scrollForward.style.display = "flex";
+                        scrollForward.style.display = (scrolled === 100) ? "none" : "flex";
+                    }
+
+                    if (scrolled === 0) {
+                        div.parentElement.classList.remove("left-shadow");
+                    } else {
+                        div.parentElement.classList.add("left-shadow");
+                    }
+
+                    if (scrolled === 100) {
+                        div.parentElement.classList.remove("right-shadow");
+                    } else {
+                        div.parentElement.classList.add("right-shadow");
                     }
                 });
 
@@ -715,6 +732,10 @@ window["music"] = async () => {    /*
                     if (Object.keys(songs).length > count - 3) {
                         scrollForward.style.display = "flex";
                     }
+                }
+
+                if (Object.keys(songs).length > count - 3) {
+                    parent.classList.add("right-shadow");
                 }
 
                 parent.appendChild(div);

@@ -180,7 +180,7 @@ a.button {
 
   padding: 0 30px;
   position: fixed;
-  z-index: 2;
+  z-index: 3;
   top: 0;
   left: 0;
   right: 0;
@@ -496,6 +496,63 @@ a.button {
     & > div {
       position: relative;
 
+      &::before,
+      &::after {
+        z-index: 1;
+
+        content: "";
+        position: absolute;
+        top: -10px;
+
+        filter: blur(5px);
+
+        width: 150px;
+        height: 100%;
+
+        pointer-events: none;
+
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+
+      &::before {
+        left: -5px;
+
+        background: linear-gradient(
+                        to right,
+                        rgba(22, 22, 22, 0.95) 0%,
+                        rgba(24, 24, 24, 0.88) 12%,
+                        rgba(26, 26, 26, 0.72) 28%,
+                        rgba(28, 28, 28, 0.48) 48%,
+                        rgba(30, 30, 30, 0.24) 68%,
+                        rgba(30, 30, 30, 0.08) 84%,
+                        rgba(30, 30, 30, 0) 100%
+        );
+      }
+
+      &::after {
+        right: -5px;
+
+        background: linear-gradient(
+                        to left,
+                        rgba(22, 22, 22, 0.95) 0%,
+                        rgba(24, 24, 24, 0.88) 12%,
+                        rgba(26, 26, 26, 0.72) 28%,
+                        rgba(28, 28, 28, 0.48) 48%,
+                        rgba(30, 30, 30, 0.24) 68%,
+                        rgba(30, 30, 30, 0.08) 84%,
+                        rgba(30, 30, 30, 0) 100%
+        );
+      }
+
+      &.left-shadow::before {
+        opacity: 0.5;
+      }
+
+      &.right-shadow::after {
+        opacity: 0.5;
+      }
+
       .scrollBack, .scrollForward {
         position: absolute;
         transition: 0.2s;
@@ -516,7 +573,7 @@ a.button {
 
         cursor: pointer;
 
-        z-index: 1;
+        z-index: 2;
 
         &:hover {
           background-color: var(--hover-background);
@@ -2011,6 +2068,11 @@ a.button {
 
     .songGrid {
       & > div {
+        &::before,
+        &::after {
+          width: 70px;
+        }
+
         .scrollForward, .scrollBack {
           top: 55px;
           height: 50px;
