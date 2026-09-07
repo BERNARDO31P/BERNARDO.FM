@@ -14,6 +14,7 @@ window.addEventListener("unhandledrejection", (event) => {
 
 class MultiTrackPlayer extends EventTarget {
     static #audioTagOwner = null;
+    static #carrierPauseTimeout = null;
 
     #waitIndex = null;
 
@@ -38,6 +39,9 @@ class MultiTrackPlayer extends EventTarget {
 
     #startTime = 0;
 
+    #clockTime = 0;
+    #clockStartedAt = null;
+
     #timeUpdateHandler = null;
     #playEventHandler = null;
     #pauseEventHandler = null;
@@ -55,7 +59,7 @@ class MultiTrackPlayer extends EventTarget {
 
         this.#audioTag = document.getElementById("MultiTrackPlayer");
         if (!this.#audioTag) {
-            this.#audioTag = new Audio(this.#createSilence(1));
+            this.#audioTag = new Audio(this.#createSilence(60));
 
             this.#audioTag.controls = true;
             this.#audioTag.id = "MultiTrackPlayer";
@@ -63,7 +67,14 @@ class MultiTrackPlayer extends EventTarget {
             document.body.append(this.#audioTag);
         }
 
-        this.#audioTag.volume = 0;
+        /*
+         * The HTML audio element is only a permanent background media
+         * carrier. It must never be replaced between songs.
+         */
+        this.#audioTag.preload = "auto";
+        this.#audioTag.loop = true;
+        this.#audioTag.volume = this.#volume;
+
         this.#playEventHandler = this.#playEvent.bind(this);
         this.#pauseEventHandler = this.#pauseEvent.bind(this);
 
@@ -140,6 +151,129 @@ class MultiTrackPlayer extends EventTarget {
         return signal !== null && signal.aborted && error === signal.reason;
     }
 
+    #getClockTime() {
+        let time = this.#clockTime;
+
+        if (this.#clockStartedAt !== null) {
+            time += (performance.now() - this.#clockStartedAt) / 1000;
+        }
+
+        return Math.max(0, Math.min(this.#length, time));
+    }
+
+    #startClock() {
+        if (this.#clockStartedAt === null) {
+            this.#clockStartedAt = performance.now();
+        }
+    }
+
+    #pauseClock() {
+        if (this.#clockStartedAt === null) {
+            return;
+        }
+
+        this.#clockTime = this.#getClockTime();
+        this.#clockStartedAt = null;
+    }
+
+    #cancelCarrierPause() {
+        if (MultiTrackPlayer.#carrierPauseTimeout !== null) {
+            clearTimeout(MultiTrackPlayer.#carrierPauseTimeout);
+            MultiTrackPlayer.#carrierPauseTimeout = null;
+        }
+    }
+
+    #scheduleCarrierPause() {
+        this.#cancelCarrierPause();
+
+        const audioTag = this.#audioTag;
+
+        /*
+         * Delaying this until the current task ends allows an automatic
+         * next-song initialize() to take ownership first.
+         */
+        MultiTrackPlayer.#carrierPauseTimeout = setTimeout(() => {
+            MultiTrackPlayer.#carrierPauseTimeout = null;
+
+            if (MultiTrackPlayer.#audioTagOwner !== null) {
+                return;
+            }
+
+            if (!audioTag.paused) {
+                audioTag.pause();
+            }
+        }, 0);
+    }
+
+    #resetState(dispatch = true) {
+        let currentPartIndex = this.getPartByStartTime(0)[2];
+
+        if (currentPartIndex === null || !isFinite(currentPartIndex)) {
+            currentPartIndex = 0;
+        }
+
+        this.#currentTrackIndex = currentPartIndex;
+        this.#startTime = 0;
+        this.#clockTime = 0;
+        this.#clockStartedAt = null;
+
+        for (const [index, part] of Object.entries(this.#indexes)) {
+            if (!part) {
+                continue;
+            }
+
+            this.#indexes[index]["offset"] = 0;
+            this.#indexes[index]["timeout"] = null;
+            this.#indexes[index]["source"] = null;
+        }
+
+        this.#setPositionState();
+
+        if (dispatch) {
+            this.#dispatchTimeUpdate(true);
+        }
+    }
+
+    #releaseForHandoff() {
+        this.#lifecycleGeneration++;
+
+        this.#pauseClock();
+
+        this.#hadError = false;
+        this.#stopped = true;
+        this.#initialPlay = true;
+        this.#playing = false;
+        this.#nextTrackIndex = false;
+        this.#waitIndex = null;
+        this.#startTime = 0;
+
+        this.#clearTimeouts();
+        this.#abortDownload();
+
+        this.#audioTag.removeEventListener("play", this.#playEventHandler);
+        this.#audioTag.removeEventListener("pause", this.#pauseEventHandler);
+        this.removeTimeUpdate();
+
+        Object.entries(this.#getAudioSources()).forEach(([index, source]) => {
+            this.#killSource(source);
+
+            if (typeof this.#indexes[index] !== "undefined") {
+                this.#indexes[index]["source"] = null;
+            }
+        });
+
+        this.#resetState(false);
+
+        if (MultiTrackPlayer.#audioTagOwner === this) {
+            MultiTrackPlayer.#audioTagOwner = null;
+        }
+
+        /*
+         * Deliberately do NOT pause #audioTag here.
+         * The next song takes over the already-running carrier.
+         */
+    }
+
     addTimeUpdate() {
         if (this.#timeUpdateHandler === null) {
             this.#timeUpdateHandler = this.#dispatchTimeUpdate.bind(this);
@@ -178,10 +312,8 @@ class MultiTrackPlayer extends EventTarget {
     async addTrack(url, callback) {
         try {
             /*
-             * Do NOT change #stopped here.
-             *
-             * addTrack() is also allowed while stopped so tracks can be
-             * preloaded. Only initialize() activates playback.
+             * addTrack() is also the preload API.
+             * It must not change playback lifecycle state.
              */
             this.#nextTrackIndex = false;
 
@@ -206,10 +338,8 @@ class MultiTrackPlayer extends EventTarget {
             if (this.isDecoding()) {
                 if (this.#indexes[index] && this.#indexes[index]["decoding"]) {
                     /*
-                     * Latest requested part gets priority immediately.
-                     *
-                     * The interrupted part remains decoding=true and will
-                     * therefore still be present in the queue afterwards.
+                     * Latest requested timeline part gets immediate priority.
+                     * The interrupted part remains decoding=true.
                      */
                     this.#waitIndex = index;
                     this.#abortDownload();
@@ -301,13 +431,13 @@ class MultiTrackPlayer extends EventTarget {
 
     async initialize() {
         /*
-         * Only one MultiTrackPlayer may own the shared <audio> element.
-         *
-         * If another player still owns it, stop it completely before this
-         * instance becomes active.
+         * If stop() was called immediately before this during an automatic
+         * song change, prevent its deferred carrier pause from firing.
          */
+        this.#cancelCarrierPause();
+
         if (MultiTrackPlayer.#audioTagOwner !== null && MultiTrackPlayer.#audioTagOwner !== this) {
-            MultiTrackPlayer.#audioTagOwner.stop();
+            MultiTrackPlayer.#audioTagOwner.#releaseForHandoff();
         }
 
         MultiTrackPlayer.#audioTagOwner = this;
@@ -320,13 +450,13 @@ class MultiTrackPlayer extends EventTarget {
 
         this.#clearTimeouts();
 
-        if (this.#audioTag.duration !== this.#length) {
-            this.#audioTag.src = this.#createSilence(this.#length);
-        }
-
         this.#audioTag.addEventListener("play", this.#playEventHandler);
         this.#audioTag.addEventListener("pause", this.#pauseEventHandler);
 
+        /*
+         * For continuous playback this normally only runs for the first
+         * song. During song-to-song handoff the carrier remains running.
+         */
         if (this.#audioTag.paused) {
             try {
                 await this.#audioTag.play();
@@ -360,13 +490,6 @@ class MultiTrackPlayer extends EventTarget {
         this.#setPositionState();
         this.addTimeUpdate();
 
-        /*
-         * stop() may previously have aborted an incomplete download.
-         * Resume that queue when this player becomes active again.
-         *
-         * If addTrack() is already preloading something, isDecoding()
-         * prevents a second worker from being created.
-         */
         if (Object.keys(this.#getDecodingQueue()).length && !this.isDecoding()) {
             void this.#processDecodeQueue().catch((error) => {
                 if (!this.#isAbortError(error)) {
@@ -381,7 +504,10 @@ class MultiTrackPlayer extends EventTarget {
             index = this.#currentTrackIndex;
         }
 
-        if (typeof this.#indexes[index] === "undefined") {
+        if (typeof this.#indexes[index] === "undefined"
+            || typeof this.#indexes[index]["buffer"] === "undefined"
+            || this.#indexes[index]["buffer"] === null) {
+
             return;
         }
 
@@ -394,7 +520,13 @@ class MultiTrackPlayer extends EventTarget {
             && (this.#currentTrackIndex !== index || this.#initialPlay)
             && (this.#waitIndex === null || this.#waitIndex === index || this.hadError())) {
 
+            const wasPlaying = this.#playing;
+
             this.#playing = true;
+
+            if (!wasPlaying) {
+                this.#startClock();
+            }
 
             if (this.#audioTag.paused) {
                 void this.#audioTag.play().catch((error) => {
@@ -455,6 +587,17 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
+                /*
+                 * This part has really finished. Keep the logical playback position
+                 * exactly at its end so a later retry resumes from the following part.
+                 */
+                const till = this.#indexes[index]["till"];
+
+                if (till !== null && isFinite(till)) {
+                    this.#clockTime = till;
+                    this.#clockStartedAt = null;
+                }
+
                 this.pause();
             };
 
@@ -499,6 +642,8 @@ class MultiTrackPlayer extends EventTarget {
             return;
         }
 
+        this.#pauseClock();
+
         this.#playing = false;
         this.#nextTrackIndex = false;
         this.#waitIndex = null;
@@ -518,17 +663,14 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         if (MultiTrackPlayer.#audioTagOwner === this && "mediaSession" in navigator) {
-            let duration = this.#audioTag.duration;
-
-            if (isNaN(duration)) {
-                duration = 0;
-            }
+            const duration = Math.max(1, this.#length);
+            const position = Math.max(0, Math.min(duration, this.#getClockTime()));
 
             navigator.mediaSession.playbackState = "paused";
             navigator.mediaSession.setPositionState({
                 duration: duration,
                 playbackRate: 0.00001,
-                position: this.#audioTag.currentTime
+                position: position
             });
         }
 
@@ -548,13 +690,8 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     stop() {
-        /*
-         * Invalidate initialize() and every other playback-lifecycle
-         * continuation belonging to the previous active session.
-         *
-         * This is deliberately separate from #decodeGeneration.
-         */
         this.#lifecycleGeneration++;
+        this.#pauseClock();
 
         const ownsAudioTag = MultiTrackPlayer.#audioTagOwner === this;
 
@@ -567,24 +704,11 @@ class MultiTrackPlayer extends EventTarget {
         this.#startTime = 0;
 
         this.#clearTimeouts();
-
-        /*
-         * Abort an active download immediately. Its track remains
-         * decoding=true and can be resumed by initialize() or a later
-         * addTrack() preload.
-         */
         this.#abortDownload();
 
         this.#audioTag.removeEventListener("play", this.#playEventHandler);
         this.#audioTag.removeEventListener("pause", this.#pauseEventHandler);
         this.removeTimeUpdate();
-
-        /*
-         * Do not pause the shared tag if another player already owns it.
-         */
-        if (ownsAudioTag && !this.#audioTag.paused) {
-            this.#audioTag.pause();
-        }
 
         Object.entries(this.#getAudioSources()).forEach(([index, source]) => {
             this.#killSource(source);
@@ -596,9 +720,15 @@ class MultiTrackPlayer extends EventTarget {
 
         if (ownsAudioTag) {
             MultiTrackPlayer.#audioTagOwner = null;
+
+            /*
+             * If another player initializes synchronously as part of an
+             * automatic next-song transition, it cancels this pause.
+             */
+            this.#scheduleCarrierPause();
         }
 
-        this.reset();
+        this.#resetState(false);
     }
 
     #playEvent() {
@@ -680,7 +810,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     getCurrentTime() {
-        return parseInt(String(this.#audioTag.currentTime));
+        return parseInt(String(this.#getClockTime()));
     }
 
     getCurrentWebAudioTime() {
@@ -713,10 +843,16 @@ class MultiTrackPlayer extends EventTarget {
             return 0;
         }
 
-        const offset = parseInt(this.#indexes[index]["offset"]);
+        const offset = Number(this.#indexes[index]["offset"]);
 
-        if (this.getPartLength(index) === offset) {
+        if (!isFinite(offset) || offset < 0) {
             return 0;
+        }
+
+        const length = this.getPartLength(index);
+
+        if (length > 0) {
+            return Math.min(offset, length);
         }
 
         return offset;
@@ -731,7 +867,15 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     setCurrentTime(time, bypass = false) {
-        this.#audioTag.currentTime = time;
+        time = Number(time);
+
+        if (!isFinite(time)) {
+            return;
+        }
+
+        this.#clockTime = Math.max(0, Math.min(this.#length, time));
+        this.#clockStartedAt = this.#playing ? performance.now() : null;
+
         this.#setPositionState();
 
         if (!bypass) {
@@ -785,17 +929,34 @@ class MultiTrackPlayer extends EventTarget {
     clear() {
         this.#lifecycleGeneration++;
 
-        if (this.#playing) {
-            this.pause();
-        } else {
-            this.#nextTrackIndex = false;
-            this.#waitIndex = null;
+        const ownsAudioTag = MultiTrackPlayer.#audioTagOwner === this;
 
-            this.#clearTimeouts();
-            this.#abortDownload();
+        this.#pauseClock();
+        this.#playing = false;
+        this.#nextTrackIndex = false;
+        this.#waitIndex = null;
+
+        this.#clearTimeouts();
+        this.#abortDownload();
+
+        this.#audioTag.removeEventListener("play", this.#playEventHandler);
+        this.#audioTag.removeEventListener("pause", this.#pauseEventHandler);
+        this.removeTimeUpdate();
+
+        Object.entries(this.#getAudioSources()).forEach(([index, source]) => {
+            this.#killSource(source);
+
+            if (typeof this.#indexes[index] !== "undefined") {
+                this.#indexes[index]["source"] = null;
+            }
+        });
+
+        if (ownsAudioTag) {
+            MultiTrackPlayer.#audioTagOwner = null;
+            this.#scheduleCarrierPause();
         }
 
-        this.reset();
+        this.#resetState(false);
         this.#indexes = [];
     }
 
@@ -804,43 +965,17 @@ class MultiTrackPlayer extends EventTarget {
             return;
         }
 
-        let currentPartIndex = this.getPartByStartTime(0)[2];
-
-        if (currentPartIndex === null || !isFinite(currentPartIndex)) {
-            currentPartIndex = 0;
-        }
-
-        this.#currentTrackIndex = currentPartIndex;
-        this.#startTime = 0;
-
-        this.setCurrentTime(0, true);
-
-        for (const [index, part] of Object.entries(this.#indexes)) {
-            if (!part) {
-                continue;
-            }
-
-            this.#indexes[index]["offset"] = 0;
-            this.#indexes[index]["timeout"] = null;
-            this.#indexes[index]["source"] = null;
-        }
-
-        this.#setPositionState();
-        this.#dispatchTimeUpdate(true);
+        this.#resetState(true);
     }
 
     #abortDownload() {
         const abortController = this.#abortController;
 
-        /*
-         * Invalidate the current decode worker first.
-         */
         this.#decodeGeneration++;
         this.#isDecoding = false;
 
         /*
-         * Install the controller for the next worker before aborting
-         * the current worker.
+         * Install the next controller before aborting the current worker.
          */
         this.#abortController = new AbortController();
         this.#abortSignal = this.#abortController.signal;
@@ -864,10 +999,8 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         /*
-         * Decode/download lifecycle is independent of #stopped.
-         *
-         * That allows addTrack() to preload tracks while playback itself
-         * is stopped.
+         * Download/decode lifecycle is independent from playback lifecycle.
+         * This allows stopped players to preload tracks.
          */
         const generation = this.#decodeGeneration;
         const signal = this.#abortSignal;
@@ -885,9 +1018,6 @@ class MultiTrackPlayer extends EventTarget {
 
                 let queueIndex;
 
-                /*
-                 * Latest timeline-release part has immediate priority.
-                 */
                 if (this.#waitIndex !== null && Object.prototype.hasOwnProperty.call(decodingQueue, this.#waitIndex)) {
                     queueIndex = String(this.#waitIndex);
                 } else {
@@ -939,11 +1069,8 @@ class MultiTrackPlayer extends EventTarget {
                     }
                 } catch (error) {
                     /*
-                     * A changed generation means this request was
-                     * intentionally superseded.
-                     *
-                     * Do not change "decoding": the interrupted track stays
-                     * queued and will be downloaded after the priority part.
+                     * A changed generation means this fetch was intentionally
+                     * superseded. Leave decoding=true so it stays queued.
                      */
                     if (generation !== this.#decodeGeneration) {
                         return;
@@ -960,6 +1087,7 @@ class MultiTrackPlayer extends EventTarget {
                     }
 
                     this.#removePart(bufferIndex);
+
                     this.dispatchEvent(new Event("downloadError"));
 
                     return;
@@ -979,10 +1107,6 @@ class MultiTrackPlayer extends EventTarget {
 
                 this.dispatchEvent(new Event("processing"));
 
-                /*
-                 * dispatchEvent() runs listeners synchronously. A listener
-                 * is allowed to call addTrack(), stop(), clear(), etc.
-                 */
                 if (generation !== this.#decodeGeneration) {
                     return;
                 }
@@ -994,10 +1118,6 @@ class MultiTrackPlayer extends EventTarget {
                 if (typeof this.#indexes[bufferIndex]["callback"] !== "undefined") {
                     const from = this.#indexes[bufferIndex]["callback"](this.#indexes, bufferIndex);
 
-                    /*
-                     * The callback is also external synchronous code and can
-                     * change the player while it runs.
-                     */
                     if (generation !== this.#decodeGeneration) {
                         return;
                     }
@@ -1062,7 +1182,7 @@ class MultiTrackPlayer extends EventTarget {
             }
         } finally {
             /*
-             * An old worker must never clear state belonging to the worker
+             * A stale worker must never clear state belonging to the worker
              * that replaced it.
              */
             if (generation === this.#decodeGeneration) {
@@ -1102,8 +1222,7 @@ class MultiTrackPlayer extends EventTarget {
      * Argumente:
      *  seconds: (Integer) Definiert die Dauer des Platzhalters
      *
-     * Erstellt einen Platzhalter in der Länge des momentanen Liedes
-     * Dafür da, damit die MediaSession API besser und vor allem überall funktioniert
+     * Erstellt einen Platzhalter für die MediaSession API.
      */
     #createSilence(seconds = 1) {
         const sampleRate = 8000;
@@ -1143,16 +1262,13 @@ class MultiTrackPlayer extends EventTarget {
 
     #setPositionState() {
         if ("mediaSession" in navigator && MultiTrackPlayer.#audioTagOwner === this) {
-            let duration = this.#audioTag.duration;
-
-            if (isNaN(duration)) {
-                duration = 0;
-            }
+            const duration = Math.max(1, this.#length);
+            const position = Math.max(0, Math.min(duration, this.#getClockTime()));
 
             navigator.mediaSession.setPositionState({
                 duration: duration,
-                playbackRate: this.#audioTag.playbackRate,
-                position: this.#audioTag.currentTime
+                playbackRate: 1,
+                position: position
             });
         }
     }

@@ -9,6 +9,7 @@ let lastScroll = 0;
 let overflowTimeout = null;
 
 let seekTimeout = null, seekTime = 0, seekDirection = null;
+let pendingSeek = null;
 
 const defaultDelay = 500;
 
@@ -1373,9 +1374,13 @@ function clearSongs() {
  *
  * Pausiert die Wiedergabe
  */
-function pauseSong() {
+function pauseSong(keepPendingSeek = false) {
     clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
+
+    if (!keepPendingSeek) {
+        pendingSeek = null;
+    }
 
     playlist[playIndex]["player"].pause();
     playPauseButton("pause");
@@ -1394,6 +1399,8 @@ function pauseSong() {
 }
 
 function stopSongs() {
+    pendingSeek = null;
+
     clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
@@ -1461,13 +1468,17 @@ function onTimelineRelease(value, rangeEvent = null) {
     const timeline = document.getElementById("timeline");
 
     if (value >= player.getDuration()) {
+        pendingSeek = null;
+
         nextSong();
+
         return;
     }
 
     if (value < 0) {
         value = 0;
     }
+
     value = parseInt(value);
 
     if (!document.hidden) {
@@ -1478,46 +1489,42 @@ function onTimelineRelease(value, rangeEvent = null) {
 
             if (!onElement(rect, rangeEvent)) {
                 player.addTimeUpdate();
+
                 return;
             }
         }
     }
 
-    pauseSong();
+    pendingSeek = {
+        "player": player,
+        "time": value
+    };
+
+    pauseSong(true);
+
     player.setCurrentTime(value, true);
 
-    let partInfo = player.getPartByTime(value);
+    const partInfo = player.getPartByTime(value);
     let nextPartIndex = partInfo[2];
-
-    if (isRetrying) {
-        if (nextPartIndex === null) {
-            nextPartIndex = player.getNextFreePartIndex();
-        }
-
-        if (!player.isPlaying()) {
-            player.setCurrentIndex(nextPartIndex);
-        }
-
-        return;
-    }
 
     if (nextPartIndex === null) {
         playPauseButton("load");
 
-        const nextPartIndex = player.getNextFreePartIndex();
+        nextPartIndex = player.getNextFreePartIndex();
+
         player.setCurrentIndex(nextPartIndex);
 
         downloadPart(value, playIndex, nextPartIndex);
-    } else {
-        if (player.isPlaying()) {
-            return;
-        }
 
-        player.setOffset(value - parseInt(partInfo[0]), nextPartIndex);
-        player.setCurrentIndex(nextPartIndex);
-
-        play();
+        return;
     }
+
+    pendingSeek = null;
+
+    player.setOffset(value - parseInt(partInfo[0]), nextPartIndex);
+    player.setCurrentIndex(nextPartIndex);
+
+    play();
 }
 
 // TODO: Comment
@@ -1534,6 +1541,8 @@ function partIsPlayable(sIndex, pIndex) {
  * Die Wiedergabe wird gestartet
  */
 function nextSong(bypass = false) {
+    pendingSeek = null;
+
     clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
@@ -1571,6 +1580,8 @@ function nextSong(bypass = false) {
  * Die Wiedergabe wird gestartet
  */
 function previousSong(bypass = false) {
+    pendingSeek = null;
+
     clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
@@ -1659,7 +1670,19 @@ function prepareNextPart() {
         downloadPart(nextTime, playIndex, player.getNextFreePartIndex(), missingLength);
     } else {
         if (!player.isPlaying()) {
+            /*
+             * If playback stopped because downloading the next part failed,
+             * resume from the newly downloaded part instead of replaying the
+             * previous, already-consumed part.
+             */
+            if (isRetrying) {
+                player.setOffset(0, nextPartIndex);
+                player.setCurrentIndex(nextPartIndex);
+                player.setCurrentTime(nextTime, true);
+            }
+
             play();
+
             return;
         }
 
@@ -1752,35 +1775,67 @@ function addEvents(player) {
             return;
         }
 
-        nextSong();
+        nextSong(true);
     });
 
     player.addEventListener("processed", (e) => {
+        if (typeof playlist[playIndex] === "undefined" || playlist[playIndex]["player"] !== player) {
+            return;
+        }
+
+        /*
+         * A pending seek always has priority over normal sequential loading.
+         */
+        if (pendingSeek !== null && pendingSeek["player"] === player) {
+            const partInfo = player.getPartByTime(pendingSeek["time"]);
+
+            if (partInfo[2] !== null && player.partIsPlayable(partInfo[2])) {
+                const time = pendingSeek["time"];
+
+                pendingSeek = null;
+
+                player.setOffset(time - parseInt(partInfo[0]), partInfo[2]);
+                player.setCurrentIndex(partInfo[2]);
+                player.setCurrentTime(time, true);
+
+                play();
+            }
+
+            /*
+             * Do not run prepareNextPart() while waiting for the seek target.
+             */
+            return;
+        }
+
         if (!e.detail.set) {
-            return
+            return;
         }
 
         prepareNextPart();
     });
 
     player.addEventListener("processing", () => {
-        if (typeof playlist[playIndex] === "undefined" || typeof playlist[playIndex]["player"] === "undefined") {
+        if (typeof playlist[playIndex] === "undefined" || playlist[playIndex]["player"] !== player) {
             return;
         }
 
-        if (!player.isPlaying() && playlist[playIndex]["player"] === player) {
+        if (!player.isPlaying()) {
             playPauseButton("load");
         }
     });
 
     player.addEventListener("downloadError", () => {
+        if (typeof playlist[playIndex] === "undefined" || playlist[playIndex]["player"] !== player) {
+            return;
+        }
+
         isRetrying = true;
 
         if (!player.isPlaying()) {
             playPauseButton("load");
         }
 
-        setTimeout(() => {
+        retryTimeout = setTimeout(() => {
             prepareNextPart();
         }, 2000);
     });
