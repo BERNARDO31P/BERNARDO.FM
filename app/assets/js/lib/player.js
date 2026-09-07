@@ -2,7 +2,19 @@ const audioContext = new (window.AudioContext || window.webkitAudioContext)({
     latencyHint: "playback", sampleRate: 44100
 });
 
+/*
+ * Some third-party fetch wrappers create their own detached Promise when
+ * an AbortController aborts a request. Suppress only our intentional abort.
+ */
+window.addEventListener("unhandledrejection", (event) => {
+    if (event.reason?.name === "AbortError" && event.reason?.message === "Audio download aborted") {
+        event.preventDefault();
+    }
+});
+
 class MultiTrackPlayer extends EventTarget {
+    static #audioTagOwner = null;
+
     #waitIndex = null;
 
     #abortController = new AbortController();
@@ -31,6 +43,7 @@ class MultiTrackPlayer extends EventTarget {
     #pauseEventHandler = null;
 
     #decodeGeneration = 0;
+    #lifecycleGeneration = 0;
 
     constructor(length) {
         super();
@@ -164,7 +177,12 @@ class MultiTrackPlayer extends EventTarget {
 
     async addTrack(url, callback) {
         try {
-            this.#stopped = false;
+            /*
+             * Do NOT change #stopped here.
+             *
+             * addTrack() is also allowed while stopped so tracks can be
+             * preloaded. Only initialize() activates playback.
+             */
             this.#nextTrackIndex = false;
 
             let index = this.#getIndexByUrl(url);
@@ -187,6 +205,12 @@ class MultiTrackPlayer extends EventTarget {
 
             if (this.isDecoding()) {
                 if (this.#indexes[index] && this.#indexes[index]["decoding"]) {
+                    /*
+                     * Latest requested part gets priority immediately.
+                     *
+                     * The interrupted part remains decoding=true and will
+                     * therefore still be present in the queue afterwards.
+                     */
                     this.#waitIndex = index;
                     this.#abortDownload();
                 } else {
@@ -276,6 +300,20 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     async initialize() {
+        /*
+         * Only one MultiTrackPlayer may own the shared <audio> element.
+         *
+         * If another player still owns it, stop it completely before this
+         * instance becomes active.
+         */
+        if (MultiTrackPlayer.#audioTagOwner !== null && MultiTrackPlayer.#audioTagOwner !== this) {
+            MultiTrackPlayer.#audioTagOwner.stop();
+        }
+
+        MultiTrackPlayer.#audioTagOwner = this;
+
+        const lifecycleGeneration = ++this.#lifecycleGeneration;
+
         this.#initialPlay = true;
         this.#stopped = false;
         this.#hadError = false;
@@ -290,11 +328,29 @@ class MultiTrackPlayer extends EventTarget {
         this.#audioTag.addEventListener("pause", this.#pauseEventHandler);
 
         if (this.#audioTag.paused) {
-            await this.#audioTag.play();
+            try {
+                await this.#audioTag.play();
+            } catch (error) {
+                if (error?.name !== "AbortError") {
+                    throw error;
+                }
+            }
+
+            if (this.#stopped || lifecycleGeneration !== this.#lifecycleGeneration) {
+                return;
+            }
         }
 
         if (audioContext.state !== "running") {
             await audioContext.resume();
+
+            if (this.#stopped || lifecycleGeneration !== this.#lifecycleGeneration) {
+                return;
+            }
+        }
+
+        if (this.#stopped || lifecycleGeneration !== this.#lifecycleGeneration) {
+            return;
         }
 
         if ("mediaSession" in navigator) {
@@ -303,6 +359,21 @@ class MultiTrackPlayer extends EventTarget {
 
         this.#setPositionState();
         this.addTimeUpdate();
+
+        /*
+         * stop() may previously have aborted an incomplete download.
+         * Resume that queue when this player becomes active again.
+         *
+         * If addTrack() is already preloading something, isDecoding()
+         * prevents a second worker from being created.
+         */
+        if (Object.keys(this.#getDecodingQueue()).length && !this.isDecoding()) {
+            void this.#processDecodeQueue().catch((error) => {
+                if (!this.#isAbortError(error)) {
+                    console.error(error);
+                }
+            });
+        }
     }
 
     playNext(index = 0, startTime = 0) {
@@ -311,6 +382,10 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         if (typeof this.#indexes[index] === "undefined") {
+            return;
+        }
+
+        if (MultiTrackPlayer.#audioTagOwner !== this) {
             return;
         }
 
@@ -344,6 +419,10 @@ class MultiTrackPlayer extends EventTarget {
             source.start(source.when, this.getOffset(index));
 
             source.onended = () => {
+                if (this.#stopped || MultiTrackPlayer.#audioTagOwner !== this) {
+                    return;
+                }
+
                 if (typeof this.#indexes[index] === "undefined") {
                     return;
                 }
@@ -380,6 +459,14 @@ class MultiTrackPlayer extends EventTarget {
             };
 
             this.#indexes[index]["timeout"] = setTimeout(() => {
+                if (this.#stopped || MultiTrackPlayer.#audioTagOwner !== this) {
+                    return;
+                }
+
+                if (typeof this.#indexes[index] === "undefined") {
+                    return;
+                }
+
                 this.#startTime = source.when;
 
                 this.setCurrentIndex(index);
@@ -400,6 +487,10 @@ class MultiTrackPlayer extends EventTarget {
             }
 
             this.#killSource(source);
+
+            if (typeof this.#indexes[index] !== "undefined") {
+                this.#indexes[index]["source"] = null;
+            }
         });
     }
 
@@ -422,11 +513,11 @@ class MultiTrackPlayer extends EventTarget {
             this.removeTimeUpdate();
         }
 
-        if (!this.#audioTag.paused) {
+        if (MultiTrackPlayer.#audioTagOwner === this && !this.#audioTag.paused) {
             this.#audioTag.pause();
         }
 
-        if ("mediaSession" in navigator) {
+        if (MultiTrackPlayer.#audioTagOwner === this && "mediaSession" in navigator) {
             let duration = this.#audioTag.duration;
 
             if (isNaN(duration)) {
@@ -443,38 +534,78 @@ class MultiTrackPlayer extends EventTarget {
 
         this.setOffset(this.getCurrentPartTime(), this.#currentTrackIndex);
 
-        Object.values(this.#getAudioSources()).forEach((source) => {
+        Object.entries(this.#getAudioSources()).forEach(([index, source]) => {
             this.#killSource(source);
+
+            if (typeof this.#indexes[index] !== "undefined") {
+                this.#indexes[index]["source"] = null;
+            }
         });
 
-        void audioContext.suspend().then(() => {
-            if (!this.#stopped) {
-                this.dispatchEvent(new Event("pause"));
-            }
-        }).catch((error) => {
-            console.error(error);
-        });
+        if (!this.#stopped) {
+            this.dispatchEvent(new Event("pause"));
+        }
     }
 
     stop() {
+        /*
+         * Invalidate initialize() and every other playback-lifecycle
+         * continuation belonging to the previous active session.
+         *
+         * This is deliberately separate from #decodeGeneration.
+         */
+        this.#lifecycleGeneration++;
+
+        const ownsAudioTag = MultiTrackPlayer.#audioTagOwner === this;
+
         this.#hadError = false;
         this.#stopped = true;
         this.#initialPlay = true;
+        this.#playing = false;
+        this.#nextTrackIndex = false;
+        this.#waitIndex = null;
+        this.#startTime = 0;
 
-        if (this.#playing) {
-            this.pause();
-        } else {
-            this.#nextTrackIndex = false;
-            this.#waitIndex = null;
+        this.#clearTimeouts();
 
-            this.#clearTimeouts();
-            this.#abortDownload();
+        /*
+         * Abort an active download immediately. Its track remains
+         * decoding=true and can be resumed by initialize() or a later
+         * addTrack() preload.
+         */
+        this.#abortDownload();
+
+        this.#audioTag.removeEventListener("play", this.#playEventHandler);
+        this.#audioTag.removeEventListener("pause", this.#pauseEventHandler);
+        this.removeTimeUpdate();
+
+        /*
+         * Do not pause the shared tag if another player already owns it.
+         */
+        if (ownsAudioTag && !this.#audioTag.paused) {
+            this.#audioTag.pause();
+        }
+
+        Object.entries(this.#getAudioSources()).forEach(([index, source]) => {
+            this.#killSource(source);
+
+            if (typeof this.#indexes[index] !== "undefined") {
+                this.#indexes[index]["source"] = null;
+            }
+        });
+
+        if (ownsAudioTag) {
+            MultiTrackPlayer.#audioTagOwner = null;
         }
 
         this.reset();
     }
 
     #playEvent() {
+        if (MultiTrackPlayer.#audioTagOwner !== this || this.#stopped) {
+            return;
+        }
+
         if (!this.isPlaying()) {
             this.#initialPlay = true;
 
@@ -484,12 +615,20 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #pauseEvent() {
+        if (MultiTrackPlayer.#audioTagOwner !== this || this.#stopped) {
+            return;
+        }
+
         if (this.isPlaying()) {
             this.pause(true);
         }
     }
 
     queueTrack(index, startTime = null) {
+        if (this.#stopped || MultiTrackPlayer.#audioTagOwner !== this) {
+            return false;
+        }
+
         if (typeof this.#indexes[index] !== "undefined"
             && typeof this.#indexes[index]["buffer"] !== "undefined"
             && this.#indexes[index]["buffer"] !== null
@@ -644,6 +783,8 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     clear() {
+        this.#lifecycleGeneration++;
+
         if (this.#playing) {
             this.pause();
         } else {
@@ -663,22 +804,43 @@ class MultiTrackPlayer extends EventTarget {
             return;
         }
 
-        const currentPartIndex = parseInt(this.getPartByStartTime(0)[2]);
+        let currentPartIndex = this.getPartByStartTime(0)[2];
 
-        this.setCurrentIndex(currentPartIndex);
-        this.setCurrentTime(0);
-        this.setOffset(0, currentPartIndex);
+        if (currentPartIndex === null || !isFinite(currentPartIndex)) {
+            currentPartIndex = 0;
+        }
+
+        this.#currentTrackIndex = currentPartIndex;
+        this.#startTime = 0;
+
+        this.setCurrentTime(0, true);
+
+        for (const [index, part] of Object.entries(this.#indexes)) {
+            if (!part) {
+                continue;
+            }
+
+            this.#indexes[index]["offset"] = 0;
+            this.#indexes[index]["timeout"] = null;
+            this.#indexes[index]["source"] = null;
+        }
+
+        this.#setPositionState();
+        this.#dispatchTimeUpdate(true);
     }
 
     #abortDownload() {
         const abortController = this.#abortController;
 
+        /*
+         * Invalidate the current decode worker first.
+         */
         this.#decodeGeneration++;
         this.#isDecoding = false;
 
         /*
-         * Install the controller for the next download BEFORE aborting
-         * the previous one.
+         * Install the controller for the next worker before aborting
+         * the current worker.
          */
         this.#abortController = new AbortController();
         this.#abortSignal = this.#abortController.signal;
@@ -691,7 +853,7 @@ class MultiTrackPlayer extends EventTarget {
     async #processDecodeQueue() {
         const initialQueue = this.#getDecodingQueue();
 
-        if (!Object.keys(initialQueue).length || this.#stopped) {
+        if (!Object.keys(initialQueue).length) {
             this.dispatchEvent(new CustomEvent("processed", {
                 detail: {
                     set: true
@@ -702,8 +864,10 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         /*
-         * This worker owns this exact generation and this exact signal.
-         * #abortDownload() cannot replace the signal underneath it.
+         * Decode/download lifecycle is independent of #stopped.
+         *
+         * That allows addTrack() to preload tracks while playback itself
+         * is stopped.
          */
         const generation = this.#decodeGeneration;
         const signal = this.#abortSignal;
@@ -711,7 +875,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#isDecoding = true;
 
         try {
-            while (!this.#stopped && generation === this.#decodeGeneration) {
+            while (generation === this.#decodeGeneration) {
                 const decodingQueue = this.#getDecodingQueue();
                 const queueIndexes = Object.keys(decodingQueue);
 
@@ -722,9 +886,7 @@ class MultiTrackPlayer extends EventTarget {
                 let queueIndex;
 
                 /*
-                 * The timeline-released part always has priority.
-                 * Once that part finishes, the interrupted part is still
-                 * marked "decoding" and remains in this queue.
+                 * Latest timeline-release part has immediate priority.
                  */
                 if (this.#waitIndex !== null && Object.prototype.hasOwnProperty.call(decodingQueue, this.#waitIndex)) {
                     queueIndex = String(this.#waitIndex);
@@ -744,6 +906,10 @@ class MultiTrackPlayer extends EventTarget {
                 }
 
                 this.dispatchEvent(new Event("processing"));
+
+                if (generation !== this.#decodeGeneration) {
+                    return;
+                }
 
                 let decodedBuffer;
 
@@ -773,10 +939,11 @@ class MultiTrackPlayer extends EventTarget {
                     }
                 } catch (error) {
                     /*
-                     * Generation changed means this worker was explicitly
-                     * cancelled by #abortDownload(). The part deliberately
-                     * stays "decoding": true so the next worker can fetch it
-                     * after the priority part.
+                     * A changed generation means this request was
+                     * intentionally superseded.
+                     *
+                     * Do not change "decoding": the interrupted track stays
+                     * queued and will be downloaded after the priority part.
                      */
                     if (generation !== this.#decodeGeneration) {
                         return;
@@ -793,10 +960,7 @@ class MultiTrackPlayer extends EventTarget {
                     }
 
                     this.#removePart(bufferIndex);
-
-                    if (!this.#stopped) {
-                        this.dispatchEvent(new Event("downloadError"));
-                    }
+                    this.dispatchEvent(new Event("downloadError"));
 
                     return;
                 }
@@ -815,9 +979,35 @@ class MultiTrackPlayer extends EventTarget {
 
                 this.dispatchEvent(new Event("processing"));
 
+                /*
+                 * dispatchEvent() runs listeners synchronously. A listener
+                 * is allowed to call addTrack(), stop(), clear(), etc.
+                 */
+                if (generation !== this.#decodeGeneration) {
+                    return;
+                }
+
+                if (typeof this.#indexes[bufferIndex] === "undefined") {
+                    continue;
+                }
+
                 if (typeof this.#indexes[bufferIndex]["callback"] !== "undefined") {
-                    this.#indexes[bufferIndex]["from"] = this.#indexes[bufferIndex]["callback"](this.#indexes, bufferIndex);
-                    this.#indexes[bufferIndex]["till"] = this.#indexes[bufferIndex]["from"] + this.getPartLength(bufferIndex);
+                    const from = this.#indexes[bufferIndex]["callback"](this.#indexes, bufferIndex);
+
+                    /*
+                     * The callback is also external synchronous code and can
+                     * change the player while it runs.
+                     */
+                    if (generation !== this.#decodeGeneration) {
+                        return;
+                    }
+
+                    if (typeof this.#indexes[bufferIndex] === "undefined") {
+                        return;
+                    }
+
+                    this.#indexes[bufferIndex]["from"] = from;
+                    this.#indexes[bufferIndex]["till"] = from + this.getPartLength(bufferIndex);
 
                     delete this.#indexes[bufferIndex]["callback"];
                 } else if (this.#currentTrackIndex !== bufferIndex && this.getCurrentPart()[2] !== bufferIndex) {
@@ -832,12 +1022,12 @@ class MultiTrackPlayer extends EventTarget {
                     continue;
                 }
 
-                if (!isFinite(this.#currentTrackIndex)) {
-                    this.#currentTrackIndex = this.getPartByStartTime(this.getCurrentTime())[2];
+                if (generation !== this.#decodeGeneration) {
+                    return;
                 }
 
-                if (this.#stopped || generation !== this.#decodeGeneration) {
-                    return;
+                if (!isFinite(this.#currentTrackIndex)) {
+                    this.#currentTrackIndex = this.getPartByStartTime(this.getCurrentTime())[2];
                 }
 
                 if (bufferIndex === this.#waitIndex) {
@@ -849,6 +1039,10 @@ class MultiTrackPlayer extends EventTarget {
                         }
                     }));
 
+                    if (generation !== this.#decodeGeneration) {
+                        return;
+                    }
+
                     this.#waitIndex = null;
                 } else {
                     this.dispatchEvent(new CustomEvent("processed", {
@@ -856,20 +1050,20 @@ class MultiTrackPlayer extends EventTarget {
                             set: !this.#nextTrackIndex
                         }
                     }));
+
+                    if (generation !== this.#decodeGeneration) {
+                        return;
+                    }
                 }
             }
         } catch (error) {
-            /*
-             * Final safety boundary. AbortError must never leave this
-             * worker as a rejected Promise.
-             */
             if (!this.#isAbortError(error, signal)) {
                 throw error;
             }
         } finally {
             /*
-             * An aborted/stale worker must not clear #isDecoding after
-             * its replacement has already started.
+             * An old worker must never clear state belonging to the worker
+             * that replaced it.
              */
             if (generation === this.#decodeGeneration) {
                 this.#isDecoding = false;
@@ -925,10 +1119,10 @@ class MultiTrackPlayer extends EventTarget {
         const buffer = new ArrayBuffer(byteLength);
         const view = new DataView(buffer);
 
-        view.setUint32(0, 0x52494646, false);    // Chunk ID 'RIFF'
+        view.setUint32(0, 0x52494646, false);    // Chunk ID "RIFF"
         view.setUint32(4, chunkSize, true);      // File size
-        view.setUint32(8, 0x57415645, false);    // Format 'WAVE'
-        view.setUint32(12, 0x666D7420, false);   // Sub-chunk 1 ID 'fmt '
+        view.setUint32(8, 0x57415645, false);    // Format "WAVE"
+        view.setUint32(12, 0x666D7420, false);   // Sub-chunk 1 ID "fmt "
         view.setUint32(16, 16, true);            // Sub-chunk 1 size
         view.setUint16(20, 1, true);             // Audio format
         view.setUint16(22, numChannels, true);   // Number of channels
@@ -936,7 +1130,7 @@ class MultiTrackPlayer extends EventTarget {
         view.setUint32(28, byteRate, true);      // Byte rate
         view.setUint16(32, blockAlign, true);    // Block align
         view.setUint16(34, bitsPerSample, true); // Bits per sample
-        view.setUint32(36, 0x64617461, false);   // Sub-chunk 2 ID 'data'
+        view.setUint32(36, 0x64617461, false);   // Sub-chunk 2 ID "data"
         view.setUint32(40, dataSize, true);      // Sub-chunk 2 size
 
         for (let offset = 44; offset < byteLength; offset++) {
@@ -948,7 +1142,7 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #setPositionState() {
-        if ("mediaSession" in navigator) {
+        if ("mediaSession" in navigator && MultiTrackPlayer.#audioTagOwner === this) {
             let duration = this.#audioTag.duration;
 
             if (isNaN(duration)) {
