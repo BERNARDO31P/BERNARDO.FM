@@ -1419,7 +1419,9 @@ function onTimelinePress() {
     const timeInfo = document.getElementById("timeInfo");
     timeInfo.style.display = "initial";
 
-    playlist[playIndex]["player"].removeTimeUpdate();
+    if (typeof playlist[playIndex]["player"] !== "undefined") {
+        playlist[playIndex]["player"].removeTimeUpdate();
+    }
 }
 
 // Checks if the event occurred on the element with a 40px buffer
