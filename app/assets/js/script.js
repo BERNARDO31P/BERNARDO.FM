@@ -400,14 +400,58 @@ bindEvent("click", ".repeat", function () {
 });
 
 /*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
  * Zeigt den Lautstärkeregler
  */
-bindEvent("mouseover, touchend", ".volume, .volumeBackground", function () {
+bindEvent("mouseover", ".volume, .volumeBackground", function () {
+    if (isTouchScreen()) {
+        return;
+    }
+
     document.getElementsByClassName("volumeBackground")[0].classList.add("show");
     hideVolumeSlider();
+});
+
+/*
+ * Mobile: tapping the volume area opens it and starts the 2 second timer.
+ *
+ * This also handles touchend from the slider because .volumeSlider is
+ * inside .volumeBackground.
+ */
+bindEvent("touchend", ".volume, .volumeBackground", function () {
+    document.getElementsByClassName("volumeBackground")[0].classList.add("show");
+
+    hideVolumeSlider();
+});
+
+/*
+ * Mobile: while actually dragging the slider, don't allow it to disappear.
+ */
+bindEvent("touchstart", ".volumeSlider", function () {
+    clearTimeout(sliderTimeout);
+});
+
+bindEvent("touchcancel", ".volumeSlider", function () {
+    hideVolumeSlider();
+});
+
+/*
+ * Desktop only: immediately hide when leaving the volume area.
+ */
+bindEvent("mouseout", ".volume", function () {
+    if (isTouchScreen()) {
+        return;
+    }
+
+    hideVolumeSlider(0);
+});
+
+/*
+ * Ändert die Lautstärke
+ */
+bindEvent("input", ".volumeSlider", function () {
+    volume = this.value / 100;
+
+    setVolume(volume);
 });
 
 /*
@@ -420,27 +464,6 @@ document.addEventListener("mouseover", function (e) {
     currentHover = e.target;
 });
 
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Versteckt den Lautstärkeregler
- */
-bindEvent("mouseout", ".volume", () => hideVolumeSlider(0));
-
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Ändert die Lautstärke
- */
-bindEvent("input", ".volumeSlider", function () {
-    let volumeSlider = this;
-    volume = volumeSlider.value / 100;
-
-    setVolume(volume);
-});
 
 /*
  * Funktion: Anonym

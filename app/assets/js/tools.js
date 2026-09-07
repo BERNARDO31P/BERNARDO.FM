@@ -948,6 +948,7 @@ function setVolumeIcon(volumeIcon, volumeSlider) {
  */
 function hideVolumeSlider(timeout = 2000) {
     clearTimeout(sliderTimeout);
+
     sliderTimeout = setTimeout(function () {
         document.getElementsByClassName("volumeBackground")[0].classList.remove("show");
         touched = false;
@@ -1008,8 +1009,6 @@ function setVolume(volume) {
     setVolumeIcon(volumeIcon, volumeSlider);
     setCookie("volume", volume, getExpireTime(8));
     setCookie("muted", false, getExpireTime(8));
-
-    hideVolumeSlider();
 }
 
 /*
@@ -1671,11 +1670,10 @@ function prepareNextPart() {
     } else {
         if (!player.isPlaying()) {
             /*
-             * If playback stopped because downloading the next part failed,
-             * resume from the newly downloaded part instead of replaying the
-             * previous, already-consumed part.
+             * If the previous part has already reached its end, playback must
+             * resume from this next part.
              */
-            if (isRetrying) {
+            if (isRetrying || player.getCurrentTime() >= nextTime) {
                 player.setOffset(0, nextPartIndex);
                 player.setCurrentIndex(nextPartIndex);
                 player.setCurrentTime(nextTime, true);

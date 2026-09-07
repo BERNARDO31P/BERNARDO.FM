@@ -516,7 +516,7 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         if (!this.hadError() && !this.#stopped
-            && !(startTime === 0 && this.isPlaying())
+            && !(startTime === 0 && this.isPlaying() && this.#currentTrackIndex === index)
             && (this.#currentTrackIndex !== index || this.#initialPlay)
             && (this.#waitIndex === null || this.#waitIndex === index || this.hadError())) {
 
@@ -583,6 +583,29 @@ class MultiTrackPlayer extends EventTarget {
                             }
                         });
                     }
+
+                    /*
+                     * The WebAudio source has actually ended. We are buffering now,
+                     * not playing.
+                     */
+                    const till = this.#indexes[index]["till"];
+
+                    if (till !== null && isFinite(till)) {
+                        this.#clockTime = parseInt(till);
+                        this.#clockStartedAt = null;
+                    }
+
+                    this.setOffset(this.getPartLength(index), index);
+
+                    this.#playing = false;
+                    this.#nextTrackIndex = false;
+
+                    /*
+                     * Do not call pause() here because pause() aborts the download.
+                     * The pause event makes the application show the loading state
+                     * because isDecoding() is still true.
+                     */
+                    this.dispatchEvent(new Event("pause"));
 
                     return;
                 }
