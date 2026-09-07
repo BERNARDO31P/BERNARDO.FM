@@ -774,7 +774,7 @@ window["music"] = async () => {    /*
             time = Number(getGetParameter(location.href, "t"));
         }
 
-        addSongToPlaylist(null, songID);
+        await addSongToPlaylist(null, songID);
         if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]) {
             const player = document.querySelector("#player");
             player.querySelector("[data-angle]").dispatchEvent(clickEvent);
