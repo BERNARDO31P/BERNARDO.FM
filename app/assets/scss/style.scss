@@ -628,7 +628,7 @@ a.button {
           border-radius: 5px;
 
           .darker {
-            transition: 0.2s;
+            transition: opacity 0.2s ease;
             position: absolute;
             top: 0;
             left: 0;
@@ -639,6 +639,9 @@ a.button {
             background-color: black;
             border-radius: 5px;
 
+            pointer-events: none;
+            user-select: none;
+
             -webkit-user-select: none;
             -webkit-touch-callout: none;
 
@@ -646,18 +649,61 @@ a.button {
           }
 
           .cover {
-            transition: 0.2s;
-
-            height: 160px;
             width: 160px;
+            height: 160px;
 
             border-radius: 5px;
+
             user-select: none;
 
             box-shadow: 0 0 10px 3px var(--shadow-cover) inset;
 
             background-size: auto 160px;
             background-color: black;
+            background-repeat: no-repeat;
+          }
+
+          .playButton {
+            position: absolute;
+            bottom: 11px;
+            left: 11px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            width: 39px;
+            height: 39px;
+
+            color: gray;
+            background-color: rgba(0, 0, 0, 0.6);
+
+            border-radius: 50%;
+
+            font-size: 16px;
+
+            opacity: 0;
+            z-index: 2;
+
+            user-select: none;
+
+            transform: scale(1);
+            transform-origin: center;
+
+            will-change: transform, opacity;
+
+            transition:
+                    opacity 0.2s ease,
+                    transform 0.2s ease,
+                    color 0.2s ease,
+                    background-color 0.2s ease;
+
+            &:hover {
+              color: white;
+              background-color: rgba(0, 0, 0, 0.9);
+
+              transform: scale(1.15);
+            }
           }
 
           &:hover > .name, &:hover > .artist {
@@ -669,50 +715,24 @@ a.button {
               opacity: 0.5;
             }
 
-            .playButton::before {
-              transition: 0.2s;
-
-              content: "▶";
-              position: absolute;
-              bottom: 11px;
-              left: 11px;
-              color: gray;
-              background-color: rgba(0, 0, 0, 0.6);
-              border-radius: 100%;
-              font-size: 20px;
-              padding: 12px;
-              height: 15px;
-              width: 15px;
-              text-align: center;
-              line-height: 15px;
-
-              z-index: 1;
-            }
-
-            .playButton:hover {
-              &::before {
-                color: white;
-                background-color: rgba(0, 0, 0, 0.9);
-                padding: 15px;
-
-                bottom: 8px;
-                left: 8px;
-              }
+            .playButton {
+              opacity: 1;
             }
 
             .length {
-              padding: 3px 8px;
-              border-radius: 4px;
-
-              background-color: rgba(0, 0, 0, 0.6);
               opacity: 1;
 
-              user-select: none;
+              padding: 3px 8px;
+
+              background-color: rgba(0, 0, 0, 0.6);
+
+              border-radius: 4px;
             }
           }
 
           span {
             max-width: 156px;
+
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -724,30 +744,38 @@ a.button {
             left: 2px;
 
             font-size: 15px;
+
             cursor: pointer;
 
-            transition: 0.2s;
+            transition: color 0.2s ease;
           }
 
           .artist {
-            color: var(--text-color-artist);
-
             position: absolute;
             top: 183px;
             left: 2px;
 
+            color: var(--text-color-artist);
+
             font-size: 13px;
+
             cursor: pointer;
+
+            transition: color 0.2s ease;
           }
 
           .length {
-            transition: 0.2s;
             position: absolute;
-            opacity: 0;
-            bottom: 10px;
             right: 10px;
+            bottom: 10px;
 
             color: #cccccc;
+
+            opacity: 0;
+
+            user-select: none;
+
+            transition: opacity 0.2s ease, background-color 0.2s ease;
           }
         }
       }

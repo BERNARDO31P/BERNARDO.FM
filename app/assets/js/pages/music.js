@@ -853,6 +853,7 @@ async function generateBlockView(songs, categoryView, cover, coverCols) {
 
             const playButton = document.createElement('div');
             playButton.className = 'playButton';
+            playButton.appendChild(createIconElement('fas fa-play'));
 
             const SRC_TILE = 200;
             const DST_TILE = 160;
@@ -900,6 +901,7 @@ async function generateBlockView(songs, categoryView, cover, coverCols) {
 
             const playButton = document.createElement('div');
             playButton.className = 'playButton';
+            playButton.appendChild(createIconElement('fas fa-play'));
 
             const coverDiv = document.createElement('div');
             coverDiv.className = 'cover';
