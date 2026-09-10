@@ -1656,6 +1656,26 @@ function prepareNextPart() {
         return;
     }
 
+    /*
+     * The current part is ready and playback is still positioned inside it.
+     *
+     * Start it immediately. The "play" event will call prepareNextPart()
+     * again, at which point the following part can be downloaded while
+     * this one is already playing.
+     *
+     * Do not do this when we're already at the end of the current part,
+     * otherwise buffering/retry recovery would replay the previous part.
+     */
+    if (!player.isPlaying()
+        && currentPart[2] !== null
+        && player.partIsPlayable(currentPart[2])
+        && player.getCurrentTime() < nextTime) {
+
+        play();
+
+        return;
+    }
+
     if (!(player.getDuration() - nextTime > 1)) {
         return;
     }
