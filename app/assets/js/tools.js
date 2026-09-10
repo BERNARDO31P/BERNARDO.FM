@@ -1677,6 +1677,8 @@ function prepareNextPart() {
     }
 
     if (!(player.getDuration() - nextTime > 1)) {
+        preloadNextSong();
+
         return;
     }
 
@@ -1709,6 +1711,39 @@ function prepareNextPart() {
                 prepareNextPart();
             }, 200);
         }
+    }
+}
+
+function preloadNextSong() {
+    const nextIndex = nextSongIndex();
+
+    /*
+     * No actual next song, e.g. repeat-one or end of playlist
+     * without playlist repeat.
+     */
+    if (nextIndex === playIndex || typeof playlist[nextIndex] === "undefined") {
+        return;
+    }
+
+    const nextSong = playlist[nextIndex];
+    const nextPlayer = nextSong["player"];
+
+    /*
+     * No player yet: downloadPart() creates it and preloads part 1.
+     */
+    if (typeof nextPlayer === "undefined") {
+        downloadPart(0, nextIndex, 0);
+        return;
+    }
+
+    /*
+     * Check by song time instead of assuming that the first part
+     * necessarily has internal index 0.
+     */
+    const firstPart = nextPlayer.getPartByTime(0);
+
+    if (firstPart[2] === null || !nextPlayer.partIsPlayable(firstPart[2])) {
+        downloadPart(0, nextIndex, nextPlayer.getNextFreePartIndex());
     }
 }
 
