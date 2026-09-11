@@ -1182,6 +1182,26 @@ function play() {
     }
 
     const player = playlist[playIndex]["player"];
+
+    /*
+     * Falls die Wiedergabe genau am Ende eines alten Parts steht,
+     * auf den Part wechseln welcher die aktuelle Zeit enthält
+     */
+    if (!player.isPlaying()) {
+        const currentTime = player.getCurrentTime();
+        const currentPart = player.getCurrentPart();
+        const partInfo = player.getPartByTime(currentTime);
+
+        if (
+            partInfo[2] !== null
+            && partInfo[2] !== currentPart[2]
+            && player.partIsPlayable(partInfo[2])
+        ) {
+            player.setCurrentIndex(partInfo[2]);
+            player.setOffset(Math.max(0, currentTime - Number(partInfo[0])), partInfo[2]);
+        }
+    }
+
     const song = playlist[playIndex];
     const title = document.querySelector("title");
     const nextTitle = song["name"] + " - " + title.textContent.split(" - ")[1];
@@ -1229,7 +1249,16 @@ function play() {
     }
 
     if (!player.isPlaying()) {
-        player.initialize().then(() => {
+        player.initialize().then(initialized => {
+            if (!initialized) return;
+
+            if (
+                typeof playlist[playIndex] === "undefined"
+                || playlist[playIndex]["player"] !== player
+            ) {
+                return;
+            }
+
             const currentPart = player.getCurrentPart();
             if (!currentPart[1] || !partIsPlayable(playIndex, currentPart[2])) {
                 pauseSong();
@@ -1683,8 +1712,7 @@ function bufferSong(sIndex, time = 0, target = AUDIO_BUFFER_TARGET, priority = f
     const remaining = player.getDuration() - downloadTime;
 
     /*
-     * Wegen Rundungsdifferenzen keine winzigen Reststücke laden
-     * Stattdessen direkt den nächsten Song vorladen
+     * Nur winzige Reststücke direkt am Ende des Songs ignorieren
      */
     if (remaining <= AUDIO_BUFFER_END_TOLERANCE) {
         if (sIndex === playIndex) preloadNextSong();
@@ -1696,6 +1724,10 @@ function bufferSong(sIndex, time = 0, target = AUDIO_BUFFER_TARGET, priority = f
 
     const nextBufferedStart = player.getNextBufferedStart(downloadTime);
 
+    /*
+     * Falls später bereits Daten vorhanden sind, nur die Lücke laden
+     * Kleine interne Lücken dürfen nicht wegen END_TOLERANCE übersprungen werden
+     */
     if (nextBufferedStart !== null && nextBufferedStart > downloadTime) {
         downloadLength = Math.min(downloadLength, nextBufferedStart - downloadTime);
     }
@@ -1703,11 +1735,7 @@ function bufferSong(sIndex, time = 0, target = AUDIO_BUFFER_TARGET, priority = f
     downloadTime = Math.max(0, Math.floor(downloadTime));
     downloadLength = Math.max(0, Math.ceil(downloadLength));
 
-    if (downloadLength <= AUDIO_BUFFER_END_TOLERANCE) {
-        if (sIndex === playIndex) preloadNextSong();
-
-        return;
-    }
+    if (downloadLength <= 0) return;
 
     downloadPart(
         downloadTime,
