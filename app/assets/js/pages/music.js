@@ -41,25 +41,29 @@ const menuItems = {
         }
     }, "next": {
         "name": "Play as next", "icon": () => {
-            const addDiv = document.createElement('div');
+            const addDiv = document.createElement("div");
             addDiv.classList.add("icon");
-            addDiv.title = 'Add this song to the queue';
+            addDiv.title = "Add this song to the queue";
 
-            const listIcon = createIconElement('fas fa-list');
-            const plusIcon = createIconElement('fas fa-play');
+            const listIcon = createIconElement("fas fa-list");
+            const plusIcon = createIconElement("fas fa-play");
 
-            const iconDiv = document.createElement('div');
+            const iconDiv = document.createElement("div");
             iconDiv.classList.add("listAdd");
 
             iconDiv.append(listIcon, plusIcon);
 
-            const helperDiv = document.createElement('div');
+            const helperDiv = document.createElement("div");
             helperDiv.append(iconDiv);
 
             addDiv.append(helperDiv);
+
             return addDiv;
-        }, "action": (card) => {
-            addSongToPlaylist(card, 0, true, true);
+        }, "action": async card => {
+            await addSongToPlaylist(card, 0, true, true);
+
+            maintainAudioBuffer();
+
             showNotification("Song will be played next", 3000);
         }
     }, "share": {
@@ -84,53 +88,87 @@ const menuItems = {
         }
     }, "delete": {
         "name": "Remove from queue", "icon": () => {
-            const addDiv = document.createElement('div');
+            const addDiv = document.createElement("div");
             addDiv.classList.add("icon", "listAdd");
-            addDiv.title = 'Remove this song from the queue';
+            addDiv.title = "Remove this song from the queue";
 
-            const listIcon = createIconElement('fas fa-list');
-            const crossIcon = createIconElement('fas fa-times');
+            const listIcon = createIconElement("fas fa-list");
+            const crossIcon = createIconElement("fas fa-times");
 
-            const iconDiv = document.createElement('div');
+            const iconDiv = document.createElement("div");
             iconDiv.classList.add("listAdd");
 
             iconDiv.append(listIcon, crossIcon);
 
-            const helperDiv = document.createElement('div');
+            const helperDiv = document.createElement("div");
             helperDiv.append(iconDiv);
 
             addDiv.append(helperDiv);
+
             return addDiv;
-        }, "action": async (card) => {
+        }, "action": async card => {
             const id = card.dataset.id;
-            let current = playlist[playIndex]["id"];
+            const current = playlist[playIndex]?.["id"] ?? null;
             const sameIndex = id === current;
 
-            if (sameIndex) pauseSong();
+            let index = -1;
 
-            let index = 0;
             for (let i = 0; i < playlist.length; i++) {
                 if (playlist[i]["id"] === id) {
-                    playlist.splice(i, 1);
-
                     index = i;
                     break;
                 }
             }
 
+            if (index === -1) return;
+
+            const removedSong = playlist[index];
+
+            if (typeof removedSong["player"] !== "undefined") {
+                removedSong["player"].stop();
+                removedSong["player"].clear();
+            }
+
+            playlist.splice(index, 1);
             playlist = generateNumericalOrder(playlist);
 
-            if (index <= playIndex && !sameIndex) playIndex--;
+            if (!playlist.length) {
+                playIndex = 0;
+                playPauseButton("pause");
+
+                const playerHTML = document.getElementById("player");
+                playerHTML.style.display = "none";
+
+                card.closest("tr").remove();
+
+                return;
+            }
+
             if (sameIndex) {
-                if (playIndex === -1) nextSong(true); else previousSong(true);
+                if (index >= playlist.length) {
+                    playIndex = playlist.length - 1;
+                } else {
+                    playIndex = index;
+                }
+
+                updateSongData();
+
+                if (!partIsPlayable(playIndex, 0)) {
+                    playPauseButton("load");
+                    bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET);
+                } else {
+                    play();
+                }
+            } else if (index < playIndex) {
+                playIndex--;
             }
 
             card.closest("tr").remove();
 
-            let queueView = document.getElementById("queueView");
-            let queue = queueView.querySelector("#queue");
+            const queueView = document.getElementById("queueView");
+            const queue = queueView.querySelector("#queue");
 
-            if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px"; else queue.style.right = "0";
+            queue.style.right = queue.scrollHeight > queue.clientHeight ? "-10px" : "0";
         }
     }
 };
@@ -140,16 +178,14 @@ document.addEventListener("click", hideContext);
 
 // TODO: Comment
 async function playAction(card) {
-    if (!card.dataset.id) {
-        return;
-    }
+    if (!card.dataset.id) return;
 
     clearSongs();
 
     await addSongToPlaylist(card);
-    playPauseButton("load");
 
-    downloadPart(0, playIndex, 0);
+    playPauseButton("load");
+    bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET);
 }
 
 /*
@@ -165,7 +201,11 @@ bindEvent("click", "#queueView tr[data-id]", function () {
 
     playIndex = this.rowIndex - 1;
 
-    if (!partIsPlayable(playIndex, 0)) downloadPart(0, playIndex, 0); else play();
+    if (!partIsPlayable(playIndex, 0)) {
+        bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET);
+    } else {
+        play();
+    }
 });
 
 /*
@@ -780,7 +820,7 @@ window["music"] = async () => {    /*
             player.querySelector("[data-angle]").dispatchEvent(clickEvent);
 
             playPauseButton("load");
-            downloadPart(time, playIndex, 0);
+            bufferSong(playIndex, time, AUDIO_BUFFER_TARGET);
 
             playlist[playIndex]["player"].addEventListener("play", () => {
                 playlist[playIndex]["player"].setCurrentTime(time);

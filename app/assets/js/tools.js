@@ -22,6 +22,14 @@ let clickEvent = new Event('click', {
     bubbles: true, cancelable: true,
 });
 
+const AUDIO_BUFFER_TARGET = 100;
+const AUDIO_BUFFER_LOW = 60;
+const AUDIO_BUFFER_BEHIND = 15;
+const AUDIO_BUFFER_CHECK_INTERVAL = 1000;
+
+let lastAudioBufferCheck = 0;
+const audioBufferRefilling = new WeakSet();
+
 /*
  * Autor: Bernardo de Oliveira
  *
@@ -1167,7 +1175,7 @@ function play() {
     clearTimeout(retryTimeout);
 
     if (typeof playlist[playIndex]["player"] === "undefined") {
-        downloadPart(0, playIndex, 0);
+        bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET);
         return;
     }
 
@@ -1284,22 +1292,27 @@ function nextSongIndex() {
  */
 function previousSongIndex() {
     const previousIndex = Number(playIndex) - 1;
+
     switch (repeatMode) {
         case 0:
         case 1:
-            if (typeof playlist[previousIndex] === 'undefined') {
+            if (typeof playlist[previousIndex] === "undefined") {
                 return 0;
             }
             break;
+
         case 2:
             return playIndex;
     }
 
-    if (typeof playlist[playlist] !== 'undefined') {
-        if (playlist[playIndex]["player"].getCurrentTime() > 10) {
-            return playIndex;
-        }
+    if (
+        typeof playlist[playIndex] !== "undefined"
+        && typeof playlist[playIndex]["player"] !== "undefined"
+        && playlist[playIndex]["player"].getCurrentTime() > 10
+    ) {
+        return playIndex;
     }
+
     return previousIndex;
 }
 
@@ -1513,7 +1526,7 @@ function onTimelineRelease(value, rangeEvent = null) {
 
         player.setCurrentIndex(nextPartIndex);
 
-        downloadPart(value, playIndex, nextPartIndex);
+        bufferSong(playIndex, value, AUDIO_BUFFER_TARGET, true);
 
         return;
     }
@@ -1529,7 +1542,10 @@ function onTimelineRelease(value, rangeEvent = null) {
 // TODO: Comment
 function partIsPlayable(sIndex, pIndex) {
     const song = playlist[sIndex];
-    return !((typeof song["player"] === 'undefined' || !song["player"].partIsPlayable(pIndex)));
+
+    return typeof song !== "undefined"
+        && typeof song["player"] !== "undefined"
+        && song["player"].partIsPlayable(pIndex);
 }
 
 /*
@@ -1562,7 +1578,7 @@ function nextSong(bypass = false) {
         updateSongData();
 
         if (!partIsPlayable(nextIndex, 0)) {
-            downloadPart(0, playIndex, 0);
+            bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET);
         } else {
             play();
         }
@@ -1607,7 +1623,7 @@ function previousSong(bypass = false) {
         updateSongData();
 
         if (!partIsPlayable(previousIndex, 0)) {
-            downloadPart(0, playIndex, 0);
+            bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET);
         } else {
             play();
         }
@@ -1617,133 +1633,191 @@ function previousSong(bypass = false) {
 }
 
 /*
- * Funktion: prepareNextPart()
+ * Funktion: bufferSong()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  callback: (Function) Definiert eine Funktion welche anschliessen ausgeführt wird
+ *  sIndex: (Integer) Der Index des Songs
+ *  time: (Integer) Die aktuelle Position
+ *  target: (Integer) Die gewünschte Buffer Länge
+ *  priority: (Boolean) Unterbricht einen laufenden Download
  *
- * Überprüft, ob es einen nächsten Teil gibt
- * Sonst lädt es den ersten Teil des nächsten Liedes
+ * Lädt Audiodaten nach, bis ungefähr die gewünschte Buffer Länge erreicht ist
+ */
+function bufferSong(sIndex, time = 0, target = AUDIO_BUFFER_TARGET, priority = false) {
+    const song = playlist[sIndex];
+
+    if (!song || typeof song["id"] === "undefined") return;
+
+    time = Math.max(0, Number(time) || 0);
+
+    if (typeof song["player"] === "undefined") {
+        const length = Math.min(target, getLengthByString(song["length"]) - time);
+
+        if (length > 0) {
+            downloadPart(time, sIndex, 0, length);
+        }
+
+        return;
+    }
+
+    const player = song["player"];
+
+    /*
+     * Normales Preloading wartet auf den bestehenden Download.
+     * Ein Seek darf diesen jedoch unterbrechen und bekommt Priorität.
+     */
+    if (player.isDecoding() && !priority) return;
+
+    const bufferedEnd = player.getBufferedEnd(time);
+    const bufferedAhead = Math.max(0, bufferedEnd - time);
+
+    if (bufferedAhead >= target) return;
+
+    let downloadTime = bufferedEnd;
+    let downloadLength = target - bufferedAhead;
+
+    const remaining = player.getDuration() - downloadTime;
+
+    if (remaining <= 0) return;
+
+    downloadLength = Math.min(downloadLength, remaining);
+
+    const nextBufferedStart = player.getNextBufferedStart(downloadTime);
+
+    if (nextBufferedStart !== null && nextBufferedStart > downloadTime) {
+        downloadLength = Math.min(downloadLength, nextBufferedStart - downloadTime);
+    }
+
+    downloadTime = Math.max(0, Math.floor(downloadTime));
+    downloadLength = Math.max(0, Math.ceil(downloadLength));
+
+    if (downloadLength <= 0) return;
+
+    downloadPart(
+        downloadTime,
+        sIndex,
+        player.getNextFreePartIndex(),
+        downloadLength,
+        priority
+    );
+}
+
+/*
+ * Funktion: prepareNextPart()
+ * Autor: Bernardo de Oliveira
  *
- * Falls weitere Teile verfügbar sind
- * Wird überprüft, ob diese bereits heruntergeladen wurden
- *
- * Falls nicht, wird überprüft, ob irgendwo später im Lied bereits Teile heruntergeladen wurden
- * Falls nicht, wird einfach der nächste Teil heruntergeladen
- *
- * Falls die länge zum nächsten Teil unter der Länge des jetzigen Teils ist, wird dieser heruntergeladen
- * Beispiel:
- *  - Teil 60 - 70 Sekunden wurde heruntergeladen
- *  - Teil 75 - 85 Sekunden wurde heruntergeladen
- *  - Jetzt fehlt ein 5 Sekunden langer Teil, dieser wird heruntergeladen (anstatt 10 Sekunden)
+ * Bereitet den nächsten Audio Teil für eine lückenlose Wiedergabe vor
+ * Hält gleichzeitig den Wiedergabe Buffer gefüllt
  */
 function prepareNextPart() {
     clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
-    if (typeof playlist[playIndex]["player"] === "undefined") {
+    if (typeof playlist[playIndex] === "undefined" || typeof playlist[playIndex]["player"] === "undefined") {
         return;
     }
 
     const player = playlist[playIndex]["player"];
     const currentPart = player.getCurrentPart();
 
-    let nextTime;
-    if (currentPart[1]) {
-        nextTime = parseInt(currentPart[1]);
-    } else {
-        downloadPart(player.getCurrentTime(), playIndex, player.getNextFreePartIndex());
-        return;
-    }
+    if (currentPart[2] !== null && player.partIsPlayable(currentPart[2])) {
+        const nextTime = Number(currentPart[1]);
 
-    /*
-     * The current part is ready and playback is still positioned inside it.
-     *
-     * Start it immediately. The "play" event will call prepareNextPart()
-     * again, at which point the following part can be downloaded while
-     * this one is already playing.
-     *
-     * Do not do this when we're already at the end of the current part,
-     * otherwise buffering/retry recovery would replay the previous part.
-     */
-    if (!player.isPlaying()
-        && currentPart[2] !== null
-        && player.partIsPlayable(currentPart[2])
-        && player.getCurrentTime() < nextTime) {
-
-        play();
-
-        return;
-    }
-
-    if (!(player.getDuration() - nextTime > 1)) {
-        preloadNextSong();
-
-        return;
-    }
-
-    const partInfo = player.getPartByStartTime(nextTime);
-    let nextPartIndex = partInfo[2];
-
-    if (nextPartIndex === null) {
-        const missingLength = player.findMissingLengthByCurrentPart(nextTime);
-
-        downloadPart(nextTime, playIndex, player.getNextFreePartIndex(), missingLength);
-    } else {
-        if (!player.isPlaying()) {
-            /*
-             * If the previous part has already reached its end, playback must
-             * resume from this next part.
-             */
-            if (isRetrying || player.getCurrentTime() >= nextTime) {
-                player.setOffset(0, nextPartIndex);
-                player.setCurrentIndex(nextPartIndex);
-                player.setCurrentTime(nextTime, true);
-            }
-
+        /*
+         * Falls die Wiedergabe wegen Buffering angehalten wurde und der
+         * aktuelle Teil wieder verfügbar ist, diesen direkt starten
+         */
+        if (!player.isPlaying() && isFinite(nextTime) && player.getCurrentTime() < nextTime) {
             play();
-
             return;
         }
 
-        if (!player.queueTrack(nextPartIndex)) {
-            retryTimeout = setTimeout(() => {
-                prepareNextPart();
-            }, 200);
+        if (isFinite(nextTime)) {
+            const nextPart = player.getPartByStartTime(nextTime);
+            const nextPartIndex = nextPart[2];
+
+            if (nextPartIndex !== null && player.partIsPlayable(nextPartIndex)) {
+                /*
+                 * Der vorherige Teil ist bereits beendet
+                 */
+                if (!player.isPlaying() && player.getCurrentTime() >= nextTime) {
+                    player.setOffset(0, nextPartIndex);
+                    player.setCurrentIndex(nextPartIndex);
+                    player.setCurrentTime(nextTime, true);
+
+                    play();
+                    return;
+                }
+
+                /*
+                 * Der nächste Teil ist bereits geladen und kann für eine
+                 * lückenlose Wiedergabe eingeplant werden
+                 */
+                if (player.isPlaying()) {
+                    player.queueTrack(nextPartIndex);
+                }
+            }
         }
     }
+
+    maintainAudioBuffer();
 }
 
+
+/*
+ * Funktion: preloadNextSong()
+ * Autor: Bernardo de Oliveira
+ *
+ * Puffert bis zu 60 Sekunden des nächsten Songs vor
+ */
 function preloadNextSong() {
     const nextIndex = nextSongIndex();
 
+    if (nextIndex === playIndex || typeof playlist[nextIndex] === "undefined") return;
+
+    bufferSong(nextIndex, 0, AUDIO_BUFFER_TARGET);
+}
+
+/*
+ * Funktion: maintainAudioBuffer()
+ * Autor: Bernardo de Oliveira
+ *
+ * Hält den Audio Buffer zwischen Low und Target
+ * Sobald Low unterschritten wird, wird bis Target nachgeladen
+ */
+function maintainAudioBuffer() {
+    const song = playlist[playIndex];
+
+    if (!song || typeof song["player"] === "undefined") return;
+
+    const player = song["player"];
+    const currentTime = player.getCurrentTime();
+    const bufferedAhead = player.getBufferedAhead(currentTime);
+
+    player.pruneBuffer(AUDIO_BUFFER_BEHIND);
+
     /*
-     * No actual next song, e.g. repeat-one or end of playlist
-     * without playlist repeat.
+     * Sobald der Buffer unter Low fällt, beginnt ein vollständiger Refill
      */
-    if (nextIndex === playIndex || typeof playlist[nextIndex] === "undefined") {
-        return;
+    if (bufferedAhead < AUDIO_BUFFER_LOW) {
+        audioBufferRefilling.add(player);
     }
 
-    const nextSong = playlist[nextIndex];
-    const nextPlayer = nextSong["player"];
-
     /*
-     * No player yet: downloadPart() creates it and preloads part 1.
+     * Refill erst beenden, wenn Target tatsächlich erreicht wurde
      */
-    if (typeof nextPlayer === "undefined") {
-        downloadPart(0, nextIndex, 0);
-        return;
+    if (audioBufferRefilling.has(player)) {
+        if (bufferedAhead >= AUDIO_BUFFER_TARGET - 10) {
+            audioBufferRefilling.delete(player);
+        } else if (!player.isDecoding()) {
+            bufferSong(playIndex, currentTime, AUDIO_BUFFER_TARGET);
+        }
     }
 
-    /*
-     * Check by song time instead of assuming that the first part
-     * necessarily has internal index 0.
-     */
-    const firstPart = nextPlayer.getPartByTime(0);
+    const remaining = player.getDuration() - currentTime;
 
-    if (firstPart[2] === null || !nextPlayer.partIsPlayable(firstPart[2])) {
-        downloadPart(0, nextIndex, nextPlayer.getNextFreePartIndex());
+    if (remaining <= AUDIO_BUFFER_TARGET) {
+        preloadNextSong();
     }
 }
 
@@ -1758,38 +1832,41 @@ function resetPlayer() {
  * Funktion: downloadPart()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  time: (Integer) Definiert die Zeit, ab wann der nächste Teil beginnt
- *  sIndex: (Integer) Definiert den Index des Songs (auch playIndex)
- *  pIndex: (Integer) Definiert den Index des Teils (auch partIndex)
- *  till: (Integer) Definiert die Zeit, bis wann der nächste Teil gehen soll
+ *  time: (Integer) Die Startzeit
+ *  sIndex: (Integer) Der Index des Songs
+ *  pIndex: (Integer) Der Index des Teils
+ *  length: (Integer) Die gewünschte Länge des Teils
  *
- * Lädt ein Teilstück von einem Lied herunter, ab einer bestimmten Zeit
- *
- * Optional kann man auch bis zu einer bestimmten Zeit herunterladen
+ * Lädt einen Teil eines Songs herunter
  */
-function downloadPart(time, sIndex, pIndex, till = null) {
+function downloadPart(time, sIndex, pIndex, length = null, priority = false) {
     const song = playlist[sIndex];
 
     if (!song || typeof song["id"] === "undefined") {
-        // TODO: Maybe somehow save the song before leaving the page
         resetPlayer();
-
         return;
     }
 
     const songID = song["id"];
     let player = song["player"];
 
-    if (typeof player === 'undefined') {
-        let length = getLengthByString(song["length"]);
-        player = song["player"] = new MultiTrackPlayer(length);
+    if (typeof player === "undefined") {
+        const songLength = getLengthByString(song["length"]);
+
+        player = song["player"] = new MultiTrackPlayer(songLength);
 
         addEvents(player);
     }
 
-    player.addTrack(pageURL + "system/song/" + songID + "/" + time + ((till) ? ("/" + till) : ""), (indexes, index) => {
+    let url = pageURL + "system/song/" + songID + "/" + time;
+
+    if (length !== null && length > 0) {
+        url += "/" + Math.ceil(length);
+    }
+
+    player.addTrack(url, (indexes, index) => {
         return parseInt(indexes[index]["url"].match(/system\/song\/[^\/]+\/(\d+)(?:\/\d+)?$/)?.[1]);
-    });
+    }, priority);
 }
 
 /*
@@ -1905,6 +1982,16 @@ function addEvents(player) {
         if (!document.hidden) {
             const timeline = document.getElementById("timeline");
             timeline.value = e.detail.value;
+        }
+
+        if (typeof playlist[playIndex] !== "undefined" && playlist[playIndex]["player"] === player) {
+            const now = performance.now();
+
+            if (now - lastAudioBufferCheck >= AUDIO_BUFFER_CHECK_INTERVAL) {
+                lastAudioBufferCheck = now;
+
+                maintainAudioBuffer();
+            }
         }
 
         if (e.detail.empty && getCurrentButton() !== "play") {
