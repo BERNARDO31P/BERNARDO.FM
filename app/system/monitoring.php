@@ -4,13 +4,14 @@ declare(strict_types = 1);
 
 $maxAmount            = 43800;
 $masterUpdateInterval = 300;
-$updateIntervals      = [
+
+$rangeIntervals = [
     4          => 1,
     60         => 2,
     300        => 5,
     1440       => 15,
     10080      => 60,
-    $maxAmount => $masterUpdateInterval,
+    $maxAmount => 300,
 ];
 
 $dbDirectory = __DIR__ . "/db";
@@ -24,11 +25,11 @@ if (!is_dir($dbDirectory)) {
     }
 }
 
-/**
- * Atomically writes JSON data to a file.
+/*
+ * Funktion: write_json_file_atomic()
+ * Autor: Bernardo de Oliveira
  *
- * The temporary file must be on the same filesystem as the target file so
- * rename() remains atomic.
+ * Schreibt JSON Daten atomar in eine Datei
  */
 function write_json_file_atomic(string $file, array $data): void
 {
@@ -65,8 +66,11 @@ function write_json_file_atomic(string $file, array $data): void
     }
 }
 
-/**
- * Loads a JSON object from disk.
+/*
+ * Funktion: load_json_file()
+ * Autor: Bernardo de Oliveira
+ *
+ * Liest eine JSON Datei ein
  */
 function load_json_file(string $file): array
 {
@@ -82,18 +86,14 @@ function load_json_file(string $file): array
 
     $data = json_decode($contents, true);
 
-    if (!is_array($data)) {
-        return [];
-    }
-
-    return $data;
+    return is_array($data) ? $data : [];
 }
 
-/**
- * Ensures timestamp keys are integers and ordered chronologically.
+/*
+ * Funktion: normalise_monitoring_data()
+ * Autor: Bernardo de Oliveira
  *
- * JSON object keys are decoded as integers when they are valid integer strings,
- * but normalising them here also protects against malformed legacy data.
+ * Bereinigt die Monitoring Daten und sortiert diese chronologisch
  */
 function normalise_monitoring_data(array $data): array
 {
@@ -106,6 +106,19 @@ function normalise_monitoring_data(array $data): array
             continue;
         }
 
+        if (
+            !isset($sample["network"])
+            || !is_array($sample["network"])
+            || !isset(
+                $sample["network"]["down"],
+                $sample["network"]["up"],
+                $sample["cpu"],
+                $sample["ram"]
+            )
+        ) {
+            continue;
+        }
+
         $normalised[$timestamp] = $sample;
     }
 
@@ -114,11 +127,11 @@ function normalise_monitoring_data(array $data): array
     return $normalised;
 }
 
-/**
- * Removes expired entries from an ordered timestamp-keyed array.
+/*
+ * Funktion: prune_monitoring_data()
+ * Autor: Bernardo de Oliveira
  *
- * Since entries are chronological, this stops at the first retained timestamp
- * instead of scanning the entire array.
+ * Entfernt abgelaufene Werte aus der Master Datenbank
  */
 function prune_monitoring_data(array &$data, int $cutoff): void
 {
@@ -131,27 +144,410 @@ function prune_monitoring_data(array &$data, int $cutoff): void
     }
 }
 
-/**
- * Builds one retained time window from the master database.
+/*
+ * Funktion: create_empty_range()
+ * Autor: Bernardo de Oliveira
  *
- * This is only used during startup. Runtime updates append directly to every
- * window and do not repeatedly scan the master database.
+ * Erstellt eine leere komprimierte Monitoring Range
  */
-function build_monitoring_window(array $master, int $cutoff): array
+function create_empty_range(): array
 {
-    $window = [];
+    return [
+        "series" => [
+            "down" => [],
+            "up"   => [],
+            "cpu"  => [],
+            "ram"  => [],
+        ],
+        "bucket_start" => null,
+        "bucket"       => [],
+    ];
+}
 
-    foreach ($master as $timestamp => $sample) {
-        if ((int)$timestamp < $cutoff) {
+/*
+ * Funktion: get_monitoring_values()
+ * Autor: Bernardo de Oliveira
+ *
+ * Holt die einzelnen Messwerte aus einem Monitoring Sample
+ */
+function get_monitoring_values(array $sample): ?array
+{
+    if (
+        !isset($sample["network"])
+        || !is_array($sample["network"])
+        || !isset(
+            $sample["network"]["down"],
+            $sample["network"]["up"],
+            $sample["cpu"],
+            $sample["ram"]
+        )
+    ) {
+        return null;
+    }
+
+    $values = [
+        "down" => $sample["network"]["down"],
+        "up"   => $sample["network"]["up"],
+        "cpu"  => $sample["cpu"],
+        "ram"  => $sample["ram"],
+    ];
+
+    foreach ($values as &$value) {
+        if (!is_numeric($value)) {
+            return null;
+        }
+
+        $value = (float)$value;
+
+        if (!is_finite($value)) {
+            return null;
+        }
+    }
+
+    unset($value);
+
+    return $values;
+}
+
+/*
+ * Funktion: add_range_sample()
+ * Autor: Bernardo de Oliveira
+ *
+ * Fügt einen Messwert zur entsprechenden Zeitgruppe hinzu
+ */
+function add_range_sample(
+    array &$range,
+    int $timestamp,
+    array $sample,
+    int $interval
+): void {
+    $values = get_monitoring_values($sample);
+
+    if ($values === null) {
+        return;
+    }
+
+    $bucketStart = intdiv($timestamp, $interval) * $interval;
+
+    if ($range["bucket_start"] === null) {
+        $range["bucket_start"] = $bucketStart;
+    } elseif ($range["bucket_start"] !== $bucketStart) {
+        finalise_range_bucket($range);
+
+        $range["bucket_start"] = $bucketStart;
+    }
+
+    foreach ($values as $metric => $value) {
+        $point = [
+            $timestamp,
+            round($value, 2),
+        ];
+
+        if (!isset($range["bucket"][$metric])) {
+            $range["bucket"][$metric] = [
+                "first" => $point,
+                "min"   => $point,
+                "max"   => $point,
+                "last"  => $point,
+            ];
+
             continue;
         }
 
-        $window[$timestamp] = $sample;
-    }
+        $range["bucket"][$metric]["last"] = $point;
 
-    return $window;
+        if ($value < $range["bucket"][$metric]["min"][1]) {
+            $range["bucket"][$metric]["min"] = $point;
+        }
+
+        if ($value > $range["bucket"][$metric]["max"][1]) {
+            $range["bucket"][$metric]["max"] = $point;
+        }
+    }
 }
 
+/*
+ * Funktion: get_bucket_points()
+ * Autor: Bernardo de Oliveira
+ *
+ * Holt First, Min, Max und Last eines Buckets
+ * Doppelte Punkte werden entfernt
+ */
+function get_bucket_points(array $bucket): array
+{
+    $points = [
+        $bucket["first"],
+        $bucket["min"],
+        $bucket["max"],
+        $bucket["last"],
+    ];
+
+    $unique = [];
+
+    foreach ($points as $point) {
+        $unique[(string)$point[0]] = $point;
+    }
+
+    ksort($unique, SORT_NUMERIC);
+
+    return array_values($unique);
+}
+
+/*
+ * Funktion: finalise_range_bucket()
+ * Autor: Bernardo de Oliveira
+ *
+ * Speichert die relevanten Punkte eines vollständigen Buckets
+ */
+function finalise_range_bucket(array &$range): void
+{
+    if (!$range["bucket"]) {
+        $range["bucket_start"] = null;
+
+        return;
+    }
+
+    foreach ($range["bucket"] as $metric => $bucket) {
+        foreach (get_bucket_points($bucket) as $point) {
+            $range["series"][$metric][] = $point;
+        }
+    }
+
+    $range["bucket_start"] = null;
+    $range["bucket"] = [];
+}
+
+/*
+ * Funktion: prune_range_series()
+ * Autor: Bernardo de Oliveira
+ *
+ * Entfernt abgelaufene Punkte aus einer komprimierten Range
+ */
+function prune_range_series(array &$range, int $cutoff): void
+{
+    foreach ($range["series"] as $metric => $points) {
+        $firstValid = 0;
+        $pointCount = count($points);
+
+        while (
+            $firstValid < $pointCount
+            && (int)$points[$firstValid][0] < $cutoff
+        ) {
+            $firstValid++;
+        }
+
+        if ($firstValid > 0) {
+            $range["series"][$metric] = array_slice(
+                $points,
+                $firstValid
+            );
+        }
+    }
+}
+
+/*
+ * Funktion: export_range_data()
+ * Autor: Bernardo de Oliveira
+ *
+ * Erstellt die kompakte JSON Struktur für das Frontend
+ * Nur abgeschlossene Buckets werden ausgegeben
+ */
+function export_range_data(array $range, int $interval, int $cutoff): array
+{
+    $series = $range["series"];
+
+    foreach ($series as $metric => $points) {
+        $seen = [];
+
+        foreach ($points as $point) {
+            $timestamp = (int)$point[0];
+
+            if ($timestamp < $cutoff) {
+                continue;
+            }
+
+            $seen[$timestamp] = [
+                $timestamp,
+                (float)$point[1],
+            ];
+        }
+
+        ksort($seen, SORT_NUMERIC);
+
+        $series[$metric] = array_values($seen);
+    }
+
+    return [
+        "version"  => 2,
+        "interval" => $interval,
+        "series"   => $series,
+    ];
+}
+
+/*
+ * Funktion: load_range_file()
+ * Autor: Bernardo de Oliveira
+ *
+ * Liest eine bereits konvertierte Range Datei ein
+ */
+function load_range_file(string $file): ?array
+{
+    $data = load_json_file($file);
+
+    if (
+        ($data["version"] ?? null) !== 2
+        || !isset($data["series"])
+        || !is_array($data["series"])
+    ) {
+        return null;
+    }
+
+    $range = create_empty_range();
+
+    foreach (["down", "up", "cpu", "ram"] as $metric) {
+        if (
+            !isset($data["series"][$metric])
+            || !is_array($data["series"][$metric])
+        ) {
+            continue;
+        }
+
+        foreach ($data["series"][$metric] as $point) {
+            if (
+                !is_array($point)
+                || count($point) < 2
+                || !is_numeric($point[0])
+                || !is_numeric($point[1])
+            ) {
+                continue;
+            }
+
+            $range["series"][$metric][] = [
+                (int)$point[0],
+                (float)$point[1],
+            ];
+        }
+    }
+
+    return $range;
+}
+
+/*
+ * Funktion: get_latest_range_timestamp()
+ * Autor: Bernardo de Oliveira
+ *
+ * Holt den neuesten Timestamp einer komprimierten Range
+ */
+function get_latest_range_timestamp(array $range): ?int
+{
+    $latest = null;
+
+    foreach ($range["series"] as $points) {
+        if (!$points) {
+            continue;
+        }
+
+        $point = $points[count($points) - 1];
+        $timestamp = (int)$point[0];
+
+        if ($latest === null || $timestamp > $latest) {
+            $latest = $timestamp;
+        }
+    }
+
+    return $latest;
+}
+
+/*
+ * Funktion: remove_range_points_after()
+ * Autor: Bernardo de Oliveira
+ *
+ * Entfernt Punkte ab einem bestimmten Timestamp
+ * Wird beim Start benutzt, damit der letzte Bucket sauber neu aufgebaut wird
+ */
+function remove_range_points_after(array &$range, int $timestamp): void
+{
+    foreach ($range["series"] as $metric => $points) {
+        $result = [];
+
+        foreach ($points as $point) {
+            if ((int)$point[0] >= $timestamp) {
+                break;
+            }
+
+            $result[] = $point;
+        }
+
+        $range["series"][$metric] = $result;
+    }
+}
+
+/*
+ * Funktion: prepare_range()
+ * Autor: Bernardo de Oliveira
+ *
+ * Lädt eine bestehende kompakte Range oder baut diese aus dem Master neu auf
+ */
+function prepare_range(
+    string $file,
+    array $masterDatabase,
+    int $allowedAmount,
+    int $interval,
+    int $now
+): array {
+    $cutoff = $now - ($allowedAmount * 60);
+    $range = load_range_file($file);
+
+    if ($range === null) {
+        $range = create_empty_range();
+        $rebuildStart = $cutoff;
+    } else {
+        $latestTimestamp = get_latest_range_timestamp($range);
+
+        if ($latestTimestamp === null) {
+            $rebuildStart = $cutoff;
+        } else {
+            $rebuildStart = max(
+                $cutoff,
+                intdiv($latestTimestamp, $interval) * $interval
+            );
+        }
+
+        remove_range_points_after(
+            $range,
+            $rebuildStart
+        );
+    }
+
+    foreach ($masterDatabase as $timestamp => $sample) {
+        $timestamp = (int)$timestamp;
+
+        if ($timestamp < $rebuildStart) {
+            continue;
+        }
+
+        add_range_sample(
+            $range,
+            $timestamp,
+            $sample,
+            $interval
+        );
+    }
+
+    prune_range_series(
+        $range,
+        $cutoff
+    );
+
+    return $range;
+}
+
+/*
+ * Funktion: get_server_memory_usage()
+ * Autor: Bernardo de Oliveira
+ *
+ * Holt die aktuelle RAM Auslastung
+ */
 function get_server_memory_usage(): ?float
 {
     $free = @file_get_contents(__DIR__ . "/data/free");
@@ -178,7 +574,7 @@ function get_server_memory_usage(): ?float
     }
 
     $total = (float)$parts[1];
-    $used  = (float)$parts[2];
+    $used = (float)$parts[2];
 
     if ($total <= 0) {
         return null;
@@ -190,18 +586,14 @@ function get_server_memory_usage(): ?float
         return null;
     }
 
-    return round($value, 2);
+    return round(min($value, 100), 2);
 }
 
-/**
- * Reads the first aggregate CPU line from the stat snapshot.
+/*
+ * Funktion: read_cpu_snapshot()
+ * Autor: Bernardo de Oliveira
  *
- * Returns:
- *
- * [
- *     "idle"  => int,
- *     "total" => int
- * ]
+ * Liest die CPU Counter ein
  */
 function read_cpu_snapshot(): ?array
 {
@@ -239,29 +631,24 @@ function read_cpu_snapshot(): ?array
     ];
 }
 
-/**
- * Calculates CPU usage between two snapshots.
+/*
+ * Funktion: calculate_cpu_usage()
+ * Autor: Bernardo de Oliveira
+ *
+ * Berechnet die CPU Auslastung zwischen zwei Messungen
  */
 function calculate_cpu_usage(
     array $firstSnapshot,
     array $secondSnapshot
 ): ?float {
-    $totalDifference =
-        $secondSnapshot["total"]
-        - $firstSnapshot["total"];
-
-    $idleDifference =
-        $secondSnapshot["idle"]
-        - $firstSnapshot["idle"];
+    $totalDifference = $secondSnapshot["total"] - $firstSnapshot["total"];
+    $idleDifference = $secondSnapshot["idle"] - $firstSnapshot["idle"];
 
     if ($totalDifference <= 0) {
         return null;
     }
 
-    $usage = (
-            1
-            - ($idleDifference / $totalDifference)
-        ) * 100;
+    $usage = (1 - ($idleDifference / $totalDifference)) * 100;
 
     if ($usage < 0 || !is_finite($usage)) {
         return null;
@@ -270,15 +657,11 @@ function calculate_cpu_usage(
     return round(min($usage, 100), 2);
 }
 
-/**
- * Reads the network counters used by the original implementation.
+/*
+ * Funktion: read_network_snapshot()
+ * Autor: Bernardo de Oliveira
  *
- * Returns:
- *
- * [
- *     "rx" => int,
- *     "tx" => int
- * ]
+ * Liest die Netzwerk Counter ein
  */
 function read_network_snapshot(): ?array
 {
@@ -316,23 +699,23 @@ function read_network_snapshot(): ?array
     ];
 }
 
-/**
- * Calculates network usage in megabits per second.
+/*
+ * Funktion: calculate_network_usage()
+ * Autor: Bernardo de Oliveira
  *
- * This assumes approximately one second between snapshots, matching the
- * original behaviour.
+ * Berechnet die Netzwerk Auslastung in Mbit/s
  */
 function calculate_network_usage(
     array $firstSnapshot,
-    array $secondSnapshot
+    array $secondSnapshot,
+    float $seconds
 ): ?array {
-    $receivedBytes =
-        $secondSnapshot["rx"]
-        - $firstSnapshot["rx"];
+    if ($seconds <= 0) {
+        return null;
+    }
 
-    $transmittedBytes =
-        $secondSnapshot["tx"]
-        - $firstSnapshot["tx"];
+    $receivedBytes = $secondSnapshot["rx"] - $firstSnapshot["rx"];
+    $transmittedBytes = $secondSnapshot["tx"] - $firstSnapshot["tx"];
 
     if ($receivedBytes < 0 || $transmittedBytes < 0) {
         return null;
@@ -340,51 +723,47 @@ function calculate_network_usage(
 
     return [
         "down" => round(
-            ($receivedBytes * 8) / 1000000,
+            (($receivedBytes * 8) / 1000000) / $seconds,
             2
         ),
-        "up"   => round(
-            ($transmittedBytes * 8) / 1000000,
+        "up" => round(
+            (($transmittedBytes * 8) / 1000000) / $seconds,
             2
         ),
     ];
 }
 
 /*
- * Create the master file if it does not exist.
+ * Master Datei erstellen
  */
 if (!is_file($dbFile)) {
-    write_json_file_atomic($dbFile, []);
+    write_json_file_atomic(
+        $dbFile,
+        []
+    );
 }
 
 /*
- * Precompute all output filenames.
+ * Range Dateien vorbereiten
  */
 $dbFiles = [];
 
-foreach ($updateIntervals as $allowedAmount => $_interval) {
+foreach ($rangeIntervals as $allowedAmount => $_interval) {
     $dbFiles[$allowedAmount] =
         $dbDirectory
         . "/monitoring-"
         . $allowedAmount
         . ".json";
-
-    if (!is_file($dbFiles[$allowedAmount])) {
-        write_json_file_atomic(
-            $dbFiles[$allowedAmount],
-            []
-        );
-    }
 }
 
 /*
- * Load and normalise the master database once.
+ * Master Datenbank laden
  */
 $masterDatabase = normalise_monitoring_data(
     load_json_file($dbFile)
 );
 
-$startupTime  = time();
+$startupTime = time();
 $masterCutoff = $startupTime - ($maxAmount * 60);
 
 prune_monitoring_data(
@@ -393,36 +772,28 @@ prune_monitoring_data(
 );
 
 /*
- * Build all split arrays once during startup.
- *
- * After this, every sample is appended directly to every window.
+ * Komprimierte Ranges laden
  */
-$databases = [];
+$ranges = [];
 
-foreach ($updateIntervals as $allowedAmount => $_interval) {
-    $cutoff =
+foreach ($rangeIntervals as $allowedAmount => $interval) {
+    $ranges[$allowedAmount] = prepare_range(
+        $dbFiles[$allowedAmount],
+        $masterDatabase,
+        $allowedAmount,
+        $interval,
         $startupTime
-        - ($allowedAmount * 60);
-
-    $databases[$allowedAmount] =
-        build_monitoring_window(
-            $masterDatabase,
-            $cutoff
-        );
+    );
 }
 
 /*
- * The first successful sample writes every range file immediately.
- *
- * The master is delayed by its configured interval because it has already been
- * loaded from disk. Set this to 0 instead if an immediate master rewrite is
- * preferred.
+ * Schreibzeiten
  */
 $lastWritten = [
     "master" => $startupTime,
 ];
 
-foreach ($updateIntervals as $allowedAmount => $_interval) {
+foreach ($rangeIntervals as $allowedAmount => $_interval) {
     $lastWritten[$allowedAmount] = 0;
 }
 
@@ -430,7 +801,7 @@ while (true) {
     try {
         $measurementStarted = microtime(true);
 
-        $firstCpuSnapshot     = read_cpu_snapshot();
+        $firstCpuSnapshot = read_cpu_snapshot();
         $firstNetworkSnapshot = read_network_snapshot();
 
         if (
@@ -438,19 +809,22 @@ while (true) {
             || $firstNetworkSnapshot === null
         ) {
             usleep(1000000);
+
             continue;
         }
 
-        $elapsed   = microtime(true) - $measurementStarted;
+        $elapsed = microtime(true) - $measurementStarted;
         $remaining = 1.0 - $elapsed;
 
         if ($remaining > 0) {
-            usleep((int)round($remaining * 1000000));
+            usleep(
+                (int)round($remaining * 1000000)
+            );
         }
 
-        $secondCpuSnapshot     = read_cpu_snapshot();
+        $secondCpuSnapshot = read_cpu_snapshot();
         $secondNetworkSnapshot = read_network_snapshot();
-        $ram                   = get_server_memory_usage();
+        $ram = get_server_memory_usage();
 
         if (
             $secondCpuSnapshot === null
@@ -460,6 +834,8 @@ while (true) {
             continue;
         }
 
+        $measurementSeconds = microtime(true) - $measurementStarted;
+
         $cpu = calculate_cpu_usage(
             $firstCpuSnapshot,
             $secondCpuSnapshot
@@ -467,44 +843,43 @@ while (true) {
 
         $network = calculate_network_usage(
             $firstNetworkSnapshot,
-            $secondNetworkSnapshot
+            $secondNetworkSnapshot,
+            $measurementSeconds
         );
 
         if ($cpu === null || $network === null) {
             continue;
         }
 
-        /*
-         * Take the timestamp after the measurement has completed.
-         *
-         * This avoids assigning a sample to the second before the sleep.
-         */
         $now = time();
 
         $sample = [
-            "cpu"     => $cpu,
-            "ram"     => $ram,
+            "cpu" => $cpu,
+            "ram" => $ram,
             "network" => $network,
         ];
 
         /*
-         * Replace an existing entry if the loop happens to produce two samples
-         * in the same Unix second.
+         * Full resolution nur im Master speichern
          */
         $masterDatabase[$now] = $sample;
 
-        foreach ($databases as &$database) {
-            $database[$now] = $sample;
+        /*
+         * Neue Messung direkt in die komprimierten Ranges einfügen
+         */
+        foreach ($rangeIntervals as $allowedAmount => $interval) {
+            add_range_sample(
+                $ranges[$allowedAmount],
+                $now,
+                $sample,
+                $interval
+            );
         }
 
-        unset($database);
-
         /*
-         * Prune the master database.
+         * Master bereinigen
          */
-        $masterCutoff =
-            $now
-            - ($maxAmount * 60);
+        $masterCutoff = $now - ($maxAmount * 60);
 
         prune_monitoring_data(
             $masterDatabase,
@@ -512,26 +887,7 @@ while (true) {
         );
 
         /*
-         * Prune every split database independently.
-         *
-         * Each operation removes only newly expired entries from the beginning
-         * of its array. It does not scan or copy the master database.
-         */
-        foreach ($databases as $allowedAmount => &$database) {
-            $cutoff =
-                $now
-                - ($allowedAmount * 60);
-
-            prune_monitoring_data(
-                $database,
-                $cutoff
-            );
-        }
-
-        unset($database);
-
-        /*
-         * Persist the master database as crash-recovery storage.
+         * Master als Crash Recovery speichern
          */
         if (
             $now - $lastWritten["master"]
@@ -546,12 +902,9 @@ while (true) {
         }
 
         /*
-         * Persist each static range file according to its own interval.
+         * Komprimierte Range Dateien speichern
          */
-        foreach (
-            $updateIntervals
-            as $allowedAmount => $interval
-        ) {
+        foreach ($rangeIntervals as $allowedAmount => $interval) {
             if (
                 $now - $lastWritten[$allowedAmount]
                 < $interval
@@ -559,24 +912,36 @@ while (true) {
                 continue;
             }
 
+            $cutoff = $now - ($allowedAmount * 60);
+
+            prune_range_series(
+                $ranges[$allowedAmount],
+                $cutoff
+            );
+
+            $export = export_range_data(
+                $ranges[$allowedAmount],
+                $interval,
+                $cutoff
+            );
+
             write_json_file_atomic(
                 $dbFiles[$allowedAmount],
-                $databases[$allowedAmount]
+                $export
             );
 
             $lastWritten[$allowedAmount] = $now;
         }
+
     } catch (Throwable $exception) {
         /*
-         * Avoid a tight CPU loop when a persistent filesystem or data-source
-         * error occurs.
-         *
-         * Uncomment this during diagnosis:
+         * Während der Entwicklung optional aktivieren:
          *
          * error_log(
          *     $exception->getMessage()
          * );
          */
+
         usleep(1000000);
     }
 }

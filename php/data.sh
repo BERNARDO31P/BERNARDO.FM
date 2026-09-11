@@ -17,10 +17,11 @@ do
  cat /sys/class/net/${int}/statistics/rx_bytes > ${folder}data/rx_bytes
  cat /sys/class/net/${int}/statistics/tx_bytes > ${folder}data/tx_bytes
 
- (iptables -t raw -L -n -v | sed '/^[[:space:]]*$/d') > ${folder}data/raw
- (iptables -t mangle -L -n -v | sed '/^[[:space:]]*$/d') > ${folder}data/mangle
- (iptables -t nat -L -n -v | sed '/^[[:space:]]*$/d') > ${folder}data/nat
- (iptables -t filter -L -n -v | sed '/^[[:space:]]*$/d') > ${folder}data/filter
+ iptables-save -c -t raw > "${folder}data/raw"
+ iptables-save -c -t mangle > "${folder}data/mangle"
+ iptables-save -c -t nat > "${folder}data/nat"
+ iptables-save -c -t filter > "${folder}data/filter"
+
  (iptables -t filter -L INPUT -n -v -x | sed '/^[[:space:]]*$/d') > ${folder}data/filter_network
 
  sleep 0.5

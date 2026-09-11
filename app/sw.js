@@ -1,18 +1,27 @@
 let l7ChallengeRequired = false;
 
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v3";
 
 const APPLICATION_CACHE = "bernardofm-app-" + CACHE_VERSION;
-const EXTRA_CACHE       = "bernardofm-extra-" + CACHE_VERSION;
-const IMAGES_CACHE      = "bernardofm-images-" + CACHE_VERSION;
+const EXTRA_CACHE = "bernardofm-extra-" + CACHE_VERSION;
+const IMAGES_CACHE = "bernardofm-images-" + CACHE_VERSION;
 
 const MAX_CACHE_SIZE = 4500;
 
 /*
+ * Dynamic endpoints which must never be stored in Cache Storage
+ * and must always request fresh data from the server.
+ */
+const NETWORK_ONLY_PATHS = [
+    "/system/firewall",
+    "/system/monitoring"
+];
+
+/*
  * Known application resources.
  *
- * CSS/JS/fonts/etc. do not need to be listed here. They are added
- * automatically when the page requests them.
+ * Other CSS/JS/fonts/etc. do not need to be listed here.
+ * They are handled automatically based on request.destination.
  */
 const APPLICATION = [
     "/",
@@ -71,8 +80,26 @@ async function notifyL7Challenge(clientId) {
     }
 }
 
-async function fetchRequest(request, clientId, navigation = false) {
-    const response = await fetch(request);
+/*
+ * Fetch a request and check whether the L7 protection layer asks
+ * the browser to perform a challenge.
+ *
+ * forceNoStore:
+ *
+ * true  = also bypass the browser HTTP cache
+ * false = use the request's normal HTTP cache behaviour
+ */
+async function fetchRequest(
+    request,
+    clientId,
+    navigation = false,
+    forceNoStore = false
+) {
+    const response = forceNoStore
+        ? await fetch(request, {
+            cache: "no-store"
+        })
+        : await fetch(request);
 
     if (isL7Challenge(response)) {
         l7ChallengeRequired = true;
@@ -92,16 +119,59 @@ async function fetchRequest(request, clientId, navigation = false) {
 
 /*
  * ================================================================
+ * PATH HELPERS
+ * ================================================================
+ */
+
+/*
+ * Returns true for:
+ *
+ * /system/firewall
+ * /system/firewall/...
+ *
+ * /system/monitoring
+ * /system/monitoring/...
+ *
+ * Query strings do not matter because URL.pathname excludes them.
+ */
+function isNetworkOnlyPath(pathname) {
+    return NETWORK_ONLY_PATHS.some(path => {
+        return (
+            pathname === path
+            || pathname.startsWith(path + "/")
+        );
+    });
+}
+
+
+/*
+ * ================================================================
  * CACHE HELPERS
  * ================================================================
  */
 
 function isCacheableResponse(response) {
-    return response.status === 200 && !isL7Challenge(response);
+    return (
+        response.status === 200
+        && !isL7Challenge(response)
+    );
 }
 
 async function putCache(cache, request, response) {
     if (!isCacheableResponse(response)) {
+        return;
+    }
+
+    const requestUrl = new URL(request.url);
+
+    /*
+     * This is an additional safety check.
+     *
+     * Even if one of the cache strategies accidentally receives a
+     * dynamic endpoint in the future, it still cannot be written to
+     * Cache Storage.
+     */
+    if (isNetworkOnlyPath(requestUrl.pathname)) {
         return;
     }
 
@@ -111,9 +181,23 @@ async function putCache(cache, request, response) {
         await cache.delete(keys[0]);
     }
 
-    await cache.put(request, response.clone());
+    await cache.put(
+        request,
+        response.clone()
+    );
 }
 
+/*
+ * Remove cache versions which no longer belong to this deployment.
+ *
+ * Example when moving from v2 to v3:
+ *
+ * bernardofm-app-v2
+ * bernardofm-extra-v2
+ * bernardofm-images-v2
+ *
+ * are deleted.
+ */
 async function clearOldCaches() {
     const currentCaches = [
         APPLICATION_CACHE,
@@ -133,6 +217,36 @@ async function clearOldCaches() {
     }
 }
 
+/*
+ * Remove dynamic system endpoints from existing caches.
+ *
+ * This handles stale entries which may have been stored by an older
+ * service-worker version.
+ *
+ * It deliberately scans every bernardofm-* cache because an endpoint
+ * may previously have ended up in a different cache.
+ */
+async function removeNetworkOnlyEntriesFromCaches() {
+    const cacheNames = await caches.keys();
+
+    for (const cacheName of cacheNames) {
+        if (!cacheName.startsWith("bernardofm-")) {
+            continue;
+        }
+
+        const cache = await caches.open(cacheName);
+        const requests = await cache.keys();
+
+        for (const request of requests) {
+            const requestUrl = new URL(request.url);
+
+            if (isNetworkOnlyPath(requestUrl.pathname)) {
+                await cache.delete(request);
+            }
+        }
+    }
+}
+
 
 /*
  * ================================================================
@@ -140,25 +254,66 @@ async function clearOldCaches() {
  * ================================================================
  */
 
+/*
+ * Always fetch from the real server.
+ *
+ * Cache Storage is never read or written.
+ *
+ * Browser HTTP caching is bypassed as well.
+ */
 async function networkOnly(request, clientId) {
-    return fetchRequest(request, clientId);
+    return fetchRequest(
+        request,
+        clientId,
+        false,
+        true
+    );
 }
 
-async function networkFirst(request, cacheName, clientId, navigation = false) {
+/*
+ * Try the real server first.
+ *
+ * Successful responses are stored in Cache Storage so they are available
+ * as an offline fallback.
+ *
+ * Browser HTTP caching is bypassed during the network attempt, therefore
+ * "network first" really means fetching a fresh response from the server.
+ */
+async function networkFirst(
+    request,
+    cacheName,
+    clientId,
+    navigation = false
+) {
     const cache = await caches.open(cacheName);
 
     try {
-        const response = await fetchRequest(request, clientId, navigation);
+        const response = await fetchRequest(
+            request,
+            clientId,
+            navigation,
+            true
+        );
 
         if (!isL7Challenge(response)) {
-            await putCache(cache, request, response);
+            await putCache(
+                cache,
+                request,
+                response
+            );
         }
 
         return response;
     } catch (error) {
         let cachedResponse = await cache.match(request);
 
-        if (!cachedResponse && navigation) {
+        /*
+         * Navigations can fall back to the cached application root.
+         */
+        if (
+            !cachedResponse
+            && navigation
+        ) {
             cachedResponse = await caches.match("/");
         }
 
@@ -170,8 +325,21 @@ async function networkFirst(request, cacheName, clientId, navigation = false) {
     }
 }
 
-async function cacheFirst(request, cacheName, clientId) {
+/*
+ * Return Cache Storage immediately when available.
+ *
+ * The server is only contacted when the requested resource is not already
+ * stored in Cache Storage.
+ *
+ * Suitable for images, fonts and other rarely changing resources.
+ */
+async function cacheFirst(
+    request,
+    cacheName,
+    clientId
+) {
     const cache = await caches.open(cacheName);
+
     const cachedResponse = await cache.match(request);
 
     if (cachedResponse) {
@@ -179,10 +347,17 @@ async function cacheFirst(request, cacheName, clientId) {
     }
 
     try {
-        const response = await fetchRequest(request, clientId);
+        const response = await fetchRequest(
+            request,
+            clientId
+        );
 
         if (!isL7Challenge(response)) {
-            await putCache(cache, request, response);
+            await putCache(
+                cache,
+                request,
+                response
+            );
         }
 
         return response;
@@ -202,10 +377,14 @@ self.addEventListener("install", event => {
     event.waitUntil(
         (async () => {
             /*
-             * Create all caches immediately so they are visible in
-             * DevTools even before runtime resources are added.
+             * Create all caches immediately.
+             *
+             * This also makes them visible in DevTools before runtime
+             * resources have been requested.
              */
-            const applicationCache = await caches.open(APPLICATION_CACHE);
+            const applicationCache = await caches.open(
+                APPLICATION_CACHE
+            );
 
             await caches.open(EXTRA_CACHE);
             await caches.open(IMAGES_CACHE);
@@ -213,8 +392,8 @@ self.addEventListener("install", event => {
             /*
              * Precache known application resources individually.
              *
-             * One failed resource must not make service-worker
-             * installation fail.
+             * A single unavailable resource must not make installation
+             * of the entire service worker fail.
              */
             for (const path of APPLICATION) {
                 try {
@@ -226,12 +405,24 @@ self.addEventListener("install", event => {
                     const response = await fetch(request);
 
                     if (isCacheableResponse(response)) {
-                        await applicationCache.put(path, response.clone());
+                        await applicationCache.put(
+                            path,
+                            response.clone()
+                        );
                     }
                 } catch (error) {
+                    /*
+                     * Ignore individual precache failures.
+                     *
+                     * The resource can still be requested normally later.
+                     */
                 }
             }
 
+            /*
+             * Activate this service worker without waiting for all existing
+             * tabs to close.
+             */
             await self.skipWaiting();
         })()
     );
@@ -247,7 +438,24 @@ self.addEventListener("install", event => {
 self.addEventListener("activate", event => {
     event.waitUntil(
         (async () => {
+            /*
+             * Delete cache versions from previous deployments.
+             */
             await clearOldCaches();
+
+            /*
+             * Also explicitly remove stale copies of dynamic system data.
+             *
+             * This protects against an older service worker having cached:
+             *
+             * /system/firewall
+             * /system/monitoring
+             */
+            await removeNetworkOnlyEntriesFromCaches();
+
+            /*
+             * Immediately take control of currently open pages.
+             */
             await self.clients.claim();
         })()
     );
@@ -275,49 +483,91 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * POST/PUT/PATCH/DELETE/etc. always go to the network.
+     * Only manage requests belonging to this origin.
      *
-     * They still pass through L7 challenge detection.
-     */
-    if (request.method !== "GET") {
-        event.respondWith(
-            networkOnly(request, event.clientId)
-        );
-
-        return;
-    }
-
-    /*
-     * Only cache resources belonging to this origin.
-     *
-     * External resources continue normally through the network.
+     * External resources continue through the browser normally.
      */
     if (requestUrl.origin !== self.location.origin) {
         return;
     }
 
     /*
-     * Explicit cache:no-store requests are intentionally checking
-     * the real server.
+     * POST/PUT/PATCH/DELETE/etc. always reach the real server.
      *
-     * This is important for httpGetJSON(), getScript(), etc.
+     * They are never placed into Cache Storage.
+     *
+     * L7 challenge detection is still performed.
      */
-    if (request.cache === "no-store") {
+    if (request.method !== "GET") {
         event.respondWith(
-            networkOnly(request, event.clientId)
+            networkOnly(
+                request,
+                event.clientId
+            )
         );
 
         return;
     }
 
     /*
-     * Navigations are network-first.
+     * ============================================================
+     * LIVE SYSTEM DATA
+     * ============================================================
      *
-     * This ensures that opening/reloading the PWA after the L7 token
-     * expires actually reaches the protection layer instead of
-     * permanently serving a cached application shell.
+     * These endpoints are deliberately checked BEFORE every cache
+     * strategy.
      *
-     * If offline, the cached page is used as fallback.
+     * They:
+     *
+     * - never read from Cache Storage
+     * - never write to Cache Storage
+     * - bypass the browser HTTP cache
+     *
+     * This applies to:
+     *
+     * /system/firewall
+     * /system/monitoring
+     */
+    if (isNetworkOnlyPath(requestUrl.pathname)) {
+        event.respondWith(
+            networkOnly(
+                request,
+                event.clientId
+            )
+        );
+
+        return;
+    }
+
+    /*
+     * Explicit cache:no-store requests always reach the real server.
+     *
+     * This is useful for callers such as:
+     *
+     * fetch(url, {
+     *     cache: "no-store"
+     * });
+     */
+    if (request.cache === "no-store") {
+        event.respondWith(
+            networkOnly(
+                request,
+                event.clientId
+            )
+        );
+
+        return;
+    }
+
+    /*
+     * ============================================================
+     * NAVIGATION
+     * ============================================================
+     *
+     * Try the server first.
+     *
+     * If the network is unavailable, use the cached page/application
+     * shell as a fallback.
      */
     if (request.mode === "navigate") {
         event.respondWith(
@@ -333,7 +583,16 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * API requests should normally return fresh information.
+     * ============================================================
+     * API
+     * ============================================================
+     *
+     * API data should normally be fresh.
+     *
+     * Network-first still provides an offline fallback.
+     *
+     * If you have APIs which must NEVER use stale data, add those
+     * endpoints to NETWORK_ONLY_PATHS instead.
      */
     if (requestUrl.pathname.startsWith("/api/")) {
         event.respondWith(
@@ -348,26 +607,42 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * Application files.
+     * ============================================================
+     * APPLICATION CODE
+     * ============================================================
      *
-     * This automatically catches:
+     * JavaScript/CSS/manifests/workers are network-first.
      *
-     * <script src="...">
-     * <link rel="stylesheet" ...>
-     * fonts
-     * manifests
-     * workers
-     *
-     * No filenames have to be hardcoded.
+     * This is important because cache-first would otherwise keep an old
+     * firewall.min.js or monitoring.min.js indefinitely until the cache
+     * was manually deleted or CACHE_VERSION changed.
      */
     if (
         request.destination === "script"
         || request.destination === "style"
-        || request.destination === "font"
         || request.destination === "manifest"
         || request.destination === "worker"
         || request.destination === "sharedworker"
     ) {
+        event.respondWith(
+            networkFirst(
+                request,
+                APPLICATION_CACHE,
+                event.clientId
+            )
+        );
+
+        return;
+    }
+
+    /*
+     * ============================================================
+     * FONTS
+     * ============================================================
+     *
+     * Fonts rarely change and are suitable for cache-first.
+     */
+    if (request.destination === "font") {
         event.respondWith(
             cacheFirst(
                 request,
@@ -380,7 +655,11 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * Images have their own cache.
+     * ============================================================
+     * IMAGES
+     * ============================================================
+     *
+     * Images use their own cache and are served cache-first.
      */
     if (
         request.destination === "image"
@@ -405,11 +684,16 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * Explicit application resources.
+     * ============================================================
+     * KNOWN APPLICATION RESOURCES
+     * ============================================================
+     *
+     * Known HTML/application files are also network-first so a deployment
+     * is picked up without requiring the user to clear Cache Storage.
      */
     if (APPLICATION.includes(requestUrl.pathname)) {
         event.respondWith(
-            cacheFirst(
+            networkFirst(
                 request,
                 APPLICATION_CACHE,
                 event.clientId
@@ -420,10 +704,17 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * Everything else from bernardo.fm is runtime-cached here.
+     * ============================================================
+     * OTHER SAME-ORIGIN RESOURCES
+     * ============================================================
+     *
+     * Unknown resources are network-first rather than cache-first.
+     *
+     * This prevents accidentally turning an unknown dynamic endpoint into
+     * a permanently stale Cache Storage entry.
      */
     event.respondWith(
-        cacheFirst(
+        networkFirst(
             request,
             EXTRA_CACHE,
             event.clientId
