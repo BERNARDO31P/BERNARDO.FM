@@ -208,13 +208,17 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     #resetState(dispatch = true) {
-        let currentPartIndex = this.getPartByStartTime(0)[2];
+        const currentPartIndex = this.getPartByStartTime(0)[2];
 
-        if (currentPartIndex === null || !isFinite(currentPartIndex)) {
-            currentPartIndex = 0;
-        }
+        /*
+         * Index 0 ist nicht automatisch der Anfang des Songs.
+         * Falls der Anfang bereits aus dem Buffer entfernt wurde,
+         * bleibt der aktuelle Index ungültig bis ein neuer Part geladen wurde.
+         */
+        this.#currentTrackIndex = currentPartIndex !== null && isFinite(currentPartIndex)
+            ? currentPartIndex
+            : NaN;
 
-        this.#currentTrackIndex = currentPartIndex;
         this.#startTime = 0;
         this.#clockTime = 0;
         this.#clockStartedAt = null;
@@ -1427,8 +1431,19 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
-                if (!isFinite(this.#currentTrackIndex)) {
-                    this.#currentTrackIndex = this.getPartByStartTime(this.getCurrentTime())[2];
+                /*
+                 * Nach Pruning kann der gespeicherte Index nicht mehr existieren.
+                 * Sobald der passende Part wieder geladen wurde, diesen übernehmen.
+                 */
+                if (
+                    !isFinite(this.#currentTrackIndex)
+                    || typeof this.#indexes[this.#currentTrackIndex] === "undefined"
+                ) {
+                    const currentPart = this.getPartByTime(this.getCurrentTime());
+
+                    if (currentPart[2] !== null) {
+                        this.#currentTrackIndex = currentPart[2];
+                    }
                 }
 
                 if (bufferIndex === this.#waitIndex) {

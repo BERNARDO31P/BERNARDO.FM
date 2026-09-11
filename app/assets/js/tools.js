@@ -24,7 +24,7 @@ let clickEvent = new Event('click', {
 
 const AUDIO_BUFFER_TARGET = 100;
 const AUDIO_BUFFER_LOW = 60;
-const AUDIO_BUFFER_BEHIND = 15;
+const AUDIO_BUFFER_BEHIND = 45;
 const AUDIO_BUFFER_NEXT = 15;
 const AUDIO_BUFFER_CHECK_INTERVAL = 1000;
 const AUDIO_BUFFER_END_TOLERANCE = 2;
@@ -1570,6 +1570,30 @@ function onTimelineRelease(value, rangeEvent = null) {
     play();
 }
 
+/*
+ * Funktion: timeIsPlayable()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  sIndex: (Integer) Der Index des Songs
+ *  time: (Integer) Die gewünschte Position
+ *
+ * Prüft ob für die gewünschte Zeit bereits ein spielbarer Part vorhanden ist
+ */
+function timeIsPlayable(sIndex, time) {
+    const song = playlist[sIndex];
+
+    if (
+        typeof song === "undefined"
+        || typeof song["player"] === "undefined"
+    ) {
+        return false;
+    }
+
+    const partInfo = song["player"].getPartByTime(time);
+
+    return partInfo[2] !== null && song["player"].partIsPlayable(partInfo[2]);
+}
+
 // TODO: Comment
 function partIsPlayable(sIndex, pIndex) {
     const song = playlist[sIndex];
@@ -1592,24 +1616,25 @@ function nextSong(bypass = false) {
     clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
-    const player = playlist[playIndex]["player"];
-
     if (!bypass) {
         stopSongs();
     }
 
-    player.setCurrentIndex(player.getPartByTime(0)[2]);
-
     playPauseButton("load");
 
     const nextIndex = nextSongIndex();
-    if (typeof playlist[nextIndex] !== 'undefined') {
+
+    if (typeof playlist[nextIndex] !== "undefined") {
         playIndex = nextIndex;
 
         updateSongData();
 
-        if (!partIsPlayable(nextIndex, 0)) {
-            bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET);
+        if (!timeIsPlayable(playIndex, 0)) {
+            /*
+             * Songwechsel ist eine direkte User Aktion.
+             * Der Anfang des Songs hat Priorität vor alten Buffer Downloads.
+             */
+            bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET, true);
         } else {
             play();
         }
@@ -1631,35 +1656,55 @@ function previousSong(bypass = false) {
     clearTimeout(playTimeout);
     clearTimeout(retryTimeout);
 
+    if (
+        typeof playlist[playIndex] === "undefined"
+        || typeof playlist[playIndex]["player"] === "undefined"
+    ) {
+        return;
+    }
+
     const player = playlist[playIndex]["player"];
     const currentTime = player.getCurrentTime();
+    const previousIndex = previousSongIndex();
 
     if (!bypass) {
         stopSongs();
     }
 
-    player.setCurrentIndex(player.getPartByTime(0)[2]);
-
-    if (currentTime >= 5) {
-        play();
-        return;
-    }
-
     playPauseButton("load");
 
-    const previousIndex = previousSongIndex();
-    if (typeof playlist[previousIndex] !== 'undefined') {
-        playIndex = previousIndex;
-
-        updateSongData();
-
-        if (!partIsPlayable(previousIndex, 0)) {
-            bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET);
+    /*
+     * Falls der aktuelle Song bereits einige Sekunden läuft,
+     * wird zuerst derselbe Song von vorne gestartet
+     */
+    if (currentTime >= 5) {
+        if (!timeIsPlayable(playIndex, 0)) {
+            bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET, true);
         } else {
             play();
         }
-    } else {
+
+        return;
+    }
+
+    if (typeof playlist[previousIndex] === "undefined") {
         playPauseButton("pause");
+
+        return;
+    }
+
+    playIndex = previousIndex;
+
+    updateSongData();
+
+    /*
+     * Part Index 0 ist nicht zwingend die Zeit 0.
+     * Nach dem Pruning kann der Anfang einen anderen Part Index besitzen.
+     */
+    if (!timeIsPlayable(playIndex, 0)) {
+        bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET, true);
+    } else {
+        play();
     }
 }
 
