@@ -250,11 +250,10 @@ class MultiTrackPlayer extends EventTarget {
         this.#initialPlay = true;
         this.#playing = false;
         this.#nextTrackIndex = false;
-        this.#waitIndex = null;
         this.#startTime = 0;
 
         this.#clearTimeouts();
-        this.#abortDownload();
+        this.discardPendingDownloads();
 
         this.#audioTag.removeEventListener("play", this.#playEventHandler);
         this.#audioTag.removeEventListener("pause", this.#pauseEventHandler);
@@ -328,6 +327,14 @@ class MultiTrackPlayer extends EventTarget {
              */
             this.#nextTrackIndex = false;
 
+            /*
+             * Direkte User Aktionen verwerfen alle alten Downloads.
+             * Nur bereits fertig decodierte Buffer bleiben erhalten.
+             */
+            if (priority) {
+                this.discardPendingDownloads();
+            }
+
             let index = this.#getIndexByUrl(url);
 
             if (index === -1) {
@@ -346,22 +353,21 @@ class MultiTrackPlayer extends EventTarget {
                 };
             }
 
+            /*
+             * Der Part ist bereits vollständig verarbeitet.
+             */
+            if (
+                typeof this.#indexes[index] === "undefined"
+                || !this.#indexes[index]["decoding"]
+            ) {
+                return;
+            }
+
+            /*
+             * Normales Background Buffering wird weiterhin eingereiht.
+             * Der aktuelle Download darf fertig laufen.
+             */
             if (this.isDecoding()) {
-                /*
-                 * User Input hat immer Priorität
-                 * Der aktuelle Download wird abgebrochen und später fortgesetzt
-                 */
-                if (priority && this.#indexes[index] && this.#indexes[index]["decoding"]) {
-                    this.#waitIndex = index;
-                    this.#abortDownload();
-
-                    await this.#processDecodeQueue();
-                }
-
-                /*
-                 * Normales Buffering wird nur eingereiht
-                 * Der aktuelle Download läuft fertig
-                 */
                 return;
             }
 
@@ -849,14 +855,13 @@ class MultiTrackPlayer extends EventTarget {
 
         this.#playing = false;
         this.#nextTrackIndex = false;
-        this.#waitIndex = null;
 
         /*
          * Auch während eines laufenden Seek/Downloads muss ein neuer
          * User Input den bisherigen Zustand vollständig abbrechen können
          */
         this.#clearTimeouts();
-        this.#abortDownload();
+        this.discardPendingDownloads();
 
         if (!bypass) {
             this.#audioTag.removeEventListener("play", this.#playEventHandler);
@@ -910,11 +915,10 @@ class MultiTrackPlayer extends EventTarget {
         this.#initialPlay = true;
         this.#playing = false;
         this.#nextTrackIndex = false;
-        this.#waitIndex = null;
         this.#startTime = 0;
 
         this.#clearTimeouts();
-        this.#abortDownload();
+        this.discardPendingDownloads();
 
         this.#audioTag.removeEventListener("play", this.#playEventHandler);
         this.#audioTag.removeEventListener("pause", this.#pauseEventHandler);
@@ -1171,10 +1175,9 @@ class MultiTrackPlayer extends EventTarget {
 
         this.#playing = false;
         this.#nextTrackIndex = false;
-        this.#waitIndex = null;
 
         this.#clearTimeouts();
-        this.#abortDownload();
+        this.discardPendingDownloads();
 
         this.#audioTag.removeEventListener("play", this.#playEventHandler);
         this.#audioTag.removeEventListener("pause", this.#pauseEventHandler);
@@ -1221,6 +1224,27 @@ class MultiTrackPlayer extends EventTarget {
 
         if (!abortController.signal.aborted) {
             abortController.abort(new DOMException("Audio download aborted", "AbortError"));
+        }
+    }
+
+    /*
+     * Funktion: discardPendingDownloads()
+     * Autor: Bernardo de Oliveira
+     *
+     * Bricht den aktuellen Download ab und entfernt alle noch nicht
+     * fertig verarbeiteten Parts. Bereits fertige Audio Buffer bleiben erhalten.
+     */
+    discardPendingDownloads() {
+        this.#abortDownload();
+
+        this.#waitIndex = null;
+
+        for (const [index, part] of Object.entries(this.#indexes)) {
+            if (!part || !part["decoding"]) {
+                continue;
+            }
+
+            delete this.#indexes[index];
         }
     }
 

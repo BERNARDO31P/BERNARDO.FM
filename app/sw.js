@@ -14,7 +14,8 @@ const MAX_CACHE_SIZE = 4500;
  */
 const NETWORK_ONLY_PATHS = [
     "/system/firewall",
-    "/system/monitoring"
+    "/system/monitoring",
+    "/system/song"
 ];
 
 /*
