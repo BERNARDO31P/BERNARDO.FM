@@ -56,7 +56,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#gainNode = audioContext.createGain();
         this.#gainNode.connect(audioContext.destination);
 
-        this.#length = length + 1;
+        this.#length = length;
 
         this.#audioTag = document.getElementById("MultiTrackPlayer");
 
@@ -1171,10 +1171,15 @@ class MultiTrackPlayer extends EventTarget {
 
                 if (generation !== this.#decodeGeneration) return;
 
+                let response;
+                let arrayBuffer;
                 let decodedBuffer;
 
+                /*
+                 * Audio herunterladen
+                 */
                 try {
-                    const response = await fetch(url, {
+                    response = await fetch(url, {
                         signal: signal
                     });
 
@@ -1184,19 +1189,11 @@ class MultiTrackPlayer extends EventTarget {
                         throw new Error("Unable to download audio track");
                     }
 
-                    const arrayBuffer = await response.arrayBuffer();
-
-                    if (generation !== this.#decodeGeneration) return;
-
-                    decodedBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    arrayBuffer = await response.arrayBuffer();
 
                     if (generation !== this.#decodeGeneration) return;
 
                 } catch (error) {
-                    /*
-                     * Geänderte Generation bedeutet, dass dieser Download
-                     * absichtlich durch einen neueren ersetzt wurde
-                     */
                     if (generation !== this.#decodeGeneration) return;
                     if (this.#isAbortError(error, signal)) return;
 
@@ -1208,7 +1205,43 @@ class MultiTrackPlayer extends EventTarget {
 
                     this.#removePart(bufferIndex);
 
-                    this.dispatchEvent(new Event("downloadError"));
+                    this.dispatchEvent(new CustomEvent("downloadError", {
+                        detail: {
+                            "type": "download",
+                            "status": response?.status ?? 0,
+                            "url": url
+                        }
+                    }));
+
+                    return;
+                }
+
+                /*
+                 * Audio decodieren
+                 */
+                try {
+                    decodedBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+                    if (generation !== this.#decodeGeneration) return;
+
+                } catch (error) {
+                    if (generation !== this.#decodeGeneration) return;
+
+                    this.#hadError = false;
+
+                    if (bufferIndex === this.#waitIndex) {
+                        this.#waitIndex = null;
+                    }
+
+                    this.#removePart(bufferIndex);
+
+                    this.dispatchEvent(new CustomEvent("downloadError", {
+                        detail: {
+                            "type": "decode",
+                            "status": response.status,
+                            "url": url
+                        }
+                    }));
 
                     return;
                 }

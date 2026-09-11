@@ -25,7 +25,9 @@ let clickEvent = new Event('click', {
 const AUDIO_BUFFER_TARGET = 100;
 const AUDIO_BUFFER_LOW = 60;
 const AUDIO_BUFFER_BEHIND = 15;
+const AUDIO_BUFFER_NEXT = 15;
 const AUDIO_BUFFER_CHECK_INTERVAL = 1000;
+const AUDIO_BUFFER_END_TOLERANCE = 2;
 
 let lastAudioBufferCheck = 0;
 const audioBufferRefilling = new WeakSet();
@@ -1639,9 +1641,9 @@ function previousSong(bypass = false) {
  *  sIndex: (Integer) Der Index des Songs
  *  time: (Integer) Die aktuelle Position
  *  target: (Integer) Die gewünschte Buffer Länge
- *  priority: (Boolean) Unterbricht einen laufenden Download
+ *  priority: (Boolean) Gibt an ob der Download Priorität hat
  *
- * Lädt Audiodaten nach, bis ungefähr die gewünschte Buffer Länge erreicht ist
+ * Lädt Audiodaten bis ungefähr zur gewünschten Buffer Länge
  */
 function bufferSong(sIndex, time = 0, target = AUDIO_BUFFER_TARGET, priority = false) {
     const song = playlist[sIndex];
@@ -1651,21 +1653,23 @@ function bufferSong(sIndex, time = 0, target = AUDIO_BUFFER_TARGET, priority = f
     time = Math.max(0, Number(time) || 0);
 
     if (typeof song["player"] === "undefined") {
-        const length = Math.min(target, getLengthByString(song["length"]) - time);
+        const remaining = getLengthByString(song["length"]) - time;
 
-        if (length > 0) {
-            downloadPart(time, sIndex, 0, length);
+        if (remaining <= AUDIO_BUFFER_END_TOLERANCE) {
+            if (sIndex === playIndex) preloadNextSong();
+
+            return;
         }
+
+        const length = Math.min(target, remaining);
+
+        downloadPart(time, sIndex, 0, length, priority);
 
         return;
     }
 
     const player = song["player"];
 
-    /*
-     * Normales Preloading wartet auf den bestehenden Download.
-     * Ein Seek darf diesen jedoch unterbrechen und bekommt Priorität.
-     */
     if (player.isDecoding() && !priority) return;
 
     const bufferedEnd = player.getBufferedEnd(time);
@@ -1678,7 +1682,15 @@ function bufferSong(sIndex, time = 0, target = AUDIO_BUFFER_TARGET, priority = f
 
     const remaining = player.getDuration() - downloadTime;
 
-    if (remaining <= 0) return;
+    /*
+     * Wegen Rundungsdifferenzen keine winzigen Reststücke laden
+     * Stattdessen direkt den nächsten Song vorladen
+     */
+    if (remaining <= AUDIO_BUFFER_END_TOLERANCE) {
+        if (sIndex === playIndex) preloadNextSong();
+
+        return;
+    }
 
     downloadLength = Math.min(downloadLength, remaining);
 
@@ -1691,7 +1703,11 @@ function bufferSong(sIndex, time = 0, target = AUDIO_BUFFER_TARGET, priority = f
     downloadTime = Math.max(0, Math.floor(downloadTime));
     downloadLength = Math.max(0, Math.ceil(downloadLength));
 
-    if (downloadLength <= 0) return;
+    if (downloadLength <= AUDIO_BUFFER_END_TOLERANCE) {
+        if (sIndex === playIndex) preloadNextSong();
+
+        return;
+    }
 
     downloadPart(
         downloadTime,
@@ -1768,14 +1784,27 @@ function prepareNextPart() {
  * Funktion: preloadNextSong()
  * Autor: Bernardo de Oliveira
  *
- * Puffert bis zu 60 Sekunden des nächsten Songs vor
+ * Puffert einen kleinen Teil des nächsten Songs vor
  */
 function preloadNextSong() {
     const nextIndex = nextSongIndex();
 
     if (nextIndex === playIndex || typeof playlist[nextIndex] === "undefined") return;
 
-    bufferSong(nextIndex, 0, AUDIO_BUFFER_TARGET);
+    const song = playlist[nextIndex];
+
+    /*
+     * Falls bereits ungefähr genug vorgeladen wurde,
+     * keinen kleinen Rest mehr nachladen
+     */
+    if (
+        typeof song["player"] !== "undefined"
+        && song["player"].getBufferedAhead(0) >= AUDIO_BUFFER_NEXT - AUDIO_BUFFER_END_TOLERANCE
+    ) {
+        return;
+    }
+
+    bufferSong(nextIndex, 0, AUDIO_BUFFER_NEXT);
 }
 
 /*
@@ -1954,11 +1983,30 @@ function addEvents(player) {
         }
     });
 
-    player.addEventListener("downloadError", () => {
+    player.addEventListener("downloadError", e => {
         if (typeof playlist[playIndex] === "undefined" || playlist[playIndex]["player"] !== player) {
             return;
         }
 
+        /*
+         * HTTP 200 aber Audio konnte nicht decodiert werden
+         * Derselbe Teil soll nicht erneut heruntergeladen werden
+         */
+        if (e.detail?.type === "decode" && e.detail?.status === 200) {
+            isRetrying = false;
+
+            const remaining = player.getDuration() - player.getCurrentTime();
+
+            if (remaining <= AUDIO_BUFFER_TARGET) {
+                preloadNextSong();
+            }
+
+            return;
+        }
+
+        /*
+         * Netzwerk- und HTTP Fehler erneut versuchen
+         */
         isRetrying = true;
 
         if (!player.isPlaying()) {
