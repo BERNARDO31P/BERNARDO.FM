@@ -1307,7 +1307,7 @@ a.button {
       }
 
       &:has(.lds-facebook) {
-        background-color: var(--body-background);
+        background-color: var(--active-background);
       }
 
       transition: 0.2s;
