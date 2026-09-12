@@ -11,10 +11,33 @@ const FIREWALL_BUILTIN_CHAINS = new Set([
     "OUTPUT",
     "POSTROUTING"
 ]);
+const FIREWALL_PACKET_FLOW = [
+    ["raw", "PREROUTING"],
+    ["mangle", "PREROUTING"],
+    ["nat", "PREROUTING"],
+
+    ["mangle", "INPUT"],
+    ["filter", "INPUT"],
+
+    ["mangle", "FORWARD"],
+    ["filter", "FORWARD"],
+
+    ["raw", "OUTPUT"],
+    ["mangle", "OUTPUT"],
+    ["nat", "OUTPUT"],
+    ["filter", "OUTPUT"],
+
+    ["mangle", "POSTROUTING"],
+    ["nat", "POSTROUTING"]
+];
+
+const FIREWALL_COMMENT_TRANSITION = 1000;
 
 let openRowKey = null;
 let expandedFirewallChains = {};
 let firewallRendering = false;
+let firewallRenderGeneration = 0;
+let firewallCommentTransitionUntil = 0;
 
 window["firewall"] = async () => {
     const objects = document.querySelectorAll("[data-url]");
@@ -28,7 +51,10 @@ window["firewall"] = async () => {
     }
 
     backgroundProcesses[0] = setInterval(async () => {
-        if (firewallRendering) {
+        if (
+            firewallRendering
+            || performance.now() < firewallCommentTransitionUntil
+        ) {
             return;
         }
 
@@ -49,12 +75,24 @@ bindEvent("click", ".firewall-chain-toggle", async function (event) {
     const tableName = this.dataset.tableName || "";
     const chain = this.dataset.chain || "";
 
-    setFirewallChainExpanded(tableName, chain, !isFirewallChainExpanded(tableName, chain));
+    setFirewallChainExpanded(
+        tableName,
+        chain,
+        !isFirewallChainExpanded(tableName, chain)
+    );
 
     const object = this.closest("[data-url]");
 
-    if (object) {
+    if (!object || firewallRendering) {
+        return;
+    }
+
+    firewallRendering = true;
+
+    try {
         await generateFirewall([object]);
+    } finally {
+        firewallRendering = false;
     }
 });
 
@@ -64,6 +102,7 @@ bindEvent("click", ".firewall-chain-toggle", async function (event) {
  *
  * Zeigt bei einem Click die Erklärung der Tabellenzeile
  * Blendet alle anderen Erklärungen aus
+ * Laufende Firewall Refreshes dürfen die Animation nicht überschreiben
  */
 bindEvent("click", ".firewall tr:not(.comment)", function () {
     const nextRow = this.nextElementSibling;
@@ -71,6 +110,13 @@ bindEvent("click", ".firewall tr:not(.comment)", function () {
     if (!nextRow || !nextRow.classList.contains("comment")) {
         return;
     }
+
+    /*
+     * Einen bereits laufenden Render ungültig machen und neue
+     * Refreshes bis zum Ende der CSS Animation blockieren.
+     */
+    firewallRenderGeneration++;
+    firewallCommentTransitionUntil = performance.now() + FIREWALL_COMMENT_TRANSITION;
 
     const isOpen = nextRow.classList.contains("show");
 
@@ -87,15 +133,147 @@ bindEvent("click", ".firewall tr:not(.comment)", function () {
 });
 
 /*
- * Funktion: Anonym
+ * Funktion: getFirewallChainReferences()
  * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  tableChains: (Objekt) Alle Chains derselben iptables Tabelle
+ *  rules: (Array|Objekt) Die Regeln der aktuellen Chain
  *
- * Beim Verlassen einer Erklärung wird diese ausgeblendet
+ * Ermittelt alle sichtbaren User Chains welche von der aktuellen Chain
+ * angesprungen werden. Die Reihenfolge der Regeln bleibt erhalten.
  */
-bindEvent("mouseout", ".comment.show", function () {
-    openRowKey = null;
-    this.classList.remove("show");
-});
+function getFirewallChainReferences(tableChains, rules) {
+    const references = [];
+    const found = new Set();
+
+    for (const row of Object.values(Object(rules))) {
+        const target = cleanFirewallValue(row && row.target);
+
+        if (
+            !target
+            || found.has(target)
+            || !Object.prototype.hasOwnProperty.call(tableChains, target)
+        ) {
+            continue;
+        }
+
+        const targetRules = tableChains[target];
+
+        /*
+         * Leere Chains werden im UI nicht dargestellt und deshalb
+         * auch nicht in die Traversierung aufgenommen.
+         */
+        if (getFirewallRuleCount(targetRules) <= 0) {
+            continue;
+        }
+
+        found.add(target);
+        references.push(target);
+    }
+
+    return references;
+}
+
+/*
+ * Funktion: getFirewallRenderOrder()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  data: (Objekt) Die vollständigen iptables Daten
+ *
+ * Erstellt die Anzeigereihenfolge anhand des iptables Packet Flows.
+ * Referenzierte User Chains werden unmittelbar nach ihrer aufrufenden
+ * Chain rekursiv dargestellt.
+ */
+function getFirewallRenderOrder(data) {
+    const result = [];
+    const visited = new Set();
+    const visiting = new Set();
+
+    /*
+     * Tabellennamen case-insensitive auffindbar machen.
+     */
+    const tableNames = new Map();
+
+    for (const tableName of Object.keys(Object(data))) {
+        tableNames.set(tableName.toLowerCase(), tableName);
+    }
+
+    const visitChain = (tableName, chain) => {
+        const chains = Object(data[tableName]);
+
+        if (!Object.prototype.hasOwnProperty.call(chains, chain)) {
+            return;
+        }
+
+        const rules = chains[chain];
+
+        if (getFirewallRuleCount(rules) <= 0) {
+            return;
+        }
+
+        const key = tableName + "|" + chain;
+
+        /*
+         * Bereits dargestellte Chains nicht ein zweites Mal anzeigen.
+         */
+        if (visited.has(key)) {
+            return;
+        }
+
+        /*
+         * Schutz vor zyklischen Chain Referenzen.
+         */
+        if (visiting.has(key)) {
+            return;
+        }
+
+        visiting.add(key);
+
+        result.push({
+            tableName: tableName,
+            chain: chain,
+            rules: rules
+        });
+
+        /*
+         * Sprungziele sofort nach der aktuellen Chain verfolgen.
+         */
+        const references = getFirewallChainReferences(chains, rules);
+
+        for (const target of references) {
+            visitChain(tableName, target);
+        }
+
+        visiting.delete(key);
+        visited.add(key);
+    };
+
+    /*
+     * Zuerst den bekannten iptables Packet Flow durchlaufen.
+     */
+    for (const [wantedTableName, chain] of FIREWALL_PACKET_FLOW) {
+        const tableName = tableNames.get(wantedTableName.toLowerCase());
+
+        if (!tableName) {
+            continue;
+        }
+
+        visitChain(tableName, chain);
+    }
+
+    /*
+     * Chains welche vom normalen Packet Flow nicht erreicht werden,
+     * trotzdem anzeigen. Damit verschwinden beispielsweise bewusst
+     * definierte aber momentan nicht angesprungene Chains nicht aus dem UI.
+     */
+    for (const [tableName, chains] of Object.entries(Object(data))) {
+        for (const chain of Object.keys(Object(chains))) {
+            visitChain(tableName, chain);
+        }
+    }
+
+    return result;
+}
 
 /*
  * Funktion: getColumnsForRules()
@@ -249,12 +427,23 @@ function formatFirewallTableRow(tr, row, columns) {
  * Autor: Bernardo de Oliveira
  *
  * Holt die Firewall Daten und verarbeitet diese
- * Generiert oder aktualisiert Tabellen, Chains und Regeln
- * Öffnet vorher geöffnete Erklärungen erneut
+ * Ordnet alle Chains anhand des iptables Packet Flows
+ * Referenzierte User Chains werden unmittelbar nach ihrem Aufrufer dargestellt
+ * Die bestehende DOM Struktur bleibt während des asynchronen Renderings sichtbar
  */
 async function generateFirewall(objects) {
+    const renderGeneration = firewallRenderGeneration;
+
     for (const object of objects) {
         const data = await httpGetJSON(object.getAttribute("data-url"));
+
+        /*
+         * Eine User Interaktion während des Requests macht diesen
+         * Render ungültig. Die bestehende DOM Struktur bleibt erhalten.
+         */
+        if (renderGeneration !== firewallRenderGeneration) {
+            return;
+        }
 
         if (!data) {
             continue;
@@ -269,6 +458,11 @@ async function generateFirewall(objects) {
             object.appendChild(firewall);
         }
 
+        /*
+         * Bestehende Container wiederverwenden.
+         * Sie bleiben bis zum vollständig abgeschlossenen Rendern
+         * an ihrer bisherigen Position im DOM.
+         */
         const existingContainers = new Map();
 
         firewall.querySelectorAll(".responsive-container").forEach(container => {
@@ -278,147 +472,98 @@ async function generateFirewall(objects) {
             existingContainers.set(tableName + "|" + chain, container);
         });
 
-        const usedContainers = new Set();
-        const usedTables = new Set();
+        const orderedChains = getFirewallRenderOrder(data);
+        const renderedChains = [];
 
         let ddosProtectionEnabled = false;
         let chainCounter = 0;
 
-        for (const [tableName, chains] of Object.entries(Object(data))) {
-            const nonEmptyChains = Object.entries(Object(chains)).filter(([chain, rules]) => {
-                return getFirewallRuleCount(rules) > 0;
-            });
+        /*
+         * Zuerst alle Chains aktualisieren, ohne bestehende Container
+         * aus dem sichtbaren DOM zu entfernen.
+         */
+        for (const item of orderedChains) {
+            const tableName = item.tableName;
+            const chain = item.chain;
+            const rules = item.rules;
 
-            if (!nonEmptyChains.length) {
-                continue;
+            chainCounter++;
+
+            if (firewallRulesContainPermanentMode(rules)) {
+                ddosProtectionEnabled = true;
             }
 
-            usedTables.add(tableName);
+            const columns = getColumnsForRules(rules);
+            const totalRows = getFirewallRuleCount(rules);
+            const expanded = isFirewallChainExpanded(tableName, chain);
 
-            let tableHeading = firewall.querySelector(
-                "h2[data-table-name=\"" + cssEscapeValue(tableName) + "\"]"
-            );
+            const visibleRules = expanded
+                ? rules
+                : limitFirewallRules(rules, FIREWALL_ROWS_PER_CHAIN);
 
-            if (!tableHeading) {
-                tableHeading = document.createElement("h2");
-                tableHeading.dataset.tableName = tableName;
-                tableHeading.innerText = ucFirst(tableName);
+            const containerKey = tableName + "|" + chain;
 
-                firewall.appendChild(tableHeading);
+            let container = existingContainers.get(containerKey);
+
+            if (!container) {
+                container = document.createElement("div");
+
+                container.classList.add("responsive-container");
+                container.dataset.tableName = tableName;
+                container.dataset.chain = chain;
             }
 
-            let insertAfter = tableHeading;
+            let table = container.querySelector("table");
 
-            for (const [chain, rules] of nonEmptyChains) {
-                chainCounter++;
+            if (!table) {
+                table = document.createElement("table");
+                table.classList.add("responsive-table");
 
-                if (firewallRulesContainPermanentMode(rules)) {
-                    ddosProtectionEnabled = true;
-                }
+                container.appendChild(table);
+            }
 
-                const containerKey = tableName + "|" + chain;
+            /*
+             * Header aktualisieren
+             */
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
 
-                usedContainers.add(containerKey);
+            for (const column of columns) {
+                const th = document.createElement("th");
 
-                const columns = getColumnsForRules(rules);
-                const totalRows = getFirewallRuleCount(rules);
-                const expanded = isFirewallChainExpanded(tableName, chain);
+                th.innerText = column;
 
-                const visibleRules = expanded
-                    ? rules
-                    : limitFirewallRules(rules, FIREWALL_ROWS_PER_CHAIN);
+                headerRow.appendChild(th);
+            }
 
-                let container = existingContainers.get(containerKey);
+            thead.appendChild(headerRow);
 
-                if (!container) {
-                    const title = document.createElement("h3");
+            const oldThead = table.querySelector("thead");
 
-                    title.dataset.tableName = tableName;
-                    title.dataset.chain = chain;
-                    title.innerText = chain;
+            if (oldThead) {
+                oldThead.replaceWith(thead);
+            } else {
+                table.appendChild(thead);
+            }
 
-                    insertAfter.after(title);
-
-                    insertAfter = title;
-
-                    const toggle = generateFirewallChainToggle(tableName, chain, totalRows, expanded);
-
-                    if (toggle) {
-                        insertAfter.after(toggle);
-
-                        insertAfter = toggle;
-                    }
-
-                    container = document.createElement("div");
-
-                    container.classList.add("responsive-container");
-                    container.dataset.tableName = tableName;
-                    container.dataset.chain = chain;
-
-                    insertAfter.after(container);
-
-                    insertAfter = container;
-                } else {
-                    const titleSelector = "h3[data-table-name=\"" + cssEscapeValue(tableName) + "\"][data-chain=\"" + cssEscapeValue(chain) + "\"]";
-                    const existingTitle = firewall.querySelector(titleSelector);
-
-                    if (existingTitle) {
-                        insertAfter = existingTitle;
-                    }
-
-                    const toggleSelector = ".firewall-chain-toggle[data-table-name=\"" + cssEscapeValue(tableName) + "\"][data-chain=\"" + cssEscapeValue(chain) + "\"]";
-                    const existingToggle = firewall.querySelector(toggleSelector);
-                    const newToggle = generateFirewallChainToggle(tableName, chain, totalRows, expanded);
-
-                    if (existingToggle) {
-                        existingToggle.remove();
-                    }
-
-                    if (newToggle) {
-                        insertAfter.after(newToggle);
-
-                        insertAfter = newToggle;
-                    }
-
-                    insertAfter = container;
-                }
-
-                let table = container.querySelector("table");
-
-                if (!table) {
-                    table = document.createElement("table");
-                    table.classList.add("responsive-table");
-
-                    container.appendChild(table);
-                }
-
-                const thead = document.createElement("thead");
-                const headerRow = document.createElement("tr");
-
-                for (const column of columns) {
-                    const th = document.createElement("th");
-
-                    th.innerText = column;
-
-                    headerRow.appendChild(th);
-                }
-
-                thead.appendChild(headerRow);
-
-                const oldThead = table.querySelector("thead");
-
-                if (oldThead) {
-                    oldThead.replaceWith(thead);
-                } else {
-                    table.appendChild(thead);
-                }
-
-                const tbody = await generateTableBody(visibleRules, columns, null, null, (row, fragment, tr, index) => {
+            /*
+             * Regeln aktualisieren
+             */
+            const tbody = await generateTableBody(
+                visibleRules,
+                columns,
+                null,
+                null,
+                (row, fragment, tr, index) => {
                     const key = tableName + "|" + chain + "|" + index;
 
                     tr.dataset.key = key;
 
-                    formatFirewallTableRow(tr, row, columns);
+                    formatFirewallTableRow(
+                        tr,
+                        row,
+                        columns
+                    );
 
                     const commentRow = generateCommentRow(
                         row,
@@ -433,63 +578,105 @@ async function generateFirewall(objects) {
                     }
 
                     fragment.appendChild(commentRow);
-                });
-
-                const oldTbody = table.querySelector("tbody");
-
-                if (oldTbody) {
-                    oldTbody.replaceWith(tbody);
-                } else {
-                    table.appendChild(tbody);
                 }
+            );
 
-                if (chainCounter % 2 === 0) {
-                    await yieldToBrowser();
+            /*
+             * Falls während generateTableBody() eine Erklärung angeklickt wurde,
+             * darf dieser alte Render das aktuelle tbody nicht mehr ersetzen.
+             */
+            if (renderGeneration !== firewallRenderGeneration) {
+                return;
+            }
+
+            const oldTbody = table.querySelector("tbody");
+
+            if (oldTbody) {
+                oldTbody.replaceWith(tbody);
+            } else {
+                table.appendChild(tbody);
+            }
+
+            /*
+             * Noch nichts verschieben.
+             * Nur merken, wie die fertige Reihenfolge aussehen soll.
+             */
+            renderedChains.push({
+                tableName: tableName,
+                chain: chain,
+                container: container,
+                totalRows: totalRows,
+                expanded: expanded
+            });
+
+            if (chainCounter % 2 === 0) {
+                await yieldToBrowser();
+
+                if (renderGeneration !== firewallRenderGeneration) {
+                    return;
                 }
             }
         }
+
+        if (renderGeneration !== firewallRenderGeneration) {
+            return;
+        }
+
+        /*
+         * Erst jetzt die neue Reihenfolge erzeugen.
+         *
+         * Ab hier gibt es absichtlich kein await mehr.
+         * Bestehende Container werden zwar in das Fragment verschoben,
+         * aber direkt danach in einem Zug wieder eingesetzt.
+         */
+        const fragment = document.createDocumentFragment();
+
+        let previousTableName = null;
+
+        for (const item of renderedChains) {
+            if (previousTableName !== item.tableName) {
+                const tableHeading = document.createElement("h2");
+
+                tableHeading.dataset.tableName = item.tableName;
+                tableHeading.innerText = ucFirst(item.tableName);
+
+                fragment.appendChild(tableHeading);
+
+                previousTableName = item.tableName;
+            }
+
+            const title = document.createElement("h3");
+
+            title.dataset.tableName = item.tableName;
+            title.dataset.chain = item.chain;
+            title.innerText = item.chain;
+
+            fragment.appendChild(title);
+
+            const toggle = generateFirewallChainToggle(
+                item.tableName,
+                item.chain,
+                item.totalRows,
+                item.expanded
+            );
+
+            if (toggle) {
+                fragment.appendChild(toggle);
+            }
+
+            fragment.appendChild(item.container);
+        }
+
+        /*
+         * Vollständige Struktur atomar ersetzen.
+         */
+        firewall.replaceChildren(fragment);
 
         if (ddosProtectionEnabled) {
             showFirewallDdosNotice(firewall);
         } else {
             hideFirewallDdosNotice(firewall);
         }
-
-        // REMOVE OLD CHAINS
-        firewall.querySelectorAll(".responsive-container").forEach(container => {
-            const tableName = container.dataset.tableName || "";
-            const chain = container.dataset.chain || "";
-            const key = tableName + "|" + chain;
-
-            if (usedContainers.has(key)) {
-                return;
-            }
-
-            const titleSelector = "h3[data-table-name=\"" + cssEscapeValue(tableName) + "\"][data-chain=\"" + cssEscapeValue(chain) + "\"]";
-            const title = firewall.querySelector(titleSelector);
-
-            if (title) {
-                title.remove();
-            }
-
-            const toggleSelector = ".firewall-chain-toggle[data-table-name=\"" + cssEscapeValue(tableName) + "\"][data-chain=\"" + cssEscapeValue(chain) + "\"]";
-            const toggle = firewall.querySelector(toggleSelector);
-
-            if (toggle) {
-                toggle.remove();
-            }
-
-            container.remove();
-        });
-
-        // REMOVE OLD TABLES
-        firewall.querySelectorAll("h2[data-table-name]").forEach(title => {
-            const tableName = title.dataset.tableName || "";
-
-            if (!usedTables.has(tableName)) {
-                title.remove();
-            }
-        });
     }
 }
 
