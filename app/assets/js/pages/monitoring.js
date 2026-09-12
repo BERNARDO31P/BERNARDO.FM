@@ -17,6 +17,7 @@ let tooltip;
 let initialScrollDone = false;
 
 const HITBOX = 10;
+const TOUCH_HITBOX = 16;
 const MAX_NETWORK = 12000;
 
 window["monitoring"] = () => {
@@ -38,30 +39,51 @@ window["monitoring"] = () => {
     startBackgroundProcesses();
     initDropdown();
 
-    canvasDown.onmousemove
-        = canvasUp.onmousemove
-        = canvasCpu.onmousemove
-        = canvasRam.onmousemove
-        = canvasDown.onclick
-        = canvasUp.onclick
-        = canvasCpu.onclick
-        = canvasRam.onclick = function (event) {
-        showTooltip(this, event);
-    };
-
-    canvasDown.onmouseout
-        = canvasUp.onmouseout
-        = canvasCpu.onmouseout
-        = canvasRam.onmouseout = function () {
-        setTimeout(() => {
-            if (currentHover !== tooltip) tooltip.style.display = "none";
-        }, 0);
-    };
-
     [canvasDown, canvasUp, canvasCpu, canvasRam].forEach(canvas => {
+        /*
+         * Maus bewegt das Tooltip laufend.
+         */
+        canvas.addEventListener("pointermove", event => {
+            if (event.pointerType === "mouse") {
+                showTooltip(canvas, event);
+            }
+        });
+
+        /*
+         * Klick oder Touch zeigt das Tooltip.
+         * Pointer Events verhindern doppelte Touch/Click Behandlung.
+         */
+        canvas.addEventListener("pointerdown", event => {
+            showTooltip(canvas, event);
+        });
+
+        /*
+         * Nur bei einer Maus automatisch ausblenden.
+         * Touch und Pen lassen das Tooltip sichtbar.
+         */
+        canvas.addEventListener("pointerleave", event => {
+            if (event.pointerType === "mouse") {
+                tooltip.style.display = "none";
+            }
+        });
+
         canvas.closest(".fullWidth").addEventListener("scroll", () => {
             tooltip.style.display = "none";
         }, {passive: true});
+    });
+
+    /*
+     * Auf Touch Geräten bleibt das Tooltip nach dem Antippen sichtbar.
+     * Ein Tap ausserhalb der Graphen schliesst es wieder.
+     */
+    document.addEventListener("pointerdown", event => {
+        if (
+            event.pointerType !== "mouse"
+            && !event.target.closest("canvas")
+            && !event.target.closest("#tooltip")
+        ) {
+            tooltip.style.display = "none";
+        }
     });
 };
 
@@ -336,8 +358,28 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
         const x = getX(timestamp);
         const label = formatTimestamp(timestamp).split("\n");
 
-        context.fillText(label[0], x, GRAPH_BOTTOM + 15);
-        context.fillText(label[1], x, GRAPH_BOTTOM + 29);
+        /*
+         * Timestamp innerhalb des Canvas halten.
+         * Dadurch werden die erste und letzte Beschriftung nicht abgeschnitten.
+         */
+        const labelWidth = Math.max(
+            context.measureText(label[0]).width,
+            context.measureText(label[1]).width
+        );
+
+        const halfWidth = labelWidth / 2;
+        const LABEL_MARGIN = 4;
+
+        const labelX = Math.max(
+            halfWidth + LABEL_MARGIN,
+            Math.min(
+                x,
+                canvasWidth - halfWidth - LABEL_MARGIN
+            )
+        );
+
+        context.fillText(label[0], labelX, GRAPH_BOTTOM + 15);
+        context.fillText(label[1], labelX, GRAPH_BOTTOM + 29);
     }
 
     context.textAlign = "left";
@@ -421,46 +463,28 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
  * Funktion: processCompactSeries()
  * Autor: Bernardo de Oliveira
  *
- * Verarbeitet eine Serie des kompakten Monitoring Formats
- * Unterstützt das neue Average Format sowie ältere Version 2 Daten
+ * Verarbeitet kompakte Monitoring Daten.
+ * Durchschnittswerte bilden den normalen Verlauf.
+ * Minimum und Maximum jedes Buckets bleiben zwingend erhalten,
+ * damit Peaks bei längeren Zeiträumen nicht verloren gehen.
  */
 function processCompactSeries(series, type) {
-    const times = [];
-    const values = [];
+    const result = [];
 
     let lastValid = 0;
 
     if (!Array.isArray(series)) {
-        return {times, values};
+        return {
+            times: [],
+            values: []
+        };
     }
 
-    for (const point of series) {
-        let timestamp;
-        let value;
+    const addPoint = (timestamp, value, order = 0) => {
+        timestamp = Number(timestamp);
+        value = Number(value);
 
-        /*
-         * Version 2:
-         * [timestamp, value]
-         *
-         * Version 3:
-         * [timestamp, average, min, max]
-         */
-        if (Array.isArray(point)) {
-            if (point.length < 2) continue;
-
-            timestamp = Number(point[0]);
-            value = Number(point[1]);
-        } else if (point && typeof point === "object") {
-            /*
-             * Zusätzlich kompatibel mit einem möglichen Object Format
-             */
-            timestamp = Number(point.time);
-            value = Number(point.value);
-        } else {
-            continue;
-        }
-
-        if (!Number.isFinite(timestamp) || !Number.isFinite(value)) continue;
+        if (!Number.isFinite(timestamp) || !Number.isFinite(value)) return;
 
         if (type === "network") {
             if (value < 0 || value > MAX_NETWORK) {
@@ -474,11 +498,104 @@ function processCompactSeries(series, type) {
             value = safePercent(value);
         }
 
-        times.push(timestamp);
-        values.push(value);
+        result.push({
+            time: timestamp,
+            value: value,
+            order: order
+        });
+    };
+
+    for (const point of series) {
+        if (Array.isArray(point)) {
+            /*
+             * Version 4:
+             *
+             * [
+             *     averageTimestamp,
+             *     average,
+             *     minTimestamp,
+             *     min,
+             *     maxTimestamp,
+             *     max
+             * ]
+             */
+            if (point.length >= 6) {
+                addPoint(point[0], point[1], 1);
+                addPoint(point[2], point[3], 0);
+                addPoint(point[4], point[5], 2);
+
+                continue;
+            }
+
+            /*
+             * Version 3:
+             *
+             * [timestamp, average, min, max]
+             *
+             * Der genaue Timestamp von Min/Max fehlt hier noch.
+             * Trotzdem werden die Peaks dargestellt, bis die Datei
+             * vom Backend als Version 4 neu aufgebaut wurde.
+             */
+            if (point.length >= 4) {
+                addPoint(point[0], point[2], 0);
+                addPoint(point[0], point[1], 1);
+                addPoint(point[0], point[3], 2);
+
+                continue;
+            }
+
+            /*
+             * Version 2:
+             *
+             * [timestamp, value]
+             */
+            if (point.length >= 2) {
+                addPoint(point[0], point[1]);
+
+                continue;
+            }
+        }
+
+        if (point && typeof point === "object") {
+            addPoint(point.time, point.value);
+        }
     }
 
-    return {times, values};
+    /*
+     * Minima, Durchschnitt und Maxima chronologisch sortieren.
+     * Bei identischem Timestamp bleibt die Reihenfolge stabil definiert.
+     */
+    result.sort((a, b) => {
+        if (a.time !== b.time) {
+            return a.time - b.time;
+        }
+
+        return a.order - b.order;
+    });
+
+    /*
+     * Exakt doppelte Punkte entfernen.
+     */
+    const filtered = [];
+
+    for (const point of result) {
+        const previous = filtered[filtered.length - 1];
+
+        if (
+            previous
+            && previous.time === point.time
+            && previous.value === point.value
+        ) {
+            continue;
+        }
+
+        filtered.push(point);
+    }
+
+    return {
+        times: filtered.map(point => point.time),
+        values: filtered.map(point => point.value)
+    };
 }
 
 /*
@@ -677,15 +794,20 @@ function redraw() {
 /*
  * Funktion: findClosestPoint()
  * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  graphPoints: (Array) Die verfügbaren Graph Punkte
+ *  x: (Number) Die horizontale Pointer Position
+ *  y: (Number) Die vertikale Pointer Position
+ *  hitbox: (Number) Die erlaubte Distanz zum Graph Punkt
  *
  * Sucht den räumlich nächsten Graph Punkt
  * Berücksichtigt X und Y damit eng beieinanderliegende Peaks erkannt werden
  */
-function findClosestPoint(graphPoints, x, y) {
+function findClosestPoint(graphPoints, x, y, hitbox = HITBOX) {
     if (!graphPoints.length) return null;
 
-    const minX = x - HITBOX;
-    const maxX = x + HITBOX;
+    const minX = x - hitbox;
+    const maxX = x + hitbox;
 
     let left = 0;
     let right = graphPoints.length;
@@ -709,7 +831,7 @@ function findClosestPoint(graphPoints, x, y) {
     /*
      * Alle Punkte im horizontalen Hitbox Bereich vergleichen
      * Dadurch gewinnt bei gleichem X der Punkt welcher auch vertikal
-     * tatsächlich unter dem Mauszeiger liegt
+     * tatsächlich unter dem Pointer liegt
      */
     for (let index = left; index < graphPoints.length; index++) {
         const point = graphPoints[index];
@@ -721,7 +843,7 @@ function findClosestPoint(graphPoints, x, y) {
         const distanceX = pointX - x;
         const distanceY = pointY - y;
 
-        if (Math.abs(distanceY) > HITBOX) continue;
+        if (Math.abs(distanceY) > hitbox) continue;
 
         const distance = (distanceX * distanceX) + (distanceY * distanceY);
 
@@ -739,38 +861,116 @@ function findClosestPoint(graphPoints, x, y) {
  * Autor: Bernardo de Oliveira
  * Argumente:
  *  object: (Objekt) Das Canvas, welches den Event ausgelöst hat
- *  event: (Event) Das Event
+ *  event: (Event) Das Pointer Event
  *
  * Zeigt das Tooltip des räumlich nächstgelegenen Graph Punktes an
+ * Touch und Pen verwenden eine grössere Hitbox
+ * Das Tooltip bleibt immer vollständig im sichtbaren Bereich
  */
 function showTooltip(object, event) {
     const graphPoints = points[object.id];
 
     if (!graphPoints || !graphPoints.length) return;
 
+    const canvasRect = object.getBoundingClientRect();
+
+    const pointerX = event.clientX - canvasRect.left;
+    const pointerY = event.clientY - canvasRect.top;
+
+    const isMouse = event.pointerType === "mouse" || !event.pointerType;
+    const hitbox = isMouse ? HITBOX : TOUCH_HITBOX;
+
     const point = findClosestPoint(
         graphPoints,
-        event.offsetX,
-        event.offsetY
+        pointerX,
+        pointerY,
+        hitbox
     );
 
     if (point === null) {
-        tooltip.style.display = "none";
+        if (isMouse) {
+            tooltip.style.display = "none";
+        }
+
         return;
     }
-
-    const content = document.getElementById("content");
-    const contentRect = content.getBoundingClientRect();
-
-    tooltip.style.top = mouseY - contentRect.top + 10 + "px";
-    tooltip.style.left = mouseX - contentRect.left + 10 + "px";
-    tooltip.style.display = "initial";
 
     tooltip.innerHTML = format2(point.value)
         + " "
         + point.measurement
         + "<br/>"
         + formatTimestamp(point.time);
+
+    const GAP = 10;
+    const VIEWPORT_MARGIN = 8;
+
+    /*
+     * Tooltip zuerst am Ursprung seines absoluten
+     * Koordinatensystems anzeigen.
+     */
+    tooltip.style.left = "0px";
+    tooltip.style.top = "0px";
+    tooltip.style.display = "block";
+
+    /*
+     * Tatsächliche Position von left: 0 / top: 0 messen.
+     * Daraus wird die gewünschte Viewport Position berechnet.
+     */
+    let tooltipRect = tooltip.getBoundingClientRect();
+
+    let left = event.clientX + GAP - tooltipRect.left;
+    let top = event.clientY + GAP - tooltipRect.top;
+
+    tooltip.style.left = left + "px";
+    tooltip.style.top = top + "px";
+
+    /*
+     * Nach dem Positionieren nochmals messen und exakt auf
+     * 10px rechts/unterhalb des Pointers korrigieren.
+     */
+    tooltipRect = tooltip.getBoundingClientRect();
+
+    left += event.clientX + GAP - tooltipRect.left;
+    top += event.clientY + GAP - tooltipRect.top;
+
+    tooltip.style.left = left + "px";
+    tooltip.style.top = top + "px";
+
+    /*
+     * Sichtbaren Viewport bestimmen.
+     */
+    const viewport = window.visualViewport;
+
+    const viewportLeft = viewport ? viewport.offsetLeft : 0;
+    const viewportTop = viewport ? viewport.offsetTop : 0;
+    const viewportRight = viewport ? viewport.offsetLeft + viewport.width : window.innerWidth;
+    const viewportBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+
+    /*
+     * Nur wenn nötig verschieben.
+     * Das Tooltip wird nicht künstlich auf die andere Seite gespiegelt,
+     * sondern lediglich vollständig in den Viewport geschoben.
+     */
+    tooltipRect = tooltip.getBoundingClientRect();
+
+    if (tooltipRect.right > viewportRight - VIEWPORT_MARGIN) {
+        left -= tooltipRect.right - (viewportRight - VIEWPORT_MARGIN);
+    }
+
+    if (tooltipRect.left < viewportLeft + VIEWPORT_MARGIN) {
+        left += viewportLeft + VIEWPORT_MARGIN - tooltipRect.left;
+    }
+
+    if (tooltipRect.bottom > viewportBottom - VIEWPORT_MARGIN) {
+        top -= tooltipRect.bottom - (viewportBottom - VIEWPORT_MARGIN);
+    }
+
+    if (tooltipRect.top < viewportTop + VIEWPORT_MARGIN) {
+        top += viewportTop + VIEWPORT_MARGIN - tooltipRect.top;
+    }
+
+    tooltip.style.left = left + "px";
+    tooltip.style.top = top + "px";
 }
 
 let resizeTimer;

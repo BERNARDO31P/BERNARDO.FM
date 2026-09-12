@@ -387,6 +387,8 @@ a.button {
     position: absolute;
     display: none;
 
+    white-space: nowrap;
+
     padding: 5px 10px;
 
     color: var(--text-color);

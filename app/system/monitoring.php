@@ -213,8 +213,8 @@ function get_monitoring_values(array $sample): ?array
  * Funktion: add_range_sample()
  * Autor: Bernardo de Oliveira
  *
- * Fügt einen Messwert zur entsprechenden Zeitgruppe hinzu
- * Innerhalb einer Zeitgruppe werden Durchschnitt, Minimum und Maximum gesammelt
+ * Fügt einen Messwert zur entsprechenden Zeitgruppe hinzu.
+ * Durchschnitt, Minimum und Maximum sowie deren Zeitpunkte bleiben erhalten.
  */
 function add_range_sample(
     array &$range,
@@ -234,7 +234,6 @@ function add_range_sample(
         $range["bucket_start"] = $bucketStart;
     } elseif ($range["bucket_start"] !== $bucketStart) {
         finalise_range_bucket($range);
-
         $range["bucket_start"] = $bucketStart;
     }
 
@@ -245,7 +244,9 @@ function add_range_sample(
                 "last_time"  => $timestamp,
                 "sum"        => $value,
                 "count"      => 1,
+                "min_time"   => $timestamp,
                 "min"        => $value,
+                "max_time"   => $timestamp,
                 "max"        => $value,
             ];
 
@@ -258,10 +259,12 @@ function add_range_sample(
 
         if ($value < $range["bucket"][$metric]["min"]) {
             $range["bucket"][$metric]["min"] = $value;
+            $range["bucket"][$metric]["min_time"] = $timestamp;
         }
 
         if ($value > $range["bucket"][$metric]["max"]) {
             $range["bucket"][$metric]["max"] = $value;
+            $range["bucket"][$metric]["max_time"] = $timestamp;
         }
     }
 }
@@ -270,8 +273,9 @@ function add_range_sample(
  * Funktion: finalise_range_bucket()
  * Autor: Bernardo de Oliveira
  *
- * Speichert pro Zeitgruppe genau einen Durchschnittswert
- * Minimum und Maximum bleiben als Zusatzinformationen erhalten
+ * Speichert den Durchschnitt sowie Minimum und Maximum eines Buckets.
+ * Die Extremwerte behalten ihren echten Timestamp, damit Peaks bei
+ * längeren Zeiträumen niemals durch die Komprimierung verschwinden.
  */
 function finalise_range_bucket(array &$range): void
 {
@@ -283,11 +287,7 @@ function finalise_range_bucket(array &$range): void
     foreach ($range["bucket"] as $metric => $bucket) {
         $count = max(1, (int)$bucket["count"]);
 
-        /*
-         * Der Timestamp liegt in der Mitte der tatsächlich vorhandenen
-         * Messwerte des Buckets.
-         */
-        $timestamp = (int)round(
+        $averageTimestamp = (int)round(
             (
                 (int)$bucket["first_time"]
                 + (int)$bucket["last_time"]
@@ -300,14 +300,23 @@ function finalise_range_bucket(array &$range): void
         );
 
         /*
-         * Format:
+         * Format Version 4:
          *
-         * [timestamp, average, min, max]
+         * [
+         *     averageTimestamp,
+         *     average,
+         *     minTimestamp,
+         *     min,
+         *     maxTimestamp,
+         *     max
+         * ]
          */
         $range["series"][$metric][] = [
-            $timestamp,
+            $averageTimestamp,
             $average,
+            (int)$bucket["min_time"],
             round((float)$bucket["min"], 2),
+            (int)$bucket["max_time"],
             round((float)$bucket["max"], 2),
         ];
     }
@@ -349,20 +358,20 @@ function prune_range_series(array &$range, int $cutoff): void
  * Funktion: export_range_data()
  * Autor: Bernardo de Oliveira
  *
- * Erstellt die kompakte JSON Struktur für das Frontend
- * Pro Bucket wird genau ein Durchschnittswert ausgegeben
+ * Erstellt die kompakte JSON Struktur für das Frontend.
+ * Durchschnitt sowie echte Minima und Maxima bleiben erhalten.
  */
 function export_range_data(array $range, int $interval, int $cutoff): array
 {
     $series = $range["series"];
 
     foreach ($series as $metric => $points) {
-        $seen = [];
+        $result = [];
 
         foreach ($points as $point) {
             if (
                 !is_array($point)
-                || count($point) < 4
+                || count($point) < 6
             ) {
                 continue;
             }
@@ -373,21 +382,21 @@ function export_range_data(array $range, int $interval, int $cutoff): array
                 continue;
             }
 
-            $seen[$timestamp] = [
+            $result[] = [
                 $timestamp,
                 (float)$point[1],
-                (float)$point[2],
+                (int)$point[2],
                 (float)$point[3],
+                (int)$point[4],
+                (float)$point[5],
             ];
         }
 
-        ksort($seen, SORT_NUMERIC);
-
-        $series[$metric] = array_values($seen);
+        $series[$metric] = $result;
     }
 
     return [
-        "version"  => 3,
+        "version"  => 4,
         "interval" => $interval,
         "series"   => $series,
     ];
@@ -397,15 +406,16 @@ function export_range_data(array $range, int $interval, int $cutoff): array
  * Funktion: load_range_file()
  * Autor: Bernardo de Oliveira
  *
- * Liest eine bereits konvertierte Range Datei ein
- * Alte Version 2 Dateien werden absichtlich neu aus dem Master aufgebaut
+ * Liest eine bereits konvertierte Range Datei ein.
+ * Ältere Formate werden aus der Master Datenbank neu aufgebaut,
+ * damit historische Peaks wieder ihren echten Timestamp erhalten.
  */
 function load_range_file(string $file): ?array
 {
     $data = load_json_file($file);
 
     if (
-        ($data["version"] ?? null) !== 3
+        ($data["version"] ?? null) !== 4
         || !isset($data["series"])
         || !is_array($data["series"])
     ) {
@@ -425,11 +435,13 @@ function load_range_file(string $file): ?array
         foreach ($data["series"][$metric] as $point) {
             if (
                 !is_array($point)
-                || count($point) < 4
+                || count($point) < 6
                 || !is_numeric($point[0])
                 || !is_numeric($point[1])
                 || !is_numeric($point[2])
                 || !is_numeric($point[3])
+                || !is_numeric($point[4])
+                || !is_numeric($point[5])
             ) {
                 continue;
             }
@@ -437,8 +449,10 @@ function load_range_file(string $file): ?array
             $range["series"][$metric][] = [
                 (int)$point[0],
                 (float)$point[1],
-                (float)$point[2],
+                (int)$point[2],
                 (float)$point[3],
+                (int)$point[4],
+                (float)$point[5],
             ];
         }
     }
