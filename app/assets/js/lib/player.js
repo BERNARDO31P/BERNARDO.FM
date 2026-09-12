@@ -21,6 +21,9 @@ class MultiTrackPlayer extends EventTarget {
     static #audioTagOwner = null;
     static #carrierPauseTimeout = null;
 
+    static #wakeLock = null;
+    static #wakeLockPromise = null;
+
     #endTolerance = 0;
 
     #waitIndex = null;
@@ -88,8 +91,114 @@ class MultiTrackPlayer extends EventTarget {
                 return;
             }
 
+            /*
+             * Screen Wake Locks werden beim Verlassen der App vom Browser
+             * automatisch freigegeben. Bei Rückkehr während laufender
+             * Wiedergabe deshalb wieder anfordern.
+             */
+            if (
+                MultiTrackPlayer.#audioTagOwner === this
+                && !this.#audioTag.paused
+            ) {
+                void this.#requestWakeLock();
+            }
+
             this.#dispatchTimeUpdate();
         });
+    }
+
+    /*
+     * Funktion: requestWakeLock()
+     * Autor: Bernardo de Oliveira
+     *
+     * Verhindert während der Wiedergabe das automatische Ausschalten
+     * des Displays. Es existiert immer nur ein Wake Lock für alle Player.
+     */
+    async #requestWakeLock() {
+        if (!("wakeLock" in navigator) || document.hidden) {
+            return;
+        }
+
+        if (
+            MultiTrackPlayer.#wakeLock !== null
+            && !MultiTrackPlayer.#wakeLock.released
+        ) {
+            return;
+        }
+
+        /*
+         * Mehrere gleichzeitige Requests verhindern.
+         */
+        if (MultiTrackPlayer.#wakeLockPromise !== null) {
+            await MultiTrackPlayer.#wakeLockPromise;
+            return;
+        }
+
+        MultiTrackPlayer.#wakeLockPromise = navigator.wakeLock.request("screen")
+            .then(async lock => {
+                const owner = MultiTrackPlayer.#audioTagOwner;
+
+                /*
+                 * Falls die Wiedergabe während des Requests bereits beendet
+                 * oder pausiert wurde, wird der Lock sofort wieder freigegeben.
+                 */
+                if (
+                    owner === null
+                    || owner.#stopped
+                    || owner.#audioTag.paused
+                ) {
+                    await lock.release();
+                    return;
+                }
+
+                MultiTrackPlayer.#wakeLock = lock;
+
+                /*
+                 * Browser können den Wake Lock selbst freigeben,
+                 * beispielsweise wenn die App in den Hintergrund geht.
+                 */
+                lock.addEventListener("release", () => {
+                    if (MultiTrackPlayer.#wakeLock === lock) {
+                        MultiTrackPlayer.#wakeLock = null;
+                    }
+                }, {once: true});
+            })
+            .catch(error => {
+                /*
+                 * NotAllowedError kann beispielsweise auftreten wenn
+                 * der Browser den Wake Lock momentan nicht erlaubt.
+                 */
+                if (error?.name !== "NotAllowedError") {
+                    console.error(error);
+                }
+            })
+            .finally(() => {
+                MultiTrackPlayer.#wakeLockPromise = null;
+            });
+
+        await MultiTrackPlayer.#wakeLockPromise;
+    }
+
+    /*
+     * Funktion: releaseWakeLock()
+     * Autor: Bernardo de Oliveira
+     *
+     * Gibt den aktiven Screen Wake Lock wieder frei.
+     */
+    async #releaseWakeLock() {
+        const lock = MultiTrackPlayer.#wakeLock;
+
+        MultiTrackPlayer.#wakeLock = null;
+
+        if (lock === null || lock.released) {
+            return;
+        }
+
+        try {
+            await lock.release();
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     #getIndexByUrl(url) {
@@ -659,6 +768,11 @@ class MultiTrackPlayer extends EventTarget {
             }
         }
 
+        /*
+         * Die laufende Wiedergabe soll das Display aktiv halten.
+         */
+        void this.#requestWakeLock();
+
         if (audioContext.state !== "running") {
             await audioContext.resume();
 
@@ -713,6 +827,8 @@ class MultiTrackPlayer extends EventTarget {
             const wasPlaying = this.#playing;
 
             this.#playing = true;
+
+            void this.#requestWakeLock();
 
             if (!wasPlaying) {
                 this.#startClock();
@@ -901,6 +1017,10 @@ class MultiTrackPlayer extends EventTarget {
             this.#audioTag.pause();
         }
 
+        if (MultiTrackPlayer.#audioTagOwner === this) {
+            void this.#releaseWakeLock();
+        }
+
         if (MultiTrackPlayer.#audioTagOwner === this && "mediaSession" in navigator) {
             const duration = Math.max(1, this.#length);
             const position = Math.max(0, Math.min(duration, this.#getClockTime()));
@@ -948,6 +1068,19 @@ class MultiTrackPlayer extends EventTarget {
         this.discardPendingDownloads();
 
         this.dispatchEvent(new Event("end"));
+
+        /*
+         * Dem nächsten Song zuerst die Möglichkeit geben den Player zu übernehmen.
+         * Falls keine weitere Wiedergabe startet, wird der Wake Lock freigegeben.
+         */
+        setTimeout(() => {
+            if (
+                MultiTrackPlayer.#audioTagOwner === this
+                && !this.#playing
+            ) {
+                void this.#releaseWakeLock();
+            }
+        }, 0);
     }
 
     stop() {
@@ -982,6 +1115,8 @@ class MultiTrackPlayer extends EventTarget {
         if (ownsAudioTag) {
             MultiTrackPlayer.#audioTagOwner = null;
 
+            void this.#releaseWakeLock();
+
             /*
              * Falls direkt danach ein anderer Player initialisiert wird,
              * übernimmt dieser den Media Carrier
@@ -993,11 +1128,11 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     /*
-  * Funktion: playEvent()
-  * Autor: Bernardo de Oliveira
-  *
-  * Reagiert nur auf einen noch aktuellen Play Status des Media Carriers
-  */
+      * Funktion: playEvent()
+      * Autor: Bernardo de Oliveira
+      *
+      * Reagiert nur auf einen noch aktuellen Play Status des Media Carriers
+      */
     #playEvent() {
         if (
             MultiTrackPlayer.#audioTagOwner !== this
@@ -1006,6 +1141,8 @@ class MultiTrackPlayer extends EventTarget {
         ) {
             return;
         }
+
+        void this.#requestWakeLock();
 
         if (!this.isPlaying()) {
             this.#initialPlay = true;
@@ -1240,6 +1377,9 @@ class MultiTrackPlayer extends EventTarget {
 
         if (ownsAudioTag) {
             MultiTrackPlayer.#audioTagOwner = null;
+
+            void this.#releaseWakeLock();
+
             this.#scheduleCarrierPause();
         }
 
