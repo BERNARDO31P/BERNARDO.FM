@@ -1194,7 +1194,7 @@ a.button {
 
   padding: 20px;
 
-  z-index: 1;
+  z-index: 2;
 
   h3 {
     color: var(--text-color-title);
@@ -2076,7 +2076,7 @@ a.button {
 
     #queue, #info {
       width: calc(100% + 10px);
-      height: calc(100% - 35px);
+      height: calc(100% - 40px);
       overflow-y: scroll;
       overflow-x: hidden;
 
