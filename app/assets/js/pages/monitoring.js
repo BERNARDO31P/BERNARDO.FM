@@ -16,7 +16,7 @@ let tooltip;
 
 let initialScrollDone = false;
 
-const HITBOX = 6;
+const HITBOX = 10;
 const MAX_NETWORK = 12000;
 
 window["monitoring"] = () => {
@@ -59,7 +59,9 @@ window["monitoring"] = () => {
     };
 
     [canvasDown, canvasUp, canvasCpu, canvasRam].forEach(canvas => {
-        canvas.closest(".fullWidth").addEventListener("scroll", () => tooltip.style.display = "none", {passive: true});
+        canvas.closest(".fullWidth").addEventListener("scroll", () => {
+            tooltip.style.display = "none";
+        }, {passive: true});
     });
 };
 
@@ -168,110 +170,48 @@ function startBackgroundProcesses() {
 }
 
 /*
- * Funktion: getSampledIndices()
+ * Funktion: getVisibleDotIndices()
  * Autor: Bernardo de Oliveira
  *
- * Reduziert die Anzahl zu zeichnender Punkte anhand fester Zeitgruppen
- * Minimum und Maximum jeder Zeitgruppe bleiben erhalten
+ * Reduziert nur die sichtbaren Punkte des Graphen
+ * Minima und Maxima bleiben erhalten damit Peaks anklickbar bleiben
  */
-function getSampledIndices(dataArr, timeArr, maxPoints) {
-    const arrayLen = Math.min(dataArr.length, timeArr.length);
+function getVisibleDotIndices(dataArr, maxDots) {
+    const length = dataArr.length;
 
-    if (!arrayLen) return [];
+    if (!length) return [];
 
-    if (arrayLen <= maxPoints) {
-        return Array.from({length: arrayLen}, (_, index) => index);
+    if (length <= maxDots) {
+        return Array.from({length}, (_, index) => index);
     }
 
-    const firstTime = timeArr[0];
-    const lastTime = timeArr[arrayLen - 1];
-    const timeRange = Math.max(1, lastTime - firstTime);
-
-    const desiredBuckets = Math.max(1, Math.floor(maxPoints / 2));
-    const rawBucketSize = timeRange / desiredBuckets;
-    const bucketSize = getStableBucketSize(rawBucketSize);
-
-    const indices = [];
-
-    let currentBucket = null;
-    let minIndex = null;
-    let maxIndex = null;
-
-    const finishBucket = () => {
-        if (minIndex === null || maxIndex === null) return;
-
-        if (minIndex === maxIndex) {
-            indices.push(minIndex);
-        } else if (minIndex < maxIndex) {
-            indices.push(minIndex, maxIndex);
-        } else {
-            indices.push(maxIndex, minIndex);
-        }
-    };
-
-    for (let i = 0; i < arrayLen; i++) {
-        const bucket = Math.floor(timeArr[i] / bucketSize);
-
-        if (currentBucket === null) {
-            currentBucket = bucket;
-            minIndex = i;
-            maxIndex = i;
-            continue;
-        }
-
-        if (bucket !== currentBucket) {
-            finishBucket();
-
-            currentBucket = bucket;
-            minIndex = i;
-            maxIndex = i;
-
-            continue;
-        }
-
-        if (dataArr[i] < dataArr[minIndex]) minIndex = i;
-        if (dataArr[i] > dataArr[maxIndex]) maxIndex = i;
+    if (maxDots <= 2) {
+        return [0, length - 1];
     }
 
-    finishBucket();
+    const indices = new Set([0, length - 1]);
+    const bucketCount = Math.max(1, Math.floor((maxDots - 2) / 2));
+    const bucketSize = Math.max(1, (length - 2) / bucketCount);
 
-    return indices;
-}
+    for (let bucket = 0; bucket < bucketCount; bucket++) {
+        const start = Math.max(1, Math.floor(1 + bucket * bucketSize));
+        const end = Math.min(length - 1, Math.ceil(1 + (bucket + 1) * bucketSize));
 
-/*
- * Funktion: getStableBucketSize()
- * Autor: Bernardo de Oliveira
- *
- * Wählt eine feste Zeitgrösse für die Darstellung
- * Verhindert, dass sich die Sampling Gruppen bei jedem Update verschieben
- */
-function getStableBucketSize(seconds) {
-    const sizes = [
-        1,
-        2,
-        5,
-        10,
-        15,
-        30,
-        60,
-        120,
-        300,
-        600,
-        900,
-        1800,
-        3600,
-        7200,
-        14400,
-        21600,
-        43200,
-        86400
-    ];
+        if (start >= end) continue;
 
-    for (const size of sizes) {
-        if (size >= seconds) return size;
+        let minIndex = start;
+        let maxIndex = start;
+
+        for (let index = start + 1; index < end; index++) {
+            if (dataArr[index] < dataArr[minIndex]) minIndex = index;
+            if (dataArr[index] > dataArr[maxIndex]) maxIndex = index;
+        }
+
+        indices.add(minIndex);
+        indices.add(maxIndex);
     }
 
-    return Math.ceil(seconds / 86400) * 86400;
+    return Array.from(indices).sort((a, b) => a - b);
 }
 
 /*
@@ -292,11 +232,21 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
 
     const canvasWidth = canvas.clientWidth;
     const canvasHeight = canvas.clientHeight;
+    const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
 
-    if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
+    const bufferWidth = Math.round(canvasWidth * pixelRatio);
+    const bufferHeight = Math.round(canvasHeight * pixelRatio);
+
+    if (canvas.width !== bufferWidth || canvas.height !== bufferHeight) {
+        canvas.width = bufferWidth;
+        canvas.height = bufferHeight;
     }
+
+    /*
+     * Alle Zeichenkoordinaten bleiben in CSS Pixeln.
+     * Dadurch stimmen auch mouse offsetX/offsetY weiterhin.
+     */
+    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
     const GRAPH_HEIGHT = canvasHeight;
     const GRAPH_WIDTH = canvasWidth;
@@ -309,16 +259,15 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
     const graphRange = GRAPH_BOTTOM - GRAPH_TOP;
     const arrayLen = Math.min(dataArr.length, timeArr.length);
 
-    if (!arrayLen) {
-        context.clearRect(0, 0, canvasWidth, canvasHeight);
-        return;
-    }
+    context.clearRect(0, 0, canvasWidth, canvasHeight);
 
-    let largest = dataArr[0];
-    let smallest = dataArr[0];
+    if (!arrayLen) return;
+
+    let largest = Number(dataArr[0]);
+    let smallest = Number(dataArr[0]);
 
     for (let i = 1; i < arrayLen; i++) {
-        const value = dataArr[i];
+        const value = Number(dataArr[i]);
 
         if (value > largest) largest = value;
         if (value < smallest) smallest = value;
@@ -331,7 +280,6 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
 
     const valueRange = largest - smallest || 1;
 
-    context.clearRect(0, 0, canvasWidth, canvasHeight);
     context.font = "13px Arial";
 
     if (theme === "light") {
@@ -342,14 +290,18 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
         context.fillStyle = "#b9b9b9";
     }
 
-    // axes
+    /*
+     * Achsen
+     */
     context.beginPath();
     context.moveTo(GRAPH_LEFT, GRAPH_BOTTOM);
     context.lineTo(GRAPH_RIGHT, GRAPH_BOTTOM);
     context.lineTo(GRAPH_RIGHT, GRAPH_TOP);
     context.stroke();
 
-    // grid + labels
+    /*
+     * Raster und Beschriftungen
+     */
     const drawLine = (y, text) => {
         context.beginPath();
         context.moveTo(GRAPH_LEFT, y);
@@ -365,8 +317,8 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
 
     const maxClocks = Math.min(7, arrayLen);
 
-    const firstTime = timeArr[0];
-    const lastTime = timeArr[arrayLen - 1];
+    const firstTime = Number(timeArr[0]);
+    const lastTime = Number(timeArr[arrayLen - 1]);
     const timeRange = Math.max(1, lastTime - firstTime);
 
     const getX = timestamp => {
@@ -400,44 +352,29 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
     }
 
     const largeScreen = getWidth() > 1000;
-    const radius = largeScreen ? 3 : 2;
 
     context.lineWidth = largeScreen ? 2 : 1;
     context.lineJoin = "round";
     context.lineCap = "round";
 
     const getPoint = index => {
-        const x = getX(timeArr[index]);
-        const normalized = (dataArr[index] - smallest) / valueRange;
+        const x = getX(Number(timeArr[index]));
+        const normalized = (Number(dataArr[index]) - smallest) / valueRange;
         const y = GRAPH_BOTTOM - (normalized * graphRange);
 
         return {x, y};
     };
 
-    const PIXELS_PER_POINT = 10;
-    const maxPoints = Math.max(2, Math.floor((GRAPH_RIGHT - GRAPH_LEFT) / PIXELS_PER_POINT));
-    const sampledIndices = getSampledIndices(dataArr, timeArr, maxPoints);
+    /*
+     * Die vollständige Backend Auflösung wird für die Linie verwendet.
+     * Es findet hier keine zweite Datenkomprimierung mehr statt.
+     */
+    const graphPoints = new Array(arrayLen);
 
-    // draw line
-    context.beginPath();
-
-    sampledIndices.forEach((index, position) => {
+    for (let index = 0; index < arrayLen; index++) {
         const point = getPoint(index);
 
-        if (position === 0) {
-            context.moveTo(point.x, point.y);
-        } else {
-            context.lineTo(point.x, point.y);
-        }
-    });
-
-    context.stroke();
-
-    // draw dots
-    context.beginPath();
-
-    for (const index of sampledIndices) {
-        const point = getPoint(index);
+        graphPoints[index] = point;
 
         points[canvasID].push({
             coordinates: [point.x, point.y],
@@ -445,12 +382,39 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
             measurement: measurement,
             time: timeArr[index]
         });
-
-        context.moveTo(point.x + radius, point.y);
-        context.arc(point.x, point.y, radius, 0, Math.PI * 2);
     }
 
-    context.fill();
+    /*
+     * Kurze Zeiträume werden weich gezeichnet.
+     * Bei langen Zeiträumen bleiben die echten linearen Übergänge erhalten,
+     * damit Peaks und Trends nicht künstlich verändert werden.
+     */
+    const useCurves = currentSelect <= 60;
+
+    context.beginPath();
+    context.moveTo(graphPoints[0].x, graphPoints[0].y);
+
+    for (let i = 1; i < graphPoints.length; i++) {
+        const previous = graphPoints[i - 1];
+        const current = graphPoints[i];
+
+        if (useCurves) {
+            const middleX = (previous.x + current.x) / 2;
+
+            context.bezierCurveTo(
+                middleX,
+                previous.y,
+                middleX,
+                current.y,
+                current.x,
+                current.y
+            );
+        } else {
+            context.lineTo(current.x, current.y);
+        }
+    }
+
+    context.stroke();
 }
 
 /*
@@ -458,6 +422,7 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
  * Autor: Bernardo de Oliveira
  *
  * Verarbeitet eine Serie des kompakten Monitoring Formats
+ * Unterstützt das neue Average Format sowie ältere Version 2 Daten
  */
 function processCompactSeries(series, type) {
     const times = [];
@@ -470,10 +435,30 @@ function processCompactSeries(series, type) {
     }
 
     for (const point of series) {
-        if (!Array.isArray(point) || point.length < 2) continue;
+        let timestamp;
+        let value;
 
-        const timestamp = Number(point[0]);
-        let value = Number(point[1]);
+        /*
+         * Version 2:
+         * [timestamp, value]
+         *
+         * Version 3:
+         * [timestamp, average, min, max]
+         */
+        if (Array.isArray(point)) {
+            if (point.length < 2) continue;
+
+            timestamp = Number(point[0]);
+            value = Number(point[1]);
+        } else if (point && typeof point === "object") {
+            /*
+             * Zusätzlich kompatibel mit einem möglichen Object Format
+             */
+            timestamp = Number(point.time);
+            value = Number(point.value);
+        } else {
+            continue;
+        }
 
         if (!Number.isFinite(timestamp) || !Number.isFinite(value)) continue;
 
@@ -594,7 +579,11 @@ async function processLegacyData(data) {
 async function processDataAsync(data) {
     if (!data || typeof data !== "object") return;
 
-    if (data.version === 2 && data.series && typeof data.series === "object") {
+    if (
+        Number(data.version) >= 2
+        && data.series
+        && typeof data.series === "object"
+    ) {
         processCompactData(data);
         return;
     }
@@ -689,29 +678,56 @@ function redraw() {
  * Funktion: findClosestPoint()
  * Autor: Bernardo de Oliveira
  *
- * Sucht mit Binary Search den nächsten Graph Punkt
+ * Sucht den räumlich nächsten Graph Punkt
+ * Berücksichtigt X und Y damit eng beieinanderliegende Peaks erkannt werden
  */
-function findClosestPoint(graphPoints, x) {
-    let left = 0;
-    let right = graphPoints.length - 1;
+function findClosestPoint(graphPoints, x, y) {
+    if (!graphPoints.length) return null;
 
+    const minX = x - HITBOX;
+    const maxX = x + HITBOX;
+
+    let left = 0;
+    let right = graphPoints.length;
+
+    /*
+     * Ersten Punkt innerhalb des horizontalen Suchbereichs finden
+     */
     while (left < right) {
         const middle = Math.floor((left + right) / 2);
 
-        if (graphPoints[middle].coordinates[0] < x) {
+        if (graphPoints[middle].coordinates[0] < minX) {
             left = middle + 1;
         } else {
             right = middle;
         }
     }
 
-    let closest = graphPoints[left];
+    let closest = null;
+    let closestDistance = Infinity;
 
-    if (left > 0) {
-        const previous = graphPoints[left - 1];
+    /*
+     * Alle Punkte im horizontalen Hitbox Bereich vergleichen
+     * Dadurch gewinnt bei gleichem X der Punkt welcher auch vertikal
+     * tatsächlich unter dem Mauszeiger liegt
+     */
+    for (let index = left; index < graphPoints.length; index++) {
+        const point = graphPoints[index];
+        const pointX = point.coordinates[0];
+        const pointY = point.coordinates[1];
 
-        if (Math.abs(previous.coordinates[0] - x) < Math.abs(closest.coordinates[0] - x)) {
-            closest = previous;
+        if (pointX > maxX) break;
+
+        const distanceX = pointX - x;
+        const distanceY = pointY - y;
+
+        if (Math.abs(distanceY) > HITBOX) continue;
+
+        const distance = (distanceX * distanceX) + (distanceY * distanceY);
+
+        if (distance < closestDistance) {
+            closest = point;
+            closestDistance = distance;
         }
     }
 
@@ -725,19 +741,20 @@ function findClosestPoint(graphPoints, x) {
  *  object: (Objekt) Das Canvas, welches den Event ausgelöst hat
  *  event: (Event) Das Event
  *
- * Zeigt das Tooltip des nächstgelegenen Graph Punktes an
+ * Zeigt das Tooltip des räumlich nächstgelegenen Graph Punktes an
  */
 function showTooltip(object, event) {
     const graphPoints = points[object.id];
 
     if (!graphPoints || !graphPoints.length) return;
 
-    const point = findClosestPoint(graphPoints, event.offsetX);
+    const point = findClosestPoint(
+        graphPoints,
+        event.offsetX,
+        event.offsetY
+    );
 
-    if (
-        Math.abs(event.offsetX - point.coordinates[0]) >= HITBOX ||
-        Math.abs(event.offsetY - point.coordinates[1]) >= HITBOX
-    ) {
+    if (point === null) {
         tooltip.style.display = "none";
         return;
     }
@@ -749,7 +766,11 @@ function showTooltip(object, event) {
     tooltip.style.left = mouseX - contentRect.left + 10 + "px";
     tooltip.style.display = "initial";
 
-    tooltip.innerHTML = format2(point.value) + " " + point.measurement + "<br/>" + formatTimestamp(point.time);
+    tooltip.innerHTML = format2(point.value)
+        + " "
+        + point.measurement
+        + "<br/>"
+        + formatTimestamp(point.time);
 }
 
 let resizeTimer;
