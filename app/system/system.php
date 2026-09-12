@@ -408,7 +408,7 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
         "-ss {$timeFrom} " .
         "-i \"{$cacheFile}\" " .
         "-vn " .
-        "-af \"atrim=start=0:duration={$time},aformat=sample_fmts=s16:sample_rates=44100:channel_layouts=stereo\" " .
+        "-af \"atrim=start=0:duration={$time},apad=pad_dur={$time},atrim=start=0:duration={$time},aformat=sample_fmts=s16:sample_rates=44100:channel_layouts=stereo\" " .
         "-c:a {$audioCodec} " .
         "-compression_level 12 " .
         "-map_metadata -1 " .

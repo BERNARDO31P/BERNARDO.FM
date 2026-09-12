@@ -17,6 +17,8 @@ class MultiTrackPlayer extends EventTarget {
     static #audioTagOwner = null;
     static #carrierPauseTimeout = null;
 
+    #endTolerance = 0;
+
     #waitIndex = null;
 
     #abortController = new AbortController();
@@ -50,13 +52,14 @@ class MultiTrackPlayer extends EventTarget {
     #decodeGeneration = 0;
     #lifecycleGeneration = 0;
 
-    constructor(length) {
+    constructor(length, endTolerance = 0) {
         super();
 
         this.#gainNode = audioContext.createGain();
         this.#gainNode.connect(audioContext.destination);
 
         this.#length = length;
+        this.#endTolerance = Math.max(0, Number(endTolerance) || 0);
 
         this.#audioTag = document.getElementById("MultiTrackPlayer");
 
@@ -69,10 +72,6 @@ class MultiTrackPlayer extends EventTarget {
             document.body.append(this.#audioTag);
         }
 
-        /*
-         * Das HTML Audio Element dient nur als permanenter Media Carrier
-         * und wird beim Wechsel zwischen Songs nicht ersetzt
-         */
         this.#audioTag.preload = "auto";
         this.#audioTag.loop = true;
         this.#audioTag.volume = this.#volume;
@@ -547,19 +546,18 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     /*
-     * Funktion: pruneBuffer()
-     * Autor: Bernardo de Oliveira
-     * Argumente:
-     *  keepSeconds: (Integer) Sekunden welche hinter der Wiedergabe behalten werden
-     *
-     * Entfernt alte Audio Buffer um den Speicherverbrauch zu begrenzen
-     */
-    pruneBuffer(keepSeconds = 15) {
+      * Funktion: pruneBuffer()
+      * Autor: Bernardo de Oliveira
+      * Argumente:
+      *  keepSeconds: (Integer) Sekunden welche hinter der Wiedergabe behalten werden
+      *  keepStartSeconds: (Integer) Sekunden am Songanfang welche behalten werden
+      *
+      * Entfernt alte Audio Buffer um den Speicherverbrauch zu begrenzen
+      */
+    pruneBuffer(keepSeconds = 15, keepStartSeconds = 0) {
         const cutoff = this.getCurrentTime() - keepSeconds;
 
-        if (cutoff <= 0) {
-            return;
-        }
+        if (cutoff <= 0) return;
 
         for (const [index, part] of Object.entries(this.#indexes)) {
             if (
@@ -568,10 +566,25 @@ class MultiTrackPlayer extends EventTarget {
                 || part["decoding"]
                 || part["timeout"] !== null
                 || part["till"] === null
-                || part["till"] > cutoff
             ) {
                 continue;
             }
+
+            /*
+             * Beim Wiederholen desselben Songs den vorgeladenen
+             * Songanfang nicht aus dem Buffer entfernen
+             */
+            const from = Number(part["from"]);
+
+            if (
+                keepStartSeconds > 0
+                && isFinite(from)
+                && from < keepStartSeconds
+            ) {
+                continue;
+            }
+
+            if (part["till"] > cutoff) continue;
 
             if (part["source"]) {
                 this.#killSource(part["source"]);
@@ -733,24 +746,21 @@ class MultiTrackPlayer extends EventTarget {
                 clearTimeout(this.#indexes[index]["timeout"]);
                 this.#indexes[index]["timeout"] = null;
 
-                const durationExceeded = !(this.getDuration() - this.getCurrentWebAudioTime() > 1);
-
-                if (durationExceeded) {
-                    this.dispatchEvent(new Event("end"));
-                    return;
-                }
-
+                /*
+                 * Falls bereits ein weiterer Part eingeplant wurde,
+                 * übernimmt dessen Start-Timeout die Wiedergabe.
+                 */
                 const hasTimeouts = Object.keys(this.#getStartTimeouts()).length;
 
                 if (hasTimeouts) return;
 
-                const till = this.#indexes[index]["till"];
+                const till = Number(this.#indexes[index]["till"]);
 
                 /*
-                 * Falls der nächste Teil bereits fertig gepuffert ist, aber wegen
-                 * schnellem Seeking nicht eingeplant wurde, diesen jetzt direkt starten
+                 * Falls direkt anschliessend bereits ein spielbarer Part vorhanden ist,
+                 * diesen ohne Unterbruch starten.
                  */
-                if (till !== null && isFinite(till)) {
+                if (isFinite(till)) {
                     const nextPart = this.getPartByTime(till);
                     const nextPartIndex = nextPart[2];
 
@@ -772,6 +782,21 @@ class MultiTrackPlayer extends EventTarget {
                     }
                 }
 
+                /*
+                 * Wenn kein weiterer Part existiert und nur noch die definierte
+                 * End-Toleranz übrig ist, gilt der Song als beendet.
+                 *
+                 * Dadurch entsteht kein Zustand bei welchem 1-2 Sekunden fehlen,
+                 * aber gleichzeitig absichtlich kein weiterer Download gestartet wird.
+                 */
+                if (
+                    isFinite(till)
+                    && this.#length - till <= this.#endTolerance
+                ) {
+                    this.finish();
+                    return;
+                }
+
                 const hasDecodingQueue = Object.keys(this.#getDecodingQueue()).length;
 
                 if (hasDecodingQueue) {
@@ -783,9 +808,7 @@ class MultiTrackPlayer extends EventTarget {
                         });
                     }
 
-                    const till = this.#indexes[index]["till"];
-
-                    if (till !== null && isFinite(till)) {
+                    if (isFinite(till)) {
                         this.#clockTime = parseInt(till);
                         this.#clockStartedAt = null;
                     }
@@ -800,7 +823,7 @@ class MultiTrackPlayer extends EventTarget {
                     return;
                 }
 
-                if (till !== null && isFinite(till)) {
+                if (isFinite(till)) {
                     this.#clockTime = till;
                     this.#clockStartedAt = null;
                 }
@@ -902,6 +925,25 @@ class MultiTrackPlayer extends EventTarget {
         if (!this.#stopped && wasPlaying) {
             this.dispatchEvent(new Event("pause"));
         }
+    }
+
+    /*
+     * Funktion: finish()
+     * Autor: Bernardo de Oliveira
+     *
+     * Beendet den Song und verwirft nicht mehr benötigte Downloads
+     */
+    finish() {
+        this.#clockTime = this.#length;
+        this.#clockStartedAt = null;
+
+        this.#playing = false;
+        this.#nextTrackIndex = false;
+
+        this.#clearTimeouts();
+        this.discardPendingDownloads();
+
+        this.dispatchEvent(new Event("end"));
     }
 
     stop() {
@@ -1201,12 +1243,18 @@ class MultiTrackPlayer extends EventTarget {
         this.#indexes = [];
     }
 
-    reset() {
-        if (this.isPlaying()) {
-            return;
-        }
+    /*
+      * Funktion: reset()
+      * Autor: Bernardo de Oliveira
+      * Argumente:
+      *  dispatch: (Boolean) Gibt an ob ein Timeupdate ausgelöst werden soll
+      *
+      * Setzt den Wiedergabestatus auf den Songanfang zurück
+      */
+    reset(dispatch = true) {
+        if (this.isPlaying()) return;
 
-        this.#resetState(true);
+        this.#resetState(dispatch);
     }
 
     #abortDownload() {

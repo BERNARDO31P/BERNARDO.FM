@@ -1512,8 +1512,7 @@ function onTimelineRelease(value, rangeEvent = null) {
 
     if (value >= player.getDuration()) {
         pendingSeek = null;
-
-        nextSong();
+        player.finish();
 
         return;
     }
@@ -1532,7 +1531,6 @@ function onTimelineRelease(value, rangeEvent = null) {
 
             if (!onElement(rect, rangeEvent)) {
                 player.addTimeUpdate();
-
                 return;
             }
         }
@@ -1548,14 +1546,27 @@ function onTimelineRelease(value, rangeEvent = null) {
     player.setCurrentTime(value, true);
 
     const partInfo = player.getPartByTime(value);
-    let nextPartIndex = partInfo[2];
+    const nextPartIndex = partInfo[2];
+
+    /*
+     * Kein Part vorhanden und wir befinden uns bereits innerhalb der
+     * End-Toleranz. Es wird absichtlich kein weiterer Part geladen,
+     * deshalb muss der Song hier beendet werden.
+     */
+    if (
+        nextPartIndex === null
+        && player.getDuration() - value <= AUDIO_BUFFER_END_TOLERANCE
+    ) {
+        pendingSeek = null;
+        player.finish();
+
+        return;
+    }
 
     if (nextPartIndex === null) {
         playPauseButton("load");
 
-        nextPartIndex = player.getNextFreePartIndex();
-
-        player.setCurrentIndex(nextPartIndex);
+        player.setCurrentIndex(player.getNextFreePartIndex());
 
         bufferSong(playIndex, value, AUDIO_BUFFER_TARGET, true);
 
@@ -1858,11 +1869,17 @@ function prepareNextPart() {
  * Autor: Bernardo de Oliveira
  *
  * Puffert einen kleinen Teil des nächsten Songs vor
+ * Bei Wiederholung desselben Songs wird dessen Anfang vorgeladen
  */
 function preloadNextSong() {
     const nextIndex = nextSongIndex();
 
-    if (nextIndex === playIndex || typeof playlist[nextIndex] === "undefined") return;
+    if (
+        typeof playlist[nextIndex] === "undefined"
+        || (nextIndex === playIndex && repeatMode === 0)
+    ) {
+        return;
+    }
 
     const song = playlist[nextIndex];
 
@@ -1895,19 +1912,27 @@ function maintainAudioBuffer() {
     const player = song["player"];
     const currentTime = player.getCurrentTime();
     const bufferedAhead = player.getBufferedAhead(currentTime);
-
-    player.pruneBuffer(AUDIO_BUFFER_BEHIND);
+    const remaining = player.getDuration() - currentTime;
+    const nextIndex = nextSongIndex();
 
     /*
-     * Sobald der Buffer unter Low fällt, beginnt ein vollständiger Refill
+     * Falls derselbe Song als nächstes gespielt wird, den vorgeladenen
+     * Songanfang beim Pruning erhalten
+     *
+     * Dies betrifft Repeat Current sowie eine Playlist mit nur einem Song
+     * bei Repeat Playlist
      */
+    const repeatSameSong = repeatMode !== 0 && nextIndex === playIndex;
+
+    player.pruneBuffer(
+        AUDIO_BUFFER_BEHIND,
+        repeatSameSong ? AUDIO_BUFFER_NEXT : 0
+    );
+
     if (bufferedAhead < AUDIO_BUFFER_LOW) {
         audioBufferRefilling.add(player);
     }
 
-    /*
-     * Refill erst beenden, wenn Target tatsächlich erreicht wurde
-     */
     if (audioBufferRefilling.has(player)) {
         if (bufferedAhead >= AUDIO_BUFFER_TARGET - 10) {
             audioBufferRefilling.delete(player);
@@ -1916,9 +1941,13 @@ function maintainAudioBuffer() {
         }
     }
 
-    const remaining = player.getDuration() - currentTime;
-
-    if (remaining <= AUDIO_BUFFER_TARGET) {
+    /*
+     * Beim Wiederholen desselben Songs den Anfang sofort vorladen.
+     *
+     * Bei normalen Songwechseln reicht es weiterhin, dies innerhalb
+     * der letzten TARGET Sekunden zu machen.
+     */
+    if (repeatSameSong || remaining <= AUDIO_BUFFER_TARGET) {
         preloadNextSong();
     }
 }
@@ -1955,7 +1984,7 @@ function downloadPart(time, sIndex, pIndex, length = null, priority = false) {
     if (typeof player === "undefined") {
         const songLength = getLengthByString(song["length"]);
 
-        player = song["player"] = new MultiTrackPlayer(songLength);
+        player = song["player"] = new MultiTrackPlayer(songLength, AUDIO_BUFFER_END_TOLERANCE);
 
         addEvents(player);
     }
@@ -1998,15 +2027,48 @@ function addEvents(player) {
     });
 
     player.addEventListener("end", () => {
-        if (nextSongIndex() === playIndex) {
+        const nextIndex = nextSongIndex();
+
+        /*
+         * Repeat ist deaktiviert und es existiert kein weiterer Song
+         */
+        if (repeatMode === 0 && nextIndex === playIndex) {
             pauseSong();
 
-            player.setCurrentIndex(0);
-            player.setCurrentTime(0, true);
+            /*
+             * Nicht davon ausgehen, dass Part Index 0 noch existiert.
+             * Durch Pruning kann der Songanfang entfernt worden sein.
+             */
+            player.reset(false);
 
             return;
         }
 
+        /*
+         * Derselbe Song soll erneut gespielt werden.
+         *
+         * Dies betrifft:
+         * - Repeat Current
+         * - Repeat Playlist bei einer Playlist mit nur einem Song
+         */
+        if (nextIndex === playIndex) {
+            player.reset(false);
+
+            playPauseButton("load");
+
+            if (!timeIsPlayable(playIndex, 0)) {
+                bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET, true);
+            } else {
+                play();
+            }
+
+            return;
+        }
+
+        /*
+         * Normaler Songwechsel oder Repeat Playlist vom letzten
+         * zurück zum ersten Song
+         */
         nextSong(true);
     });
 
