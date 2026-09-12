@@ -306,11 +306,12 @@ function getFirewallRenderOrder(data) {
  * Funktion: getColumnsForRules()
  * Autor: Bernardo de Oliveira
  *
- * Ermittelt alle sichtbaren Spalten der Firewall Regeln
- * Kommentare und interne Parser Daten werden nicht als Spalten angezeigt
+ * Ermittelt alle sichtbaren Spalten der Firewall Regeln.
+ * Kommentare, interne Parser Daten und vollständig leere
+ * Spalten werden nicht angezeigt.
  */
 function getColumnsForRules(rules) {
-    const columns = new Set();
+    const columns = new Map();
 
     for (const row of Object.values(Object(rules))) {
         for (const key of Object.keys(Object(row))) {
@@ -318,11 +319,25 @@ function getColumnsForRules(rules) {
                 continue;
             }
 
-            columns.add(key);
+            if (!columns.has(key)) {
+                columns.set(key, false);
+            }
+
+            /*
+             * Die Spalte nur als belegt markieren, wenn mindestens
+             * eine Regel tatsächlich einen sichtbaren Wert enthält.
+             *
+             * "0" bleibt dabei absichtlich ein gültiger Wert.
+             */
+            if (cleanFirewallValue(row[key]) !== "") {
+                columns.set(key, true);
+            }
         }
     }
 
-    return Array.from(columns);
+    return Array.from(columns.entries())
+        .filter(([, hasValue]) => hasValue)
+        .map(([column]) => column);
 }
 
 /*
@@ -522,13 +537,14 @@ async function generateFirewall(objects) {
                 ddosProtectionEnabled = true;
             }
 
-            const columns = getColumnsForRules(rules);
             const totalRows = getFirewallRuleCount(rules);
             const expanded = isFirewallChainExpanded(tableName, chain);
 
             const visibleRules = expanded
                 ? rules
                 : limitFirewallRules(rules, FIREWALL_ROWS_PER_CHAIN);
+
+            const columns = getColumnsForRules(visibleRules);
 
             const containerKey = tableName + "|" + chain;
 
