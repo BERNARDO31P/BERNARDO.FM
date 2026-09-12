@@ -1306,6 +1306,10 @@ a.button {
         border-bottom: 1px solid var(--border-color);
       }
 
+      &:has(.lds-facebook) {
+        background-color: var(--body-background);
+      }
+
       transition: 0.2s;
       height: 45px;
 
