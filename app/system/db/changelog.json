@@ -8,8 +8,8 @@
   "changelog": [
     {
       "title": "Version 1.3",
-      "message": "All known audio playback issues are now resolved, together with major improvements to buffering, compatibility, monitoring, firewall and the overall user experience.",
-      "details": "+ Completely reworked audio buffering and implemented automatic buffer pruning to reduce memory usage<br/> + Improved audio playback when seeking rapidly, switching tracks and reaching the end of a song<br/> + Improved volume handling<br/> + Improved browser and device compatibility<br/> + Improved monitoring performance and design significantly<br/> + Improved firewall explanation logic<br/> + Added several small visual feedback and design improvements<br/> + Minor bugfixes and general performance improvements",
+      "message": "All known audio playback issues are now resolved, along with major improvements to buffering, compatibility, monitoring, the firewall and the overall user experience.<br/><br/>The player is now considered stable. Thank you so much for all the bug reports and feedback!",
+      "details": "+ Completely reworked audio buffering and implemented automatic buffer pruning to reduce memory usage<br/> + Improved audio playback when seeking rapidly, switching tracks and reaching the end of a song<br/> + Improved browser and device compatibility<br/> + Significantly improved monitoring performance and design<br/> + Significantly improved firewall explanation logic<br/> + Added several small visual feedback and design improvements<br/> + Minor bugfixes and general performance improvements",
       "author": "Bernardo de Oliveira",
       "date": "12. Sep. 2026"
     },
