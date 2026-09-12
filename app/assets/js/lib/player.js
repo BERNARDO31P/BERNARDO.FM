@@ -1,3 +1,7 @@
+if ("audioSession" in navigator) {
+    navigator.audioSession.type = "playback";
+}
+
 const audioContext = new (window.AudioContext || window.webkitAudioContext)({
     latencyHint: "playback",
     sampleRate: 44100
@@ -66,7 +70,7 @@ class MultiTrackPlayer extends EventTarget {
         if (!this.#audioTag) {
             this.#audioTag = new Audio(this.#createSilence(60));
 
-            this.#audioTag.controls = true;
+            this.#audioTag.controls = false;
             this.#audioTag.id = "MultiTrackPlayer";
 
             document.body.append(this.#audioTag);
