@@ -853,6 +853,10 @@ a.button {
       text-align: left;
       white-space: nowrap;
     }
+
+    tr.comment td {
+      white-space: initial;
+    }
   }
 
   .blockquote {

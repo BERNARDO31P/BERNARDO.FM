@@ -3,6 +3,7 @@ if (typeof window["firewall"] !== "undefined") {
 }
 
 const FIREWALL_ROWS_PER_CHAIN = 20;
+const FIREWALL_SCROLL_IDLE = 300;
 
 const FIREWALL_BUILTIN_CHAINS = new Set([
     "PREROUTING",
@@ -38,6 +39,8 @@ let expandedFirewallChains = {};
 let firewallRendering = false;
 let firewallRenderGeneration = 0;
 let firewallCommentTransitionUntil = 0;
+let firewallScrollUntil = 0;
+let firewallRestoringScroll = false;
 
 window["firewall"] = async () => {
     const objects = document.querySelectorAll("[data-url]");
@@ -54,6 +57,7 @@ window["firewall"] = async () => {
         if (
             firewallRendering
             || performance.now() < firewallCommentTransitionUntil
+            || performance.now() < firewallScrollUntil
         ) {
             return;
         }
@@ -95,6 +99,29 @@ bindEvent("click", ".firewall-chain-toggle", async function (event) {
         firewallRendering = false;
     }
 });
+
+/*
+ * Funktion: Anonym
+ * Autor: Bernardo de Oliveira
+ *
+ * Verhindert Firewall Refreshes während eine Tabelle gescrollt wird.
+ * Ein bereits laufender Render wird ungültig, damit keine ältere
+ * Scroll Position wiederhergestellt wird.
+ */
+document.addEventListener("scroll", event => {
+    const container = event.target;
+
+    if (
+        firewallRestoringScroll
+        || !(container instanceof Element)
+        || !container.matches(".firewall .responsive-container")
+    ) {
+        return;
+    }
+
+    firewallRenderGeneration++;
+    firewallScrollUntil = performance.now() + FIREWALL_SCROLL_IDLE;
+}, true);
 
 /*
  * Funktion: Anonym
@@ -430,6 +457,7 @@ function formatFirewallTableRow(tr, row, columns) {
  * Ordnet alle Chains anhand des iptables Packet Flows
  * Referenzierte User Chains werden unmittelbar nach ihrem Aufrufer dargestellt
  * Die bestehende DOM Struktur bleibt während des asynchronen Renderings sichtbar
+ * Scroll Positionen werden unmittelbar vor dem DOM Umbau gesichert
  */
 async function generateFirewall(objects) {
     const renderGeneration = firewallRenderGeneration;
@@ -468,8 +496,9 @@ async function generateFirewall(objects) {
         firewall.querySelectorAll(".responsive-container").forEach(container => {
             const tableName = container.dataset.tableName || "";
             const chain = container.dataset.chain || "";
+            const key = tableName + "|" + chain;
 
-            existingContainers.set(tableName + "|" + chain, container);
+            existingContainers.set(key, container);
         });
 
         const orderedChains = getFirewallRenderOrder(data);
@@ -582,8 +611,9 @@ async function generateFirewall(objects) {
             );
 
             /*
-             * Falls während generateTableBody() eine Erklärung angeklickt wurde,
-             * darf dieser alte Render das aktuelle tbody nicht mehr ersetzen.
+             * Falls während generateTableBody() eine User Interaktion
+             * stattgefunden hat, darf dieser alte Render das aktuelle
+             * tbody nicht mehr ersetzen.
              */
             if (renderGeneration !== firewallRenderGeneration) {
                 return;
@@ -606,12 +636,17 @@ async function generateFirewall(objects) {
                 chain: chain,
                 container: container,
                 totalRows: totalRows,
-                expanded: expanded
+                expanded: expanded,
+                key: containerKey
             });
 
             if (chainCounter % 2 === 0) {
                 await yieldToBrowser();
 
+                /*
+                 * Ein Scroll, Click oder eine andere relevante
+                 * User Interaktion macht diesen Render ungültig.
+                 */
                 if (renderGeneration !== firewallRenderGeneration) {
                     return;
                 }
@@ -620,6 +655,20 @@ async function generateFirewall(objects) {
 
         if (renderGeneration !== firewallRenderGeneration) {
             return;
+        }
+
+        /*
+         * Scroll Positionen erst unmittelbar vor dem DOM Umbau sichern.
+         * Dadurch wird nicht ein veralteter Wert vom Anfang des
+         * asynchronen Refreshes wiederhergestellt.
+         */
+        const scrollPositions = new Map();
+
+        for (const item of renderedChains) {
+            scrollPositions.set(item.key, {
+                left: item.container.scrollLeft,
+                top: item.container.scrollTop
+            });
         }
 
         /*
@@ -671,6 +720,50 @@ async function generateFirewall(objects) {
          * Vollständige Struktur atomar ersetzen.
          */
         firewall.replaceChildren(fragment);
+
+        /*
+         * Während der programmgesteuerten Wiederherstellung dürfen
+         * ausgelöste Scroll Events nicht als User Scroll gelten.
+         */
+        firewallRestoringScroll = true;
+
+        /*
+         * Scroll Positionen nach dem erneuten Einfügen der Container
+         * wiederherstellen. Falls sich die Tabellenbreite geändert hat,
+         * wird auf den neuen maximalen Scroll Bereich begrenzt.
+         */
+        for (const item of renderedChains) {
+            const position = scrollPositions.get(item.key);
+
+            if (!position) {
+                continue;
+            }
+
+            item.container.scrollLeft = Math.min(
+                position.left,
+                Math.max(
+                    0,
+                    item.container.scrollWidth - item.container.clientWidth
+                )
+            );
+
+            item.container.scrollTop = Math.min(
+                position.top,
+                Math.max(
+                    0,
+                    item.container.scrollHeight - item.container.clientHeight
+                )
+            );
+        }
+
+        /*
+         * Scroll Events der Wiederherstellung können verzögert eintreffen.
+         * Deshalb erst im nächsten Frame wieder echte User Scroll Events
+         * berücksichtigen.
+         */
+        requestAnimationFrame(() => {
+            firewallRestoringScroll = false;
+        });
 
         if (ddosProtectionEnabled) {
             showFirewallDdosNotice(firewall);
