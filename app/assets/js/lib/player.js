@@ -803,8 +803,8 @@ class MultiTrackPlayer extends EventTarget {
         return true;
     }
 
-    playNext(index = 0, startTime = 0) {
-        if (index === 0) {
+    playNext(index = undefined, startTime = 0) {
+        if (typeof index === "undefined") {
             index = this.#currentTrackIndex;
         }
 

@@ -3,6 +3,8 @@ let currentHover = null, playIndex = 0, playlist = [], volume = 0, previousVolum
     playTimeout = null,
     changedQueue = false, isRetrying = false, width = getWidth(), height = getHeight() + 100;
 
+let playlistID = null;
+
 let onInfoCallback = null;
 
 let lastScroll = 0;
@@ -377,6 +379,10 @@ function updatePlaying() {
 
     if (angleUp.getAttribute("data-angle") === "up") {
         location.replace(setGetParameter(location.href, "s", playlist[playIndex]["id"]));
+
+        if (playlistID && playlistID.length) {
+            location.replace(setGetParameter(location.href, "p", playlistID));
+        }
     }
 }
 
@@ -1245,7 +1251,10 @@ function play() {
 
         player.setMetadata(song["name"], song["artist"], song["cover"]);
         player.setVolume(volume);
-        player.reset();
+
+        if (player.getCurrentTime() === 0) {
+            player.reset();
+        }
     }
 
     if (!player.isPlaying()) {

@@ -1,4 +1,6 @@
-if (typeof window["music"] !== 'undefined') throw new Error("Dieses Skript wurde bereits geladen.");
+if (typeof window["music"] !== 'undefined') {
+    throw new Error("Dieses Skript wurde bereits geladen.");
+}
 
 setPositionState(0, 0);
 
@@ -120,7 +122,9 @@ const menuItems = {
                 }
             }
 
-            if (index === -1) return;
+            if (index === -1) {
+                return;
+            }
 
             const removedSong = playlist[index];
 
@@ -178,11 +182,15 @@ document.addEventListener("click", hideContext);
 
 // TODO: Comment
 async function playAction(card) {
-    if (!card.dataset.id) return;
+    if (!card.dataset.id) {
+        return;
+    }
+
+    playlistID = null;
 
     clearSongs();
 
-    await addSongToPlaylist(card);
+    await addSongToPlaylist(card, 0, false, false, true);
 
     playPauseButton("load");
     bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET);
@@ -222,11 +230,15 @@ bindEvent("click", ".songList tr[data-id]", function () {
 });
 bindEvent("contextmenu", ".card", function (e) {
     e.preventDefault();
-    if (!isTouchScreen()) showContext(e, this.closest(".card"), ["play", "queue", "next", "share"]);
+    if (!isTouchScreen()) {
+        showContext(e, this.closest(".card"), ["play", "queue", "next", "share"]);
+    }
 });
 bindEvent("contextmenu", ".songList tr[data-id]", function (e) {
     e.preventDefault();
-    if (!isTouchScreen()) showContext(e, this, ["play", "queue", "next", "share"]);
+    if (!isTouchScreen()) {
+        showContext(e, this, ["play", "queue", "next", "share"]);
+    }
 });
 bindEvent("touchstart", ".card", function (e) {
     if (isTouchScreen()) {
@@ -244,7 +256,9 @@ bindEvent("touchstart", ".songList tr[data-id]", function (e) {
 });
 bindEvent("contextmenu", "#queueView tr[data-id]", function (e) {
     e.preventDefault();
-    if (!isTouchScreen()) showContext(e, this, ["delete", "share"]);
+    if (!isTouchScreen()) {
+        showContext(e, this, ["delete", "share"]);
+    }
 });
 bindEvent("touchstart", "#queueView tr[data-id]", function (e) {
     if (isTouchScreen()) {
@@ -254,10 +268,14 @@ bindEvent("touchstart", "#queueView tr[data-id]", function (e) {
     }
 });
 bindEvent("touchend", ".card, .songList tr[data-id], #queueView tr[data-id]", function () {
-    if (isTouchScreen()) clearTimeout(contextTimeout);
+    if (isTouchScreen()) {
+        clearTimeout(contextTimeout);
+    }
 });
 bindEvent("touchmove", ".card, .songList tr[data-id], #queueView tr[data-id]", function () {
-    if (isTouchScreen()) clearTimeout(contextTimeout);
+    if (isTouchScreen()) {
+        clearTimeout(contextTimeout);
+    }
 });
 
 function hideContext() {
@@ -301,7 +319,9 @@ async function showContext(e, card, items) {
     songArtist.classList.add("songArtist");
     songArtist.textContent = artistElement.textContent;
 
-    if (typeof data["count"] !== "undefined") songArtist.textContent += " • " + data["count"] + " Tracks";
+    if (typeof data["count"] !== "undefined") {
+        songArtist.textContent += " • " + data["count"] + " Tracks";
+    }
 
     const row = document.createElement("div");
     row.classList.add("row");
@@ -393,7 +413,11 @@ bindEvent("click", "[data-angle='down']", function () {
             queue.innerHTML = "";
             queue.appendChild(listView);
 
-            if (queue.scrollHeight > queue.clientHeight) queue.style.right = "-10px"; else queue.style.right = "0";
+            if (queue.scrollHeight > queue.clientHeight) {
+                queue.style.right = "-10px";
+            } else {
+                queue.style.right = "0";
+            }
 
             updatePlaying();
         });
@@ -420,7 +444,9 @@ bindEvent("click", "[data-angle='up']", function () {
     hidePlaylist();
     clearURL();
 
-    if (window.scrollY !== 0) navbar.classList.add("shadow");
+    if (window.scrollY !== 0) {
+        navbar.classList.add("shadow");
+    }
 });
 
 bindEvent("click", "#playingCover", function (event) {
@@ -556,7 +582,7 @@ bindEvent("click", ".scrollBack", function () {
 
     setTimeout(function () {
         let scrolled = Math.round(100 * categoryView.scrollLeft / (categoryView.scrollWidth - categoryView.clientWidth));
-        if (scrolled === 0)  {
+        if (scrolled === 0) {
             element.style.display = "none";
             categoryView.parentElement.classList.remove("left-shadow");
         }
@@ -581,7 +607,9 @@ window.addEventListener("resize", function () {
             if (getGetParameter(location.href, "page") === "music") {
                 loadPage();
 
-                if (typeof playlist[playIndex] !== "undefined") updateSongData();
+                if (typeof playlist[playIndex] !== "undefined") {
+                    updateSongData();
+                }
             }
         }, 200);
     }
@@ -602,7 +630,9 @@ window["music"] = async () => {    /*
      */
     if (getCookie("muted") !== "true") {
         let vol = getCookie("volume");
-        if (vol === "") vol = 0.5;
+        if (vol === "") {
+            vol = 0.5;
+        }
         volume = Number(vol);
     }
 
@@ -671,7 +701,9 @@ window["music"] = async () => {    /*
                 div.setAttribute("data-page", "1");
                 div.setAttribute("data-url", object.dataset.url);
 
-                if (songs.length === count) div.setAttribute("data-load", String(1));
+                if (songs.length === count) {
+                    div.setAttribute("data-load", String(1));
+                }
 
                 let fetching = false;
                 /*
@@ -782,7 +814,9 @@ window["music"] = async () => {    /*
                 gridView.appendChild(parent);
             }
 
-            if (object.parentNode !== null) object.parentNode.insertBefore(gridView, object);
+            if (object.parentNode !== null) {
+                object.parentNode.insertBefore(gridView, object);
+            }
         } else {
             let div = document.createElement("div");
             div.classList.add("info");
@@ -792,13 +826,17 @@ window["music"] = async () => {    /*
 
             div.appendChild(span);
 
-            if (object.parentNode !== null) object.parentNode.insertBefore(div, object);
+            if (object.parentNode !== null) {
+                object.parentNode.insertBefore(div, object);
+            }
         }
 
         object.remove();
     }
 
-    if (typeof playlist[playIndex] !== "undefined") return;
+    if (typeof playlist[playIndex] !== "undefined") {
+        return;
+    }
 
     /*
      * Funktion: Keine
@@ -806,15 +844,27 @@ window["music"] = async () => {    /*
      *
      * Dafür da, damit man ein Lied teilen kann und dieses sofort anfängt zu spielen
      */
-    if (hasGetParameter(location.href, "s")) {
+    if (hasGetParameter(location.href, "s") || hasGetParameter(location.href, "p")) {
         let songID = getGetParameter(location.href, "s");
-        let time = 0;
+        playlistID = getGetParameter(location.href, "p");
 
+        let playlistSongID = null;
+        if (playlistID && playlistID.length) {
+            playlistSongID = songID;
+            songID = playlistID;
+        }
+
+        let time = 0;
         if (hasGetParameter(location.href, "t")) {
             time = Number(getGetParameter(location.href, "t"));
         }
 
         await addSongToPlaylist(null, songID);
+
+        if (playlistSongID && playlistSongID.length) {
+            playIndex = playlist.findIndex(song => song.id === playlistSongID);
+        }
+
         if (typeof playlist[playIndex] !== 'undefined' && playlist[playIndex]) {
             const player = document.querySelector("#player");
             player.querySelector("[data-angle]").dispatchEvent(clickEvent);
@@ -822,10 +872,12 @@ window["music"] = async () => {    /*
             playPauseButton("load");
             bufferSong(playIndex, time, AUDIO_BUFFER_TARGET);
 
-            playlist[playIndex]["player"].addEventListener("play", () => {
-                playlist[playIndex]["player"].setCurrentTime(time);
-            }, {once: true});
-        } else clearURL();
+            if (time > 0) {
+                playlist[playIndex]["player"].setCurrentTime(time, true);
+            }
+        } else {
+            clearURL();
+        }
     }
 }
 
@@ -838,9 +890,12 @@ window["music"] = async () => {    /*
  * Liest die ID vom Lied aus den Objekt-Eigenschaften aus
  * Lädt die Informationen vom Lied herunter und fügt diese zur Wiedergabenliste hinzu
  */
-async function addSongToPlaylist(element, id = 0, next = false, single = false) {
+async function addSongToPlaylist(element, id = 0, next = false, single = false, start = false) {
     let songID = id;
-    if (element) songID = element.dataset.id;
+    if (element) {
+        songID = element.dataset.id;
+        playlistID = Boolean(Number(element.dataset.playlist)) && start ? element.dataset.id : null;
+    }
 
     let url = pageURL + "system/song/" + songID;
 
@@ -849,9 +904,15 @@ async function addSongToPlaylist(element, id = 0, next = false, single = false) 
     }
 
     let data = await httpGetJSON(url);
-    if (!Object.values(data).length) return;
+    if (!Object.values(data).length) {
+        return;
+    }
 
-    if (typeof data[0] === "undefined") data = [data]; else deleteMultiple(data, ["cover", "name", "count"]);
+    if (typeof data[0] === "undefined") {
+        data = [data];
+    } else {
+        deleteMultiple(data, ["cover", "name", "count"]);
+    }
 
     const songs = Object.values(data);
     const length = playlist.length;
@@ -862,7 +923,9 @@ async function addSongToPlaylist(element, id = 0, next = false, single = false) 
     }
     changedQueue = true;
 
-    if (!length && !document.hidden) updateSongData();
+    if (!length && !document.hidden) {
+        updateSongData();
+    }
 }
 
 /*
@@ -887,6 +950,7 @@ async function generateBlockView(songs, categoryView, cover, coverCols) {
             card = document.createElement('div');
             card.classList.add("songCard", "card");
             card.dataset.id = song.id;
+            card.dataset.playlist = Number(typeof song.playlist !== "undefined").toString();
 
             const darker = document.createElement('div');
             darker.className = 'darker';
@@ -935,6 +999,7 @@ async function generateBlockView(songs, categoryView, cover, coverCols) {
             card = document.createElement('div');
             card.classList.add("playlistCard", "card");
             card.dataset.id = song.id;
+            card.dataset.playlist = Number(true).toString();
 
             const darkerDiv = document.createElement('div');
             darkerDiv.className = 'darker';
