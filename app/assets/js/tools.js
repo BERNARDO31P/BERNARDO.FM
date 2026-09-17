@@ -2153,8 +2153,14 @@ function addEvents(player) {
         }, 2000);
     });
 
-    player.addEventListener("pause", () => {
-        if (player.isDecoding()) {
+    player.addEventListener("pause", (e) => {
+        /*
+         * Wenn der aktuelle Part beendet wurde während der nächste Part
+         * noch heruntergeladen wird, ist dies Buffering und keine normale Pause.
+         *
+         * isDecoding() bleibt als zusätzliche Absicherung erhalten.
+         */
+        if (e.detail?.buffering === true || player.isDecoding()) {
             playPauseButton("load");
         } else {
             playPauseButton("pause");

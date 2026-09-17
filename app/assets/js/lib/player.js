@@ -938,7 +938,15 @@ class MultiTrackPlayer extends EventTarget {
                     this.#playing = false;
                     this.#nextTrackIndex = false;
 
-                    this.dispatchEvent(new Event("pause"));
+                    /*
+                     * Die Wiedergabe wurde nicht vom Benutzer pausiert.
+                     * Sie wartet auf den noch laufenden Download des nächsten Parts.
+                     */
+                    this.dispatchEvent(new CustomEvent("pause", {
+                        detail: {
+                            buffering: true
+                        }
+                    }));
 
                     return;
                 }
