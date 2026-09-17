@@ -21,6 +21,8 @@ const TOUCH_HITBOX = 16;
 const MAX_NETWORK = 12000;
 
 window["monitoring"] = () => {
+    initialScrollDone = false;
+
     canvasDown = document.getElementById("download");
     canvasUp = document.getElementById("upload");
     canvasCpu = document.getElementById("cpu");
