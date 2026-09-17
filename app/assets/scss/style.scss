@@ -1299,7 +1299,7 @@ a.button {
   #queue {
     thead {
       position: sticky;
-      top: 0;
+      top: -1px;
       z-index: 2;
 
       background-color: var(--primary-color);
@@ -1341,6 +1341,8 @@ a.button {
 
   .btns {
     display: flex;
+    position: relative;
+    z-index: 3;
 
     .btn {
       transition: 0.2s;
@@ -2080,6 +2082,7 @@ a.button {
       margin: 15px 0 0 0;
 
       width: 100%;
+      height: 100%;
     }
 
     #queue, #info {
