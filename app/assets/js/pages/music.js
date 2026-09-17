@@ -225,32 +225,16 @@ bindEvent("click", "#queueView tr[data-id]", function () {
 bindEvent("click", ".card", function () {
     playAction(this.closest(".card"));
 });
-bindEvent("click", ".songList tr[data-id]", function () {
-    playAction(this);
-});
 bindEvent("contextmenu", ".card", function (e) {
     e.preventDefault();
     if (!isTouchScreen()) {
         showContext(e, this.closest(".card"), ["play", "queue", "next", "share"]);
     }
 });
-bindEvent("contextmenu", ".songList tr[data-id]", function (e) {
-    e.preventDefault();
-    if (!isTouchScreen()) {
-        showContext(e, this, ["play", "queue", "next", "share"]);
-    }
-});
 bindEvent("touchstart", ".card", function (e) {
     if (isTouchScreen()) {
         contextTimeout = setTimeout(() => {
             showContext(e, this.closest(".card"), ["play", "queue", "next", "share"]);
-        }, defaultDelay);
-    }
-});
-bindEvent("touchstart", ".songList tr[data-id]", function (e) {
-    if (isTouchScreen()) {
-        contextTimeout = setTimeout(() => {
-            showContext(e, this, ["play", "queue", "next", "share"]);
         }, defaultDelay);
     }
 });
@@ -267,12 +251,12 @@ bindEvent("touchstart", "#queueView tr[data-id]", function (e) {
         }, defaultDelay);
     }
 });
-bindEvent("touchend", ".card, .songList tr[data-id], #queueView tr[data-id]", function () {
+bindEvent("touchend", ".card, #queueView tr[data-id]", function () {
     if (isTouchScreen()) {
         clearTimeout(contextTimeout);
     }
 });
-bindEvent("touchmove", ".card, .songList tr[data-id], #queueView tr[data-id]", function () {
+bindEvent("touchmove", ".card, #queueView tr[data-id]", function () {
     if (isTouchScreen()) {
         clearTimeout(contextTimeout);
     }

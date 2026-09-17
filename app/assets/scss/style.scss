@@ -464,36 +464,6 @@ a.button {
     color: var(--text-color);
   }
 
-  .songList {
-    text-align: center;
-
-    h2 {
-      text-align: left;
-    }
-
-    .loadMore {
-      display: inline-block;
-      margin: 10px 0 0 0;
-      padding: 5px 10px;
-
-      color: var(--secondary-color);
-      cursor: pointer;
-    }
-
-    .cover {
-      transition: 0.2s;
-
-      height: 160px;
-      width: 160px;
-
-      border-radius: 5px;
-      user-select: none;
-
-      background-size: auto 160px;
-      background-color: black;
-    }
-  }
-
   .songGrid {
     & > div {
       position: relative;
