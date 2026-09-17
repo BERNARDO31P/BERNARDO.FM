@@ -36,7 +36,7 @@ h2, h3 {
   color: var(--text-color-title);
 }
 
-input:not([type="range"]) {
+input:not([type="range"]):not(.time-start) {
   transition: 0.2s;
   box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -5px -5px 7px var(--shadow-light);
   border: none;
@@ -1079,8 +1079,6 @@ a.button {
 
     height: 1px;
     width: calc(100% + 20px);
-
-    background-color: var(--text-color-author);
     opacity: .5;
 
     margin: 8px 0;
@@ -1092,7 +1090,7 @@ a.button {
     user-select: none;
 
     .item:hover {
-      background-color: var(--active-background);
+      background-color: var(--hover-background);
     }
 
     .item {
@@ -1100,12 +1098,20 @@ a.button {
       cursor: pointer;
 
       margin: 5px 0;
-      padding: 5px 20px;
-      display: flex;
+      padding: 7px 14px;
+
+      display: grid;
+      grid-template-columns: 25px minmax(0, 1fr) auto;
+      column-gap: 15px;
+      align-items: center;
+
+      min-height: 25px;
 
       border-radius: 5px;
 
       .icon {
+        grid-column: 1;
+
         width: 25px;
         height: 25px;
 
@@ -1116,6 +1122,102 @@ a.button {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
+        }
+      }
+
+      > .label {
+        grid-column: 2;
+
+        margin: 0;
+        line-height: 25px;
+
+        white-space: nowrap;
+      }
+
+      .checkbox {
+        grid-column: 3;
+
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        margin: 0 0 0 5px;
+        padding: 0 0 0 15px;
+
+        border-left: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
+
+        cursor: pointer;
+
+        color: var(--text-color-artist);
+        font-size: 12px;
+        white-space: nowrap;
+
+        span {
+          order: 1;
+
+          margin: 0;
+          line-height: 25px;
+        }
+      }
+
+      .time-start {
+        order: 2;
+
+        appearance: none;
+        -webkit-appearance: none;
+
+        position: relative;
+
+        width: 28px;
+        height: 16px;
+
+        flex: 0 0 28px;
+
+        margin: 0;
+        padding: 0;
+
+        cursor: pointer;
+
+        border: none;
+        border-radius: 10px;
+
+        background-color: var(--active-background);
+
+        box-shadow:
+                inset 1px 1px 2px var(--shadow-dark),
+                inset -1px -1px 2px var(--shadow-light);
+
+        transition:
+                background-color 0.2s,
+                box-shadow 0.2s;
+
+        &::after {
+          content: "";
+
+          position: absolute;
+          top: 2px;
+          left: 2px;
+
+          width: 12px;
+          height: 12px;
+
+          border-radius: 50%;
+
+          background-color: var(--text-color-artist);
+
+          transition:
+                  transform 0.2s,
+                  background-color 0.2s;
+        }
+
+        &:checked {
+          background-color: var(--secondary-color);
+          box-shadow: none;
+
+          &::after {
+            transform: translateX(12px);
+            background-color: var(--text-color-title);
+          }
         }
       }
 
@@ -1140,12 +1242,6 @@ a.button {
         .fa-plus, .fa-times {
           font-size: 12px;
         }
-      }
-
-      span {
-        line-height: 25px;
-
-        margin: 0 0 0 30px;
       }
     }
   }

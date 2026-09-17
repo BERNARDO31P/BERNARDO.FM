@@ -70,16 +70,33 @@ const menuItems = {
         }
     }, "share": {
         "name": "Share", "icon": () => {
-            const addDiv = document.createElement('div');
+            const addDiv = document.createElement("div");
             addDiv.classList.add("icon");
-            addDiv.title = 'Share this song';
+            addDiv.title = "Share this song";
 
-            const listIcon = createIconElement('fas fa-share');
+            const listIcon = createIconElement("fas fa-share");
 
             addDiv.append(listIcon);
             return addDiv;
-        }, "action": (card) => {
-            const url = pageURL + "#!page=music&s=" + card.dataset.id;
+        }, "checkbox": {
+            "name": "Start at current time"
+        }, "action": (card, item) => {
+            let url = pageURL + "#!page=music&s=" + card.dataset.id;
+
+            if (card.querySelector("td:nth-child(2) .content") && playlistID && playlistID.length) {
+                url += "&p=" + playlistID;
+            }
+
+            const checkbox = item.querySelector("input[type=\"checkbox\"]");
+
+            if (checkbox?.checked && playlist[playIndex]?.["id"] === card.dataset.id && typeof playlist[playIndex]?.["player"] !== "undefined") {
+                const time = Math.floor(playlist[playIndex]["player"].getCurrentTime());
+
+                if (time > 0) {
+                    url += "&t=" + time;
+                }
+            }
+
             const nameElement = card.querySelector(".name") ?? card.querySelector("td:nth-child(2) .content");
             const artistElement = card.querySelector(".artist") ?? card.querySelector("td:nth-child(3) .content");
 
@@ -341,11 +358,35 @@ async function showContext(e, card, items) {
         item.classList.add("item");
 
         const text = document.createElement("span");
+        text.classList.add("label");
         text.textContent = menuItem["name"];
 
         item.append(menuItem["icon"](), text);
-        item.addEventListener("click", () => {
-            menuItem["action"](card);
+        if (typeof menuItem["checkbox"] !== "undefined" && playlist[playIndex]?.["id"] === card.dataset.id) {
+            const label = document.createElement("label");
+            label.classList.add("checkbox");
+
+            const checkbox = document.createElement("input");
+            checkbox.classList.add("time-start");
+            checkbox.type = "checkbox";
+
+            const checkboxText = document.createElement("span");
+            checkboxText.textContent = menuItem["checkbox"]["name"];
+
+            label.append(checkbox, checkboxText);
+            item.append(label);
+
+            label.addEventListener("click", event => {
+                event.stopPropagation();
+            });
+        }
+
+        item.addEventListener("click", event => {
+            if (event.target.closest("label.checkbox")) {
+                return;
+            }
+
+            menuItem["action"](card, item);
             contextMenu.style.display = "none";
         });
 
