@@ -17,6 +17,7 @@ let ctxDown, ctxUp, ctxCpu, ctxRam;
 let tooltip;
 
 let initialScrollDone = false;
+let betaMode = true;
 
 const HITBOX = 10;
 const TOUCH_HITBOX = 16;
@@ -42,6 +43,7 @@ window["monitoring"] = () => {
 
     startBackgroundProcesses();
     initDropdown();
+    initBetaSwitch();
 
     [canvasDown, canvasUp, canvasCpu, canvasRam].forEach(canvas => {
         /*
@@ -133,6 +135,28 @@ function initDropdown() {
         if (!dropdown.contains(event.target)) {
             dropdown.classList.remove("open");
         }
+    });
+}
+
+/*
+ * Funktion: initBetaSwitch()
+ * Autor: Bernardo de Oliveira
+ *
+ * Initialisiert den Beta Graph Switch
+ */
+function initBetaSwitch() {
+    const betaSwitch = document.getElementById("monitoring-beta");
+
+    if (!betaSwitch || betaSwitch.dataset.initialized) {
+        return;
+    }
+
+    betaSwitch.dataset.initialized = "1";
+    betaMode = betaSwitch.checked;
+
+    betaSwitch.addEventListener("change", () => {
+        betaMode = betaSwitch.checked;
+        redraw();
     });
 }
 
@@ -303,52 +327,101 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
         return;
     }
 
-    let smallest = 0;
-    let largest = 50;
+    let smallest;
+    let largest;
 
-    if (measurement !== "%") {
-        largest = Number(dataArr[0]);
-    }
+    if (betaMode) {
+        /*
+         * Beta:
+         * Alle Graphen starten bei 0.
+         * Alle Graphen haben mindestens 10 als Maximum.
+         * Prozent Graphen haben mindestens 50 als Maximum.
+         */
+        smallest = 0;
+        largest = 10;
 
-    for (let i = 1; i < arrayLen; i++) {
-        const value = Number(dataArr[i]);
+        if (measurement === "%") {
+            largest = 50;
+        }
 
-        if (value > largest) {
-            largest = value;
+        for (let i = 1; i < arrayLen; i++) {
+            const value = Number(dataArr[i]);
+
+            if (value > largest) {
+                largest = value;
+            }
+        }
+    } else {
+        /*
+         * Alte Darstellung:
+         * Minimum und Maximum werden vollständig aus den Daten bestimmt.
+         */
+        smallest = Number(dataArr[0]);
+        largest = smallest;
+
+        for (let i = 1; i < arrayLen; i++) {
+            const value = Number(dataArr[i]);
+
+            if (value > largest) {
+                largest = value;
+            }
+
+            if (value < smallest) {
+                smallest = value;
+            }
+        }
+
+        if (largest === smallest) {
+            largest += 1;
+            smallest -= 1;
         }
     }
 
-    if (largest === 0) {
-        largest = 1;
-    }
-
-    const valueRange = largest;
+    const valueRange = largest - smallest;
 
     context.font = "13px Arial";
 
-    if (theme === "light") {
+    /*if (theme === "light") {
         context.strokeStyle = "#BBB";
         context.fillStyle = "#3f3f3f";
-    } else {
+    } else {*/
         context.strokeStyle = "#606060";
         context.fillStyle = "#b9b9b9";
-    }
+    //}
 
     /*
-     * Nur Beschriftungen, keine inneren Linien
+     * Raster und Beschriftungen
      */
-    context.fillText(format2(largest), GRAPH_RIGHT + 15, GRAPH_TOP);
-    context.fillText(
-        format2(smallest + (valueRange * 2 / 3)),
-        GRAPH_RIGHT + 15,
-        GRAPH_TOP + graphRange * (1 / 3)
+    const drawHorizontalLine = (y, text) => {
+        if (!betaMode) {
+            context.beginPath();
+            context.moveTo(GRAPH_LEFT, y);
+            context.lineTo(GRAPH_RIGHT, y);
+            context.stroke();
+        }
+
+        context.fillText(text, GRAPH_RIGHT + 15, y);
+    };
+
+    drawHorizontalLine(
+        GRAPH_TOP,
+        format2(largest)
     );
-    context.fillText(
-        format2(smallest + (valueRange / 3)) + " " + measurement,
-        GRAPH_RIGHT + 15,
-        GRAPH_TOP + graphRange * (2 / 3)
+
+    drawHorizontalLine(
+        GRAPH_TOP + graphRange * (1 / 3),
+        format2(smallest + (valueRange * 2 / 3))
     );
-    context.fillText(format2(smallest), GRAPH_RIGHT + 15, GRAPH_BOTTOM);
+
+    drawHorizontalLine(
+        GRAPH_TOP + graphRange * (2 / 3),
+        format2(smallest + (valueRange / 3)) + " " + measurement
+    );
+
+    drawHorizontalLine(
+        GRAPH_BOTTOM,
+        format2(smallest)
+    );
 
     const maxClocks = Math.min(7, arrayLen);
 
@@ -398,13 +471,13 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
     context.textAlign = "left";
     context.textBaseline = "alphabetic";
 
-    if (theme === "light") {
+    /*if (theme === "light") {
         context.fillStyle = "black";
         context.strokeStyle = "black";
-    } else {
+    } else {*/
         context.fillStyle = "#d0d0d0";
         context.strokeStyle = "#d0d0d0";
-    }
+    //}
 
     const largeScreen = getWidth() > 1000;
 
@@ -439,11 +512,53 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
         });
     }
 
+    if (betaMode) {
+        drawLineBeta(graphPoints, context, GRAPH_BOTTOM);
+    } else {
+        drawLine(graphPoints, context);
+    }
+}
+
+function drawLine(graphPoints, context) {
     /*
-     * Kurze Zeiträume werden weich gezeichnet.
-     * Bei langen Zeiträumen bleiben die echten linearen Übergänge erhalten,
-     * damit Peaks und Trends nicht künstlich verändert werden.
-     */
+    * Kurze Zeiträume werden weich gezeichnet.
+    * Bei langen Zeiträumen bleiben die echten linearen Übergänge erhalten,
+    * damit Peaks und Trends nicht künstlich verändert werden.
+    */
+    const useCurves = currentSelect <= 60;
+
+    context.beginPath();
+    context.moveTo(graphPoints[0].x, graphPoints[0].y);
+
+    for (let i = 1; i < graphPoints.length; i++) {
+        const previous = graphPoints[i - 1];
+        const current = graphPoints[i];
+
+        if (useCurves) {
+            const middleX = (previous.x + current.x) / 2;
+
+            context.bezierCurveTo(
+                middleX,
+                previous.y,
+                middleX,
+                current.y,
+                current.x,
+                current.y
+            );
+        } else {
+            context.lineTo(current.x, current.y);
+        }
+    }
+
+    context.stroke();
+}
+
+function drawLineBeta(graphPoints, context, GRAPH_BOTTOM) {
+    /*
+        * Kurze Zeiträume werden weich gezeichnet.
+        * Bei langen Zeiträumen bleiben die echten linearen Übergänge erhalten,
+        * damit Peaks und Trends nicht künstlich verändert werden.
+        */
     const useCurves = currentSelect <= 60;
 
     const drawGraphPath = () => {
