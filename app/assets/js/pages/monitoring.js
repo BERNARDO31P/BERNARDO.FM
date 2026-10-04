@@ -1,4 +1,6 @@
-if (typeof window["monitoring"] !== "undefined") throw new Error("Dieses Skript wurde bereits geladen.");
+if (typeof window["monitoring"] !== "undefined") {
+    throw new Error("Dieses Skript wurde bereits geladen.");
+}
 
 let monitoringRequest = 0;
 
@@ -98,7 +100,9 @@ window["monitoring"] = () => {
 function initDropdown() {
     const dropdown = document.getElementById("time");
 
-    if (!dropdown || dropdown.dataset.initialized) return;
+    if (!dropdown || dropdown.dataset.initialized) {
+        return;
+    }
 
     dropdown.dataset.initialized = "1";
 
@@ -126,7 +130,9 @@ function initDropdown() {
     });
 
     document.addEventListener("click", event => {
-        if (!dropdown.contains(event.target)) dropdown.classList.remove("open");
+        if (!dropdown.contains(event.target)) {
+            dropdown.classList.remove("open");
+        }
     });
 }
 
@@ -203,7 +209,9 @@ function startBackgroundProcesses() {
 function getVisibleDotIndices(dataArr, maxDots) {
     const length = dataArr.length;
 
-    if (!length) return [];
+    if (!length) {
+        return [];
+    }
 
     if (length <= maxDots) {
         return Array.from({length}, (_, index) => index);
@@ -221,14 +229,20 @@ function getVisibleDotIndices(dataArr, maxDots) {
         const start = Math.max(1, Math.floor(1 + bucket * bucketSize));
         const end = Math.min(length - 1, Math.ceil(1 + (bucket + 1) * bucketSize));
 
-        if (start >= end) continue;
+        if (start >= end) {
+            continue;
+        }
 
         let minIndex = start;
         let maxIndex = start;
 
         for (let index = start + 1; index < end; index++) {
-            if (dataArr[index] < dataArr[minIndex]) minIndex = index;
-            if (dataArr[index] > dataArr[maxIndex]) maxIndex = index;
+            if (dataArr[index] < dataArr[minIndex]) {
+                minIndex = index;
+            }
+            if (dataArr[index] > dataArr[maxIndex]) {
+                maxIndex = index;
+            }
         }
 
         indices.add(minIndex);
@@ -285,24 +299,30 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
 
     context.clearRect(0, 0, canvasWidth, canvasHeight);
 
-    if (!arrayLen) return;
+    if (!arrayLen) {
+        return;
+    }
 
-    let largest = Number(dataArr[0]);
-    let smallest = Number(dataArr[0]);
+    let smallest = 0;
+    let largest = 50;
+
+    if (measurement !== "%") {
+        largest = Number(dataArr[0]);
+    }
 
     for (let i = 1; i < arrayLen; i++) {
         const value = Number(dataArr[i]);
 
-        if (value > largest) largest = value;
-        if (value < smallest) smallest = value;
+        if (value > largest) {
+            largest = value;
+        }
     }
 
-    if (largest === smallest) {
-        largest += 1;
-        smallest -= 1;
+    if (largest === 0) {
+        largest = 1;
     }
 
-    const valueRange = largest - smallest || 1;
+    const valueRange = largest;
 
     context.font = "13px Arial";
 
@@ -315,29 +335,20 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
     }
 
     /*
-     * Achsen
+     * Nur Beschriftungen, keine inneren Linien
      */
-    context.beginPath();
-    context.moveTo(GRAPH_LEFT, GRAPH_BOTTOM);
-    context.lineTo(GRAPH_RIGHT, GRAPH_BOTTOM);
-    context.lineTo(GRAPH_RIGHT, GRAPH_TOP);
-    context.stroke();
-
-    /*
-     * Raster und Beschriftungen
-     */
-    const drawLine = (y, text) => {
-        context.beginPath();
-        context.moveTo(GRAPH_LEFT, y);
-        context.lineTo(GRAPH_RIGHT, y);
-        context.fillText(text, GRAPH_RIGHT + 15, y);
-        context.stroke();
-    };
-
-    drawLine(GRAPH_TOP, format2(largest));
-    drawLine(GRAPH_TOP + graphRange * (1 / 3), format2(smallest + (valueRange * 2 / 3)));
-    drawLine(GRAPH_TOP + graphRange * (2 / 3), format2(smallest + (valueRange / 3)) + " " + measurement);
-    drawLine(GRAPH_BOTTOM, format2(smallest));
+    context.fillText(format2(largest), GRAPH_RIGHT + 15, GRAPH_TOP);
+    context.fillText(
+        format2(smallest + (valueRange * 2 / 3)),
+        GRAPH_RIGHT + 15,
+        GRAPH_TOP + graphRange * (1 / 3)
+    );
+    context.fillText(
+        format2(smallest + (valueRange / 3)) + " " + measurement,
+        GRAPH_RIGHT + 15,
+        GRAPH_TOP + graphRange * (2 / 3)
+    );
+    context.fillText(format2(smallest), GRAPH_RIGHT + 15, GRAPH_BOTTOM);
 
     const maxClocks = Math.min(7, arrayLen);
 
@@ -435,29 +446,59 @@ function drawGraph(canvas, context, dataArr, timeArr, measurement, canvasID) {
      */
     const useCurves = currentSelect <= 60;
 
-    context.beginPath();
-    context.moveTo(graphPoints[0].x, graphPoints[0].y);
+    const drawGraphPath = () => {
+        context.beginPath();
+        context.moveTo(graphPoints[0].x, graphPoints[0].y);
 
-    for (let i = 1; i < graphPoints.length; i++) {
-        const previous = graphPoints[i - 1];
-        const current = graphPoints[i];
+        for (let i = 1; i < graphPoints.length; i++) {
+            const previous = graphPoints[i - 1];
+            const current = graphPoints[i];
 
-        if (useCurves) {
-            const middleX = (previous.x + current.x) / 2;
+            if (useCurves) {
+                const middleX = (previous.x + current.x) / 2;
 
-            context.bezierCurveTo(
-                middleX,
-                previous.y,
-                middleX,
-                current.y,
-                current.x,
-                current.y
-            );
-        } else {
-            context.lineTo(current.x, current.y);
+                context.bezierCurveTo(
+                    middleX,
+                    previous.y,
+                    middleX,
+                    current.y,
+                    current.x,
+                    current.y
+                );
+            } else {
+                context.lineTo(current.x, current.y);
+            }
         }
-    }
+    };
 
+    /*
+     * Fläche unterhalb der Graph Linie weiss ausfüllen.
+     * Oberhalb der Linie bleibt das Canvas transparent.
+     */
+    drawGraphPath();
+
+    context.lineTo(
+        graphPoints[graphPoints.length - 1].x,
+        GRAPH_BOTTOM
+    );
+
+    context.lineTo(
+        graphPoints[0].x,
+        GRAPH_BOTTOM
+    );
+
+    context.closePath();
+
+    context.save();
+    context.fillStyle = "#d0d0d0";
+    context.fill();
+    context.restore();
+
+    /*
+     * Graph Linie separat zeichnen, damit die Unterkante
+     * der gefüllten Fläche keinen Rahmen erhält.
+     */
+    drawGraphPath();
     context.stroke();
 }
 
@@ -486,7 +527,9 @@ function processCompactSeries(series, type) {
         timestamp = Number(timestamp);
         value = Number(value);
 
-        if (!Number.isFinite(timestamp) || !Number.isFinite(value)) return;
+        if (!Number.isFinite(timestamp) || !Number.isFinite(value)) {
+            return;
+        }
 
         if (type === "network") {
             if (value < 0 || value > MAX_NETWORK) {
@@ -696,7 +739,9 @@ async function processLegacyData(data) {
  * Erkennt und verarbeitet das neue oder alte Monitoring Format
  */
 async function processDataAsync(data) {
-    if (!data || typeof data !== "object") return;
+    if (!data || typeof data !== "object") {
+        return;
+    }
 
     if (
         Number(data.version) >= 2
@@ -722,7 +767,9 @@ async function getData() {
     const input = dropdown.querySelector("input");
     const newValue = parseInt(input.value, 10);
 
-    if (isNaN(newValue)) return;
+    if (isNaN(newValue)) {
+        return;
+    }
 
     const lastTime = currentSelect;
     currentSelect = newValue;
@@ -736,7 +783,9 @@ async function getData() {
 
     const data = await httpGetJSON("/system/monitoring/" + selectedTime);
 
-    if (request !== monitoringRequest || selectedTime !== currentSelect) return;
+    if (request !== monitoringRequest || selectedTime !== currentSelect) {
+        return;
+    }
 
     if (!data) {
         setLoading(false);
@@ -745,10 +794,14 @@ async function getData() {
 
     await processDataAsync(data);
 
-    if (request !== monitoringRequest || selectedTime !== currentSelect) return;
+    if (request !== monitoringRequest || selectedTime !== currentSelect) {
+        return;
+    }
 
     requestAnimationFrame(() => {
-        if (request !== monitoringRequest || selectedTime !== currentSelect) return;
+        if (request !== monitoringRequest || selectedTime !== currentSelect) {
+            return;
+        }
 
         redraw();
 
@@ -806,7 +859,9 @@ function redraw() {
  * Berücksichtigt X und Y damit eng beieinanderliegende Peaks erkannt werden
  */
 function findClosestPoint(graphPoints, x, y, hitbox = HITBOX) {
-    if (!graphPoints.length) return null;
+    if (!graphPoints.length) {
+        return null;
+    }
 
     const minX = x - hitbox;
     const maxX = x + hitbox;
@@ -840,12 +895,16 @@ function findClosestPoint(graphPoints, x, y, hitbox = HITBOX) {
         const pointX = point.coordinates[0];
         const pointY = point.coordinates[1];
 
-        if (pointX > maxX) break;
+        if (pointX > maxX) {
+            break;
+        }
 
         const distanceX = pointX - x;
         const distanceY = pointY - y;
 
-        if (Math.abs(distanceY) > hitbox) continue;
+        if (Math.abs(distanceY) > hitbox) {
+            continue;
+        }
 
         const distance = (distanceX * distanceX) + (distanceY * distanceY);
 
@@ -872,7 +931,9 @@ function findClosestPoint(graphPoints, x, y, hitbox = HITBOX) {
 function showTooltip(object, event) {
     const graphPoints = points[object.id];
 
-    if (!graphPoints || !graphPoints.length) return;
+    if (!graphPoints || !graphPoints.length) {
+        return;
+    }
 
     const canvasRect = object.getBoundingClientRect();
 
