@@ -10,13 +10,13 @@ RUN apk --no-cache add  \
     php-pecl-imagick php-fileinfo php-pcntl php-pecl-memcached \
     git screen ffmpeg imagemagick
 
-RUN echo "user = nginx" >> /etc/php84/php-fpm.d/www.conf
-RUN echo "listen.owner = nginx" >> /etc/php84/php-fpm.d/www.conf
-RUN echo "listen.group = nginx" >> /etc/php84/php-fpm.d/www.conf
-RUN echo "listen.mode = 0660" >> /etc/php84/php-fpm.d/www.conf
+RUN echo "user = nginx" >> /etc/php85/php-fpm.d/www.conf
+RUN echo "listen.owner = nginx" >> /etc/php85/php-fpm.d/www.conf
+RUN echo "listen.group = nginx" >> /etc/php85/php-fpm.d/www.conf
+RUN echo "listen.mode = 0660" >> /etc/php85/php-fpm.d/www.conf
 
-COPY ./php.ini /etc/php84/php.ini
-COPY ./www.conf /etc/php84/php-fpm.d/www.conf
+COPY ./php.ini /etc/php85/php.ini
+COPY ./www.conf /etc/php85/php-fpm.d/www.conf
 
 COPY start.sh /
 RUN chmod +x /start.sh
