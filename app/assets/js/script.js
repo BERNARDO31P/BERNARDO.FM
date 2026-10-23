@@ -15,20 +15,14 @@ window.addEventListener("scroll", () => {
 });
 
 document.addEventListener("visibilitychange", function () {
-    if (typeof playlist[playIndex] === 'undefined' || typeof playlist[playIndex]["player"] === 'undefined') return;
-    const player = playlist[playIndex]["player"];
+    const player = playlist[playIndex]?.["player"];
+    if (!player) return;
 
     if (document.hidden) {
         player.removeTimeUpdate();
     } else {
-        updateSongData();
-
-        if (player.isPlaying()) {
-            player.addTimeUpdate();
-            playPauseButton("play");
-        } else {
-            playPauseButton("pause");
-        }
+        // Den vollständigen aktuellen Zustand synchronisieren, ohne die Wiedergabeposition oder den Wiedergabestatus zu verändern.
+        refreshPlayerState();
     }
 });
 
@@ -412,10 +406,9 @@ bindEvent("mouseover", ".volume, .volumeBackground", function () {
 });
 
 /*
- * Mobile: tapping the volume area opens it and starts the 2 second timer.
- *
- * This also handles touchend from the slider because .volumeSlider is
- * inside .volumeBackground.
+ * Auf Mobilgeräten öffnet ein Tippen auf den Lautstärkebereich den Regler
+ * und startet den Timer für zwei Sekunden. Das erfasst auch touchend auf
+ * dem Schieberegler, da .volumeSlider innerhalb von .volumeBackground liegt.
  */
 bindEvent("touchend", ".volume, .volumeBackground", function () {
     document.getElementsByClassName("volumeBackground")[0].classList.add("show");
@@ -424,7 +417,8 @@ bindEvent("touchend", ".volume, .volumeBackground", function () {
 });
 
 /*
- * Mobile: while actually dragging the slider, don't allow it to disappear.
+ * Auf Mobilgeräten darf der Regler während des Verschiebens nicht
+ * automatisch ausgeblendet werden.
  */
 bindEvent("touchstart", ".volumeSlider", function () {
     clearTimeout(sliderTimeout);
@@ -435,7 +429,8 @@ bindEvent("touchcancel", ".volumeSlider", function () {
 });
 
 /*
- * Desktop only: immediately hide when leaving the volume area.
+ * Nur auf Desktopgeräten: Beim Verlassen des Lautstärkebereichs
+ * sofort ausblenden.
  */
 bindEvent("mouseout", ".volume", function () {
     if (isTouchScreen()) {

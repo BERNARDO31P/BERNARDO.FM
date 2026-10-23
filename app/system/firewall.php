@@ -3,13 +3,13 @@
 declare(strict_types=1);
 
 /*
- * Firewall parser
- *
- * Supported input formats:
- *  1. Preferred: iptables-save -c -t <table>
- *  2. Legacy:    iptables -t <table> -L -n -v
- *
- * Output format stays compatible with the existing frontend:
+ * Firewall-Parser
+ * 
+ * Unterstützte Eingabeformate:
+ *  1. Bevorzugt: iptables-save -c -t <table>
+ *  2. Älteres Format: iptables -t <table> -L -n -v
+ * 
+ * Das Ausgabeformat bleibt mit dem bestehenden Frontend kompatibel:
  * {
  *     "raw": {
  *         "CHAIN": [ rule, rule, ... ]
@@ -701,9 +701,10 @@ function parseListBaseColumns(string $line, string $headerLine): ?array
 
     for ($i = 0; $i < 8; $i++) {
         /*
-         * Packet counters are right-aligned and may start one character
-         * before the word "pkts" in the header when all digits are used.
-         * The first field therefore starts at column 0, not at the p in pkts.
+         * Paketzähler sind rechtsbündig ausgerichtet und können ein Zeichen
+         * vor dem Wort "pkts" in der Kopfzeile beginnen, wenn alle Stellen
+         * verwendet werden. Das erste Feld beginnt daher in Spalte 0 und
+         * nicht beim "p" von "pkts".
          */
         $start = $i === 0 ? 0 : $offsets[$i]["offset"];
         $end = $offsets[$i + 1]["offset"];

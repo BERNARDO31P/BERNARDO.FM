@@ -1926,7 +1926,7 @@ a.button {
   margin: 10px 0;
 }
 
-// Loading animation
+// Ladeanimation
 .lds-ring {
   display: inline-flex;
   height: 1em;
@@ -1974,7 +1974,7 @@ a.button {
   }
 }
 
-// Playing animation
+// Wiedergabeanimation
 .lds-facebook {
   display: inline-block;
   position: absolute;
@@ -2448,7 +2448,7 @@ a.button {
       1px 1px 2px var(--shadow-dark);
     }
 
-    // arrow
+    // Pfeil
     &::after {
       transition: 0.2s;
 

@@ -20,6 +20,7 @@ window.addEventListener("unhandledrejection", event => {
 class MultiTrackPlayer extends EventTarget {
     static #audioTagOwner = null;
     static #carrierPauseTimeout = null;
+    static #volumeCarrier = null;
 
     static #wakeLock = null;
     static #wakeLockPromise = null;
@@ -36,6 +37,7 @@ class MultiTrackPlayer extends EventTarget {
     #stopped = true;
     #isDecoding = false;
     #playing = false;
+    #buffering = false;
     #hadError = false;
 
     #length = 0;
@@ -81,7 +83,19 @@ class MultiTrackPlayer extends EventTarget {
 
         this.#audioTag.preload = "auto";
         this.#audioTag.loop = true;
-        this.#audioTag.volume = this.#volume;
+        if (MultiTrackPlayer.#audioTagOwner === null) {
+            this.#audioTag.volume = this.#volume;
+        }
+
+        // There is only one silent carrier for every track. Keep one listener
+        // for exposed volume/mute changes, including browser-originated ones.
+        // System mixer volume and OS ducking are not exposed by this event.
+        if (MultiTrackPlayer.#volumeCarrier !== this.#audioTag) {
+            MultiTrackPlayer.#volumeCarrier = this.#audioTag;
+            this.#audioTag.addEventListener("volumechange", () => {
+                MultiTrackPlayer.#audioTagOwner?.#syncCarrierVolume();
+            });
+        }
 
         this.#playEventHandler = this.#playEvent.bind(this);
         this.#pauseEventHandler = this.#pauseEvent.bind(this);
@@ -92,27 +106,29 @@ class MultiTrackPlayer extends EventTarget {
             }
 
             /*
-             * Screen Wake Locks werden beim Verlassen der App vom Browser
-             * automatisch freigegeben. Bei Rückkehr während laufender
-             * Wiedergabe deshalb wieder anfordern.
+             * Screen wake locks are automatically released by the browser when the
+             * application is left. Request the lock again if playback is still active
+             * when the user returns.
              */
             if (
                 MultiTrackPlayer.#audioTagOwner === this
+                && this.#playing
                 && !this.#audioTag.paused
             ) {
                 void this.#requestWakeLock();
             }
 
-            this.#dispatchTimeUpdate();
+            // The page listener refreshes the current UI exactly once.
+            // Do not synthesize an audio timeupdate here.
         });
     }
 
     /*
-     * Funktion: requestWakeLock()
-     * Autor: Bernardo de Oliveira
-     *
-     * Verhindert während der Wiedergabe das automatische Ausschalten
-     * des Displays. Es existiert immer nur ein Wake Lock für alle Player.
+     * Function: requestWakeLock()
+     * Author: Bernardo de Oliveira
+     * 
+     * Prevents the screen from switching off automatically during playback.
+     * Only one wake lock exists across all players.
      */
     async #requestWakeLock() {
         if (!("wakeLock" in navigator) || document.hidden) {
@@ -127,7 +143,7 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         /*
-         * Mehrere gleichzeitige Requests verhindern.
+         * Prevent multiple simultaneous requests.
          */
         if (MultiTrackPlayer.#wakeLockPromise !== null) {
             await MultiTrackPlayer.#wakeLockPromise;
@@ -139,8 +155,8 @@ class MultiTrackPlayer extends EventTarget {
                 const owner = MultiTrackPlayer.#audioTagOwner;
 
                 /*
-                 * Falls die Wiedergabe während des Requests bereits beendet
-                 * oder pausiert wurde, wird der Lock sofort wieder freigegeben.
+                 * If playback has already stopped or been paused while the request
+                 * was pending, release the acquired lock immediately.
                  */
                 if (
                     owner === null
@@ -154,8 +170,8 @@ class MultiTrackPlayer extends EventTarget {
                 MultiTrackPlayer.#wakeLock = lock;
 
                 /*
-                 * Browser können den Wake Lock selbst freigeben,
-                 * beispielsweise wenn die App in den Hintergrund geht.
+                 * The browser may release a wake lock on its own, for example when
+                 * the application moves into the background.
                  */
                 lock.addEventListener("release", () => {
                     if (MultiTrackPlayer.#wakeLock === lock) {
@@ -165,8 +181,8 @@ class MultiTrackPlayer extends EventTarget {
             })
             .catch(error => {
                 /*
-                 * NotAllowedError kann beispielsweise auftreten wenn
-                 * der Browser den Wake Lock momentan nicht erlaubt.
+                 * NotAllowedError may occur if the browser currently disallows
+                 * a screen wake lock.
                  */
                 if (error?.name !== "NotAllowedError") {
                     console.error(error);
@@ -180,10 +196,10 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     /*
-     * Funktion: releaseWakeLock()
-     * Autor: Bernardo de Oliveira
-     *
-     * Gibt den aktiven Screen Wake Lock wieder frei.
+     * Function: releaseWakeLock()
+     * Author: Bernardo de Oliveira
+     * 
+     * Releases the active screen wake lock.
      */
     async #releaseWakeLock() {
         const lock = MultiTrackPlayer.#wakeLock;
@@ -303,8 +319,8 @@ class MultiTrackPlayer extends EventTarget {
         const audioTag = this.#audioTag;
 
         /*
-         * Verzögerung erlaubt dem nächsten Song den Media Carrier
-         * direkt zu übernehmen
+         * Delay the release so the next track can take over the media carrier
+         * directly.
          */
         MultiTrackPlayer.#carrierPauseTimeout = setTimeout(() => {
             MultiTrackPlayer.#carrierPauseTimeout = null;
@@ -323,9 +339,9 @@ class MultiTrackPlayer extends EventTarget {
         const currentPartIndex = this.getPartByStartTime(0)[2];
 
         /*
-         * Index 0 ist nicht automatisch der Anfang des Songs.
-         * Falls der Anfang bereits aus dem Buffer entfernt wurde,
-         * bleibt der aktuelle Index ungültig bis ein neuer Part geladen wurde.
+         * Index 0 is not necessarily the beginning of the song. If the
+         * initial segment has already been pruned, the current index remains
+         * invalid until another segment has been loaded.
          */
         this.#currentTrackIndex = currentPartIndex !== null && isFinite(currentPartIndex)
             ? currentPartIndex
@@ -361,6 +377,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#stopped = true;
         this.#initialPlay = true;
         this.#playing = false;
+        this.#buffering = false;
         this.#nextTrackIndex = false;
         this.#startTime = 0;
 
@@ -387,9 +404,13 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         /*
-         * Audio Tag absichtlich nicht pausieren
-         * Der nächste Song übernimmt den laufenden Media Carrier
+         * Intentionally do not pause the audio element. The next song takes
+         * over the running media carrier.
          */
+    }
+
+    refreshTimeUpdate() {
+        this.#dispatchTimeUpdate();
     }
 
     addTimeUpdate() {
@@ -415,10 +436,10 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     /*
-      * Funktion: dispatchTimeUpdate()
-      * Autor: Bernardo de Oliveira
-      *
-      * Meldet die aktuelle Wiedergabeposition
+      * Function: dispatchTimeUpdate()
+      * Author: Bernardo de Oliveira
+      * 
+      * Notifies listeners of the current playback position.
       */
     #dispatchTimeUpdate() {
         this.dispatchEvent(new CustomEvent("timeupdate", {
@@ -434,14 +455,14 @@ class MultiTrackPlayer extends EventTarget {
     async addTrack(url, callback, priority = false) {
         try {
             /*
-             * addTrack() wird ebenfalls zum Preloading verwendet
-             * Der Playback Status darf dabei nicht verändert werden
+             * addTrack() is also used for preloading. Preloading must not
+             * change the playback state.
              */
             this.#nextTrackIndex = false;
 
             /*
-             * Direkte User Aktionen verwerfen alle alten Downloads.
-             * Nur bereits fertig decodierte Buffer bleiben erhalten.
+             * Direct user actions discard all outdated downloads. Only audio
+             * buffers that have already been fully decoded are retained.
              */
             if (priority) {
                 this.discardPendingDownloads();
@@ -466,7 +487,7 @@ class MultiTrackPlayer extends EventTarget {
             }
 
             /*
-             * Der Part ist bereits vollständig verarbeitet.
+             * This segment has already been fully processed.
              */
             if (
                 typeof this.#indexes[index] === "undefined"
@@ -476,8 +497,8 @@ class MultiTrackPlayer extends EventTarget {
             }
 
             /*
-             * Normales Background Buffering wird weiterhin eingereiht.
-             * Der aktuelle Download darf fertig laufen.
+             * Normal background buffering is still queued. Allow the current
+             * download to complete.
              */
             if (this.isDecoding()) {
                 return;
@@ -558,12 +579,12 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     /*
-     * Funktion: getBufferedEnd()
-     * Autor: Bernardo de Oliveira
-     * Argumente:
-     *  time: (Integer) Die Zeit, ab welcher der Buffer geprüft wird
-     *
-     * Ermittelt bis zu welcher Zeit Audiodaten lückenlos gepuffert sind
+     * Function: getBufferedEnd()
+     * Author: Bernardo de Oliveira
+     * Arguments:
+     *  time: (Integer) Position at which the buffer is checked
+     * 
+     * Returns the end of the continuously buffered audio range.
      */
     getBufferedEnd(time = this.getCurrentTime()) {
         time = Number(time);
@@ -591,8 +612,8 @@ class MultiTrackPlayer extends EventTarget {
             }
 
             /*
-             * Kleine Toleranz für Rundungsdifferenzen zwischen
-             * decodierter Audio Länge und Server Segmentgrenzen
+             * Allow minor rounding differences between the decoded audio duration
+             * and the server segment boundaries.
              */
             if (part["from"] > end + 0.1) {
                 break;
@@ -605,12 +626,12 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     /*
-     * Funktion: getBufferedAhead()
-     * Autor: Bernardo de Oliveira
-     * Argumente:
-     *  time: (Integer) Die aktuelle Position
-     *
-     * Gibt die Anzahl lückenlos gepufferter Sekunden zurück
+     * Function: getBufferedAhead()
+     * Author: Bernardo de Oliveira
+     * Arguments:
+     *  time: (Integer) Current playback position
+     * 
+     * Returns the number of continuously buffered seconds ahead.
      */
     getBufferedAhead(time = this.getCurrentTime()) {
         time = Number(time);
@@ -623,12 +644,12 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     /*
-     * Funktion: getNextBufferedStart()
-     * Autor: Bernardo de Oliveira
-     * Argumente:
-     *  time: (Integer) Die Zeit, ab welcher gesucht wird
-     *
-     * Sucht den nächsten bereits gepufferten Teil nach einer Lücke
+     * Function: getNextBufferedStart()
+     * Author: Bernardo de Oliveira
+     * Arguments:
+     *  time: (Integer) Position at which the search starts
+     * 
+     * Finds the next buffered segment after a gap.
      */
     getNextBufferedStart(time) {
         time = Number(time);
@@ -659,13 +680,13 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     /*
-      * Funktion: pruneBuffer()
-      * Autor: Bernardo de Oliveira
-      * Argumente:
-      *  keepSeconds: (Integer) Sekunden welche hinter der Wiedergabe behalten werden
-      *  keepStartSeconds: (Integer) Sekunden am Songanfang welche behalten werden
-      *
-      * Entfernt alte Audio Buffer um den Speicherverbrauch zu begrenzen
+      * Function: pruneBuffer()
+      * Author: Bernardo de Oliveira
+      * Arguments:
+      *  keepSeconds: (Integer) Seconds to retain behind playback
+      *  keepStartSeconds: (Integer) Seconds to retain at the beginning
+      * 
+      * Removes old audio buffers to limit memory consumption.
       */
     pruneBuffer(keepSeconds = 15, keepStartSeconds = 0) {
         const cutoff = this.getCurrentTime() - keepSeconds;
@@ -684,8 +705,8 @@ class MultiTrackPlayer extends EventTarget {
             }
 
             /*
-             * Beim Wiederholen desselben Songs den vorgeladenen
-             * Songanfang nicht aus dem Buffer entfernen
+             * When repeating the same song, do not prune the preloaded
+             * beginning of the song from the buffer.
              */
             const from = Number(part["from"]);
 
@@ -732,8 +753,8 @@ class MultiTrackPlayer extends EventTarget {
 
     async initialize() {
         /*
-         * Verhindert, dass ein verzögertes Pause des vorherigen Songs
-         * den neuen Song unterbricht
+         * Prevent a delayed pause event from the previous song from
+         * interrupting the new song.
          */
         this.#cancelCarrierPause();
 
@@ -742,6 +763,7 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         MultiTrackPlayer.#audioTagOwner = this;
+        this.#syncCarrierVolume();
 
         const lifecycleGeneration = ++this.#lifecycleGeneration;
 
@@ -769,7 +791,7 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         /*
-         * Die laufende Wiedergabe soll das Display aktiv halten.
+         * Active playback should keep the screen awake.
          */
         void this.#requestWakeLock();
 
@@ -827,6 +849,7 @@ class MultiTrackPlayer extends EventTarget {
             const wasPlaying = this.#playing;
 
             this.#playing = true;
+            this.#buffering = false;
 
             void this.#requestWakeLock();
 
@@ -867,8 +890,8 @@ class MultiTrackPlayer extends EventTarget {
                 this.#indexes[index]["timeout"] = null;
 
                 /*
-                 * Falls bereits ein weiterer Part eingeplant wurde,
-                 * übernimmt dessen Start-Timeout die Wiedergabe.
+                 * If another segment has already been scheduled, its start timeout
+                 * will take over playback.
                  */
                 const hasTimeouts = Object.keys(this.#getStartTimeouts()).length;
 
@@ -877,8 +900,8 @@ class MultiTrackPlayer extends EventTarget {
                 const till = Number(this.#indexes[index]["till"]);
 
                 /*
-                 * Falls direkt anschliessend bereits ein spielbarer Part vorhanden ist,
-                 * diesen ohne Unterbruch starten.
+                 * If the next segment is already playable, start it immediately
+                 * without interruption.
                  */
                 if (isFinite(till)) {
                     const nextPart = this.getPartByTime(till);
@@ -903,11 +926,9 @@ class MultiTrackPlayer extends EventTarget {
                 }
 
                 /*
-                 * Wenn kein weiterer Part existiert und nur noch die definierte
-                 * End-Toleranz übrig ist, gilt der Song als beendet.
-                 *
-                 * Dadurch entsteht kein Zustand bei welchem 1-2 Sekunden fehlen,
-                 * aber gleichzeitig absichtlich kein weiterer Download gestartet wird.
+                 * If there is no further segment and only the defined end tolerance
+                 * remains, consider the song finished. This avoids leaving 1–2 seconds
+                 * unplayed while deliberately suppressing further downloads.
                  */
                 if (
                     isFinite(till)
@@ -936,11 +957,12 @@ class MultiTrackPlayer extends EventTarget {
                     this.setOffset(this.getPartLength(index), index);
 
                     this.#playing = false;
+                    this.#buffering = true;
                     this.#nextTrackIndex = false;
 
                     /*
-                     * Die Wiedergabe wurde nicht vom Benutzer pausiert.
-                     * Sie wartet auf den noch laufenden Download des nächsten Parts.
+                     * Playback was not paused by the user. It is waiting for the
+                     * next segment to finish downloading.
                      */
                     this.dispatchEvent(new CustomEvent("pause", {
                         detail: {
@@ -994,9 +1016,10 @@ class MultiTrackPlayer extends EventTarget {
 
     pause(bypass = false) {
         const wasPlaying = this.#playing;
+        this.#buffering = false;
 
         /*
-         * Laufende initialize() Aufrufe ungültig machen
+         * Invalidate any ongoing initialize() calls.
          */
         this.#lifecycleGeneration++;
 
@@ -1008,8 +1031,8 @@ class MultiTrackPlayer extends EventTarget {
         this.#nextTrackIndex = false;
 
         /*
-         * Auch während eines laufenden Seek/Downloads muss ein neuer
-         * User Input den bisherigen Zustand vollständig abbrechen können
+         * A new user action must be able to cancel the previous state
+         * entirely, including an active seek or download.
          */
         this.#clearTimeouts();
         this.discardPendingDownloads();
@@ -1060,12 +1083,13 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     /*
-     * Funktion: finish()
-     * Autor: Bernardo de Oliveira
-     *
-     * Beendet den Song und verwirft nicht mehr benötigte Downloads
+     * Function: finish()
+     * Author: Bernardo de Oliveira
+     * 
+     * Finishes the song and discards downloads that are no longer needed.
      */
     finish() {
+        this.#buffering = false;
         this.#clockTime = this.#length;
         this.#clockStartedAt = null;
 
@@ -1078,8 +1102,8 @@ class MultiTrackPlayer extends EventTarget {
         this.dispatchEvent(new Event("end"));
 
         /*
-         * Dem nächsten Song zuerst die Möglichkeit geben den Player zu übernehmen.
-         * Falls keine weitere Wiedergabe startet, wird der Wake Lock freigegeben.
+         * First give the next song a chance to take over playback. If no
+         * further playback starts, release the wake lock.
          */
         setTimeout(() => {
             if (
@@ -1101,6 +1125,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#stopped = true;
         this.#initialPlay = true;
         this.#playing = false;
+        this.#buffering = false;
         this.#nextTrackIndex = false;
         this.#startTime = 0;
 
@@ -1126,8 +1151,8 @@ class MultiTrackPlayer extends EventTarget {
             void this.#releaseWakeLock();
 
             /*
-             * Falls direkt danach ein anderer Player initialisiert wird,
-             * übernimmt dieser den Media Carrier
+             * If another player is initialized immediately afterward, that
+             * player takes over the media carrier.
              */
             this.#scheduleCarrierPause();
         }
@@ -1136,10 +1161,10 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     /*
-      * Funktion: playEvent()
-      * Autor: Bernardo de Oliveira
-      *
-      * Reagiert nur auf einen noch aktuellen Play Status des Media Carriers
+      * Function: playEvent()
+      * Author: Bernardo de Oliveira
+      * 
+      * Responds only to a play event from the currently active media carrier.
       */
     #playEvent() {
         if (
@@ -1154,18 +1179,22 @@ class MultiTrackPlayer extends EventTarget {
 
         if (!this.isPlaying()) {
             this.#initialPlay = true;
+            this.playNext();
+
+            if (this.#playing && "mediaSession" in navigator) {
+                navigator.mediaSession.playbackState = "playing";
+            }
 
             this.#setPositionState();
-            this.playNext();
         }
     }
 
     /*
-     * Funktion: pauseEvent()
-     * Autor: Bernardo de Oliveira
-     *
-     * Ignoriert veraltete Pause Events welche durch schnelles Seeking
-     * erst nach einem erneuten Start ausgelöst werden
+     * Function: pauseEvent()
+     * Author: Bernardo de Oliveira
+     * 
+     * Ignores stale pause events that arrive after playback has already
+     * restarted during rapid seeking.
      */
     #pauseEvent() {
         if (
@@ -1260,11 +1289,32 @@ class MultiTrackPlayer extends EventTarget {
         delete this.#indexes[index];
     }
 
-    setVolume(volume) {
-        this.#volume = volume;
+    #syncCarrierVolume() {
+        if (MultiTrackPlayer.#audioTagOwner !== this) return;
 
-        this.#gainNode.gain.value = volume;
-        this.#audioTag.volume = volume;
+        // volumechange is the only browser-exposed signal for changes to
+        // the carrier's volume/mute properties. The Android system mixer,
+        // Media Session and audio-focus ducking do not expose their gain here.
+        const carrierVolume = Number(this.#audioTag.volume);
+        if (!Number.isFinite(carrierVolume)) return;
+
+        this.#volume = Math.max(0, Math.min(1, carrierVolume));
+        this.#gainNode.gain.value = this.#audioTag.muted ? 0 : this.#volume;
+
+        // A change originating outside the volume slider should also update
+        // the visible slider. This does not write the user's volume cookie.
+        this.dispatchEvent(new CustomEvent("volumechange", {
+            detail: {
+                volume: this.#volume,
+                muted: this.#audioTag.muted
+            }
+        }));
+    }
+
+    setVolume(volume) {
+        this.#volume = Math.max(0, Math.min(1, Number(volume) || 0));
+        this.#gainNode.gain.value = this.#audioTag.muted ? 0 : this.#volume;
+        this.#audioTag.volume = this.#volume;
     }
 
     getOffset(index) {
@@ -1314,6 +1364,16 @@ class MultiTrackPlayer extends EventTarget {
 
     isPlaying() {
         return this.#playing;
+    }
+
+    isBuffering() {
+        return this.#buffering;
+    }
+
+    // Called only for an explicit user-requested start which must wait for
+    // the first audio segment (never for background preloading).
+    requestBuffering() {
+        this.#buffering = true;
     }
 
     isDecoding() {
@@ -1396,12 +1456,12 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     /*
-      * Funktion: reset()
-      * Autor: Bernardo de Oliveira
-      * Argumente:
-      *  dispatch: (Boolean) Gibt an ob ein Timeupdate ausgelöst werden soll
-      *
-      * Setzt den Wiedergabestatus auf den Songanfang zurück
+      * Function: reset()
+      * Author: Bernardo de Oliveira
+      * Arguments:
+      *  dispatch: (Boolean) Whether to emit a timeupdate event
+      * 
+      * Resets playback state to the beginning of the song.
       */
     reset(dispatch = true) {
         if (this.isPlaying()) return;
@@ -1416,8 +1476,7 @@ class MultiTrackPlayer extends EventTarget {
         this.#isDecoding = false;
 
         /*
-         * Neuen Controller erstellen bevor der bisherige Worker
-         * abgebrochen wird
+         * Create the new controller before aborting the previous worker.
          */
         this.#abortController = new AbortController();
         this.#abortSignal = this.#abortController.signal;
@@ -1428,11 +1487,11 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     /*
-     * Funktion: discardPendingDownloads()
-     * Autor: Bernardo de Oliveira
-     *
-     * Bricht den aktuellen Download ab und entfernt alle noch nicht
-     * fertig verarbeiteten Parts. Bereits fertige Audio Buffer bleiben erhalten.
+     * Function: discardPendingDownloads()
+     * Author: Bernardo de Oliveira
+     * 
+     * Cancels the current download and removes all segments not yet fully
+     * processed. Already decoded audio buffers are retained.
      */
     discardPendingDownloads() {
         this.#abortDownload();
@@ -1462,8 +1521,8 @@ class MultiTrackPlayer extends EventTarget {
         }
 
         /*
-         * Download und Decode Lifecycle ist unabhängig vom Playback Lifecycle
-         * Dadurch können auch nicht aktive Player Songs vorladen
+         * The download and decoding lifecycle is independent of the playback
+         * lifecycle. Inactive players may preload songs as well.
          */
         const generation = this.#decodeGeneration;
         const signal = this.#abortSignal;
@@ -1486,12 +1545,12 @@ class MultiTrackPlayer extends EventTarget {
                     && Object.prototype.hasOwnProperty.call(decodingQueue, this.#waitIndex)
                 ) {
                     /*
-                     * Explizite User Aktion hat Priorität
+                     * Explicit user actions take priority.
                      */
                     queueIndex = String(this.#waitIndex);
                 } else {
                     /*
-                     * Normales Buffering chronologisch abarbeiten
+                     * Process normal buffering requests in chronological order.
                      */
                     queueIndex = queueIndexes[0];
                 }
@@ -1518,7 +1577,7 @@ class MultiTrackPlayer extends EventTarget {
                 let decodedBuffer;
 
                 /*
-                 * Audio herunterladen
+                 * Download the audio segment.
                  */
                 try {
                     response = await fetch(url, {
@@ -1567,7 +1626,7 @@ class MultiTrackPlayer extends EventTarget {
                 }
 
                 /*
-                 * Audio decodieren
+                 * Decode the audio segment.
                  */
                 try {
                     decodedBuffer = await audioContext.decodeAudioData(arrayBuffer);
@@ -1656,8 +1715,8 @@ class MultiTrackPlayer extends EventTarget {
                 }
 
                 /*
-                 * Nach Pruning kann der gespeicherte Index nicht mehr existieren.
-                 * Sobald der passende Part wieder geladen wurde, diesen übernehmen.
+                 * After pruning, the stored index may no longer exist. As soon as
+                 * the matching segment has been loaded again, adopt it.
                  */
                 if (
                     !isFinite(this.#currentTrackIndex)
@@ -1672,8 +1731,8 @@ class MultiTrackPlayer extends EventTarget {
 
                 if (bufferIndex === this.#waitIndex) {
                     /*
-                     * Priorität vor dem Event freigeben
-                     * Event Handler dürfen danach sofort einen anderen Part starten
+                     * Release priority before dispatching the event so event handlers
+                     * can immediately start another segment.
                      */
                     this.#waitIndex = null;
 
@@ -1707,8 +1766,7 @@ class MultiTrackPlayer extends EventTarget {
             }
         } finally {
             /*
-             * Ein alter Worker darf den Status eines neueren Workers
-             * niemals zurücksetzen
+             * An old worker must never reset the state of a newer worker.
              */
             if (generation === this.#decodeGeneration) {
                 this.#isDecoding = false;
@@ -1742,12 +1800,12 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     /*
-     * Funktion: createSilence()
-     * Autor: ktcy (https://gist.github.com/ktcy/1e981cfee7a309beebb33cdab1e29715)
-     * Argumente:
-     *  seconds: (Integer) Definiert die Dauer des Platzhalters
-     *
-     * Erstellt einen Platzhalter für die MediaSession API
+     * Function: createSilence()
+     * Author: ktcy (https://gist.github.com/ktcy/1e981cfee7a309beebb33cdab1e29715)
+     * Arguments:
+     *  seconds: (Integer) Duration of the placeholder in seconds
+     * 
+     * Creates a silent placeholder for the Media Session API.
      */
     #createSilence(seconds = 1) {
         const sampleRate = 8000;

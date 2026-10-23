@@ -9,8 +9,8 @@ const IMAGES_CACHE = "bernardofm-images-" + CACHE_VERSION;
 const MAX_CACHE_SIZE = 4500;
 
 /*
- * Dynamic endpoints which must never be stored in Cache Storage
- * and must always request fresh data from the server.
+ * Dynamische Endpunkte dürfen niemals im Cache Storage gespeichert
+ * werden. Sie müssen ihre Daten immer frisch vom Server abrufen.
  */
 const NETWORK_ONLY_PATHS = [
     "/system/firewall",
@@ -19,10 +19,9 @@ const NETWORK_ONLY_PATHS = [
 ];
 
 /*
- * Known application resources.
- *
- * Other CSS/JS/fonts/etc. do not need to be listed here.
- * They are handled automatically based on request.destination.
+ * Bekannte Anwendungsressourcen. Andere CSS-/JS-Dateien, Schriftarten usw.
+ * müssen hier nicht aufgeführt werden. Sie werden automatisch anhand
+ * von request.destination behandelt.
  */
 const APPLICATION = [
     "/",
@@ -47,9 +46,7 @@ const APPLICATION = [
 
 
 /*
- * ================================================================
- * L7 PROTECTION
- * ================================================================
+ * L7-SCHUTZ
  */
 
 function isL7Challenge(response) {
@@ -82,13 +79,13 @@ async function notifyL7Challenge(clientId) {
 }
 
 /*
- * Fetch a request and check whether the L7 protection layer asks
- * the browser to perform a challenge.
- *
+ * Führt die Anfrage aus und prüft, ob der L7-Schutz vom Browser eine
+ * Challenge verlangt.
+ * 
  * forceNoStore:
- *
- * true  = also bypass the browser HTTP cache
- * false = use the request's normal HTTP cache behaviour
+ * 
+ * true  = zusätzlich den HTTP-Cache des Browsers umgehen
+ * false = die normale HTTP-Cache-Behandlung der Anfrage verwenden
  */
 async function fetchRequest(
     request,
@@ -119,21 +116,19 @@ async function fetchRequest(
 
 
 /*
- * ================================================================
- * PATH HELPERS
- * ================================================================
+ * HILFSFUNKTIONEN FÜR PFADE
  */
 
 /*
- * Returns true for:
- *
+ * Gibt für folgende Pfade true zurück:
+ * 
  * /system/firewall
  * /system/firewall/...
- *
+ * 
  * /system/monitoring
  * /system/monitoring/...
- *
- * Query strings do not matter because URL.pathname excludes them.
+ * 
+ * Abfrageparameter spielen keine Rolle, da URL.pathname sie ausschliesst.
  */
 function isNetworkOnlyPath(pathname) {
     return NETWORK_ONLY_PATHS.some(path => {
@@ -146,9 +141,7 @@ function isNetworkOnlyPath(pathname) {
 
 
 /*
- * ================================================================
- * CACHE HELPERS
- * ================================================================
+ * HILFSFUNKTIONEN FÜR DEN CACHE
  */
 
 function isCacheableResponse(response) {
@@ -166,11 +159,9 @@ async function putCache(cache, request, response) {
     const requestUrl = new URL(request.url);
 
     /*
-     * This is an additional safety check.
-     *
-     * Even if one of the cache strategies accidentally receives a
-     * dynamic endpoint in the future, it still cannot be written to
-     * Cache Storage.
+     * Zusätzliche Sicherheitsprüfung: Selbst wenn eine Cache-Strategie
+     * zukünftig versehentlich einen dynamischen Endpunkt erhält, darf sie
+     * diesen nicht im Cache Storage speichern.
      */
     if (isNetworkOnlyPath(requestUrl.pathname)) {
         return;
@@ -189,15 +180,15 @@ async function putCache(cache, request, response) {
 }
 
 /*
- * Remove cache versions which no longer belong to this deployment.
- *
- * Example when moving from v2 to v3:
- *
+ * Entfernt Cache-Versionen, die nicht mehr zur aktuellen Bereitstellung gehören.
+ * 
+ * Beispiel beim Wechsel von v2 auf v3:
+ * 
  * bernardofm-app-v2
  * bernardofm-extra-v2
  * bernardofm-images-v2
- *
- * are deleted.
+ * 
+ * werden gelöscht.
  */
 async function clearOldCaches() {
     const currentCaches = [
@@ -219,13 +210,11 @@ async function clearOldCaches() {
 }
 
 /*
- * Remove dynamic system endpoints from existing caches.
- *
- * This handles stale entries which may have been stored by an older
- * service-worker version.
- *
- * It deliberately scans every bernardofm-* cache because an endpoint
- * may previously have ended up in a different cache.
+ * Entfernt dynamische Systemendpunkte aus bestehenden Caches.
+ * 
+ * Damit werden veraltete Einträge früherer Service-Worker-Versionen
+ * bereinigt. Alle bernardofm-*-Caches werden geprüft, weil ein Endpunkt
+ * früher auch in einem anderen Cache gelandet sein könnte.
  */
 async function removeNetworkOnlyEntriesFromCaches() {
     const cacheNames = await caches.keys();
@@ -250,17 +239,13 @@ async function removeNetworkOnlyEntriesFromCaches() {
 
 
 /*
- * ================================================================
- * CACHE STRATEGIES
- * ================================================================
+ * CACHE-STRATEGIEN
  */
 
 /*
- * Always fetch from the real server.
- *
- * Cache Storage is never read or written.
- *
- * Browser HTTP caching is bypassed as well.
+ * Daten immer direkt vom Server abrufen. Cache Storage wird
+ * weder gelesen noch beschrieben. Auch der HTTP-Cache des Browsers
+ * wird umgangen.
  */
 async function networkOnly(request, clientId) {
     return fetchRequest(
@@ -272,13 +257,10 @@ async function networkOnly(request, clientId) {
 }
 
 /*
- * Try the real server first.
- *
- * Successful responses are stored in Cache Storage so they are available
- * as an offline fallback.
- *
- * Browser HTTP caching is bypassed during the network attempt, therefore
- * "network first" really means fetching a fresh response from the server.
+ * Zuerst den Server anfragen. Erfolgreiche Antworten werden als
+ * Offline-Fallback im Cache Storage gespeichert. Während der
+ * Netzwerkanfrage wird der HTTP-Cache umgangen. Damit bedeutet
+ * «Netzwerk zuerst» tatsächlich eine frische Antwort vom Server.
  */
 async function networkFirst(
     request,
@@ -309,7 +291,8 @@ async function networkFirst(
         let cachedResponse = await cache.match(request);
 
         /*
-         * Navigations can fall back to the cached application root.
+         * Bei Navigationen kann auf die zwischengespeicherte
+         * Anwendungsstartseite zurückgegriffen werden.
          */
         if (
             !cachedResponse
@@ -327,12 +310,9 @@ async function networkFirst(
 }
 
 /*
- * Return Cache Storage immediately when available.
- *
- * The server is only contacted when the requested resource is not already
- * stored in Cache Storage.
- *
- * Suitable for images, fonts and other rarely changing resources.
+ * Falls vorhanden, den Eintrag sofort aus Cache Storage zurückgeben.
+ * Nur wenn er dort fehlt, wird der Server kontaktiert. Geeignet für
+ * Bilder, Schriftarten und andere selten geänderte Ressourcen.
  */
 async function cacheFirst(
     request,
@@ -369,19 +349,15 @@ async function cacheFirst(
 
 
 /*
- * ================================================================
- * INSTALL
- * ================================================================
+ * INSTALLATION
  */
 
 self.addEventListener("install", event => {
     event.waitUntil(
         (async () => {
             /*
-             * Create all caches immediately.
-             *
-             * This also makes them visible in DevTools before runtime
-             * resources have been requested.
+             * Alle Caches sofort erstellen, damit sie auch in DevTools sichtbar
+             * sind, bevor die ersten Ressourcen angefordert wurden.
              */
             const applicationCache = await caches.open(
                 APPLICATION_CACHE
@@ -391,10 +367,9 @@ self.addEventListener("install", event => {
             await caches.open(IMAGES_CACHE);
 
             /*
-             * Precache known application resources individually.
-             *
-             * A single unavailable resource must not make installation
-             * of the entire service worker fail.
+             * Bekannte Anwendungsressourcen einzeln vorab zwischenspeichern.
+             * Eine einzelne nicht verfügbare Ressource darf die Installation
+             * des gesamten Service Workers nicht verhindern.
              */
             for (const path of APPLICATION) {
                 try {
@@ -413,16 +388,15 @@ self.addEventListener("install", event => {
                     }
                 } catch (error) {
                     /*
-                     * Ignore individual precache failures.
-                     *
-                     * The resource can still be requested normally later.
+                     * Fehler beim Vorab-Zwischenspeichern einzelner Ressourcen ignorieren.
+                     * Die Ressource kann später weiterhin normal angefordert werden.
                      */
                 }
             }
 
             /*
-             * Activate this service worker without waiting for all existing
-             * tabs to close.
+             * Diesen Service Worker aktivieren, ohne auf das Schliessen aller
+             * offenen Tabs zu warten.
              */
             await self.skipWaiting();
         })()
@@ -431,31 +405,27 @@ self.addEventListener("install", event => {
 
 
 /*
- * ================================================================
- * ACTIVATE
- * ================================================================
+ * AKTIVIERUNG
  */
 
 self.addEventListener("activate", event => {
     event.waitUntil(
         (async () => {
             /*
-             * Delete cache versions from previous deployments.
+             * Cache-Versionen früherer Bereitstellungen löschen.
              */
             await clearOldCaches();
 
             /*
-             * Also explicitly remove stale copies of dynamic system data.
-             *
-             * This protects against an older service worker having cached:
-             *
-             * /system/firewall
-             * /system/monitoring
+             * Zusätzlich veraltete Kopien dynamischer Systemdaten entfernen.
+             * Damit wird verhindert, dass ein älterer Service Worker die Endpunkte
+             * /system/firewall und /system/monitoring zwischengespeichert lässt.
              */
             await removeNetworkOnlyEntriesFromCaches();
 
             /*
-             * Immediately take control of currently open pages.
+             * Bereits geöffnete Seiten sofort unter die Kontrolle dieses
+             * Service Workers stellen.
              */
             await self.clients.claim();
         })()
@@ -464,9 +434,7 @@ self.addEventListener("activate", event => {
 
 
 /*
- * ================================================================
- * FETCH
- * ================================================================
+ * ANFRAGEN
  */
 
 self.addEventListener("fetch", event => {
@@ -474,7 +442,7 @@ self.addEventListener("fetch", event => {
     const requestUrl = new URL(request.url);
 
     /*
-     * Never handle browser extensions.
+     * Anfragen von Browsererweiterungen nicht behandeln.
      */
     if (
         requestUrl.protocol === "chrome-extension:"
@@ -484,20 +452,17 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * Only manage requests belonging to this origin.
-     *
-     * External resources continue through the browser normally.
+     * Nur Anfragen vom eigenen Ursprung verwalten. Externe Ressourcen
+     * werden weiterhin normal vom Browser behandelt.
      */
     if (requestUrl.origin !== self.location.origin) {
         return;
     }
 
     /*
-     * POST/PUT/PATCH/DELETE/etc. always reach the real server.
-     *
-     * They are never placed into Cache Storage.
-     *
-     * L7 challenge detection is still performed.
+     * POST-/PUT-/PATCH-/DELETE-Anfragen erreichen immer den Server und
+     * werden niemals im Cache Storage gespeichert. Die Prüfung auf eine
+     * L7-Challenge erfolgt dennoch.
      */
     if (request.method !== "GET") {
         event.respondWith(
@@ -511,23 +476,13 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * ============================================================
-     * LIVE SYSTEM DATA
-     * ============================================================
-     *
-     * These endpoints are deliberately checked BEFORE every cache
-     * strategy.
-     *
-     * They:
-     *
-     * - never read from Cache Storage
-     * - never write to Cache Storage
-     * - bypass the browser HTTP cache
-     *
-     * This applies to:
-     *
-     * /system/firewall
-     * /system/monitoring
+     * DYNAMISCHE SYSTEMDATEN
+     * 
+     * Diese Endpunkte werden absichtlich VOR jeder Cache-Strategie geprüft.
+     * Sie lesen niemals aus Cache Storage, schreiben niemals hinein und
+     * umgehen den HTTP-Cache des Browsers.
+     * 
+     * Das gilt für /system/firewall und /system/monitoring.
      */
     if (isNetworkOnlyPath(requestUrl.pathname)) {
         event.respondWith(
@@ -541,10 +496,9 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * Explicit cache:no-store requests always reach the real server.
-     *
-     * This is useful for callers such as:
-     *
+     * Anfragen mit ausdrücklichem cache: "no-store" gehen immer direkt
+     * an den Server. Das ist beispielsweise für folgenden Aufruf sinnvoll:
+     * 
      * fetch(url, {
      *     cache: "no-store"
      * });
@@ -561,14 +515,10 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * ============================================================
      * NAVIGATION
-     * ============================================================
-     *
-     * Try the server first.
-     *
-     * If the network is unavailable, use the cached page/application
-     * shell as a fallback.
+     * 
+     * Zuerst den Server anfragen. Falls das Netzwerk nicht verfügbar ist,
+     * auf die zwischengespeicherte Seite bzw. Anwendungshülle zurückgreifen.
      */
     if (request.mode === "navigate") {
         event.respondWith(
@@ -584,16 +534,11 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * ============================================================
      * API
-     * ============================================================
-     *
-     * API data should normally be fresh.
-     *
-     * Network-first still provides an offline fallback.
-     *
-     * If you have APIs which must NEVER use stale data, add those
-     * endpoints to NETWORK_ONLY_PATHS instead.
+     * 
+     * API-Daten sollten normalerweise aktuell sein. Die Netzwerk-zuerst-
+     * Strategie bietet dennoch einen Offline-Fallback. Endpunkte, die NIEMALS
+     * veraltete Daten verwenden dürfen, gehören stattdessen in NETWORK_ONLY_PATHS.
      */
     if (requestUrl.pathname.startsWith("/api/")) {
         event.respondWith(
@@ -608,15 +553,12 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * ============================================================
-     * APPLICATION CODE
-     * ============================================================
-     *
-     * JavaScript/CSS/manifests/workers are network-first.
-     *
-     * This is important because cache-first would otherwise keep an old
-     * firewall.min.js or monitoring.min.js indefinitely until the cache
-     * was manually deleted or CACHE_VERSION changed.
+     * ANWENDUNGSCODE
+     * 
+     * JavaScript-, CSS-, Manifest- und Worker-Dateien verwenden die
+     * Netzwerk-zuerst-Strategie. Mit Cache zuerst würden etwa
+     * firewall.min.js und monitoring.min.js möglicherweise unbegrenzt
+     * veraltet bleiben, bis der Cache geleert oder CACHE_VERSION geändert wird.
      */
     if (
         request.destination === "script"
@@ -637,11 +579,9 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * ============================================================
-     * FONTS
-     * ============================================================
-     *
-     * Fonts rarely change and are suitable for cache-first.
+     * SCHRIFTARTEN
+     * 
+     * Schriftarten ändern sich selten und eignen sich für Cache zuerst.
      */
     if (request.destination === "font") {
         event.respondWith(
@@ -656,11 +596,9 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * ============================================================
-     * IMAGES
-     * ============================================================
-     *
-     * Images use their own cache and are served cache-first.
+     * BILDER
+     * 
+     * Bilder verwenden einen eigenen Cache und werden mit Cache zuerst ausgeliefert.
      */
     if (
         request.destination === "image"
@@ -685,12 +623,10 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * ============================================================
-     * KNOWN APPLICATION RESOURCES
-     * ============================================================
-     *
-     * Known HTML/application files are also network-first so a deployment
-     * is picked up without requiring the user to clear Cache Storage.
+     * BEKANNTE ANWENDUNGSRESSOURCEN
+     * 
+     * Bekannte HTML- und Anwendungsdateien verwenden ebenfalls Netzwerk zuerst,
+     * damit neue Versionen ohne manuelles Leeren von Cache Storage geladen werden.
      */
     if (APPLICATION.includes(requestUrl.pathname)) {
         event.respondWith(
@@ -705,14 +641,11 @@ self.addEventListener("fetch", event => {
     }
 
     /*
-     * ============================================================
-     * OTHER SAME-ORIGIN RESOURCES
-     * ============================================================
-     *
-     * Unknown resources are network-first rather than cache-first.
-     *
-     * This prevents accidentally turning an unknown dynamic endpoint into
-     * a permanently stale Cache Storage entry.
+     * SONSTIGE RESSOURCEN DES EIGENEN URSPRUNGS
+     * 
+     * Unbekannte Ressourcen werden mit Netzwerk zuerst behandelt. So wird
+     * verhindert, dass ein unbekannter dynamischer Endpunkt versehentlich
+     * dauerhaft veraltet im Cache Storage landet.
      */
     event.respondWith(
         networkFirst(

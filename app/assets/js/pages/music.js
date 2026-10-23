@@ -197,7 +197,7 @@ const menuItems = {
 document.addEventListener("click", hideContext);
 
 
-// TODO: Comment
+// TODO: Kommentar ergänzen
 async function playAction(card) {
     if (!card.dataset.id) {
         return;
@@ -508,7 +508,7 @@ bindEvent("touchstart", "#playingCover", function (event) {
         const rect = element.getBoundingClientRect();
         const isRight = touch.clientX > rect.left + rect.width / 2;
 
-        // Double tap
+        // Doppeltippen
         seek(isRight ? 10 : -10);
     }
 
@@ -527,7 +527,7 @@ bindEvent("dblclick", "#playingCover", function (event) {
     const rect = element.getBoundingClientRect();
     const isRight = event.clientX > rect.left + rect.width / 2;
 
-    // Double click
+    // Doppelklick
     seek(isRight ? 10 : -10);
 });
 
@@ -622,7 +622,7 @@ bindEvent("click", ".scrollBack", function () {
  * Dazu da damit genug viele Lieder angezeigt werden
  */
 window.addEventListener("resize", function () {
-    // TODO: Update logic to only download the other songs if needed
+    // TODO: Nur bei Bedarf weitere Songs herunterladen
     let newWidth = getWidth();
     if (width !== newWidth) {
         width = newWidth;
@@ -666,10 +666,10 @@ window["music"] = async () => {    /*
      *
      * Setzt den je nach Lautstärke das richtige Icon und den richtigen Wert (UI)
      */
-    let volumeSlider = document.getElementsByClassName("volume")[0].querySelector(".volumeSlider");
-    let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
+    let volumeSlider = document.getElementsByClassName("volume")[0].querySelector(".volumeSlider");;
     volumeSlider.value = volume * 100;
-    setVolumeIcon(volumeIcon, volumeSlider);
+
+    setVolumeIcon(prev(volumeSlider.closest(".volumeBackground")), volumeSlider);
 
     /*
      * Author: Bernardo de Oliveira

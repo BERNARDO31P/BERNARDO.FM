@@ -6,6 +6,7 @@ let currentHover = null, playIndex = 0, playlist = [], volume = 0, previousVolum
 let playlistID = null;
 
 let onInfoCallback = null;
+let songDataUpdateGeneration = 0;
 
 let lastScroll = 0;
 let overflowTimeout = null;
@@ -46,7 +47,7 @@ if (!theme) {
 }
 document.getElementsByTagName("html")[0].setAttribute("data-theme", theme);
 
-// TODO: Comment
+// TODO: Kommentar ergänzen
 HTMLElement.prototype.animateCallback = function (keyframes, options, callback) {
     let animation = this.animate(keyframes, options);
 
@@ -55,7 +56,7 @@ HTMLElement.prototype.animateCallback = function (keyframes, options, callback) 
     }
 }
 
-// TODO: Comment
+// TODO: Kommentar ergänzen
 function deleteMultiple(object, toDelete) {
     for (const id of toDelete) {
         delete object[id];
@@ -533,7 +534,7 @@ function showConfirmation(title, message, acceptCallback = () => {
     cancelButton.addEventListener("click", cancel);
 }
 
-// TODO: Comment
+// TODO: Kommentar ergänzen
 function hideConfirmation() {
     const transparent = document.getElementById('transparent');
 
@@ -549,7 +550,7 @@ function hideConfirmation() {
     html.style.overflow = "initial";
 }
 
-// TODO: Comment
+// TODO: Kommentar ergänzen
 function createElementFromHTML(htmlString) {
     const div = document.createElement('div');
     div.innerHTML = htmlString.trim();
@@ -1021,8 +1022,7 @@ function setVolume(volume) {
     playlist[playIndex]["player"].setVolume(volume);
     volumeSlider.value = volume * 100;
 
-    let volumeIcon = prev(volumeSlider.closest(".volumeBackground"));
-    setVolumeIcon(volumeIcon, volumeSlider);
+    setVolumeIcon(prev(volumeSlider.closest(".volumeBackground")), volumeSlider);
     setCookie("volume", volume, getExpireTime(8));
     setCookie("muted", false, getExpireTime(8));
 }
@@ -1123,9 +1123,11 @@ function getLengthByString(stringTime) {
     return length;
 }
 
-// TODO: Comment
+// TODO: Kommentar ergänzen
 async function updateSongData() {
+    const generation = ++songDataUpdateGeneration;
     let song = playlist[playIndex];
+    if (!song) return;
     let length = getLengthByString(song["length"]);
 
     let songLength = document.querySelector("#timeInfo #length");
@@ -1148,9 +1150,13 @@ async function updateSongData() {
     playerHTML.style.display = "initial";
 
     let data = await httpGetJSON(pageURL + "system/info/" + song["id"]);
+
+    // Eine verspätete Antwort zum vorherigen Song darf die Oberfläche des aktuell abgespielten Songs nicht überschreiben.
+    if (generation !== songDataUpdateGeneration || playlist[playIndex] !== song) return;
+
     let infoBox = queueView.querySelector("#info");
 
-    if (Object.keys(data).length) {
+    if (data && Object.keys(data).length) {
         infoBox.innerHTML = "";
         for (let info of Object.values(data)) {
             if (!info || typeof info["name"] === "undefined") {
@@ -1172,6 +1178,49 @@ async function updateSongData() {
 }
 
 /*
+ * Nach der Rückkehr aus einer anderen App die sichtbare Ansicht
+ * aktualisieren. Passive Zeitaktualisierungen dürfen nicht über
+ * onTimelineRelease() laufen: Die Funktion sucht eine Position und startet
+ * die Wiedergabe, selbst nach einer absichtlichen Pause über Media Session.
+ */
+function refreshPlayerState() {
+    const song = playlist[playIndex];
+    const player = song?.["player"];
+    if (!player) return;
+
+    // Titel, Cover, Song, Künstler, Dauer, Beschreibung und Warteschlange aktualisieren.
+    void updateSongData();
+
+    // Massgebend sind der aktuell aktive (gegebenenfalls andere) Song und dessen tatsächliche Wiedergabeposition.
+    const title = document.querySelector("title");
+    const suffix = title.textContent.split(" - ").slice(1).join(" - ");
+    if (suffix) title.textContent = song["name"] + " - " + suffix;
+
+    const isPlaying = player.isPlaying();
+    playPauseButton(isPlaying ? "play" : (player.isBuffering() ? "load" : "pause"));
+    updatePlaying();
+
+    if (isPlaying) {
+        player.addTimeUpdate();
+    } else {
+        player.removeTimeUpdate();
+    }
+
+    // Genau eine Zeitaktualisierung ohne Änderungen an der Wiedergabe auslösen,
+    // auch wenn die Wiedergabe pausiert oder der Song im Hintergrund beendet wurde.
+    player.refreshTimeUpdate();
+
+    // updateSongData() aktualisiert die Warteschlange asynchron. Diese direkte
+    // Aktualisierung gleicht bei der Rückkehr auch die Animation der bestehenden Zeile ab.
+    const animation = document.querySelector("#queueView .lds-facebook");
+    if (animation) {
+        for (const div of animation.querySelectorAll("div")) {
+            div.style.animationPlayState = isPlaying ? "running" : "paused";
+        }
+    }
+}
+
+/*
  * Funktion: play()
  * Autor: Bernardo de Oliveira
  *
@@ -1188,6 +1237,18 @@ function play() {
     }
 
     const player = playlist[playIndex]["player"];
+
+    // Nur eine ausdrückliche Wiedergabeaktion startet einen beendeten Song erneut.
+    // Bis dahin muss die Endposition auch nach einem Seitenwechsel sichtbar bleiben.
+    if (!player.isPlaying() && player.getCurrentTime() >= player.getDuration()) {
+        player.reset(false);
+
+        if (!timeIsPlayable(playIndex, 0)) {
+            playPauseButton("load");
+            bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET, true);
+            return;
+        }
+    }
 
     /*
      * Falls die Wiedergabe genau am Ende eines alten Parts steht,
@@ -1483,7 +1544,7 @@ function onTimelinePress() {
     }
 }
 
-// Checks if the event occurred on the element with a 40px buffer
+// Prüft, ob das Ereignis auf dem Element innerhalb eines Puffers von 40 px liegt.
 function onElement(element, event) {
     const buffer = 40;
 
@@ -1614,7 +1675,7 @@ function timeIsPlayable(sIndex, time) {
     return partInfo[2] !== null && song["player"].partIsPlayable(partInfo[2]);
 }
 
-// TODO: Comment
+// TODO: Kommentar ergänzen
 function partIsPlayable(sIndex, pIndex) {
     const song = playlist[sIndex];
 
@@ -1759,10 +1820,18 @@ function bufferSong(sIndex, time = 0, target = AUDIO_BUFFER_TARGET, priority = f
 
         downloadPart(time, sIndex, 0, length, priority);
 
+        if (sIndex === playIndex && getCurrentButton() === "load") {
+            song["player"]?.requestBuffering();
+        }
+
         return;
     }
 
     const player = song["player"];
+
+    if (sIndex === playIndex && getCurrentButton() === "load") {
+        player.requestBuffering();
+    }
 
     if (player.isDecoding() && !priority) return;
 
@@ -1836,7 +1905,7 @@ function prepareNextPart() {
          * Falls die Wiedergabe wegen Buffering angehalten wurde und der
          * aktuelle Teil wieder verfügbar ist, diesen direkt starten
          */
-        if (!player.isPlaying() && isFinite(nextTime) && player.getCurrentTime() < nextTime) {
+        if (player.isBuffering() && isFinite(nextTime) && player.getCurrentTime() < nextTime) {
             play();
             return;
         }
@@ -1849,7 +1918,7 @@ function prepareNextPart() {
                 /*
                  * Der vorherige Teil ist bereits beendet
                  */
-                if (!player.isPlaying() && player.getCurrentTime() >= nextTime) {
+                if (player.isBuffering() && player.getCurrentTime() >= nextTime) {
                     player.setOffset(0, nextPartIndex);
                     player.setCurrentIndex(nextPartIndex);
                     player.setCurrentTime(nextTime, true);
@@ -1910,7 +1979,7 @@ function preloadNextSong() {
  * Funktion: maintainAudioBuffer()
  * Autor: Bernardo de Oliveira
  *
- * Hält den Audio Buffer zwischen Low und Target
+ * Hält den Audiobuffer zwischen Low und Target
  * Sobald Low unterschritten wird, wird bis Target nachgeladen
  */
 function maintainAudioBuffer() {
@@ -2042,14 +2111,9 @@ function addEvents(player) {
          * Repeat ist deaktiviert und es existiert kein weiterer Song
          */
         if (repeatMode === 0 && nextIndex === playIndex) {
+            // Den beendeten Song an seiner tatsächlichen Endposition belassen.
+            // Das Zurücksetzen auf null sah nach der Rückkehr wie ein Neustart aus.
             pauseSong();
-
-            /*
-             * Nicht davon ausgehen, dass Part Index 0 noch existiert.
-             * Durch Pruning kann der Songanfang entfernt worden sein.
-             */
-            player.reset(false);
-
             return;
         }
 
@@ -2087,7 +2151,8 @@ function addEvents(player) {
         }
 
         /*
-         * A pending seek always has priority over normal sequential loading.
+         * Eine ausstehende Positionsänderung hat immer Vorrang vor dem
+         * normalen sequenziellen Laden.
          */
         if (pendingSeek !== null && pendingSeek["player"] === player) {
             const partInfo = player.getPartByTime(pendingSeek["time"]);
@@ -2105,7 +2170,7 @@ function addEvents(player) {
             }
 
             /*
-             * Do not run prepareNextPart() while waiting for the seek target.
+             * prepareNextPart() während des Wartens auf die Zielposition nicht aufrufen.
              */
             return;
         }
@@ -2176,25 +2241,36 @@ function addEvents(player) {
         }
     });
 
+    player.addEventListener("volumechange", (e) => {
+        if (playlist[playIndex]?.["player"] !== player) return;
+
+        // Nur Änderungen von HTMLMediaElement.volume/muted sind beobachtbar. Die
+        // Systemlautstärke und die Lautstärkeabsenkung regelt Android ausserhalb von JavaScript.
+        volume = e.detail.volume;
+        const volumeSlider = document.querySelector("#player .volumeSlider");
+        if (!volumeSlider) return;
+
+        volumeSlider.value = (e.detail.muted ? 0 : volume) * 100;
+        setVolumeIcon(prev(volumeSlider.closest(".volumeBackground")), volumeSlider);
+    });
+
     player.addEventListener("timeupdate", (e) => {
+        if (playlist[playIndex]?.["player"] !== player) return;
+
         if (!document.hidden) {
             const timeline = document.getElementById("timeline");
             timeline.value = e.detail.value;
         }
 
-        if (typeof playlist[playIndex] !== "undefined" && playlist[playIndex]["player"] === player) {
+        // Nur laufende Wiedergabe oder Pufferung dürfen weitere Downloads planen.
+        // Ein timeupdate eines pausierten Players (auch bei Rückkehr auf die Seite)
+        // darf NIEMALS die Wiedergabeposition ändern, play() aufrufen oder selbständig fortsetzen.
+        if (player.isPlaying() || player.isBuffering()) {
             const now = performance.now();
-
             if (now - lastAudioBufferCheck >= AUDIO_BUFFER_CHECK_INTERVAL) {
                 lastAudioBufferCheck = now;
-
                 maintainAudioBuffer();
             }
-        }
-
-        if (e.detail.empty && getCurrentButton() !== "play") {
-            player.removeTimeUpdate();
-            onTimelineRelease(player.getCurrentTime());
         }
     });
 }
@@ -2296,7 +2372,7 @@ async function generatePlaylistInfo(song) {
     return info;
 }
 
-// TODO: Comment
+// TODO: Kommentar ergänzen
 function getTextWidth(text, font, size) {
     const tempElement = document.createElement("span");
     tempElement.innerHTML = text;
@@ -2466,7 +2542,7 @@ async function generateTableBody(data, columns, tbody = null, cover = null, call
     return tbody;
 }
 
-// TODO: Comment
+// TODO: Kommentar ergänzen
 function setPositionState(length, position) {
     if ('mediaSession' in navigator) {
         navigator.mediaSession.setPositionState({
