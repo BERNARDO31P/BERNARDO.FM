@@ -62,12 +62,12 @@
                 <div class="seek-label right-label"></div>
             </div>
             <div id="queueInfo">
-                <div class="btns">
-                    <button class="btn queue active">Queue</button>
-                    <button class="btn info">Description</button>
+                <div class="btns" role="tablist" aria-label="Playlist view">
+                    <button class="btn queue active" type="button" role="tab" aria-selected="true" aria-controls="queue" id="queueTab">Queue</button>
+                    <button class="btn info" type="button" role="tab" aria-selected="false" aria-controls="info" id="infoTab">Description</button>
                 </div>
-                <div id="queue"></div>
-                <div id="info"></div>
+                <div id="queue" role="tabpanel" aria-labelledby="queueTab"></div>
+                <div id="info" role="tabpanel" aria-labelledby="infoTab"></div>
             </div>
         </div>
     </div>

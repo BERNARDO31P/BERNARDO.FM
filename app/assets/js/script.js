@@ -552,40 +552,35 @@ bindEvent("focusout", "#search", function () {
 });
 
 /*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
+ * Funktion: showQueueViewSection()
  *
- * Wechselt die Ansicht in der Wiedergabenliste zur Liste
+ * Wechselt zwischen Wiedergabeliste und Beschreibung, ohne die
+ * Wiedergabe oder die bereits geladene Wiedergabeliste zu verändern.
  */
-bindEvent("click", "#queueInfo .queue:not(.active)", function () {
-    let queueInfo = document.getElementById("queueInfo");
+function showQueueViewSection(section) {
+    const queueInfo = document.getElementById("queueInfo");
 
-    queueInfo.querySelector("#info").style.display = "none";
-    queueInfo.querySelector("#queue").style.display = "block";
+    for (const name of ["queue", "info"]) {
+        const active = name === section;
+        queueInfo.querySelector("#" + name).style.display = active ? "block" : "none";
 
-    queueInfo.querySelector(".info").classList.remove("active");
-    this.classList.add("active");
-});
+        const button = queueInfo.querySelector(".btn." + name);
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-selected", String(active));
+    }
 
-/*
- * Funktion: Anonym
- * Autor: Bernardo de Oliveira
- *
- * Wechselt die Ansicht in der Wiedergabenliste zur Infobox
- */
-bindEvent("click", "#queueInfo .info:not(.active)", function () {
-    let queueInfo = document.getElementById("queueInfo");
-
-    queueInfo.querySelector("#queue").style.display = "none";
-    queueInfo.querySelector("#info").style.display = "block";
-
-    queueInfo.querySelector(".queue").classList.remove("active");
-    this.classList.add("active");
-
-    if (onInfoCallback) {
+    if (section === "info" && onInfoCallback) {
         onInfoCallback();
         onInfoCallback = null;
     }
+}
+
+bindEvent("click", "#queueInfo .btn.queue:not(.active)", function () {
+    showQueueViewSection("queue");
+});
+
+bindEvent("click", "#queueInfo .btn.info:not(.active)", function () {
+    showQueueViewSection("info");
 });
 
 /*

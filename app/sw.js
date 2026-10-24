@@ -1,6 +1,6 @@
 let l7ChallengeRequired = false;
 
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 
 const APPLICATION_CACHE = "bernardofm-app-" + CACHE_VERSION;
 const EXTRA_CACHE = "bernardofm-extra-" + CACHE_VERSION;

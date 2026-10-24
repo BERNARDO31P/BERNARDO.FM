@@ -424,7 +424,7 @@ $router->get("/song/([\w-]+)/(\d+)(?:/)?([\d]+)?", function ($id, $timeFrom, $du
         throw new RuntimeException("Failed to start FFmpeg (cut stage)");
     }
 
-    // Pufferung deaktivieren
+    // Disable buffering
     if (ob_get_level()) {
         ob_end_clean();
     }

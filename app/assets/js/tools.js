@@ -47,7 +47,7 @@ if (!theme) {
 }
 document.getElementsByTagName("html")[0].setAttribute("data-theme", theme);
 
-// TODO: Kommentar ergänzen
+// TODO: Comment
 HTMLElement.prototype.animateCallback = function (keyframes, options, callback) {
     let animation = this.animate(keyframes, options);
 
@@ -56,7 +56,7 @@ HTMLElement.prototype.animateCallback = function (keyframes, options, callback) 
     }
 }
 
-// TODO: Kommentar ergänzen
+// TODO: Comment
 function deleteMultiple(object, toDelete) {
     for (const id of toDelete) {
         delete object[id];
@@ -534,7 +534,7 @@ function showConfirmation(title, message, acceptCallback = () => {
     cancelButton.addEventListener("click", cancel);
 }
 
-// TODO: Kommentar ergänzen
+// TODO: Comment
 function hideConfirmation() {
     const transparent = document.getElementById('transparent');
 
@@ -550,7 +550,7 @@ function hideConfirmation() {
     html.style.overflow = "initial";
 }
 
-// TODO: Kommentar ergänzen
+// TODO: Comment
 function createElementFromHTML(htmlString) {
     const div = document.createElement('div');
     div.innerHTML = htmlString.trim();
@@ -1123,7 +1123,7 @@ function getLengthByString(stringTime) {
     return length;
 }
 
-// TODO: Kommentar ergänzen
+// TODO: Comment
 async function updateSongData() {
     const generation = ++songDataUpdateGeneration;
     let song = playlist[playIndex];
@@ -1151,7 +1151,7 @@ async function updateSongData() {
 
     let data = await httpGetJSON(pageURL + "system/info/" + song["id"]);
 
-    // Eine verspätete Antwort zum vorherigen Song darf die Oberfläche des aktuell abgespielten Songs nicht überschreiben.
+    // A previous song's late response must not overwrite the active song's UI.
     if (generation !== songDataUpdateGeneration || playlist[playIndex] !== song) return;
 
     let infoBox = queueView.querySelector("#info");
@@ -1178,20 +1178,19 @@ async function updateSongData() {
 }
 
 /*
- * Nach der Rückkehr aus einer anderen App die sichtbare Ansicht
- * aktualisieren. Passive Zeitaktualisierungen dürfen nicht über
- * onTimelineRelease() laufen: Die Funktion sucht eine Position und startet
- * die Wiedergabe, selbst nach einer absichtlichen Pause über Media Session.
+ * Update the visible view after returning from another app. In particular,
+ * do not route passive time updates through onTimelineRelease(): it seeks and
+ * starts playback, including after an intentional Media Session pause.
  */
 function refreshPlayerState() {
     const song = playlist[playIndex];
     const player = song?.["player"];
     if (!player) return;
 
-    // Titel, Cover, Song, Künstler, Dauer, Beschreibung und Warteschlange aktualisieren.
+    // Update title, artwork, song/artist, duration, description and queue.
     void updateSongData();
 
-    // Massgebend sind der aktuell aktive (gegebenenfalls andere) Song und dessen tatsächliche Wiedergabeposition.
+    // The current (possibly different) song and its actual clock are authoritative.
     const title = document.querySelector("title");
     const suffix = title.textContent.split(" - ").slice(1).join(" - ");
     if (suffix) title.textContent = song["name"] + " - " + suffix;
@@ -1206,12 +1205,12 @@ function refreshPlayerState() {
         player.removeTimeUpdate();
     }
 
-    // Genau eine Zeitaktualisierung ohne Änderungen an der Wiedergabe auslösen,
-    // auch wenn die Wiedergabe pausiert oder der Song im Hintergrund beendet wurde.
+    // Exactly one read-only time notification, even when playback is paused
+    // or the track ended while the page was hidden.
     player.refreshTimeUpdate();
 
-    // updateSongData() aktualisiert die Warteschlange asynchron. Diese direkte
-    // Aktualisierung gleicht bei der Rückkehr auch die Animation der bestehenden Zeile ab.
+    // updateSongData() refreshes queue rows asynchronously. This immediate
+    // update also synchronizes the existing row's animation on return.
     const animation = document.querySelector("#queueView .lds-facebook");
     if (animation) {
         for (const div of animation.querySelectorAll("div")) {
@@ -1238,8 +1237,8 @@ function play() {
 
     const player = playlist[playIndex]["player"];
 
-    // Nur eine ausdrückliche Wiedergabeaktion startet einen beendeten Song erneut.
-    // Bis dahin muss die Endposition auch nach einem Seitenwechsel sichtbar bleiben.
+    // Only an explicit play action restarts a completed song. Its finished
+    // position must remain visible until that action, even across navigation.
     if (!player.isPlaying() && player.getCurrentTime() >= player.getDuration()) {
         player.reset(false);
 
@@ -1544,7 +1543,7 @@ function onTimelinePress() {
     }
 }
 
-// Prüft, ob das Ereignis auf dem Element innerhalb eines Puffers von 40 px liegt.
+// Checks if the event occurred on the element with a 40px buffer
 function onElement(element, event) {
     const buffer = 40;
 
@@ -1675,7 +1674,7 @@ function timeIsPlayable(sIndex, time) {
     return partInfo[2] !== null && song["player"].partIsPlayable(partInfo[2]);
 }
 
-// TODO: Kommentar ergänzen
+// TODO: Comment
 function partIsPlayable(sIndex, pIndex) {
     const song = playlist[sIndex];
 
@@ -1979,7 +1978,7 @@ function preloadNextSong() {
  * Funktion: maintainAudioBuffer()
  * Autor: Bernardo de Oliveira
  *
- * Hält den Audiobuffer zwischen Low und Target
+ * Hält den Audio Buffer zwischen Low und Target
  * Sobald Low unterschritten wird, wird bis Target nachgeladen
  */
 function maintainAudioBuffer() {
@@ -2076,6 +2075,7 @@ function downloadPart(time, sIndex, pIndex, length = null, priority = false) {
     player.addTrack(url, (indexes, index) => {
         return parseInt(indexes[index]["url"].match(/system\/song\/[^\/]+\/(\d+)(?:\/\d+)?$/)?.[1]);
     }, priority);
+
 }
 
 /*
@@ -2111,8 +2111,8 @@ function addEvents(player) {
          * Repeat ist deaktiviert und es existiert kein weiterer Song
          */
         if (repeatMode === 0 && nextIndex === playIndex) {
-            // Den beendeten Song an seiner tatsächlichen Endposition belassen.
-            // Das Zurücksetzen auf null sah nach der Rückkehr wie ein Neustart aus.
+            // Keep the finished track at its actual duration. Resetting it to
+            // zero made a background completion appear as a restart on return.
             pauseSong();
             return;
         }
@@ -2151,8 +2151,7 @@ function addEvents(player) {
         }
 
         /*
-         * Eine ausstehende Positionsänderung hat immer Vorrang vor dem
-         * normalen sequenziellen Laden.
+         * A pending seek always has priority over normal sequential loading.
          */
         if (pendingSeek !== null && pendingSeek["player"] === player) {
             const partInfo = player.getPartByTime(pendingSeek["time"]);
@@ -2170,7 +2169,7 @@ function addEvents(player) {
             }
 
             /*
-             * prepareNextPart() während des Wartens auf die Zielposition nicht aufrufen.
+             * Do not run prepareNextPart() while waiting for the seek target.
              */
             return;
         }
@@ -2244,8 +2243,8 @@ function addEvents(player) {
     player.addEventListener("volumechange", (e) => {
         if (playlist[playIndex]?.["player"] !== player) return;
 
-        // Nur Änderungen von HTMLMediaElement.volume/muted sind beobachtbar. Die
-        // Systemlautstärke und die Lautstärkeabsenkung regelt Android ausserhalb von JavaScript.
+        // Only HTMLMediaElement.volume/muted changes can be observed. System
+        // volume and focus ducking are managed by Android outside JavaScript.
         volume = e.detail.volume;
         const volumeSlider = document.querySelector("#player .volumeSlider");
         if (!volumeSlider) return;
@@ -2262,9 +2261,9 @@ function addEvents(player) {
             timeline.value = e.detail.value;
         }
 
-        // Nur laufende Wiedergabe oder Pufferung dürfen weitere Downloads planen.
-        // Ein timeupdate eines pausierten Players (auch bei Rückkehr auf die Seite)
-        // darf NIEMALS die Wiedergabeposition ändern, play() aufrufen oder selbständig fortsetzen.
+        // Only ongoing playback/buffering may schedule more downloads.
+        // A paused player's timeupdate (including visibility restoration)
+        // must NEVER seek, invoke play(), or trigger implicit auto-resume.
         if (player.isPlaying() || player.isBuffering()) {
             const now = performance.now();
             if (now - lastAudioBufferCheck >= AUDIO_BUFFER_CHECK_INTERVAL) {
@@ -2372,7 +2371,7 @@ async function generatePlaylistInfo(song) {
     return info;
 }
 
-// TODO: Kommentar ergänzen
+// TODO: Comment
 function getTextWidth(text, font, size) {
     const tempElement = document.createElement("span");
     tempElement.innerHTML = text;
@@ -2542,7 +2541,7 @@ async function generateTableBody(data, columns, tbody = null, cover = null, call
     return tbody;
 }
 
-// TODO: Kommentar ergänzen
+// TODO: Comment
 function setPositionState(length, position) {
     if ('mediaSession' in navigator) {
         navigator.mediaSession.setPositionState({
