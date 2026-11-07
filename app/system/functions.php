@@ -454,21 +454,28 @@ function generate_pictures(array &$db, int $length = 200): void
         return;
     }
 
-    $outputImage = "temp/" . uniqid("cover_", true) . ".webp";
-    $listFile    = "temp/" . uniqid("list_", true) . ".txt";
+    $cols = min(COLS, count($imagePaths));
+    $hash = md5(json_encode([$imagePaths, $length, $cols]));
+
+    $outputImage = "temp/cover_$hash.webp";
+
+    $db["cover"]     = "system/" . $outputImage;
+    $db["coverCols"] = $cols;
+
+    if (file_exists($outputImage)) {
+        return;
+    }
+
+    $listFile = "temp/list_$hash.txt";
     file_put_contents($listFile, implode("\n", $imagePaths));
 
     $escapedListFile    = escapeshellarg($listFile);
     $escapedOutputImage = escapeshellarg($outputImage);
 
-    $cols       = min(COLS, count($imagePaths));
     $combineCmd = "magick montage @" . $escapedListFile . " -strip -geometry +0+0 -tile {$cols}x -quality 45 $escapedOutputImage";
     shell_exec($combineCmd);
 
     unlink($listFile);
-
-    $db["cover"]     = "system/" . $outputImage;
-    $db["coverCols"] = $cols;
 }
 
 /*

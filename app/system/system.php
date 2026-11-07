@@ -559,7 +559,7 @@ $router->get("/temp/(.*)", function ($image) {
         header("Content-Type: image/webp");
 
         readfile($imagePath);
-        @unlink($imagePath);
+        //@unlink($imagePath);
 
         exit();
     }
