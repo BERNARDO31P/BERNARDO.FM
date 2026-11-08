@@ -38,7 +38,6 @@ class MultiTrackPlayer extends EventTarget {
     #isDecoding = false;
     #playing = false;
     #buffering = false;
-    #hadError = false;
 
     #length = 0;
     #volume = 1;
@@ -48,8 +47,6 @@ class MultiTrackPlayer extends EventTarget {
 
     #currentTrackIndex = 0;
     #nextTrackIndex = false;
-
-    #startTime = 0;
 
     #clockTime = 0;
     #clockStartedAt = null;
@@ -347,7 +344,6 @@ class MultiTrackPlayer extends EventTarget {
             ? currentPartIndex
             : NaN;
 
-        this.#startTime = 0;
         this.#clockTime = 0;
         this.#clockStartedAt = null;
 
@@ -373,13 +369,11 @@ class MultiTrackPlayer extends EventTarget {
 
         this.#pauseClock();
 
-        this.#hadError = false;
         this.#stopped = true;
         this.#initialPlay = true;
         this.#playing = false;
         this.#buffering = false;
         this.#nextTrackIndex = false;
-        this.#startTime = 0;
 
         this.#clearTimeouts();
         this.discardPendingDownloads();
@@ -735,22 +729,6 @@ class MultiTrackPlayer extends EventTarget {
             && this.#indexes[index]["from"] !== null;
     }
 
-    findMissingLengthByCurrentPart(time) {
-        const currentLength = this.getPartLength(this.#currentTrackIndex);
-
-        for (const part of Object.values(this.#indexes)) {
-            if (!part) {
-                continue;
-            }
-
-            if (part["from"] - time > 1 && part["from"] - time <= currentLength) {
-                return part["from"] - time;
-            }
-        }
-
-        return null;
-    }
-
     async initialize() {
         /*
          * Prevent a delayed pause event from the previous song from
@@ -769,7 +747,6 @@ class MultiTrackPlayer extends EventTarget {
 
         this.#initialPlay = true;
         this.#stopped = false;
-        this.#hadError = false;
 
         this.#clearTimeouts();
 
@@ -986,8 +963,6 @@ class MultiTrackPlayer extends EventTarget {
                 if (this.#stopped || MultiTrackPlayer.#audioTagOwner !== this) return;
                 if (typeof this.#indexes[index] === "undefined") return;
 
-                this.#startTime = source.when;
-
                 this.setCurrentIndex(index);
                 this.setCurrentTime(this.getCurrentWebAudioTime());
 
@@ -1121,13 +1096,11 @@ class MultiTrackPlayer extends EventTarget {
 
         const ownsAudioTag = MultiTrackPlayer.#audioTagOwner === this;
 
-        this.#hadError = false;
         this.#stopped = true;
         this.#initialPlay = true;
         this.#playing = false;
         this.#buffering = false;
         this.#nextTrackIndex = false;
-        this.#startTime = 0;
 
         this.#clearTimeouts();
         this.discardPendingDownloads();
@@ -1242,7 +1215,13 @@ class MultiTrackPlayer extends EventTarget {
     }
 
     getStartTime() {
-        return Math.max(0, audioContext.currentTime - Math.max(0, this.#startTime));
+        const source = this.#indexes[this.#currentTrackIndex]?.["source"];
+
+        if (!source) {
+            return 0;
+        }
+
+        return Math.max(0, audioContext.currentTime - source.when);
     }
 
     getCurrentPartTime() {
@@ -1373,6 +1352,9 @@ class MultiTrackPlayer extends EventTarget {
     // Called only for an explicit user-requested start which must wait for
     // the first audio segment (never for background preloading).
     requestBuffering() {
+        if (this.#playing) {
+            return;
+        }
         this.#buffering = true;
     }
 
@@ -1382,10 +1364,6 @@ class MultiTrackPlayer extends EventTarget {
 
     getDuration() {
         return this.#length;
-    }
-
-    hadError() {
-        return this.#hadError;
     }
 
     #getUrlExtension(url) {
@@ -1606,8 +1584,6 @@ class MultiTrackPlayer extends EventTarget {
                         return;
                     }
 
-                    this.#hadError = true;
-
                     if (bufferIndex === this.#waitIndex) {
                         this.#waitIndex = null;
                     }
@@ -1640,8 +1616,6 @@ class MultiTrackPlayer extends EventTarget {
                         return;
                     }
 
-                    this.#hadError = false;
-
                     if (bufferIndex === this.#waitIndex) {
                         this.#waitIndex = null;
                     }
@@ -1668,8 +1642,6 @@ class MultiTrackPlayer extends EventTarget {
 
                 this.#indexes[bufferIndex]["buffer"] = decodedBuffer;
                 this.#indexes[bufferIndex]["decoding"] = false;
-
-                this.#hadError = false;
 
                 this.dispatchEvent(new Event("processing"));
 
