@@ -920,7 +920,10 @@
     "artist": "cosmicode",
     "length": "4:55:05",
     "fileName": "cosmicode @ Cubano Churer Fest 2022.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "DJ Mixes"
+    ],
     "info": "4tcUX7loPqUwI9ahI9E"
   },
   {
@@ -930,7 +933,10 @@
     "artist": "cosmicode",
     "length": "2:02:50",
     "fileName": "cosmicode @ Liberance 2024.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "DJ Mixes"
+    ],
     "info": "4tcUX7loPqUwI9ahI9E"
   },
   {
@@ -940,7 +946,10 @@
     "artist": "cosmicode",
     "length": "54:33",
     "fileName": "Psychedelic Trance mix September 2022.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "DJ Mixes"
+    ],
     "info": "4tcUX7loPqUwI9ahI9E"
   },
   {
@@ -950,7 +959,10 @@
     "artist": "cosmicode",
     "length": "1:57:48",
     "fileName": "cosmicode @ Psychedelic Grischa label night 2023.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "DJ Mixes"
+    ],
     "info": "4tcUX7loPqUwI9ahI9E"
   },
   {
@@ -960,7 +972,10 @@
     "artist": "cosmicode",
     "length": "2:02:32",
     "fileName": "cosmicode @ Dimension 5.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "DJ Mixes"
+    ],
     "info": "4tcUX7loPqUwI9ahI9E"
   },
   {
@@ -970,7 +985,10 @@
     "artist": "cosmicode",
     "length": "1:32:28",
     "fileName": "cosmicode @ Horizon 2023.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "DJ Mixes"
+    ],
     "info": "4tcUX7loPqUwI9ahI9E"
   },
   {
@@ -980,7 +998,10 @@
     "artist": "cosmicode",
     "length": "2:03:48",
     "fileName": "cosmicode @ Horizon 2024.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "DJ Mixes"
+    ],
     "info": "4tcUX7loPqUwI9ahI9E"
   },
   {
@@ -1707,7 +1728,10 @@
     "artist": "cosmicode",
     "length": "1:52:38",
     "fileName": "cosmicode @ Solar Shift 2023.wav",
-    "category": "Psytrance",
+    "category": [
+      "Psytrance",
+      "DJ Mixes"
+    ],
     "info": "4tcUX7loPqUwI9ahI9E"
   },
   {

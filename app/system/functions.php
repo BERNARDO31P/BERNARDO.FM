@@ -107,19 +107,23 @@ function sorting_by_category($object, $category = null): array
     foreach ($object as $song) {
         $keys = $song["category"];
 
-        if (is_string($keys)) {
+        if (!is_array($keys)) {
             $keys = [$keys];
         }
 
-        foreach ($keys as $key) {
-            if (!array_key_exists($key, $parsed))
-                $parsed[$key] = array();
-
-            $parsed[$key][] = $song;
+        $master_key = array_pop($keys);
+        if (!array_key_exists($master_key, $parsed)) {
+            $parsed[$master_key] = array();
         }
+
+        $parsed[$master_key][] = $song;
     }
 
     join_songs($object, $parsed);
+
+    if (!empty($category)) {
+        return $parsed[$category] ?? [];
+    }
 
     return $parsed;
 }
@@ -273,7 +277,7 @@ function search_songs($search, $db): array
 
     foreach ($db as $song) {
         $categories = $song["category"] ?? [];
-        if (is_string($categories)) {
+        if (!is_array($categories)) {
             $categories = [$categories];
         }
 

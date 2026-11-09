@@ -79,7 +79,7 @@ $router->get("/songs/([\d]+)", function ($count) {
  */
 $router->get("/songs/([^\/]*)/([\d]+)/([\d]+)", function ($category, $page, $count) {
     $db = loadDatabase();
-    $db = sorting_by_category($db, $category)[$category];
+    $db = sorting_by_category($db, $category);
 
     paging($db, $page, $count);
     recursive_unset($db, "fileName");
@@ -149,7 +149,7 @@ $router->get("/songs/([^\/]*)/([\d]+)", function ($search, $count) {
 $router->get("/songs/([^\/]*)/([^\/]*)/([\d]+)/([\d]+)", function ($search, $category, $page, $count) {
     $db = loadDatabase();
     $db = search_songs($search, $db);
-    $db = sorting_by_category($db, $category)[$category];
+    $db = sorting_by_category($db, $category);
 
     paging($db, $page, $count);
     recursive_unset($db, "fileName");
@@ -197,18 +197,18 @@ $router->get("/song/([\\w-]+)(?:/([A-Za-z][\\w-]*))?$", function ($id, $mode = n
             $song["category"] = [$song["category"]];
         }
 
-        $songs = [];
-        foreach ($song["category"] as $category) {
-            $songIDs = array_values(array_filter(array_map(function ($song) use ($id) {
-                if ($song["id"] === $id || isset($song["playlist"])) {
-                    return null;
-                }
+        $master_category = array_pop($song["category"]);
 
-                return $song["id"];
-            }, $dbCategory[$category])));
+        $songs   = [];
+        $songIDs = array_values(array_filter(array_map(function ($song) use ($id) {
+            if ($song["id"] === $id || isset($song["playlist"])) {
+                return null;
+            }
 
-            array_push($songs, ...$songIDs);
-        }
+            return $song["id"];
+        }, $dbCategory[$master_category])));
+
+        array_push($songs, ...$songIDs);
 
         $song["playlist"] = $songs;
         $song["shuffle"]  = true;
