@@ -477,6 +477,12 @@ bindEvent("click", "[data-angle='up']", function () {
 bindEvent("click", "#playingCover", function (event) {
     clearTimeout(playTimeout);
 
+    // Ein Doppeltipp löst auf Touch-Geräten ebenfalls Klickereignisse aus. Lass niemals zu,
+    // dass deren verzögerte Einzeltipp-Aktion einen Suchvorgang unterbricht, der noch geladen wird.
+    if (Date.now() < ignoreCoverClickUntil) {
+        return;
+    }
+
     playTimeout = setTimeout(() => {
         const element = event.target.closest(".cover");
 
@@ -484,7 +490,11 @@ bindEvent("click", "#playingCover", function (event) {
             return;
         }
 
-        const player = playlist[playIndex]["player"];
+        const player = playlist[playIndex]?.["player"];
+        if (!player || pendingSeek?.["player"] === player) {
+            return;
+        }
+
         if (player.isPlaying()) {
             pauseSong();
         } else {
@@ -494,15 +504,17 @@ bindEvent("click", "#playingCover", function (event) {
 });
 
 let lastTap = 0;
+let ignoreCoverClickUntil = 0;
 
 bindEvent("touchstart", "#playingCover", function (event) {
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap;
 
     clearTimeout(playTimeout);
-    clearTimeout(retryTimeout);
 
     if (tapLength < 300 && tapLength > 0) {
+        ignoreCoverClickUntil = currentTime + 650;
+
         const touch = event.touches[0];
         const element = event.target.closest("#playingCover");
         const rect = element.getBoundingClientRect();

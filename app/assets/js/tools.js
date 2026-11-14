@@ -1228,7 +1228,6 @@ function refreshPlayerState() {
  */
 function play() {
     clearTimeout(playTimeout);
-    clearTimeout(retryTimeout);
 
     if (typeof playlist[playIndex]["player"] === "undefined") {
         bufferSong(playIndex, 0, AUDIO_BUFFER_TARGET);
@@ -1237,8 +1236,19 @@ function play() {
 
     const player = playlist[playIndex]["player"];
 
-    // Only an explicit play action restarts a completed song. Its finished
-    // position must remain visible until that action, even across navigation.
+    // Der Handler für den Abschluss des Sprungs ist für den Neustart verantwortlich, während sein Ziel
+    // abgerufen bzw. dekodiert wird. Eine Initialisierung ohne abspielbaren Abschnitt würde
+    // `pauseSong()` aufrufen, diesen Download verwerfen und `pendingSeek` dauerhaft verlieren.
+    if (pendingSeek?.["player"] === player) {
+        player.requestBuffering();
+        playPauseButton("load");
+        return;
+    }
+
+    clearTimeout(retryTimeout);
+
+    // Nur eine explizite Wiedergabeaktion startet einen bereits abgespielten Song neu. Seine
+    // Endposition muss bis zu dieser Aktion sichtbar bleiben, auch bei Navigation.
     if (!player.isPlaying() && player.getCurrentTime() >= player.getDuration()) {
         player.reset(false);
 
@@ -2151,7 +2161,7 @@ function addEvents(player) {
         }
 
         /*
-         * A pending seek always has priority over normal sequential loading.
+         * Ein anstehender Suchvorgang hat immer Vorrang vor dem normalen sequenziellen Laden.
          */
         if (pendingSeek !== null && pendingSeek["player"] === player) {
             const partInfo = player.getPartByTime(pendingSeek["time"]);
@@ -2169,7 +2179,7 @@ function addEvents(player) {
             }
 
             /*
-             * Do not run prepareNextPart() while waiting for the seek target.
+             * Die Funktion `prepareNextPart()` darf nicht ausgeführt werden, während auf das Suchziel gewartet wird.
              */
             return;
         }
@@ -2186,7 +2196,9 @@ function addEvents(player) {
             return;
         }
 
-        if (!player.isPlaying()) {
+        // Die Hintergrundpufferung bei einem absichtlich angehaltenen Song darf nicht dazu führen,
+        // dass in der Benutzeroberfläche ein endloser Ladekreisel angezeigt wird.
+        if (!player.isPlaying() && (player.isBuffering() || pendingSeek?.["player"] === player)) {
             playPauseButton("load");
         }
     });
@@ -2217,7 +2229,7 @@ function addEvents(player) {
          */
         isRetrying = true;
 
-        if (!player.isPlaying()) {
+        if (!player.isPlaying() && (player.isBuffering() || pendingSeek?.["player"] === player)) {
             playPauseButton("load");
         }
 
