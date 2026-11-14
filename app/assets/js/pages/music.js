@@ -788,6 +788,8 @@ window["music"] = async () => {    /*
                         if (Object.keys(data).length > 0) {
                             element.setAttribute("data-page", String(catPage));
                             await generateBlockView(data, element.querySelector(".songCategory"), cover, coverCols);
+
+                            element.dispatchEvent(new Event("scroll"));
                         } else {
                             element.removeEventListener("scroll", handler);
                         }
