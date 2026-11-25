@@ -353,51 +353,108 @@ function array_walk_multi_dimension(array &$arr, callable $callback, string ...$
 const COLS = 60;
 
 /*
+ * Funktion: get_resized_picture_path()
+ * Autor: Bernardo de Oliveira
+ * Argumente:
+ *  fileName: (String) Definiert den Dateinamen des Originalbildes
+ *  size: (Integer) Definiert die Zielgrösse des Bildes in Pixel
+ *
+ * Gibt den Pfad des skalierten Bildes zurück, ohne das Bild zu generieren
+ */
+function get_resized_picture_path(string $fileName, int $size): string
+{
+    return __DIR__ . "/temp/resized_" . md5($fileName . $size) . ".png";
+}
+
+/*
  * Funktion: process_pictures()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  db: (Object) Referenz auf die Datenstruktur mit Song- oder Kategoriedaten
- *  length: (Integer) Definiert die Seitenlänge der Coverbilder in Pixel
- *  i: (Integer) Interner Zähler für die Positionierung der Bilder im Sprite
- *  imagePaths: (Array) Referenz auf das Array mit bereits verarbeiteten Bildpfaden
+ *  db: (Array) Referenz auf die Datenstruktur
+ *  length: (Integer) Definiert die Seitenlänge der Coverbilder
+ *  images: (Array) Referenz auf die gesammelten Bilder
  *
- * Durchläuft rekursiv die Datenstruktur und verarbeitet alle vorhandenen Coverbilder
- * Erstellt skalierte Versionen der Coverbilder und berechnet deren Position
- * innerhalb eines CSS-Sprites (X- und Y-Koordinaten)
+ * Durchläuft rekursiv die Datenstruktur und sammelt alle Coverbilder
+ * Doppelte Coverbilder werden zusammengefasst
+ * Die Referenzen auf die entsprechenden Datensätze werden gespeichert
  *
- * Doppelte Coverbilder werden nur einmal in das Sprite aufgenommen
- * und mehrfach referenziert
- *
- * Gibt ein Array mit den eindeutigen Pfaden der verarbeiteten Bilder zurück
+ * Gibt ein Array mit den eindeutigen Bildern zurück
  */
-function process_pictures(&$db, $length = 200, &$i = 0, &$imagePaths = []): array
+function process_pictures(array &$db, int $length = 200, array &$images = []): array
 {
+    unset($db["coverPosX"], $db["coverPosY"]);
+
     foreach ($db as &$data) {
+        if (is_array($data)) {
+            unset($data["coverPosX"], $data["coverPosY"]);
+        }
+
         if (is_array($data) && !isset($data["id"])) {
-            process_pictures($data, $length, $i, $imagePaths);
+            process_pictures($data, $length, $images);
             continue;
         }
 
-        if (!is_array($data) || !isset($data["id"], $data["cover"])) {
+        if (!is_array($data) || !isset($data["id"], $data["cover"]) || !is_string($data["cover"]) || $data["cover"] === "") {
             continue;
         }
 
-        $resizePath = resize_picture($data["cover"], $length);
-        $imageIndex = array_search($resizePath, $imagePaths);
-        if ($imageIndex !== false) {
-            $data["coverPosX"] = ($imageIndex % COLS) * $length;
-            $data["coverPosY"] = floor($imageIndex / COLS) * $length;
-            continue;
+        $resizePath = get_resized_picture_path($data["cover"], $length);
+
+        if (!isset($images[$resizePath])) {
+            $images[$resizePath] = [
+                "fileName" => $data["cover"],
+                "entries"  => []
+            ];
         }
 
-        $data["coverPosX"] = ($i % COLS) * $length;
-        $data["coverPosY"] = floor($i / COLS) * $length;
-
-        $imagePaths[] = $resizePath;
-        $i++;
+        $images[$resizePath]["entries"][] = &$data;
     }
 
-    return $imagePaths;
+    unset($data);
+
+    return $images;
+}
+
+/*
+ * Führt einen ImageMagick-Befehl aus und protokolliert Fehler serverseitig
+ */
+function run_picture_command(string $command, string $context): bool
+{
+    $output = [];
+    $status = 1;
+
+    try {
+        @exec($command . " 2>&1", $output, $status);
+    } catch (Throwable $error) {
+        error_log($context . ": " . $error->getMessage());
+        return false;
+    }
+
+    if ($status !== 0) {
+        error_log($context . ": " . implode("\n", $output));
+        return false;
+    }
+
+    return true;
+}
+
+/*
+ * Überprüft Format und Abmessungen eines Bildes anhand seines Headers
+ */
+function is_picture_valid(string $path, int $width, int $height, int $type): bool
+{
+    clearstatcache(true, $path);
+
+    if (!is_file($path)) {
+        return false;
+    }
+
+    $info = @getimagesize($path);
+
+    return $info !== false &&
+        $info[0] === $width &&
+        $info[1] === $height &&
+        $info[2] === $type;
 }
 
 /*
@@ -406,101 +463,340 @@ function process_pictures(&$db, $length = 200, &$i = 0, &$imagePaths = []): arra
  * Argumente:
  *  fileName: (String) Definiert den Dateinamen des Originalbildes
  *  size: (Integer) Definiert die Zielgrösse des Bildes in Pixel
+ *  force: (Boolean) Erzwingt die erneute Generierung des Bildes
  *
  * Skaliert ein Bild auf eine quadratische Zielgrösse
- * Das Bild wird zentriert und bei Bedarf mit schwarzem Hintergrund aufgefüllt
- *
- * Falls das Originalbild nicht existiert, wird ein schwarzes Platzhalterbild erzeugt
- * Das Ergebnis wird zwischengespeichert, um erneute Verarbeitung zu vermeiden
- *
- * Gibt den Pfad zum skalierten Bild zurück
+ * Fehlende oder beschädigte Bilder werden durch schwarze Bilder ersetzt
+ * Gibt null zurück, wenn auch das Platzhalterbild nicht erzeugt werden kann
  */
-function resize_picture($fileName, $size): string
+function resize_picture($fileName, $size, bool $force = false): ?string
 {
-    $inputPath    = "img/" . $fileName;
-    $escapedInput = escapeshellarg($inputPath);
+    $outputPath = get_resized_picture_path($fileName, $size);
 
-    $outputPath    = __DIR__ . "/temp/resized_" . md5($fileName . $size) . ".png";
-    $escapedOutput = escapeshellarg($outputPath);
-
-    if (!file_exists($outputPath)) {
-        if (file_exists($inputPath)) {
-            $resizeCmd = "magick $escapedInput -resize {$size}x{$size} -gravity center -extent {$size}x{$size} $escapedOutput";
-        } else {
-            $resizeCmd = "magick -size {$size}x{$size} canvas:black $escapedOutput";
-        }
-        shell_exec($resizeCmd);
+    if (!$force && is_picture_valid($outputPath, $size, $size, IMAGETYPE_PNG)) {
+        return $outputPath;
     }
 
-    return $outputPath;
+    $inputPath     = "img/" . $fileName;
+    $temporaryPath = @tempnam(dirname($outputPath), "resize_");
+
+    if ($temporaryPath === false) {
+        error_log("Could not create temporary image: $fileName");
+        return null;
+    }
+
+    try {
+        $escapedOutput = escapeshellarg("png:" . $temporaryPath);
+        $success       = false;
+
+        if (is_file($inputPath)) {
+            // Nur das erste Bild verwenden, auch bei animierten Dateien
+            $escapedInput = escapeshellarg($inputPath . "[0]");
+
+            $resizeCmd = "magick $escapedInput"
+                . " -resize {$size}x{$size}"
+                . " -background black -gravity center"
+                . " -extent {$size}x{$size}"
+                . " -strip $escapedOutput";
+
+            $success = run_picture_command($resizeCmd, "Could not resize image: $fileName") &&
+                is_picture_valid($temporaryPath, $size, $size, IMAGETYPE_PNG);
+        }
+
+        if (!$success) {
+            $blackCmd = "magick -size {$size}x{$size}"
+                . " canvas:black -strip $escapedOutput";
+
+            if (!run_picture_command($blackCmd, "Could not generate placeholder: $fileName") ||
+                !is_picture_valid($temporaryPath, $size, $size, IMAGETYPE_PNG)) {
+                return null;
+            }
+        }
+
+        if (!@rename($temporaryPath, $outputPath)) {
+            error_log("Could not save resized image: $fileName");
+            return null;
+        }
+
+        clearstatcache(true, $outputPath);
+        return $outputPath;
+    } finally {
+        if (is_file($temporaryPath)) {
+            @unlink($temporaryPath);
+        }
+    }
+}
+
+function load_sprite_positions(string $outputImage, string $outputJson, array $imagePaths, int $length, int $cols): ?array
+{
+    if (!is_file($outputImage) || !is_file($outputJson) || @filesize($outputImage) === 0) {
+        return null;
+    }
+
+    $rows = intdiv(count($imagePaths) + $cols - 1, $cols);
+    $size = @getimagesize($outputImage);
+
+    if ($size === false || $size[0] !== $cols * $length || $size[1] !== $rows * $length || $size[2] !== IMAGETYPE_WEBP) {
+        return null;
+    }
+
+    $json = @file_get_contents($outputJson);
+
+    if ($json === false) {
+        return null;
+    }
+
+    $positions = json_decode($json, true);
+
+    if (!is_array($positions) || count($positions) !== count($imagePaths)) {
+        return null;
+    }
+
+    $usedPositions = [];
+
+    foreach ($imagePaths as $imagePath) {
+        $key = basename($imagePath);
+
+        if (!isset($positions[$key]["x"], $positions[$key]["y"])) {
+            return null;
+        }
+
+        $x = $positions[$key]["x"];
+        $y = $positions[$key]["y"];
+
+        if (
+            !is_int($x) ||
+            !is_int($y) ||
+            $x < 0 ||
+            $y < 0 ||
+            $x % $length !== 0 ||
+            $y % $length !== 0 ||
+            $x >= $cols * $length
+        ) {
+            return null;
+        }
+
+        $index = intdiv($y, $length) * $cols + intdiv($x, $length);
+
+        if ($index >= count($imagePaths) || isset($usedPositions[$index])) {
+            return null;
+        }
+
+        $usedPositions[$index] = true;
+    }
+
+    return $positions;
+}
+
+/*
+ * Generiert ein CSS-Sprite zeilenweise ohne Verwendung von montage
+ */
+function create_picture_sprite(array $imagePaths, int $cols, int $length, string $directory, string $hash, string $temporaryImage): bool
+{
+    $rowFiles   = [];
+    $combineCmd = "magick -background black -gravity northwest";
+
+    try {
+        if (is_file($temporaryImage) && !@unlink($temporaryImage)) {
+            return false;
+        }
+
+        foreach (array_chunk($imagePaths, $cols) as $index => $row) {
+            $rowFile    = "$directory/list_{$hash}_{$index}.txt";
+            $rowFiles[] = $rowFile;
+
+            $content = implode("\n", $row);
+            if (@file_put_contents($rowFile, $content) !== strlen($content)) {
+                error_log("Could not save sprite image list: $rowFile");
+                return false;
+            }
+
+            $escapedRowFile = escapeshellarg("@" . $rowFile);
+            $combineCmd     .= " \\( $escapedRowFile -strip +repage +append \\)";
+        }
+
+        $escapedOutput = escapeshellarg($temporaryImage);
+        $combineCmd    .= " -append -strip -quality 45 $escapedOutput";
+
+        $rows = intdiv(count($imagePaths) + $cols - 1, $cols);
+
+        return run_picture_command($combineCmd, "Could not generate sprite: $hash") &&
+            is_picture_valid($temporaryImage, $cols * $length, $rows * $length, IMAGETYPE_WEBP);
+    } finally {
+        foreach ($rowFiles as $rowFile) {
+            if (is_file($rowFile)) {
+                @unlink($rowFile);
+            }
+        }
+    }
+}
+
+/*
+ * Entfernt sämtliche Positionsinformationen aus der Datenstruktur
+ */
+function clear_picture_positions(array &$db): void
+{
+    unset($db["coverPosX"], $db["coverPosY"]);
+
+    foreach ($db as &$data) {
+        if (is_array($data)) {
+            clear_picture_positions($data);
+        }
+    }
+
+    unset($data);
 }
 
 /*
  * Funktion: generate_pictures()
  * Autor: Bernardo de Oliveira
  * Argumente:
- *  db: (Object) Definiert die Datenbank
- *  hashDB: (Object) Definiert die Hash Datenbank
- *  hasCategory: (Boolean) Definiert ob die Daten kategorisiert sind
+ *  db: (Array) Referenz auf die Datenstruktur
  *  length: (Integer) Definiert die Seitenlänge der Bilder in Pixel
  *
- * Generiert aus den Daten einen Hash und ein CSS Sprite
- * Speichert die Spriteinformationen in die normale (temporär) und in die Hash Datenbank ab
- *
- * Gibt den Speicherort des Bildes zurück
+ * Verwendet vorhandene Sprites und Positionsinformationen erneut
+ * Generiert fehlende Sprites in der ursprünglichen Reihenfolge
+ * Bei schwerwiegenden Fehlern werden keine Coverinformationen zurückgegeben
  */
 function generate_pictures(array &$db, int $length = 200): void
 {
-    $imagePaths = process_pictures($db, $length);
+    $db["cover"] = null;
+    unset($db["coverCols"]);
 
-    if (empty($imagePaths)) {
-        $db["cover"] = null;
-        return;
+    $lock           = null;
+    $locked         = false;
+    $success        = false;
+    $temporaryImage = null;
+    $temporaryJson  = null;
+
+    try {
+        if ($length <= 0 || COLS <= 0) {
+            throw new RuntimeException("Invalid sprite dimensions");
+        }
+
+        $images = process_pictures($db, $length);
+
+        if (empty($images)) {
+            return;
+        }
+
+        $imagePaths = array_keys($images);
+        $cols       = min(COLS, count($imagePaths));
+
+        $orderedImagePaths = $imagePaths;
+        sort($orderedImagePaths, SORT_STRING);
+        $hash = md5(json_encode([$orderedImagePaths, $length, $cols], JSON_THROW_ON_ERROR));
+
+        $directory      = __DIR__ . "/temp";
+        $outputImage    = "$directory/cover_$hash.webp";
+        $outputJson     = "$directory/cover_$hash.json";
+        $lockFile       = "$directory/cover_$hash.lock";
+        $temporaryImage = "$directory/cover_$hash.tmp.webp";
+        $temporaryJson  = "$directory/cover_$hash.tmp.json";
+
+        $lock = @fopen($lockFile, "c");
+
+        if ($lock === false || !@flock($lock, LOCK_EX)) {
+            throw new RuntimeException("Could not acquire sprite lock");
+        }
+
+        $locked = true;
+        clearstatcache();
+
+        $positions = load_sprite_positions($outputImage, $outputJson, $imagePaths, $length, $cols);
+
+        if ($positions === null) {
+            $positions = [];
+
+            foreach ($imagePaths as $index => $imagePath) {
+                if (resize_picture($images[$imagePath]["fileName"], $length) === null) {
+                    throw new RuntimeException("Could not generate image or placeholder: $imagePath");
+                }
+
+                $positions[basename($imagePath)] = [
+                    "x" => ($index % $cols) * $length,
+                    "y" => intdiv($index, $cols) * $length
+                ];
+            }
+
+            if (!create_picture_sprite($imagePaths, $cols, $length, $directory, $hash, $temporaryImage)) {
+                // Beschädigte Cachebilder erst im Fehlerfall vollständig prüfen
+                $repaired = false;
+
+                foreach ($imagePaths as $imagePath) {
+                    $escapedPath = escapeshellarg($imagePath);
+
+                    if (run_picture_command("magick $escapedPath null:", "Could not read cached image: $imagePath")) {
+                        continue;
+                    }
+
+                    if (resize_picture($images[$imagePath]["fileName"], $length, true) === null) {
+                        throw new RuntimeException("Could not repair cached image: $imagePath");
+                    }
+
+                    $repaired = true;
+                }
+
+                if (!$repaired || !create_picture_sprite($imagePaths, $cols, $length, $directory, $hash, $temporaryImage)) {
+                    throw new RuntimeException("Could not generate sprite: $hash");
+                }
+            }
+
+            $json = json_encode($positions, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+
+            if (@file_put_contents($temporaryJson, $json) !== strlen($json)) {
+                throw new RuntimeException("Could not save sprite positions");
+            }
+
+            if (is_file($outputJson) && !@unlink($outputJson)) {
+                throw new RuntimeException("Could not invalidate sprite cache");
+            }
+
+            if (!@rename($temporaryImage, $outputImage) || !@rename($temporaryJson, $outputJson)) {
+                throw new RuntimeException("Could not publish sprite cache");
+            }
+        }
+
+        foreach ($images as $imagePath => &$image) {
+            $position = $positions[basename($imagePath)];
+
+            foreach ($image["entries"] as &$data) {
+                $data["coverPosX"] = $position["x"];
+                $data["coverPosY"] = $position["y"];
+            }
+
+            unset($data);
+        }
+
+        unset($image);
+
+        $db["cover"]     = "system/temp/cover_$hash.webp";
+        $db["coverCols"] = $cols;
+        $success         = true;
+    } catch (Throwable $error) {
+        error_log("Could not generate pictures: " . $error->getMessage());
+    } finally {
+        // Temporäre Dateien nur mit gehaltenem Lock entfernen
+        if ($locked) {
+            foreach ([$temporaryImage, $temporaryJson] as $file) {
+                if (is_file($file)) {
+                    @unlink($file);
+                }
+            }
+
+            @flock($lock, LOCK_UN);
+        }
+
+        if (is_resource($lock)) {
+            @fclose($lock);
+        }
+
+        if (!$success) {
+            $db["cover"] = null;
+            unset($db["coverCols"]);
+            clear_picture_positions($db);
+        }
     }
-
-    $cols = min(COLS, count($imagePaths));
-    $hash = md5(json_encode([$imagePaths, $length, $cols]));
-
-    $outputImage = "temp/cover_$hash.webp";
-
-    $db["cover"]     = "system/" . $outputImage;
-    $db["coverCols"] = $cols;
-
-    if (file_exists($outputImage)) {
-        return;
-    }
-
-    $listFile = "temp/list_$hash.txt";
-    file_put_contents($listFile, implode("\n", $imagePaths));
-
-    $escapedListFile    = escapeshellarg($listFile);
-    $escapedOutputImage = escapeshellarg($outputImage);
-
-    $combineCmd = "magick montage @" . $escapedListFile . " -strip -geometry +0+0 -tile {$cols}x -quality 45 $escapedOutputImage";
-    shell_exec($combineCmd);
-
-    unlink($listFile);
-}
-
-/*
- * Funktion: generate_hash()
- * Autor: Bernardo de Oliveira
- * Argumente:
- *  data: (Object) Definiert die Daten mit den Songs
- *  songs: (Array) Definiert das Array mit den Song IDs
- *
- * Generiert aus den sortierten Song IDs einen Hash
- * Dafür da, damit die Generierung des Hashes immer gleich ist
- */
-function generate_hash($data, &$songs = array()): string
-{
-    array_walk_multi_dimension($data, function (array $value) use (&$songs) {
-        if (isset($value["cover"]) && !in_array($value["cover"], $songs))
-            $songs[] = $value["cover"];
-    });
-
-    sort($songs);
-    return md5(http_build_query($songs));
 }
 
 /*
