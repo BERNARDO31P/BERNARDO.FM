@@ -1079,11 +1079,9 @@ function showSearch(focus = true) {
     let width = "";
 
     if (getWidth() <= 345) {
-        width = getWidth() - 165 + "px";
-    } else if (getWidth() <= 500) {
-        width = getWidth() - 235 + "px";
+        width = getWidth() - 215 + "px";
     } else if (getWidth() <= 1150) {
-        width = getWidth() - 310 + "px";
+        width = getWidth() - 235 + "px";
     }
 
     input.style.width = width;
