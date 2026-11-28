@@ -194,8 +194,6 @@ const menuItems = {
     }
 };
 
-document.addEventListener("click", hideContext);
-
 
 // TODO: Kommentar ergänzen
 async function playAction(card) {
@@ -279,15 +277,86 @@ bindEvent("touchmove", ".card, #queueView tr[data-id]", function () {
     }
 });
 
-function hideContext() {
+bindEvent("touchcancel", ".card, #queueView tr[data-id]", function () {
+    clearTimeout(contextTimeout);
+});
+
+let suppressContextClick = false;
+let contextRequest = 0;
+let contextOpening = false;
+
+// Eine neue Benutzereingabe hebt die Klicksperre auf.
+document.addEventListener("pointerdown", () => {
+    suppressContextClick = false;
+}, true);
+
+/*
+ * Schliesst das Kontextmenü und verwirft ausstehende Anfragen.
+ */
+function closeContext() {
+    contextRequest++;
+    contextOpening = false;
+
     const contextMenu = document.getElementById("contextMenu");
 
-    contextMenu.style.display = "none";
-    contextMenu.innerHTML = "";
+    if (contextMenu) {
+        contextMenu.style.display = "none";
+        contextMenu.innerHTML = "";
+    }
 }
 
+/*
+ * Verarbeitet Klicks bei geöffnetem Kontextmenü.
+ */
+function hideContext(e) {
+    const contextMenu = document.getElementById("contextMenu");
+
+    // Unterdrückt den Klick nach einem langen Drücken.
+    if (suppressContextClick) {
+        suppressContextClick = false;
+
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        return;
+    }
+
+    if (!contextMenu) {
+        return;
+    }
+
+    if (contextMenu.style.display !== "block" && !contextOpening) {
+        return;
+    }
+
+    // Rechtsklicks werden nicht abgefangen.
+    if (e.button !== 0) {
+        return;
+    }
+
+    // Aktionen innerhalb des Kontextmenüs bleiben erlaubt.
+    if (contextMenu.contains(e.target)) {
+        return;
+    }
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    closeContext();
+}
+
+document.addEventListener("click", hideContext, true);
+
 async function showContext(e, card, items) {
-    hideContext();
+    // Unterdrückt das nachfolgende Klickereignis bei langem Drücken.
+    if (e.type === "touchstart") {
+        suppressContextClick = true;
+    }
+
+    closeContext();
+
+    const request = contextRequest;
+    contextOpening = true;
 
     const contextMenu = document.getElementById("contextMenu");
     if (!isTouchScreen()) {
@@ -305,7 +374,25 @@ async function showContext(e, card, items) {
         }
     }
 
-    const data = await httpGetJSON(pageURL + "system/song/" + card.dataset.id + "/single");
+    let data;
+
+    try {
+        data = await httpGetJSON(pageURL + "system/song/" + card.dataset.id + "/single");
+    } catch (error) {
+        if (request === contextRequest) {
+            closeContext();
+        }
+
+        console.error(error);
+        return;
+    }
+
+    // Veraltete Anfragen dürfen das Kontextmenü nicht überschreiben.
+    if (request !== contextRequest) {
+        return;
+    }
+
+    contextOpening = false;
     const marquee = document.createElement("div");
     marquee.classList.add("marquee");
 
@@ -386,8 +473,11 @@ async function showContext(e, card, items) {
                 return;
             }
 
+            event.stopPropagation();
+
             menuItem["action"](card, item);
-            contextMenu.style.display = "none";
+
+            closeContext();
         });
 
         menu.appendChild(item);
