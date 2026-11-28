@@ -225,7 +225,10 @@ bindEvent("click", "#navbar-toggler", function () {
         navigation.classList.add("show");
 
         let menu = document.querySelector("#menu");
-        menu.classList.remove("show");
+
+        if (menu) {
+            menu.classList.remove("show");
+        }
     }
 });
 
